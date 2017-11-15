@@ -1,2 +1,2 @@
 # Truss
-Javascript physics engine for 2D networks. x
+Javascript physics engine for 2D networks. 
