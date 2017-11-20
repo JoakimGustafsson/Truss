@@ -1,0 +1,11 @@
+{
+    "extends": "google",
+    "parserOptions": { "ecmaVersion": 6 },
+    "env": { "es6": true }, 
+    "rules": {
+        "linebreak-style": 0,
+        "indent": [1, "tab"],
+        "no-tabs": 0,
+        "max-len": ["error", 140]
+      }
+}

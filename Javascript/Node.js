@@ -2,7 +2,7 @@
  * 
  */
 
-function Node(startPosition,mass=1,name="node", positionFunction, showFunction, velocityLoss=1){
+function Node(startPosition,mass = 1,name = "node", positionFunction, showFunction, velocityLoss=1){
 	this.localPosition = startPosition;
 	this.velocity = new Velocity(0,0);
 //	this.acceleration = new Vector(0,0);

@@ -121,7 +121,7 @@ function WalkTruss(view, updatefrequency){
 inheritPrototype(WalkTruss, Truss);
 
 
-function ProtagonistNode(startPosition, mass=70, name="ProtagonistNode", positionFunction, showFunction, velocityLoss=1){
+function ProtagonistNode(startPosition, mass = 70, name = "ProtagonistNode", positionFunction, showFunction, velocityLoss=1){
 	Node.call(this, startPosition,mass,name, positionFunction, showFunction, 1);
 
 	this.actuators=0;
