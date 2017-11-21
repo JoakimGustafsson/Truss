@@ -362,7 +362,7 @@ class Field extends Tensor {
  * @param  {number} constant
  * @param  {TensorType} type
  */
-	constructor(node1, node2, constant = 1, type = TensorType.SPRING) {
+	constructor(node1, node2, constant = 1, type = TensorType.FIELD) {
 		super(node1, node2, constant, type);
 	}
 

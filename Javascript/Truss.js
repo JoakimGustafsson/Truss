@@ -147,7 +147,3 @@ function Truss(view, updateFrequency=0.01){
 		
 	}
 }
-
-
-
-
