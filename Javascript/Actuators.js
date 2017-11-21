@@ -170,7 +170,7 @@ class SpringDanglerNode extends BinaryActuatorNode {
 		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
 		this.currentTensors = [];
 		this.truss;
-		this.speed = 6.67e-11;
+		this.moveFieldConstant = 6.67e-11;
 		this.rightMovementTensor = rightMovementTensor;
 		this.leftMovementTensor = leftMovementTensor;
 	}
@@ -192,14 +192,6 @@ class SpringDanglerNode extends BinaryActuatorNode {
 		this.truss.deghostifyTensor(result.originalTensor);
 	}
 
-	/**
-	 * @param  {object} result
-	 */
-	attachToTruss(result) {
-		this.truss.addTensor(result.rightTensor);
-		this.truss.addTensor(result.leftTensor);
-		this.truss.ghostifyTensor(result.originalTensor);
-	}
 	/**
 	 * @param  {Truss} truss
 	 * @param  {Tensor} tensor
@@ -227,16 +219,12 @@ class SpringDanglerNode extends BinaryActuatorNode {
 	 */
 	updatePosition(time) {
 		super.updatePosition(time); // Call parent in order to update this.iO nodes position
-		let cleanupList = [];
 		//* **************************************************************
-		this.rightMovementTensor.constant = 0;
-		this.leftMovementTensor.constant = 0;
+		this.handleLeftOrRight();
+
+		let cleanupList = [];
+
 		for (let i = 0; i < this.currentTensors.length; i++) {
-			if (this.getState() == 1) {
-				this.rightMovementTensor.constant = this.speed;
-			} else if (this.getState() == 2) {
-				this.leftMovementTensor.constant = this.speed;
-			}
 			let TensorMap = this.currentTensors[i];
 			TensorMap.rightTensor.equilibriumLength =
 				(TensorMap.originalTensor.equilibriumLength +
@@ -246,37 +234,65 @@ class SpringDanglerNode extends BinaryActuatorNode {
 			TensorMap.leftTensor.equilibriumLength =
 				TensorMap.originalTensor.equilibriumLength -
 				TensorMap.rightTensor.equilibriumLength;
-			let p1 = TensorMap.originalTensor.node1.getPosition();
-			let p2 = TensorMap.originalTensor.node2.getPosition();
-			let p3 = this.iO.getPosition();
 			//			Rewrite this for handling more than one ball...
 			//			it should not be originaltensor but left right tensor.
 			// compare left and right angle and with respect to direction.
-			let perpendicularDistance = getS(p1, p2, p3);
-			let above = (perpendicularDistance * TensorMap.direction > 0);
-			let inside = getTInside(p1, p2, p3);
-			let closeParallell = (Math.abs(perpendicularDistance) < 0.2);
-			if (above && inside) {
-				console.log('Bounce disconnected from ' + TensorMap.originalTensor.getName());
-				this.disconnect(TensorMap);
-				cleanupList.push(TensorMap);
-				TensorMap.originalTensor.resetCollision(this.iO);
-			} else if (closeParallell && !inside) {
-				console.log('Endpoint disconnected from ' + TensorMap.originalTensor.getName());
-				this.disconnect(TensorMap);
-				cleanupList.push(TensorMap);
-				TensorMap.originalTensor.resetCollision(this.iO);
-				// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
-				this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
-					multiplyVector(TensorMap.direction, // wrt to the collision direction
-						perpendicular(TensorMap.originalTensor.getActual()) // above
-					)));
-			}
+			this.leavingConnectedTensor(TensorMap, cleanupList);
 		}
 		for (let j = 0; j < cleanupList.length; j++) {
 			removeIfPresent(cleanupList[j], this.currentTensors);
 		}
 	}
+	/**
+	 * If the position of the controlled object bounces or leaves on the right or
+	 * left side, disconnect it and restore the tensor to its original.
+	 * @param  {object} TensorMap this argument contains thel left, right and original tensor
+	 * @param  {Array} cleanupList a list of things to remove after all is done
+	 */
+	leavingConnectedTensor(TensorMap, cleanupList) {
+		let p1 = TensorMap.originalTensor.node1.getPosition();
+		let p2 = TensorMap.originalTensor.node2.getPosition();
+		let p3 = this.iO.getPosition();
+		let perpendicularDistance = getS(p1, p2, p3);
+		let above = (perpendicularDistance * TensorMap.direction > 0);
+		let inside = getTInside(p1, p2, p3);
+		let closeParallell = (Math.abs(perpendicularDistance) < 0.2);
+
+		if (above && inside) {
+			this.removeFromTensor(TensorMap, cleanupList, 'Bounce disconnected from ' + TensorMap.originalTensor.getName());
+		} else if (closeParallell && !inside) {
+			this.removeFromTensor(TensorMap, cleanupList, 'Endpoint disconnected from ' + TensorMap.originalTensor.getName());
+			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
+			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
+				multiplyVector(TensorMap.direction, // wrt to the collision direction
+					perpendicular(TensorMap.originalTensor.getActual()))));
+		}
+	}
+	/**
+	 * @param  {object} TensorMap this argument contains thel left, right and original tensor
+	 * @param  {Array} cleanupList a list of things to remove after all is done
+	 * @param  {string} logMessage A mesage to display in the log for debug purposes
+	 */
+	removeFromTensor(TensorMap, cleanupList, logMessage) {
+		console.log(logMessage);
+		this.disconnect(TensorMap);
+		cleanupList.push(TensorMap);
+		TensorMap.originalTensor.resetCollision(this.iO);
+	}
+
+	/**
+	 * Applies a force to the right or to the left depending on the keypress state
+	 */
+	handleLeftOrRight() {
+		this.rightMovementTensor.constant = 0;
+		this.leftMovementTensor.constant = 0;
+		if (this.getState() == 1) {
+			this.rightMovementTensor.constant = this.moveFieldConstant;
+		} else if (this.getState() == 2) {
+			this.leftMovementTensor.constant = this.moveFieldConstant;
+		}
+	}
+
 	/**
 	 * @param  {Array} TensorMap
 	 */

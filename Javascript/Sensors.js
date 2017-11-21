@@ -74,8 +74,5 @@ function CollisionSensorNode(position, mass = 0.01, name = "collisionsensornode"
 	}
 
 	document.addEventListener("collisionEvent", this.collisionFunction, false);
-	//setupEventlistener("collisionEvent", this.collisionFunction);
-	//sensor
-
 }
 inheritPrototype(CollisionSensorNode, Node);

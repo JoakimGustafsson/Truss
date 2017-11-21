@@ -38,13 +38,14 @@ class WalkTruss extends Truss {
 	constructor(view, updatefrequency) {
 		super(view, updatefrequency);
 
-		let ego1 = new ProtagonistNode(new Position(3, 2.5), 70, 'Ego1');
-		this.addNode(ego1);
-
-		this.addTensor(gravityField(ego1)); // Needed to create a jumpactuator
+		// Create a protagonist (yellow circle) and connect it to gravity
+		let protagonist = new ProtagonistNode(new Position(3, 2.5), 70, 'Ego1');
+		this.addNode(protagonist);
+		this.addTensor(gravityField(protagonist)); // Needed to create a jumpactuator
 
 		// let ego2 = this.addGravityNode(new ProtagonistNode(new Position(4, 1.2), 70, 'Ego2'));
 
+		// Set up the truss of nodes
 		let f1 = this.addGravityNode(new Node(new Position(1, 3), 100, 'floor1'));
 		f2 = this.addGravityNode(new Node(new Position(5, 3), 100, 'floor2'));
 		let f3 = this.addGravityNode(new Node(new Position(9, 3), 100, 'floor3'));
@@ -95,7 +96,7 @@ class WalkTruss extends Truss {
 		this.addTensor(new Absorber(f4, b4, absorbconstant));
 		this.addTensor(new Absorber(f5, b5, absorbconstant));
 
-
+		// Set up a keysensornode and make it sensitive to q, e and space
 		let sensorNode = this.addNode(new KeySensorNode(new Position(2, 1), 0.01, 'myKeySensorNode'));
 		sensorNode.registerKey(37, new Vector(-1, 0));
 		sensorNode.registerKey(65, new Vector(-1, 0));
@@ -103,14 +104,15 @@ class WalkTruss extends Truss {
 		sensorNode.registerKey(68, new Vector(1, 0));
 		sensorNode.registerKey(32, new Vector(0, 1));
 
-
+		// Create two gravitywells and two fields towards them that can be used
+		// by the actuator to pull the protagonist left or right
 		let leftEarth = new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0);
 		let rightEarth = new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0);
-		let leftField1 = this.addTensor(new Field(leftEarth, ego1, 6.67e-11));
-		let rightField1 = this.addTensor(new Field(rightEarth, ego1, 6.67e-11));
+		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
+		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 
 		let actuatorNode1 = this.addNode(
-			new SpringDanglerNode(ego1, new Position(1, 0.5), new Position(3, 0.5),
+			new SpringDanglerNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
 				leftField1, rightField1, 0.05, 'mySpringDanglerNode', 0, 0, 0.99));
 
 		/*	var actuatorNode2 = this.addNode(
@@ -128,7 +130,7 @@ class WalkTruss extends Truss {
 	var KeyJumpSpring = this.addTensor(new Spring(sensorNode, jumpActuator, 50,0.1));
 */
 		let collissionsensor1 = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
-		collissionsensor1.registerTrussObjectAndActuator(this, ego1, actuatorNode1);
+		collissionsensor1.registerTrussObjectAndActuator(this, protagonist, actuatorNode1);
 		/*
 	var collissionsensor2 = new CollisionSensorNode(new Position(8,1),0.01,"CollissionSensor2");
 	collissionsensor2.registerTrussObjectAndActuator(this,ego2, actuatorNode2);
