@@ -1,186 +1,226 @@
 /**
- * 
+ *
  */
 
-//function Node(startPosition,mass=1,name="node", positionFunction, showFunction, velocityLoss=1)
-var EarthCenter = new Position(0,6371e3);
-var Earth = new Node(EarthCenter, 5.97219e24, "Earth",undefined,undefined,0);
+let EarthCenter = new Position(0, 6371e3);
+let Earth = new Node(EarthCenter, 5.97219e24, 'Earth', undefined, undefined, 0);
 
-var f2;
-
-function gravityField(node){
-	return new Field(Earth,node,6.67e-11);
-} 
-
-function WalkTruss(view, updatefrequency){
-	Truss.call(this, view, updatefrequency);
-	
-
-	WalkTruss.prototype.addGravityNode = function(a1,a2,a3,a4,a5,a6){
-		var temp = this.addNode(a1,a2,a3,a4,a5,a6);
-		this.addTensor(new gravityField(temp));
+let f2;
+/**
+ * Create a Field 'Tensor' between the input node and the Earth node
+ * @param  {Node} node
+ * @return {Field}
+ */
+function gravityField(node) {
+	return new Field(Earth, node, 6.67e-11);
+}
+/**
+ * @class
+ * @extends Truss
+ */
+class WalkTruss extends Truss {
+	/**
+	 * Creates a new node and ensures that it if connected to the 'gravity' Field
+	 * @param  {other} args
+	 * @return {Node}
+	 */
+	addGravityNode(...args) {
+		let temp = this.addNode(...args);
+		this.addTensor(gravityField(temp));
 		return temp;
 	}
-	
 
-	var ego1 = new ProtagonistNode(new Position(3,2.5), 70,"Ego1");
-	this.addNode(ego1);
-	var egoGravityField = this.addTensor(new gravityField(ego1)); //Needed to create a jumpactuator
-	
-	var ego2 = this.addGravityNode(new ProtagonistNode(new Position(4,1.2), 70,"Ego2"));
-	
-	var f1 = this.addGravityNode(new Node(new Position(1, 3), 100, "floor1")); 
-	f2 = this.addGravityNode(new Node(new Position(5, 3), 100, "floor2")); 
-	var f3 = this.addGravityNode(new Node(new Position(9, 3), 100, "floor3")); 
-	var f4 = this.addGravityNode(new Node(new Position(10, 3), 100, "floor4")); 
-	var f5 = this.addGravityNode(new Node(new Position(14, 3), 100, "floor5")); 
+	/**
+	 * @constructor
+	 * @param  {View} view
+	 * @param  {number} updatefrequency
+	 */
+	constructor(view, updatefrequency) {
+		super(view, updatefrequency);
 
-	var b1 = this.addNode(new Node(new Position(1, 6), NaN, "base1")); 
-	var b2 = this.addNode(new Node(new Position(5, 6), NaN, "base2")); 
-	var b3 = this.addNode(new Node(new Position(9, 6), NaN, "base3")); 
-	var b4 = this.addNode(new Node(new Position(10, 6), NaN, "base4")); 
-	var b5 = this.addNode(new Node(new Position(14, 6), NaN, "base5")); 
+		let ego1 = new ProtagonistNode(new Position(3, 2.5), 70, 'Ego1');
+		this.addNode(ego1);
 
+		this.addTensor(gravityField(ego1)); // Needed to create a jumpactuator
 
-	springconstant = 50000;
-	absorbconstant = 5000;
-	
-	var startTensor = this.addTensor(new Spring(f1, f2, 90000));
-	nextt = this.addTensor(new Spring(f2, f3, springconstant));
-	this.addTensor(new Spring(f4, f5, springconstant));
+		// let ego2 = this.addGravityNode(new ProtagonistNode(new Position(4, 1.2), 70, 'Ego2'));
 
-	this.addTensor(new Spring(b1, f2, springconstant));
-	this.addTensor(new Absorber(b1, f2, absorbconstant));
+		let f1 = this.addGravityNode(new Node(new Position(1, 3), 100, 'floor1'));
+		f2 = this.addGravityNode(new Node(new Position(5, 3), 100, 'floor2'));
+		let f3 = this.addGravityNode(new Node(new Position(9, 3), 100, 'floor3'));
+		let f4 = this.addGravityNode(new Node(new Position(10, 3), 100, 'floor4'));
+		let f5 = this.addGravityNode(new Node(new Position(14, 3), 100, 'floor5'));
 
-	this.addTensor(new Spring(b2, f1, springconstant));
-	this.addTensor(new Absorber(b2, f1, absorbconstant));
-
-	this.addTensor(new Spring(f2, b3, springconstant));
-	this.addTensor(new Absorber(f2, b3, absorbconstant));
-	
-	this.addTensor(new Spring(f3, b2, springconstant));
-	this.addTensor(new Absorber(f3, b2, absorbconstant));
-	
-	this.addTensor(new Spring(b4, f5, springconstant));
-	this.addTensor(new Absorber(b4, f5, absorbconstant));
+		let b1 = this.addNode(new Node(new Position(1, 6), NaN, 'base1'));
+		let b2 = this.addNode(new Node(new Position(5, 6), NaN, 'base2'));
+		let b3 = this.addNode(new Node(new Position(9, 6), NaN, 'base3'));
+		let b4 = this.addNode(new Node(new Position(10, 6), NaN, 'base4'));
+		let b5 = this.addNode(new Node(new Position(14, 6), NaN, 'base5'));
 
 
+		let springconstant = 50000;
+		let absorbconstant = 5000;
 
-	this.addTensor(new Spring(f1, b1, springconstant/100));
-	this.addTensor(new Spring(f2, b2, springconstant/100));
-	this.addTensor(new Spring(f3, b3, springconstant/100));
-	this.addTensor(new Spring(f4, b4, springconstant));
-	this.addTensor(new Spring(f5, b5, springconstant));
+		// let startTensor =
+		this.addTensor(new Spring(f1, f2, 90000));
 
-	this.addTensor(new Absorber(f1, b1, absorbconstant));
-	this.addTensor(new Absorber(f2, b2, absorbconstant));
-	this.addTensor(new Absorber(f3, b3, absorbconstant));
-	this.addTensor(new Absorber(f4, b4, absorbconstant));
-	this.addTensor(new Absorber(f5, b5, absorbconstant));
+		this.addTensor(new Spring(f2, f3, springconstant));
+		this.addTensor(new Spring(f4, f5, springconstant));
+
+		this.addTensor(new Spring(b1, f2, springconstant));
+		this.addTensor(new Absorber(b1, f2, absorbconstant));
+
+		this.addTensor(new Spring(b2, f1, springconstant));
+		this.addTensor(new Absorber(b2, f1, absorbconstant));
+
+		this.addTensor(new Spring(f2, b3, springconstant));
+		this.addTensor(new Absorber(f2, b3, absorbconstant));
+
+		this.addTensor(new Spring(f3, b2, springconstant));
+		this.addTensor(new Absorber(f3, b2, absorbconstant));
+
+		this.addTensor(new Spring(b4, f5, springconstant));
+		this.addTensor(new Absorber(b4, f5, absorbconstant));
 
 
-	var sensorNode = this.addNode(new KeySensorNode(new Position(2,1),0.01,"myKeySensorNode"));
-	sensorNode.registerKey(37, new Vector(-1,0));
-	sensorNode.registerKey(65, new Vector(-1,0));
-	sensorNode.registerKey(39, new Vector(1,0));
-	sensorNode.registerKey(68, new Vector(1,0));
-	sensorNode.registerKey(32, new Vector(0,1));
+		this.addTensor(new Spring(f1, b1, springconstant / 100));
+		this.addTensor(new Spring(f2, b2, springconstant / 100));
+		this.addTensor(new Spring(f3, b3, springconstant / 100));
+		this.addTensor(new Spring(f4, b4, springconstant));
+		this.addTensor(new Spring(f5, b5, springconstant));
+
+		this.addTensor(new Absorber(f1, b1, absorbconstant));
+		this.addTensor(new Absorber(f2, b2, absorbconstant));
+		this.addTensor(new Absorber(f3, b3, absorbconstant));
+		this.addTensor(new Absorber(f4, b4, absorbconstant));
+		this.addTensor(new Absorber(f5, b5, absorbconstant));
 
 
-	var leftEarth = new Node(new Position(-6371e3,-6371e1), 5.97219e24, "leftEarth",undefined,undefined,0);
-	var rightEarth = new Node(new Position(6371e3,-6371e1), 5.97219e24, "rightEarth",undefined,undefined,0);
-	var leftField1 = this.addTensor(new Field(leftEarth,ego1,6.67e-11));
-	var rightField1 = this.addTensor(new Field(rightEarth,ego1,6.67e-11));
+		let sensorNode = this.addNode(new KeySensorNode(new Position(2, 1), 0.01, 'myKeySensorNode'));
+		sensorNode.registerKey(37, new Vector(-1, 0));
+		sensorNode.registerKey(65, new Vector(-1, 0));
+		sensorNode.registerKey(39, new Vector(1, 0));
+		sensorNode.registerKey(68, new Vector(1, 0));
+		sensorNode.registerKey(32, new Vector(0, 1));
 
-	var actuatorNode1 = this.addNode(
-			new SpringDanglerNode(ego1, new Position(1,0.5), new Position(3,0.5),
-					leftField1, rightField1,0.05,"mySpringDanglerNode",0,0,0.99));
 
-/*	var actuatorNode2 = this.addNode(
+		let leftEarth = new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0);
+		let rightEarth = new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0);
+		let leftField1 = this.addTensor(new Field(leftEarth, ego1, 6.67e-11));
+		let rightField1 = this.addTensor(new Field(rightEarth, ego1, 6.67e-11));
+
+		let actuatorNode1 = this.addNode(
+			new SpringDanglerNode(ego1, new Position(1, 0.5), new Position(3, 0.5),
+				leftField1, rightField1, 0.05, 'mySpringDanglerNode', 0, 0, 0.99));
+
+		/*	var actuatorNode2 = this.addNode(
 			new SpringDanglerNode(ego2, new Position(1,0.25), new Position(3,0.25),
 					leftField1, rightField1,0.05,"mySpringDanglerNode2",0,0,0.99));
 */
-	var KeyDangleSpring = this.addTensor(new Spring(sensorNode, actuatorNode1, 50,0.1));
-	
-/*	
+		// let KeyDangleSpring =
+		this.addTensor(new Spring(sensorNode, actuatorNode1, 50, 0.1));
+
+		/*
 	var jumpActuator = this.addNode(
 			new JumpNode(ego1, new Position(0.5,1), new Position(0.5,2),
 					egoGravityField,0.05,"myJumpNode"));
 
 	var KeyJumpSpring = this.addTensor(new Spring(sensorNode, jumpActuator, 50,0.1));
 */
-	var collissionsensor1 = new CollisionSensorNode(new Position(4,1),0.01,"CollissionSensor1");
-	collissionsensor1.registerTrussObjectAndActuator(this,ego1, actuatorNode1);
-/*	
+		let collissionsensor1 = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
+		collissionsensor1.registerTrussObjectAndActuator(this, ego1, actuatorNode1);
+		/*
 	var collissionsensor2 = new CollisionSensorNode(new Position(8,1),0.01,"CollissionSensor2");
 	collissionsensor2.registerTrussObjectAndActuator(this,ego2, actuatorNode2);
-*/	
-	
-	
+*/
+	}
 }
-inheritPrototype(WalkTruss, Truss);
 
+/**
+	 * @class
+	 * @extends Node
+	 */
+class ProtagonistNode extends Node {
+	/**
+	 * @param  {Position} startPosition
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {Function} positionFunction
+	 * @param  {Function} showFunction
+	 * @param  {number} velocityLoss
+	 */
+	constructor(startPosition, mass = 70, name = 'ProtagonistNode', positionFunction, showFunction, velocityLoss = 1) {
+		super(startPosition, mass, name, positionFunction, showFunction, 1);
+		this.actuators = 0;
+		this.sensors = 0;
+	}
 
-function ProtagonistNode(startPosition, mass = 70, name = "ProtagonistNode", positionFunction, showFunction, velocityLoss=1){
-	Node.call(this, startPosition,mass,name, positionFunction, showFunction, 1);
-
-	this.actuators=0;
-	this.sensors=0;
-	
-	ProtagonistNode.prototype.show = function(v, time, graphicDebugLevel=0){
-		if (v.inside(this.getPosition())) {
-				v.context.strokeStyle = "yellow"; 
-				v.context.beginPath();
-				v.drawCircle(this.getPosition(),1);
-				v.context.stroke();
+	/**
+	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
+	 * @param  {Canvas} canvas
+	 * @param  {number} time
+	 * @param  {number} graphicDebugLevel
+	 */
+	show(canvas, time, graphicDebugLevel = 0) {
+		if (canvas.inside(this.getPosition())) {
+			canvas.context.strokeStyle = 'yellow';
+			canvas.context.beginPath();
+			canvas.drawCircle(this.getPosition(), 1);
+			canvas.context.stroke();
 		}
 	}
 }
-inheritPrototype(ProtagonistNode, Node);
 
-
-
-
-
-
-
-
-function MyTruss(view, updatefrequency){
+/**
+ * @param  {View} view
+ * @param  {number} updatefrequency
+ */
+function MyTruss(view, updatefrequency) {
 	Truss.call(this, view, updatefrequency);
-	
-	var myX=3;
-	var myY=3;
-	var mouseSet=false;
 
+	let myX = 3;
+	let myY = 3;
+	let mouseSet = false;
+
+	/**
+	 * @param  {Event} e
+	 */
 	function myMove(e) {
-		myX=e.pageX;
-		myY=e.pageY;
+		myX = e.pageX;
+		myY = e.pageY;
 	}
 
+	/**
+	 * @param  {Event} e
+	 */
 	function downMouse(e) {
-		mouseSet=true;
+		mouseSet = true;
 	}
 
+	/**
+	 * @param  {Event} e
+	 */
 	function upMouse(e) {
-		mouseSet=false;
+		mouseSet = false;
 	}
 
-	var thisTrussView=this.view;
+	let thisTrussView = this.view;
 	thisTrussView.context.canvas.onmousemove = myMove;
 	thisTrussView.context.canvas.onmousedown = downMouse;
 	thisTrussView.context.canvas.onmouseup = upMouse;
 
 
-	var n1 = this.addNode(new Node(new Position(1, 0.3), 5, "fulcrum", function(node, tick){
-		return new Position(1+0.5*Math.sin(tick),0.3)
-		})); 
-	var n2 = this.addNode(new Node(new Position(1.3, 0.6), 10, "right")); 
-	var n3 = this.addNode(new Node(new Position(1, 0.9), 100, "down", function(node, n){
-		if (mouseSet)
+	let n1 = this.addNode(new Node(new Position(1, 0.3), 5, 'fulcrum', function(node, tick) {
+		return new Position(1 + 0.5 * Math.sin(tick), 0.3);
+	}));
+	let n2 = this.addNode(new Node(new Position(1.3, 0.6), 10, 'right'));
+	let n3 = this.addNode(new Node(new Position(1, 0.9), 100, 'down', function(node, n) {
+		if (mouseSet) {
 			return thisTrussView.worldPosition(myX, myY);
+		}
 		return node.getPosition();
-		})); 
-	var n4 = this.addNode(new Node(new Position(0.7, 0.6), 10, "left")); 
+	}));
+	let n4 = this.addNode(new Node(new Position(0.7, 0.6), 10, 'left'));
 
 	this.addTensor(new Spring(n1, n2, 100));
 	this.addTensor(new Spring(n2, n3, 500));
@@ -195,22 +235,9 @@ function MyTruss(view, updatefrequency){
 	this.addTensor(new Absorber(n4, n1, 500));
 	this.addTensor(new Absorber(n2, n4, 100));
 
-	this.addTensor(new gravityField(n2));
-	this.addTensor(new gravityField(n3));
-	this.addTensor(new gravityField(n4));
+	this.addTensor(gravityField(n2));
+	this.addTensor(gravityField(n3));
+	this.addTensor(gravityField(n4));
 
 	this.initConnect();
 }
-inheritPrototype(MyTruss, Truss);
-
-
-
-
-
-
-
-
-
-
-
-

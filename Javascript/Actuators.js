@@ -1,6 +1,8 @@
 /**
  * An ActuatorNode represents a node that is used to influence the behaviour of another node.
  * The position of this node applies a force or sets a velocity of the obj node.
+ * @class
+ * @augments Node
  */
 class ActuatorNode extends Node {
 	/**
@@ -28,6 +30,8 @@ class ActuatorNode extends Node {
  * A BinaryActuatorNode represents a node that is used to influence the behaviour of another node.
  * if this node is close to position1, the getState() will return 1. If it is close to position2, getState will return 2.
  * Otherwise getState() returns 0;
+ * @class
+ * @augments ActuatorNode
   */
 class BinaryActuatorNode extends ActuatorNode {
 /**
@@ -98,16 +102,8 @@ class BinaryActuatorNode extends ActuatorNode {
 
 /**
  * Create a JumpNode
- * @constructor
- * @param  {Node} obj - text.
- * @param  {Position} position1 - text2.
- * @param  {Position} position2 - text2.
- * @param  {Field} gravityField - text2.
- * @param  {number} mass=0.001
- * @param  {string} name='actuatornode'
- * @param  {function} positionFunction
- * @param  {function} showFunction
- * @param  {number} velocityLoss=0.99
+ * @class
+ * @augments ActuatorNode
  */
 class JumpNode extends ActuatorNode {
 	/**
@@ -150,6 +146,11 @@ class JumpNode extends ActuatorNode {
  * influence the behaviour of another node.
  * if this node is close to position1, the getState() will return 1. If it is close to position2, getState will return 2.
  * Otherwise getState() returns 0;
+ * @class
+ * @augments BinaryActuatorNode
+ */
+class SpringDanglerNode extends BinaryActuatorNode {
+	/**
  * @constructor
  * @param {Node} obj - The node that this node should influence, often the protagonist node
  * @param {Position} position1 - The startposition of the node. Sets the state to 1;
@@ -160,21 +161,8 @@ class JumpNode extends ActuatorNode {
  * @param {string} name - The name of the node.
  * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
  * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
- * @param {number} velocityLoss - The author of the book.
+ * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
  */
-class SpringDanglerNode extends BinaryActuatorNode {
-	/**
-	 * @param  {Node} obj
-	 * @param  {Position} position1
-	 * @param  {Position} position2
-	 * @param  {Tensor} rightMovementTensor
-	 * @param  {Tensor} leftMovementTensor
-	 * @param  {number} mass=0.01
-	 * @param  {string} name='springrunnernode'
-	 * @param  {function} positionFunction
-	 * @param  {function} showFunction
-	 * @param  {number} velocityLoss=0.99
-	 */
 	constructor(obj, position1, position2,
 		rightMovementTensor, leftMovementTensor,
 		mass = 0.01, name = 'springrunnernode', positionFunction,
