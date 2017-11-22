@@ -76,7 +76,7 @@ class BinaryActuatorNode extends ActuatorNode {
 	 */
 	getAcceleration(forceAppliers) {
 		// Call parent in order to update this nodes normal acceleration
-		let tempAcceleration = Node.prototype.getAcceleration.call(this, forceAppliers);
+		let tempAcceleration = super.getAcceleration(forceAppliers);
 		let acceleration = multiplyVector(dotProduct(this.vector, tempAcceleration), divideVector(this.vector, length2(this.vector)));
 		return acceleration;
 	};

@@ -156,7 +156,8 @@ class Truss {
 				}
 			}
 		}
-	};
+	}
+
 	/**
 	 * The main function for calculating all forces, applying them to modify the velocities
 	 * and consequently updating the node positions. Finally we check for collisions
@@ -172,7 +173,8 @@ class Truss {
 		this.updatePositions();
 		this.checkCollisions();
 		this.time += this.updateFrequency;
-	};
+	}
+
 	/**
 	 * Clear the screen
 	 */
@@ -182,6 +184,7 @@ class Truss {
 		// this.view.context.rect(0,0,WIDTH,HEIGHT);
 		// this.view.context.fill();
 	};
+
 	/**
 	 * The Show function ask all tensors and nodes to draw themselves
 	 * @param  {number} time
@@ -198,6 +201,7 @@ class Truss {
 			}
 		}
 	}
+
 	/**
 	 * The truss main tick function. this function is called to generate
 	 * a timestep in which the modelled world moves slightly forward.

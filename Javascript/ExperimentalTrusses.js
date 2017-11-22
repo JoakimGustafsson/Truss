@@ -183,7 +183,7 @@ class ProtagonistNode extends Node {
 /**
  * @param  {View} view
  * @param  {number} updatefrequency
- */
+
 function MyTruss(view, updatefrequency) {
 	Truss.call(this, view, updatefrequency);
 
@@ -193,7 +193,7 @@ function MyTruss(view, updatefrequency) {
 
 	/**
 	 * @param  {Event} e
-	 */
+	 *
 	function myMove(e) {
 		myX = e.pageX;
 		myY = e.pageY;
@@ -201,14 +201,14 @@ function MyTruss(view, updatefrequency) {
 
 	/**
 	 * @param  {Event} e
-	 */
+	 *
 	function downMouse(e) {
 		mouseSet = true;
 	}
 
 	/**
 	 * @param  {Event} e
-	 */
+	 *
 	function upMouse(e) {
 		mouseSet = false;
 	}
@@ -250,3 +250,4 @@ function MyTruss(view, updatefrequency) {
 
 	this.initConnect();
 }
+*/
