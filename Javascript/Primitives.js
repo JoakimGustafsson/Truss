@@ -12,7 +12,7 @@ function inheritPrototype(childObject, parentObject) {
 	childObject.prototype = copyOfParent;
 }
 
-var tickTime = 0;
+let tickTime = 0;
 
 /**
  * The main (most universal) tick function that triggers the main truss
@@ -261,6 +261,14 @@ function getTInside(p1, p2, p3) {
 // 	return Math.max(Math.abs(v.x), Math.abs(v.y));
 // }
 
-// function boxClose(p1, p2, distance) {
-//	return Math.max(Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y)) < distance;
-// }
+/**
+ * Check if p1 and p2 are within horizontal or vertical distance from each other
+ * Used as a sloppy fast distance check without squareroot operations
+ * @param  {Position} p1
+ * @param  {Position} p2
+ * @param  {number} distance
+ * @return {number}
+ */
+function boxClose(p1, p2, distance) {
+	return Math.max(Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y)) < distance;
+}

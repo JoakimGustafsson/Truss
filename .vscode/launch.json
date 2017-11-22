@@ -7,14 +7,14 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Launch Chrome",
+            "name": "Launch Chrome webpage",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceRoot}"
         },
         {
             "type": "node",
             "request": "launch",
-            "name": "Node.js/app.js",
+            "name": "Webserver",
             "program": "${workspaceFolder}/Node.js/app.js"
         }
     ]
