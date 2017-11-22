@@ -1,78 +1,123 @@
 /**
- * 
+ *
  */
 
 
-var keyState = {};
+let keyState = {};
 
-function KeySensorNode(startPosition, mass = 0.001, name = "keysensornode", positionFunction, showFunction, velocityLoss = 1) {
-	Node.call(this, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
-	this.startPosition = startPosition;
-	this.keyList = [];
+/**
+ * @class
+ * @extends Node
+ */
+class KeySensorNode extends Node {
+	/**
+	 * @param  {Position} startPosition
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {Function} positionFunction
+	 * @param  {Function} showFunction
+	 * @param  {number} velocityLoss
+	 */
+	constructor(startPosition, mass = 0.001, name = 'keysensornode', positionFunction, showFunction, velocityLoss = 1) {
+		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+		this.startPosition = startPosition;
+		this.keyList = [];
 
-	window.addEventListener('keydown', function (e) {
-		keyState[e.keyCode || e.which] = true;
-	}, true);
-	window.addEventListener('keyup', function (e) {
-		keyState[e.keyCode || e.which] = false;
-	}, true);
+		window.addEventListener('keydown', function(e) {
+			keyState[e.keyCode || e.which] = true;
+		}, true);
+		window.addEventListener('keyup', function(e) {
+			keyState[e.keyCode || e.which] = false;
+		}, true);
+	}
 
-	KeySensorNode.prototype.updatePosition = function (time) {
-		var p = this.startPosition;
-		for (var i = 0; i < this.keyList.length; i++) {
-			if (keyState[this.keyList[i].key])
+	/**
+	 * Used to poll if a key has been pressed and moves to the corresponding vector
+	 * Note that several keys can be pressed simultaneously
+	 * @param  {number} time
+	 */
+	updatePosition(time) {
+		let p = this.startPosition;
+		for (let i = 0; i < this.keyList.length; i++) {
+			if (keyState[this.keyList[i].key]) {
 				p = addVectors(p, this.keyList[i].vector);
+			}
 		}
 		this.setPosition(p);
-	}
+	};
 
-	KeySensorNode.prototype.registerKey = function (keyNr, v) {
+	/**
+	 * Kombines a key number with a vecor to move if that key is being pressed
+	 * @param  {number} keyNr
+	 * @param  {Vector} v
+	 */
+	registerKey(keyNr, v) {
 		this.keyList.push({
-			"key": keyNr,
-			"vector": v
+			'key': keyNr,
+			'vector': v,
 		});
-	}
+	};
 }
-inheritPrototype(KeySensorNode, Node);
 
+/**
+ * @class
+ * @extends Node
+ */
+class CollisionSensorNode extends Node {
+	/**
+	 * This class detects collisions between an object and tensors.
+	 * First use registerTrussObjectAndActuator() to connect and object
+	 * to the actuator that should be triggered inside a truss.
+	 * @param  {Position} position
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {Function} positionFunction
+	 * @param  {Function} showFunction
+	 * @param  {number} velocityLoss
+	 */
+	constructor(position, mass = 0.01, name = 'collisionsensornode', positionFunction, showFunction, velocityLoss) {
+		super(position, mass, name, positionFunction, showFunction, velocityLoss);
+		this.actuator;
+		let _this = this;
+		document.addEventListener('collisionEvent',
+			function(e) {
+				_this.collisionFunction.call(_this, e);
+			}, false);
+	}
 
-
-
-
-
-function CollisionSensorNode(position, mass = 0.01, name = "collisionsensornode", positionFunction, showFunction, velocityLoss) {
-	Node.call(this, position, mass, name, positionFunction, showFunction, velocityLoss);
-
-	this.actuator;
-	var _this = this;
-
-
-	CollisionSensorNode.prototype.registerTrussObjectAndActuator = function (truss, obj, actuator) {
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Node} obj
+	 * @param  {Actuator} actuator
+	 */
+	registerTrussObjectAndActuator(truss, obj, actuator) {
 		truss.addCollider(obj);
 		this.localactuator = actuator;
 		this.localtruss = truss;
 		this.localobject = obj;
-	}
+	};
 
-	CollisionSensorNode.prototype.collisionFunction = function (e) {
-		var collider = e.detail.collider;
-		if (collider != _this.localobject)
+	/**
+	 * @param  {Event} collisionEvent
+	 */
+	collisionFunction(collisionEvent) {
+		let collider = collisionEvent.detail.collider;
+		if (collider != this.localobject) {
 			return;
-		var where = e.detail.where;
-		var from = e.detail.from;
-		var tensor = e.detail.tensor;
+		}
+		let where = collisionEvent.detail.where;
+		let from = collisionEvent.detail.from;
+		let tensor = collisionEvent.detail.tensor;
 
-		var direction = "left";
-		if (from > 0)
-			direction = "right";
+		let direction = 'left';
+		if (from > 0) {
+			direction = 'right';
+		}
 		console.log(collider.name +
-			" collided with tensor " + tensor.getName() + " at " + where + " along its length. It collided from the " +
+			' collided with tensor ' + tensor.getName() + ' at ' + where + ' along its length. It collided from the ' +
 			direction
 		);
 
-		_this.localactuator.attachToTensor(_this.localtruss, tensor, where, from);
-	}
-
-	document.addEventListener("collisionEvent", this.collisionFunction, false);
+		this.localactuator.attachToTensor(this.localtruss, tensor, where, from);
+	};
 }
-inheritPrototype(CollisionSensorNode, Node);

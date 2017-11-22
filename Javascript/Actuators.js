@@ -32,22 +32,22 @@ class ActuatorNode extends Node {
  * Otherwise getState() returns 0;
  * @class
  * @augments ActuatorNode
-  */
-class BinaryActuatorNode extends ActuatorNode {
-/**
- * A BinaryActuatorNode represents a node that is used to influence the behaviour of another node.
- * if this node is close to position1, the getState() will return 1. If it is close to position2, getState will return 2.
- * Otherwise getState() returns 0;
- * @constructor
- * @param {Node} obj - The node that this node should influence, often the protagonist node
- * @param {Position} position1 - The startposition of the node. Sets the state to 1;
- * @param {Position} position2 - Sets the state to 2.
- * @param {number} mass - The mass of the actuator node.
- * @param {string} name - The name of the node.
- * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
- * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
- * @param {number} velocityLoss - A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
  */
+class BinaryActuatorNode extends ActuatorNode {
+	/**
+	 * A BinaryActuatorNode represents a node that is used to influence the behaviour of another node.
+	 * if this node is close to position1, the getState() will return 1. If it is close to position2, getState will return 2.
+	 * Otherwise getState() returns 0;
+	 * @constructor
+	 * @param {Node} obj - The node that this node should influence, often the protagonist node
+	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
+	 * @param {Position} position2 - Sets the state to 2.
+	 * @param {number} mass - The mass of the actuator node.
+	 * @param {string} name - The name of the node.
+	 * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
+	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
+	 * @param {number} velocityLoss - A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
+	 */
 	constructor(obj, position1, position2, mass = 0.001, name = 'binarynode', positionFunction, showFunction, velocityLoss = 0.99) {
 		super(obj, new Position(position1.x, position1.y), mass, name, positionFunction, showFunction, velocityLoss);
 		this.position1 = position1;
@@ -105,19 +105,20 @@ class BinaryActuatorNode extends ActuatorNode {
  * @class
  * @augments ActuatorNode
  */
-class JumpNode extends ActuatorNode {
+class JumpNode extends BinaryActuatorNode {
 	/**
-	 * Create a JumpNode
+	 * Create a JumpNode. If this nodes position is close to position 2, then
+	 * the gravityField will be 4 times stronger
 	 * @constructor
-	 * @param  {Node} obj - text.
-	 * @param  {Position} position1 - text2.
-	 * @param  {Position} position2 - text2.
-	 * @param  {Field} gravityField - text2.
-	 * @param  {number} mass=0.001
-	 * @param  {string} name='actuatornode'
+	 * @param  {Node} obj - The protagonist node that is influenced by this actuator
+	 * @param  {Position} position1 Start position
+	 * @param  {Position} position2 If this nodes position is close to position 2, then the gravityField will be 4 times stronger
+	 * @param  {Field} gravityField The gravityfield that should be quadrupled
+	 * @param  {number} mass
+	 * @param  {string} name
 	 * @param  {function} positionFunction
 	 * @param  {function} showFunction
-	 * @param  {number} velocityLoss=0.99
+	 * @param  {number} velocityLoss
 	 */
 	constructor(obj, position1, position2, gravityField, mass = 0.01, name = 'jumpnode', positionFunction, showFunction, velocityLoss) {
 		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
@@ -127,15 +128,15 @@ class JumpNode extends ActuatorNode {
 
 
 	/**
-	 * @param  {flnumberoat} time
+	 * @param  {number} time
 	 */
 	updatePosition(time) {
-		// super.updatePosition(time); //Call parent in order to update this.iO nodes position
+		super.updatePosition(time); // Call parent in order to update this.iO nodes position
 
-		if (this.getState() == 1) {
-			this.gravityField.constant = this.originalGravityConstant;
-		} else if (this.getState() == 2) {
+		if (this.getState() == 2) {
 			this.gravityField.constant = this.originalGravityConstant * 4;
+		} else {
+			this.gravityField.constant = this.originalGravityConstant;
 		}
 	}
 }
@@ -149,23 +150,23 @@ class JumpNode extends ActuatorNode {
  * @class
  * @augments BinaryActuatorNode
  */
-class SpringDanglerNode extends BinaryActuatorNode {
+class LeftRightNode extends BinaryActuatorNode {
 	/**
- * @constructor
- * @param {Node} obj - The node that this node should influence, often the protagonist node
- * @param {Position} position1 - The startposition of the node. Sets the state to 1;
- * @param {Position} position2 - Sets the state to 2.
+	 * @constructor
+	 * @param {Node} obj - The node that this node should influence, often the protagonist node
+	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
+	 * @param {Position} position2 - Sets the state to 2.
 	 * @param  {Tensor} rightMovementTensor
 	 * @param  {Tensor} leftMovementTensor
- * @param {number} mass - The mass of the actuator node.
- * @param {string} name - The name of the node.
- * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
- * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
- * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
- */
+	 * @param {number} mass - The mass of the actuator node.
+	 * @param {string} name - The name of the node.
+	 * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
+	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
+	 * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
+	 */
 	constructor(obj, position1, position2,
 		rightMovementTensor, leftMovementTensor,
-		mass = 0.01, name = 'springrunnernode', positionFunction,
+		mass = 0.01, name = 'leftrightnode', positionFunction,
 		showFunction, velocityLoss = 0.99) {
 		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
 		this.currentTensors = [];
@@ -173,6 +174,53 @@ class SpringDanglerNode extends BinaryActuatorNode {
 		this.moveFieldConstant = 6.67e-11;
 		this.rightMovementTensor = rightMovementTensor;
 		this.leftMovementTensor = leftMovementTensor;
+	}
+
+	/**
+	 * @param  {number} time
+	 */
+	updatePosition(time) {
+		super.updatePosition(time); // Call parent in order to update this.iO nodes position
+		this.handleLeftOrRight();
+	}
+
+	/**
+	 * Applies a force to the right or to the left depending on the keypress state
+	 */
+	handleLeftOrRight() {
+		this.rightMovementTensor.constant = 0;
+		this.leftMovementTensor.constant = 0;
+		if (this.getState() == 1) {
+			this.rightMovementTensor.constant = this.moveFieldConstant;
+		} else if (this.getState() == 2) {
+			this.leftMovementTensor.constant = this.moveFieldConstant;
+		}
+	}
+}
+
+/**
+ * A SpringDanglerNode is a special type of ActuatorNode that
+ * bounces on or dangles on Spring tensors
+ * @class
+ * @augments BinaryActuatorNode
+ */
+class SpringDanglerNode extends ActuatorNode {
+	/**
+	 * @constructor
+	 * @param {Node} obj - The node that this node should influence, often the protagonist node
+	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
+	 * @param {number} mass - The mass of the actuator node.
+	 * @param {string} name - The name of the node.
+	 * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
+	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
+	 * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
+	 */
+	constructor(obj, position1,
+		mass = 0.01, name = 'springdanglernode', positionFunction,
+		showFunction, velocityLoss = 0.99) {
+		super(obj, position1, mass, name, positionFunction, showFunction, velocityLoss);
+		this.currentTensors = [];
+		this.truss;
 	}
 	/**
 	 * @param  {object} result
@@ -220,7 +268,6 @@ class SpringDanglerNode extends BinaryActuatorNode {
 	updatePosition(time) {
 		super.updatePosition(time); // Call parent in order to update this.iO nodes position
 		//* **************************************************************
-		this.handleLeftOrRight();
 
 		let cleanupList = [];
 
@@ -278,19 +325,6 @@ class SpringDanglerNode extends BinaryActuatorNode {
 		this.disconnect(TensorMap);
 		cleanupList.push(TensorMap);
 		TensorMap.originalTensor.resetCollision(this.iO);
-	}
-
-	/**
-	 * Applies a force to the right or to the left depending on the keypress state
-	 */
-	handleLeftOrRight() {
-		this.rightMovementTensor.constant = 0;
-		this.leftMovementTensor.constant = 0;
-		if (this.getState() == 1) {
-			this.rightMovementTensor.constant = this.moveFieldConstant;
-		} else if (this.getState() == 2) {
-			this.leftMovementTensor.constant = this.moveFieldConstant;
-		}
 	}
 
 	/**

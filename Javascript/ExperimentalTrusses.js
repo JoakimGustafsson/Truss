@@ -41,7 +41,7 @@ class WalkTruss extends Truss {
 		// Create a protagonist (yellow circle) and connect it to gravity
 		let protagonist = new ProtagonistNode(new Position(3, 2.5), 70, 'Ego1');
 		this.addNode(protagonist);
-		this.addTensor(gravityField(protagonist)); // Needed to create a jumpactuator
+		let egoGravityField = this.addTensor(gravityField(protagonist)); // Needed to create a jumpactuator
 
 		// let ego2 = this.addGravityNode(new ProtagonistNode(new Position(4, 1.2), 70, 'Ego2'));
 
@@ -111,26 +111,33 @@ class WalkTruss extends Truss {
 		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 
-		let actuatorNode1 = this.addNode(
-			new SpringDanglerNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
-				leftField1, rightField1, 0.05, 'mySpringDanglerNode', 0, 0, 0.99));
+		// Add one actuator that takes care of left - right movement
+		let leftRightActuatorNode = this.addNode(
+			new LeftRightNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
+				leftField1, rightField1, 0.05, 'myLeftRightNode', 0, 0, 0.99));
+		// Connect it via a spring to the keysensor node
+		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
+
+
+		// Add one atuator to take care of springrunning
+		let springActuatorNode = this.addNode(new SpringDanglerNode(protagonist, new Position(3, 0.5),
+			0.05, 'mySpringDanglerNode'));
 
 		/*	var actuatorNode2 = this.addNode(
 			new SpringDanglerNode(ego2, new Position(1,0.25), new Position(3,0.25),
 					leftField1, rightField1,0.05,"mySpringDanglerNode2",0,0,0.99));
 */
 		// let KeyDangleSpring =
-		this.addTensor(new Spring(sensorNode, actuatorNode1, 50, 0.1));
 
-		/*
-	var jumpActuator = this.addNode(
-			new JumpNode(ego1, new Position(0.5,1), new Position(0.5,2),
-					egoGravityField,0.05,"myJumpNode"));
 
-	var KeyJumpSpring = this.addTensor(new Spring(sensorNode, jumpActuator, 50,0.1));
-*/
+		let jumpActuator = this.addNode(
+			new JumpNode(protagonist, new Position(0.5, 1), new Position(0.5, 2),
+				egoGravityField, 0.05, 'myJumpNode'));
+
+		this.addTensor(new Spring(sensorNode, jumpActuator, 50, 0.1));
+
 		let collissionsensor1 = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
-		collissionsensor1.registerTrussObjectAndActuator(this, protagonist, actuatorNode1);
+		collissionsensor1.registerTrussObjectAndActuator(this, protagonist, springActuatorNode);
 		/*
 	var collissionsensor2 = new CollisionSensorNode(new Position(8,1),0.01,"CollissionSensor2");
 	collissionsensor2.registerTrussObjectAndActuator(this,ego2, actuatorNode2);
@@ -152,7 +159,7 @@ class ProtagonistNode extends Node {
 	 * @param  {number} velocityLoss
 	 */
 	constructor(startPosition, mass = 70, name = 'ProtagonistNode', positionFunction, showFunction, velocityLoss = 1) {
-		super(startPosition, mass, name, positionFunction, showFunction, 1);
+		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 		this.actuators = 0;
 		this.sensors = 0;
 	}
