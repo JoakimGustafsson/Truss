@@ -222,14 +222,6 @@ class SpringDanglerNode extends ActuatorNode {
 		this.currentTensors = [];
 		this.truss;
 	}
-	/**
-	 * @param  {object} result
-	 */
-	attachToTruss(result) {
-		this.truss.addTensor(result.rightTensor);
-		this.truss.addTensor(result.leftTensor);
-		this.truss.ghostifyTensor(result.originalTensor);
-	}
 
 	/**
 	 * @param  {object} result
@@ -240,26 +232,31 @@ class SpringDanglerNode extends ActuatorNode {
 		this.truss.deghostifyTensor(result.originalTensor);
 	}
 
+
 	/**
 	 * @param  {Truss} truss
 	 * @param  {Tensor} tensor
-	 * @param  {number} distanceFraction=0.5
-	 * @param  {number} dir=-1
+	 * @param  {number} distanceFraction
+	 * @param  {number} dir
 	 */
 	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
 		this.truss = truss;
-		let result = {};
+		let TensorMap = {};
 		let rightNode = tensor.getRightNode();
 		let leftNode = tensor.getOppositeNode(rightNode);
 		if (tensor.node2 == leftNode) {
 			distanceFraction = 1 - distanceFraction;
 		}
-		result.rightTensor = new PullSpring(this.iO, rightNode, tensor.constant, tensor.equilibriumLength * (1 - distanceFraction));
-		result.leftTensor = new PullSpring(leftNode, this.iO, tensor.constant, tensor.equilibriumLength * (distanceFraction));
-		result.originalTensor = tensor;
-		result.direction = dir;
-		this.currentTensors.push(result);
-		this.attachToTruss(result);
+		TensorMap.rightTensor = this.truss.addTensor(
+			new PullSpring(this.iO, rightNode, tensor.constant,
+				tensor.equilibriumLength * (1 - distanceFraction)));
+		TensorMap.leftTensor = this.truss.addTensor(
+			new PullSpring(leftNode, this.iO, tensor.constant,
+				tensor.equilibriumLength * (distanceFraction)));
+		TensorMap.originalTensor = tensor;
+		tensor.ghostify();
+		TensorMap.direction = dir;
+		this.currentTensors.push(TensorMap);
 	}
 
 	/**
@@ -267,15 +264,13 @@ class SpringDanglerNode extends ActuatorNode {
 	 */
 	updatePosition(time) {
 		super.updatePosition(time); // Call parent in order to update this.iO nodes position
-		//* **************************************************************
-
 		let cleanupList = [];
 
 		for (let i = 0; i < this.currentTensors.length; i++) {
 			let TensorMap = this.currentTensors[i];
 			TensorMap.rightTensor.equilibriumLength =
-				(TensorMap.originalTensor.equilibriumLength +
-					TensorMap.rightTensor.getLength() -
+			(TensorMap.originalTensor.equilibriumLength +
+				TensorMap.rightTensor.getLength() -
 					TensorMap.leftTensor.getLength()) / 2;
 			// calculate left equilibriumLength
 			TensorMap.leftTensor.equilibriumLength =
