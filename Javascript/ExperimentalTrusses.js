@@ -120,8 +120,8 @@ class WalkTruss extends Truss {
 
 
 		// Add one atuator to take care of springrunning
-		let springActuatorNode = this.addNode(new SpringDanglerNode(protagonist, new Position(3, 0.5),
-			0.05, 'mySpringDanglerNode'));
+		let springActuatorNode = this.addNode(new LineBreakerNode(protagonist, new Position(3, 0.5),
+			0.05, 'myLineBreakerNode'));
 
 		/*	var actuatorNode2 = this.addNode(
 			new SpringDanglerNode(ego2, new Position(1,0.25), new Position(3,0.25),

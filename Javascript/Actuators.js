@@ -143,10 +143,10 @@ class JumpNode extends BinaryActuatorNode {
 
 
 /**
- * A SpringDanglerNode is a special type of BinaryActuatorNode that represents a node that is used to
+ * A LeftRightNode is a special type of BinaryActuatorNode that represents a node that is used to
  * influence the behaviour of another node.
- * if this node is close to position1, the getState() will return 1. If it is close to position2, getState will return 2.
- * Otherwise getState() returns 0;
+ *
+ *
  * @class
  * @augments BinaryActuatorNode
  */
@@ -169,7 +169,7 @@ class LeftRightNode extends BinaryActuatorNode {
 		mass = 0.01, name = 'leftrightnode', positionFunction,
 		showFunction, velocityLoss = 0.99) {
 		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
-		this.currentTensors = [];
+		this.lineBreakers = [];
 		this.truss;
 		this.moveFieldConstant = 6.67e-11;
 		this.rightMovementTensor = rightMovementTensor;
@@ -219,7 +219,7 @@ class SpringDanglerNode extends ActuatorNode {
 		mass = 0.01, name = 'springdanglernode', positionFunction,
 		showFunction, velocityLoss = 0.99) {
 		super(obj, position1, mass, name, positionFunction, showFunction, velocityLoss);
-		this.currentTensors = [];
+		this.iO.lineBreakers = [];
 		this.truss;
 	}
 
@@ -241,22 +241,25 @@ class SpringDanglerNode extends ActuatorNode {
 	 */
 	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
 		this.truss = truss;
-		let TensorMap = {};
-		let rightNode = tensor.getRightNode();
-		let leftNode = tensor.getOppositeNode(rightNode);
+		let rightNode = tensor.node2;
+		let leftNode = tensor.node1;
 		if (tensor.node2 == leftNode) {
 			distanceFraction = 1 - distanceFraction;
 		}
-		TensorMap.rightTensor = this.truss.addTensor(
-			new PullSpring(this.iO, rightNode, tensor.constant,
-				tensor.equilibriumLength * (1 - distanceFraction)));
-		TensorMap.leftTensor = this.truss.addTensor(
-			new PullSpring(leftNode, this.iO, tensor.constant,
-				tensor.equilibriumLength * (distanceFraction)));
-		TensorMap.originalTensor = tensor;
+
+		let lineBreaker = {
+			rightTensor: this.truss.addTensor(
+				new PullSpring(this.iO, rightNode, tensor.constant,
+					tensor.equilibriumLength * (1 - distanceFraction))),
+			leftTensor: this.truss.addTensor(
+				new PullSpring(leftNode, this.iO, tensor.constant,
+					tensor.equilibriumLength * (distanceFraction))),
+			originalTensor: tensor,
+			direction: dir,
+		};
+
 		tensor.ghostify();
-		TensorMap.direction = dir;
-		this.currentTensors.push(TensorMap);
+		this.iO.lineBreakers.push(lineBreaker);
 	}
 
 	/**
@@ -266,84 +269,240 @@ class SpringDanglerNode extends ActuatorNode {
 		super.updatePosition(time); // Call parent in order to update this.iO nodes position
 		let cleanupList = [];
 
-		for (let i = 0; i < this.currentTensors.length; i++) {
-			let TensorMap = this.currentTensors[i];
-			TensorMap.rightTensor.equilibriumLength =
-			(TensorMap.originalTensor.equilibriumLength +
-				TensorMap.rightTensor.getLength() -
-					TensorMap.leftTensor.getLength()) / 2;
-			// calculate left equilibriumLength
-			TensorMap.leftTensor.equilibriumLength =
-				TensorMap.originalTensor.equilibriumLength -
-				TensorMap.rightTensor.equilibriumLength;
-			//			Rewrite this for handling more than one ball...
-			//			it should not be originaltensor but left right tensor.
-			// compare left and right angle and with respect to direction.
-			this.leavingConnectedTensor(TensorMap, cleanupList);
+		for (let lineBreaker of this.iO.lineBreakers) {
+			// i = 0; i < this.iO.lineBreakers.length; i++) {
+			// let lineBreaker = this.iO.lineBreakers[i];
+			lineBreaker.rightTensor.equilibriumLength =
+				(lineBreaker.originalTensor.equilibriumLength +
+					lineBreaker.rightTensor.getLength() -
+					lineBreaker.leftTensor.getLength()) / 2;
+			lineBreaker.leftTensor.equilibriumLength =
+				lineBreaker.originalTensor.equilibriumLength -
+				lineBreaker.rightTensor.equilibriumLength;
+			this.leavingConnectedTensor(lineBreaker, cleanupList);
 		}
-		for (let j = 0; j < cleanupList.length; j++) {
-			removeIfPresent(cleanupList[j], this.currentTensors);
+		for (let cleanThis of cleanupList) {
+			removeIfPresent(cleanThis, this.iO.lineBreakers);
 		}
 	}
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
-	 * @param  {object} TensorMap this argument contains thel left, right and original tensor
+	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
 	 * @param  {Array} cleanupList a list of things to remove after all is done
 	 */
-	leavingConnectedTensor(TensorMap, cleanupList) {
-		let p1 = TensorMap.originalTensor.node1.getPosition();
-		let p2 = TensorMap.originalTensor.node2.getPosition();
+	leavingConnectedTensor(lineBreaker, cleanupList) {
+		let p1 = lineBreaker.leftTensor.getOppositeNode(this.iO).getPosition();
+		let p2 = lineBreaker.rightTensor.getOppositeNode(this.iO).getPosition();
 		let p3 = this.iO.getPosition();
 		let perpendicularDistance = getS(p1, p2, p3);
-		let above = (perpendicularDistance * TensorMap.direction > 0);
+		let above = (perpendicularDistance * lineBreaker.direction > 0);
 		let inside = getTInside(p1, p2, p3);
 		let closeParallell = (Math.abs(perpendicularDistance) < 0.2);
 
 		if (above && inside) {
-			this.removeFromTensor(TensorMap, cleanupList, 'Bounce disconnected from ' + TensorMap.originalTensor.getName());
+			this.removeFromTensor(lineBreaker, cleanupList, 'Bounce disconnected from ' + lineBreaker.originalTensor.getName());
 		} else if (closeParallell && !inside) {
-			this.removeFromTensor(TensorMap, cleanupList, 'Endpoint disconnected from ' + TensorMap.originalTensor.getName());
+			this.removeFromTensor(lineBreaker, cleanupList, 'Endpoint disconnected from ' + lineBreaker.originalTensor.getName());
 			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
 			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
-				multiplyVector(TensorMap.direction, // wrt to the collision direction
-					perpendicular(TensorMap.originalTensor.getActual()))));
+				multiplyVector(lineBreaker.direction, // wrt to the collision direction
+					perpendicular(lineBreaker.originalTensor.getActual()))));
 		}
 	}
 	/**
-	 * @param  {object} TensorMap this argument contains thel left, right and original tensor
+	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
 	 * @param  {Array} cleanupList a list of things to remove after all is done
 	 * @param  {string} logMessage A mesage to display in the log for debug purposes
 	 */
-	removeFromTensor(TensorMap, cleanupList, logMessage) {
+	removeFromTensor(lineBreaker, cleanupList, logMessage) {
 		console.log(logMessage);
-		this.disconnect(TensorMap);
-		cleanupList.push(TensorMap);
-		TensorMap.originalTensor.resetCollision(this.iO);
+		this.disconnect(lineBreaker);
+		cleanupList.push(lineBreaker);
+		lineBreaker.originalTensor.resetCollision(this.iO);
 	}
 
 	/**
-	 * @param  {Array} TensorMap
+	 * @param  {Array} lineBreaker
 	 */
-	disconnect(TensorMap) {
-		this.detachFromTruss(TensorMap);
+	disconnect(lineBreaker) {
+		this.detachFromTruss(lineBreaker);
+	}
+}
+
+
+/**
+ * A LineBreakerNode is a special type of ActuatorNode that
+ * bounces on or dangles on Spring tensors
+ * @class
+ * @augments ActuatorNode
+ */
+class LineBreakerNode extends ActuatorNode {
+	/**
+	 * @constructor
+	 * @param {Node} obj - The node that this node should influence, often the protagonist node
+	 * @param {number} mass - The mass of the actuator node.
+	 * @param {string} name - The name of the node.
+	 * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
+	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
+	 * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
+	 */
+	constructor(obj,
+		mass = 0.01, name = 'linebreakernode', positionFunction,
+		showFunction, velocityLoss = 0.99) {
+		super(obj, new Position(1, 1), mass, name, positionFunction, showFunction, velocityLoss);
+		this.iO.lineBreakers = [];
+		this.truss;
 	}
 
 	/**
-	 * @param  {Node} zeroNode
-	 * @param  {number} direction
+	 * @param  {object} linkBreakerRepresentation
 	 */
-	exit(zeroNode, direction) {
-		let newTensor = zeroNode.findTopSpring(direction, [this.iO.currentTensor, this.iO.mySpring]);
-		this.iO.disconnect();
-		if (!newTensor) {
-			return;
+	detachFromTruss(linkBreakerRepresentation) {
+		this.truss.removeTensor(linkBreakerRepresentation.rightTensor);
+		this.truss.removeTensor(linkBreakerRepresentation.leftTensor);
+		this.truss.deghostifyTensor(linkBreakerRepresentation.brokenLink);
+	}
+
+
+	/** This function takes a tensor in a truss and creates a linkBreakerRepresentation that both contain the original
+	 * broken link as well as the left and right original replacement. Remember that these links in turn can be broken
+	 * by other nodes, so we need to keep track of the immediatelyLeft and immediatelyRight to know the part of the link that is
+	 * currently closest to the node. The linkBreakerRepresentation is added to a list in the influenced object (the iO)
+	 * since a given node may break several Tensors and each has to be handled separately.
+	 * @param  {Truss} truss
+	 * @param  {Tensor} tensor
+	 * @param  {number} distanceFraction
+	 * @param  {number} dir
+	 */
+	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
+		this.truss = truss;
+		let leftNode = tensor.node1;
+		let rightNode = tensor.node2;
+
+		let leftNewLink=this.truss.addTensor(
+			new PullSpring(this.iO, rightNode, tensor.constant,
+				tensor.equilibriumLength * (1 - distanceFraction)));
+		let rightNewLink=this.truss.addTensor(
+			new PullSpring(leftNode, this.iO, tensor.constant,
+				tensor.equilibriumLength * (distanceFraction)));
+
+		let linkBreakerRepresentation = {
+			brokenLink: tensor,
+			originalRight: leftNewLink,
+			originalLeft: rightNewLink,
+			immediatelyLeft: leftNewLink,
+			immediatelyRight: rightNewLink,
+			direction: dir,
+		};
+
+		tensor.ghostify();
+		this.iO.lineBreakers.push(linkBreakerRepresentation);
+
+		correctNeighboringLeft(leftNewLink, brokenLink);
+		correctNeighboringRight(rightNewLink, brokenLink);
+	}
+
+	/** Supportfunction that corrects the left nodes immediatelyRight
+	 * @param  {Tensor} newTensor
+	 * @param  {Tensor} oldTensor
+	 */
+	correctNeighboringLeft(newTensor, oldTensor) {
+		let leftNode=oldTensor.node1;
+		if (leftNode.lineBreakers) {
+			for (linkBreakerRepresentation in leftNode.lineBreakers) {
+				if (linkBreakerRepresentation.immediatelyRight==oldTensor) {
+					linkBreakerRepresentation.immediatelyRight=newTensor;
+				}
+			}
 		}
-		// Attach to new tensor
-		if (direction > 0) {
-			this.iO.attachToTensor(newTensor, 0.02);
-		} else {
-			this.iO.attachToTensor(newTensor, 0.98);
+	}
+
+	/** Supportfunction that corrects the right nodes immediatelyLeft
+	 * @param  {Tensor} newTensor
+	 * @param  {Tensor} oldTensor
+	 */
+	correctNeighboringLeft(newTensor, oldTensor) {
+		let rightNode=oldTensor.node2;
+		if (rightNode.lineBreakers) {
+			for (linkBreakerRepresentation in rightNode.lineBreakers) {
+				if (linkBreakerRepresentation.immediatelyLeft==oldTensor) {
+					linkBreakerRepresentation.immediatelyLeft=newTensor;
+				}
+			}
 		}
+	}
+
+
+	/**
+	 * @param  {number} time
+	 */
+	updatePosition(time) {
+		super.updatePosition(time); // Call parent in order to update this.iO nodes position
+		let cleanupList = [];
+
+		for (let lineBreaker of this.iO.lineBreakers) {
+			// i = 0; i < this.iO.lineBreakers.length; i++) {
+			// let lineBreaker = this.iO.lineBreakers[i];
+			lineBreaker.originalRight.equilibriumLength =
+				(lineBreaker.brokenLink.equilibriumLength +
+					lineBreaker.originalRight.getLength() -
+					lineBreaker.originalLeft.getLength()) / 2;
+			lineBreaker.originalLeft.equilibriumLength =
+				lineBreaker.originalTensor.equilibriumLength -
+				lineBreaker.originalRight.equilibriumLength;
+			this.leavingConnectedTensor(lineBreaker, cleanupList);
+		}
+		for (let cleanThis of cleanupList) {
+			removeIfPresent(cleanThis, this.iO.lineBreakers);
+		}
+	}
+	/**
+	 * If the position of the controlled object bounces or leaves on the right or
+	 * left side, disconnect it and restore the tensor to its original.
+	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
+	 * @param  {Array} cleanupList a list of things to remove after all is done
+	 */
+	leavingConnectedTensor(lineBreaker, cleanupList) {
+		let p1 = lineBreaker.immediatelyLeft.getOppositeNode(this.iO).getPosition();
+		let p2 = lineBreaker.immediatelyRight.getOppositeNode(this.iO).getPosition();
+		let p3 = this.iO.getPosition();
+		let perpendicularDistance = getS(p1, p2, p3);
+		let above = (perpendicularDistance * lineBreaker.direction > 0);
+		let inside = getTInside(p1, p2, p3);
+		let closeParallell = (Math.abs(perpendicularDistance) < 0.2);
+
+		if (above && inside) {
+			this.removeFromTensor(lineBreaker, cleanupList, 'Bounce disconnected from ' + lineBreaker.brokenLink.getName());
+		} else if (closeParallell && !inside) {
+			this.removeFromTensor(lineBreaker, cleanupList, 'Endpoint disconnected from ' + lineBreaker.brokenLink.getName());
+			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
+			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
+				multiplyVector(lineBreaker.direction, // wrt to the collision direction
+					perpendicular(lineBreaker.brokenLink.getActual()))));
+		}
+	}
+	/**
+	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
+	 * @param  {Array} cleanupList a list of things to remove after all is done
+	 * @param  {string} logMessage A mesage to display in the log for debug purposes
+	 */
+	removeFromTensor(lineBreaker, cleanupList, logMessage) {
+		Kill the originalLeft
+		Loop recursively through all right tensors and reattach them to the immediately left node. 
+		Ensure that atleast the top level gets the right constant
+
+
+		console.log(logMessage);
+		this.disconnect(lineBreaker);
+		cleanupList.push(lineBreaker);
+		lineBreaker.brokenLink.resetCollision(this.iO);
+	}
+
+	/**
+	 * @param  {Array} lineBreaker
+	 */
+	disconnect(lineBreaker) {
+		this.detachFromTruss(lineBreaker);
 	}
 }
