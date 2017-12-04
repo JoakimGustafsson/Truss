@@ -351,7 +351,9 @@ class LineBreakerNode extends ActuatorNode {
 		mass = 0.01, name = 'linebreakernode', positionFunction,
 		showFunction, velocityLoss = 0.99) {
 		super(obj, new Position(1, 1), mass, name, positionFunction, showFunction, velocityLoss);
-		this.iO.lineBreakers = [];
+		if (!this.iO.linkBreakers) {
+			this.iO.linkBreakers = new LinkBreakers();
+		}
 		this.truss;
 	}
 
@@ -363,7 +365,6 @@ class LineBreakerNode extends ActuatorNode {
 		this.truss.removeTensor(linkBreakerRepresentation.leftTensor);
 		this.truss.deghostifyTensor(linkBreakerRepresentation.brokenLink);
 	}
-
 
 	/** This function takes a tensor in a truss and creates a linkBreakerRepresentation that both contain the original
 	 * broken link as well as the left and right original replacement. Remember that these links in turn can be broken
@@ -380,39 +381,57 @@ class LineBreakerNode extends ActuatorNode {
 		let leftNode = tensor.node1;
 		let rightNode = tensor.node2;
 
-		let leftNewLink=this.truss.addTensor(
-			new PullSpring(this.iO, rightNode, tensor.constant,
-				tensor.equilibriumLength * (1 - distanceFraction)));
-		let rightNewLink=this.truss.addTensor(
-			new PullSpring(leftNode, this.iO, tensor.constant,
-				tensor.equilibriumLength * (distanceFraction)));
+		let leftNewLink = this.createChildTensor(
+			leftnode,
+			this.iO,
+			tensor.constant,
+			tensor.equilibriumLength * distanceFraction);
 
-		let linkBreakerRepresentation = {
-			brokenLink: tensor,
-			originalRight: leftNewLink,
-			originalLeft: rightNewLink,
-			immediatelyLeft: leftNewLink,
-			immediatelyRight: rightNewLink,
-			direction: dir,
-		};
+		if (leftNode.linkBreakers) {
+			leftNode.linkBreakers.replaceClosest(tensor, leftNewLink);
+		}
+
+		let rightNewLink = this.createChildTensor(
+			this.iO,
+			rightNode,
+			tensor.constant,
+			tensor.equilibriumLength * (1 - distanceFraction));
+
+		if (rightNode.linkBreakers) {
+			rightNode.linkBreakers.replaceClosest(tensor, rightNewLink);
+		}
+
+		let linkBreakerRepresentation = new LinkBreakerRepresentation(
+			tensor, this.iO, leftNewLink, rightNewLink, leftNewLink,
+			rightNewLink, dir);
 
 		tensor.ghostify();
-		this.iO.lineBreakers.push(linkBreakerRepresentation);
+		this.iO.linkBreakers.addLinkBreaker(linkBreakerRepresentation);
+	}
 
-		correctNeighboringLeft(leftNewLink, brokenLink);
-		correctNeighboringRight(rightNewLink, brokenLink);
+	/**
+	 * Creates a new child PullSpring and adds it to the truss
+	 * @param  {Node} leftNode
+	 * @param  {Node} rightNode
+	 * @param  {number} constant
+	 * @param  {number} equilibriumLength
+	 * @return {PullSpring} The new Pullspring connecting the two nodes
+	 */
+	createChildTensor(leftNode, rightNode, constant, equilibriumLength) {
+		return this.truss.addTensor(
+			new PullSpring(leftNode, rightNode, constant, equilibriumLength));
 	}
 
 	/** Supportfunction that corrects the left nodes immediatelyRight
 	 * @param  {Tensor} newTensor
 	 * @param  {Tensor} oldTensor
-	 */
+
 	correctNeighboringLeft(newTensor, oldTensor) {
-		let leftNode=oldTensor.node1;
+		let leftNode = oldTensor.node1;
 		if (leftNode.lineBreakers) {
 			for (linkBreakerRepresentation in leftNode.lineBreakers) {
-				if (linkBreakerRepresentation.immediatelyRight==oldTensor) {
-					linkBreakerRepresentation.immediatelyRight=newTensor;
+				if (linkBreakerRepresentation.immediatelyRight == oldTensor) {
+					linkBreakerRepresentation.immediatelyRight = newTensor;
 				}
 			}
 		}
@@ -421,17 +440,17 @@ class LineBreakerNode extends ActuatorNode {
 	/** Supportfunction that corrects the right nodes immediatelyLeft
 	 * @param  {Tensor} newTensor
 	 * @param  {Tensor} oldTensor
-	 */
-	correctNeighboringLeft(newTensor, oldTensor) {
-		let rightNode=oldTensor.node2;
+
+	XXXcorrectNeighboringLeft(newTensor, oldTensor) {
+		let rightNode = oldTensor.node2;
 		if (rightNode.lineBreakers) {
 			for (linkBreakerRepresentation in rightNode.lineBreakers) {
-				if (linkBreakerRepresentation.immediatelyLeft==oldTensor) {
-					linkBreakerRepresentation.immediatelyLeft=newTensor;
+				if (linkBreakerRepresentation.immediatelyLeft == oldTensor) {
+					linkBreakerRepresentation.immediatelyLeft = newTensor;
 				}
 			}
 		}
-	}
+	}*/
 
 
 	/**
@@ -442,21 +461,14 @@ class LineBreakerNode extends ActuatorNode {
 		let cleanupList = [];
 
 		for (let lineBreaker of this.iO.lineBreakers) {
-			// i = 0; i < this.iO.lineBreakers.length; i++) {
-			// let lineBreaker = this.iO.lineBreakers[i];
-			lineBreaker.originalRight.equilibriumLength =
-				(lineBreaker.brokenLink.equilibriumLength +
-					lineBreaker.originalRight.getLength() -
-					lineBreaker.originalLeft.getLength()) / 2;
-			lineBreaker.originalLeft.equilibriumLength =
-				lineBreaker.originalTensor.equilibriumLength -
-				lineBreaker.originalRight.equilibriumLength;
+			lineBreaker.recalculateConstants();
 			this.leavingConnectedTensor(lineBreaker, cleanupList);
 		}
 		for (let cleanThis of cleanupList) {
 			removeIfPresent(cleanThis, this.iO.lineBreakers);
 		}
 	}
+
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
@@ -488,11 +500,36 @@ class LineBreakerNode extends ActuatorNode {
 	 * @param  {string} logMessage A mesage to display in the log for debug purposes
 	 */
 	removeFromTensor(lineBreaker, cleanupList, logMessage) {
-		Kill the originalLeft
-		Loop recursively through all right tensors and reattach them to the immediately left node. 
-		Ensure that atleast the top level gets the right constant
+		// Kill the originalLeft
+		// Loop recursively through all right tensors and reattach them to the immediately left node.
+		// Ensure that atleast the top level gets the right constant
+
+		// Select replacer r as immediately left
+		// Let replacer = the node immediately to the left
+		// let old = the this.iO node that should be pulled out
+		// Loop through all the nodes to the left and replace any
+		// node.lineBreakers references to old with replacer
+
+		let leftnode=linebreaker.immediatelyLeft.node1;
+		let rightnode=linebreaker.immediatelyRight.node2;
+
+		// Select replacement
+		let newMainBreakNode=leftnode;
+
+		// Patch up the immediate links
+		leftnode.lineBreakers.replaceImmediate(
+			lineBreaker.immediatelyLeft,
+			lineBreaker.immediatelyRight);
 
 
+		// Try to get a=left childtriangle
+		// if none, try get a=right childtriangle
+		// if none, let the actual node leave
+
+		// remove opposite pull-link
+
+
+		// let the actual node leve
 		console.log(logMessage);
 		this.disconnect(lineBreaker);
 		cleanupList.push(lineBreaker);
@@ -504,5 +541,116 @@ class LineBreakerNode extends ActuatorNode {
 	 */
 	disconnect(lineBreaker) {
 		this.detachFromTruss(lineBreaker);
+	}
+}
+
+/**
+ * @class
+ */
+class LinkBreakers {
+	/** This class represents a list of all the Links that has been broken by
+	 * a node.
+	 */
+	constructor() {
+		this.lineBreakers = [];
+	}
+
+	/** Add a new Link that has been broken by a node.
+	 * @param  {LinkBreakerRepresentation} linkBreakerRepresentation
+	 */
+	addLinkBreaker(linkBreakerRepresentation) {
+		this.lineBreakers.push(linkBreakerRepresentation);
+	}
+
+	/**
+	 * This function is used when one of the immediate links have been
+	 * broken it replaces the old immediate neighbour with the new part
+	 * @param  {Tensor} oldClosest
+	 * @param  {Tensor} newClosest
+	 */
+	replaceClosest(oldClosest, newClosest) {
+		for (let linebreaker of this.lineBreakers) {
+			linebreaker.replaceImmediate(oldClosest, newClosest);
+		}
+	}
+}
+
+/**
+ * @class
+ */
+class LinkBreakerRepresentation {
+	/** LinkBreakerRepresentation
+	 * @param  {Tensor} brokenLink
+	 * @param  {node} breakerNode
+	 * @param  {Tensor} originalRight
+	 * @param  {Tensor} originalLeft
+	 * @param  {Tensor} immediatelyLeft
+	 * @param  {Tensor} immediatelyRight
+	 * @param  {number} direction
+	 */
+	constructor(brokenLink, breakerNode, originalRight, originalLeft,
+		immediatelyLeft, immediatelyRight, direction) {
+		this.brokenLink = brokenLink;
+		this.breakerNode = breakerNode;
+		this.originalRight = originalRight;
+		this.originalLeft = originalLeft;
+		this.immediatelyLeft = immediatelyLeft;
+		this.immediatelyRight = immediatelyRight;
+		this.direction = direction;
+	}
+
+	/** Given a lineBreakerRepresentation, using the length of originalRight and originalLeft
+	 * @param  {object} lineBreaker
+	 */
+	recalculateConstants() {
+		this.originalRight.equilibriumLength =
+			(this.brokenLink.equilibriumLength +
+				this.originalRight.getLength() -
+				this.originalLeft.getLength()) / 2;
+		this.originalLeft.equilibriumLength =
+			this.brokenLink.equilibriumLength -
+			this.originalRight.equilibriumLength;
+	}
+
+	/** Change the immediate tensor
+	 * @param  {Tensor} oldClosest
+	 * @param  {Tensor} newClosest
+	 */
+	replaceImmediate(oldClosest, newClosest) {
+		if (this.immediatelyLeft == oldClosest) {
+			this.immediatelyLeft = newClosest;
+		}
+		if (this.immediatelyRight == oldClosest) {
+			this.immediatelyRight = newClosest;
+		}
+	}
+
+	/** Correct all tensors so that if they where connected to
+	 * oldNode, they will instead be connected to newNode
+	 * @param  {Node} oldNode
+	 * @param  {Node} newNode
+	 * @return {number} was this a valid replacement
+	 */
+	replaceNode(oldNode, newNode) {
+		/** Support that replaces nodes in a tensor
+		 * @param  {Tensor} tensor
+		 * @return {number} return 0 if node1==node2
+		 */
+		function nodeReplace(tensor) {
+			if (tensor.node1 == oldNode) {
+				tensor.node1 = newNode;
+			}
+			if (tensor.node2 == oldNode) {
+				tensor.node2 = newNode;
+			}
+			return tensor.node1!=tensor.node2;
+		}
+
+		return (
+			nodeReplace(this.brokenLink) &&
+			nodeReplace(this.originalRight) &&
+			nodeReplace(this.originalLeft) &&
+			nodeReplace(this.immediatelyLeft) &&
+			nodeReplace(this.immediatelyRight));
 	}
 }
