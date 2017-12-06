@@ -38,6 +38,13 @@ class Node {
 		return this.localPosition;
 	};
 
+	/** Returns all tensors connected to a node
+	 * @return {Position}
+	 */
+	getTensors() {
+		let returnValue=[];
+		return returnValue.concat(this.velocityBasedTensors, this.positionBasedTensors);
+	}
 
 	/**
 	 * Ensures that this node understands that it will recieve force from thsi tensor

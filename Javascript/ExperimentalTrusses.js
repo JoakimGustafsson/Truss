@@ -44,6 +44,10 @@ class WalkTruss extends Truss {
 		let egoGravityField = this.addTensor(gravityField(protagonist)); // Needed to create a jumpactuator
 
 		// let ego2 = this.addGravityNode(new ProtagonistNode(new Position(4, 1.2), 70, 'Ego2'));
+		let protagonist2 = new ProtagonistNode(new Position(4, 2.3), 70, 'Ego2');
+		this.addNode(protagonist2);
+		let egoGravityField2 = this.addTensor(gravityField(protagonist2)); // Needed to create a jumpactuator
+
 
 		// Set up the truss of nodes
 		let f1 = this.addGravityNode(new Node(new Position(1, 3), 100, 'floor1'));
@@ -119,16 +123,15 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
 
 
-		// Add one atuator to take care of springrunning
-		let springActuatorNode = this.addNode(new LineBreakerNode(protagonist, new Position(3, 0.5),
-			0.05, 'myLineBreakerNode'));
+		// Add one actuator to take care of springrunning
+		let lineBreakerNode1 = this.addNode(
+			new LineBreakerNode(
+				protagonist, 0.01, 'lb1'));
 
-		/*	var actuatorNode2 = this.addNode(
-			new SpringDanglerNode(ego2, new Position(1,0.25), new Position(3,0.25),
-					leftField1, rightField1,0.05,"mySpringDanglerNode2",0,0,0.99));
-*/
-		// let KeyDangleSpring =
-
+		// Add one actuator to take care of springrunning
+		let lineBreakerNode2 = this.addNode(
+			new LineBreakerNode(
+				protagonist2, 0.01, 'lb21'));
 
 		let jumpActuator = this.addNode(
 			new JumpNode(protagonist, new Position(0.5, 1), new Position(0.5, 2),
@@ -137,7 +140,10 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(sensorNode, jumpActuator, 50, 0.1));
 
 		let collissionsensor1 = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
-		collissionsensor1.registerTrussObjectAndActuator(this, protagonist, springActuatorNode);
+		collissionsensor1.registerTrussObjectAndActuator(this, protagonist, lineBreakerNode1);
+
+		let collissionsensor2 = new CollisionSensorNode(new Position(5, 1), 0.01, 'CollissionSensor2');
+		collissionsensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerNode2);
 		/*
 	var collissionsensor2 = new CollisionSensorNode(new Position(8,1),0.01,"CollissionSensor2");
 	collissionsensor2.registerTrussObjectAndActuator(this,ego2, actuatorNode2);
@@ -146,9 +152,9 @@ class WalkTruss extends Truss {
 }
 
 /**
-	 * @class
-	 * @extends Node
-	 */
+ * @class
+ * @extends Node
+ */
 class ProtagonistNode extends Node {
 	/**
 	 * @param  {Position} startPosition
@@ -175,6 +181,10 @@ class ProtagonistNode extends Node {
 			canvas.context.strokeStyle = 'yellow';
 			canvas.context.beginPath();
 			canvas.drawCircle(this.getPosition(), 1);
+			canvas.context.stroke();
+			canvas.context.strokeStyle = 'red';
+			canvas.context.beginPath();
+			canvas.drawCircle(this.getPosition(), 0.01);
 			canvas.context.stroke();
 		}
 	}

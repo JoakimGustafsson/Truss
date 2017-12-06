@@ -76,6 +76,7 @@ class Tensor {
 		this.addNode2(this.node2);
 	};
 
+
 	/**
 	 * @return {number}
 	 */
@@ -208,6 +209,10 @@ class Tensor {
 	 * @return {number}
 	 */
 	getForce(node) {
+		if (this.callback) {
+			this.callback(this)
+		}
+
 		let directedforce = this.force;
 		if (node == this.node2) {
 			return directedforce;
@@ -216,7 +221,7 @@ class Tensor {
 		}
 	};
 
-	/**
+	/** Return {string} the HTML color of the tensor
 	 * @return {string} the HTML color of the tensor
 	 */
 	getColour() {
