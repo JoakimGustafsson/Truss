@@ -384,6 +384,7 @@ class LineBreakerNode extends ActuatorNode {
 			newLength = currentTensor.getLength();
 			while (currentTensor != brokenLink.breakEndTensor) {
 				currentTensor = currentTensor.next;
+				// if (!currentTensor) return;
 				callback(currentTensor);
 			}
 		}
@@ -433,24 +434,13 @@ class LineBreakerNode extends ActuatorNode {
 			this.iO, endNode,
 			tensor.constant,
 			tensor.equilibriumLength * (1 - distanceFraction),
-			tensor.originalParent,
-			tensor.previous,
-			tensor.next);
+			tensor.originalParent);
 
-		if (tensor.previous) {
-			tensor.previous.next = startNewLink;
-			startNewLink.previous = tensor.previous;
-		}
+		this.setupNextAndPrevious(tensor, startNewLink, endNewLink);
 
-		startNewLink.next = endNewLink;
-		endNewLink.previous = startNewLink;
-
-		if (tensor.next) {
-			endNewLink.next = tensor.next;
-			tensor.next.previous = endNewLink;
-		}
-
-		if (tensor.originalParent != tensor) { // Several breaks at the same time
+		if (tensor.originalParent == tensor) { // The first time a Tensor is broken
+			this.handleFirstBreak(tensor, startNewLink, endNewLink);
+		} else { // Several breaks at the same time
 			if (tensor.originalParent.node1 == startNewLink.node1) {
 				tensor.originalParent.breakStartTensor = startNewLink;
 			}
@@ -458,15 +448,104 @@ class LineBreakerNode extends ActuatorNode {
 				tensor.originalParent.breakEndTensor = endNewLink;
 			}
 			truss.removeTensor(tensor);
-		} else { // The first time a Tensor is broken
-			tensor.ghostify();
-			let t = this;
-			tensor.callback = function(c) {
-				t.recalcEquilibriumLengths(c);
-			};
-			tensor.breakStartTensor = startNewLink;
-			tensor.breakEndTensor = endNewLink;
 		}
+
+		if (startNode.immediatelyRight) {
+			startNode.immediatelyRight=startNewLink;
+		}
+
+		if (endNode.immediatelyLeft) {
+			endNode.immediatelyLeft=endNewLink;
+		}
+
+		OK, the whole idea with this.iO immediates has to take several lines broken into consideration
+
+		this.iO.immediatelyLeft = startNewLink; // This fails to handle multiple
+		this.iO.immediatelyRight = endNewLink;
+
+		this.iO.direction = dir;
+	}
+	/** Handle the first time a tensor is broken by a node
+	 * @param  {Tensor} tensor
+	 * @param  {Tensor} startNewLink
+	 * @param  {Tensor} endNewLink
+	 */
+	handleFirstBreak(tensor, startNewLink, endNewLink) {
+		tensor.ghostify();
+		let t = this;
+		tensor.callback = function(c) {
+			t.recalcEquilibriumLengths(c);
+		};
+		tensor.breakStartTensor = startNewLink;
+		tensor.breakEndTensor = endNewLink;
+	}
+
+	/** This is a support function that sets up the next and previous links on the surrounding tensors
+	 * @param  {Tensor} originalTensor
+	 * @param  {Tensor} startNewLink
+	 * @param  {Tensor} endNewLink
+	 */
+	setupNextAndPrevious(originalTensor, startNewLink, endNewLink) {
+		if (originalTensor.previous) {
+			originalTensor.previous.next = startNewLink;
+			startNewLink.previous = originalTensor.previous;
+		}
+		startNewLink.next = endNewLink;
+		endNewLink.previous = startNewLink;
+		if (originalTensor.next) {
+			endNewLink.next = originalTensor.next;
+			originalTensor.next.previous = endNewLink;
+		}
+	}
+
+	/** This function takes care of patching a broken link when the breaking node leaves it
+	 * @param  {string} logMessage A mesage to display in the log for debug purposes
+	 */
+	removeFromTensor(logMessage) {
+		let startLink = this.iO.immediatelyLeft;
+		let endLink = this.iO.immediatelyRight;
+		let startNode = startLink.node1;
+		let endNode = endLink.node2;
+		let parent = startLink.originalParent;
+
+		if (parent.breakStartTensor == startLink && parent.breakEndTensor == endLink) {
+			// Just one break that goes away
+			parent.deghostifyTensor();
+			parent.resetCollision(this.iO);
+			parent.callback=undefined;
+		} else {
+			let newLink = this.createChildTensor(
+				startNode, endNode,
+				parent.constant,
+				startLink.equilibriumLength + endLink.equilibriumLength,
+				parent);
+
+			if (parent.breakStartTensor == startLink) {
+				parent.breakStartTensor = newLink;
+			} else if (parent.breakEndTensor == endLink) {
+				parent.breakEndTensor = newLink;
+			}
+
+			if (startLink.previous) {
+				startLink.previous.next=newLink;
+			}
+			if (endLink.next) {
+				endLink.next.previous=newLink;
+			}
+			newLink.previous=startLink.previous;
+			newLink.next=endLink.next;
+
+			this.truss.removeTensor(startLink);
+			this.truss.removeTensor(endLink);
+		}
+		this.truss.removeTensor(startLink);
+		this.truss.removeTensor(endLink);
+
+		this.iO.immediatelyLeft = undefined; // This fails to handle multiple
+		this.iO.immediatelyRight = undefined;
+		this.iO.direction = 0;
+
+		console.log(logMessage);
 	}
 
 	/**
@@ -491,6 +570,9 @@ class LineBreakerNode extends ActuatorNode {
 	updatePosition(time) {
 		super.updatePosition(time); // Call parent in order to update this.iO nodes position
 
+		if (this.iO.immediatelyLeft) {
+			this.leavingConnectedTensor();
+		}
 		/* 		let cleanupList = [];
 
 				for (let lineBreaker of this.iO.lineBreakers) {
@@ -506,68 +588,27 @@ class LineBreakerNode extends ActuatorNode {
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
-	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
 	 * @param  {Array} cleanupList a list of things to remove after all is done
 	 */
-	leavingConnectedTensor(lineBreaker, cleanupList) {
-		let p1 = lineBreaker.immediatelyLeft.getOppositeNode(this.iO).getPosition();
-		let p2 = lineBreaker.immediatelyRight.getOppositeNode(this.iO).getPosition();
+	leavingConnectedTensor() {
+		let p1 = this.iO.immediatelyLeft.getOppositeNode(this.iO).getPosition();
+		let p2 = this.iO.immediatelyRight.getOppositeNode(this.iO).getPosition();
 		let p3 = this.iO.getPosition();
 		let perpendicularDistance = getS(p1, p2, p3);
-		let above = (perpendicularDistance * lineBreaker.direction > 0);
+		let above = (perpendicularDistance * this.iO.direction > 0);
 		let inside = getTInside(p1, p2, p3);
-		let closeParallell = (Math.abs(perpendicularDistance) < 0.2);
+		let closeParallell = (Math.abs(perpendicularDistance) < 0.01); // 0.2);
 
 		if (above && inside) {
-			this.removeFromTensor(lineBreaker, cleanupList, 'Bounce disconnected from ' + lineBreaker.brokenLink.getName());
+			this.removeFromTensor('Bounce disconnected from ' + this.iO.name);
 		} else if (closeParallell && !inside) {
-			this.removeFromTensor(lineBreaker, cleanupList, 'Endpoint disconnected from ' + lineBreaker.brokenLink.getName());
 			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
 			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
-				multiplyVector(lineBreaker.direction, // wrt to the collision direction
-					perpendicular(lineBreaker.brokenLink.getActual()))));
+				multiplyVector(this.iO.direction, // wrt to the collision direction
+					perpendicular(this.iO.immediatelyRight.getActual()))));
+
+			this.removeFromTensor('Endpoint disconnected from ' + this.iO.name);
 		}
-	}
-	/**
-	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
-	 * @param  {Array} cleanupList a list of things to remove after all is done
-	 * @param  {string} logMessage A mesage to display in the log for debug purposes
-	 */
-	removeFromTensor(lineBreaker, cleanupList, logMessage) {
-		// Kill the originalLeft
-		// Loop recursively through all right tensors and reattach them to the immediately left node.
-		// Ensure that atleast the top level gets the right constant
-
-		// Select replacer r as immediately left
-		// Let replacer = the node immediately to the left
-		// let old = the this.iO node that should be pulled out
-		// Loop through all the nodes to the left and replace any
-		// node.lineBreakers references to old with replacer
-
-		let leftnode = linebreaker.immediatelyLeft.node1;
-		let rightnode = linebreaker.immediatelyRight.node2;
-
-		// Select replacement
-		let newMainBreakNode = leftnode;
-
-		// Patch up the immediate links
-		leftnode.lineBreakers.replaceImmediate(
-			lineBreaker.immediatelyLeft,
-			lineBreaker.immediatelyRight);
-
-
-		// Try to get a=left childtriangle
-		// if none, try get a=right childtriangle
-		// if none, let the actual node leave
-
-		// remove opposite pull-link
-
-
-		// let the actual node leve
-		console.log(logMessage);
-		this.detachFromTruss(lineBreaker);
-		cleanupList.push(lineBreaker);
-		lineBreaker.brokenLink.resetCollision(this.iO);
 	}
 }
 
