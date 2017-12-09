@@ -459,6 +459,14 @@ class LineBreakerNode extends ActuatorNode {
 		}
 
 		OK, the whole idea with this.iO immediates has to take several lines broken into consideration
+			Classify break moveBy
+				originalParent
+				immediatelyRight
+				immediatelyLeft
+				direction
+
+				updateRight(parent)
+				updateleft(parent)
 
 		this.iO.immediatelyLeft = startNewLink; // This fails to handle multiple
 		this.iO.immediatelyRight = endNewLink;
