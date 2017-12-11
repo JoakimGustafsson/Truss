@@ -11,6 +11,7 @@ class Node {
 	 * @param  {number} velocityLoss
 	 */
 	constructor(startPosition, mass = 1, name = 'node', positionFunction, showFunction, velocityLoss = 1) {
+		this.name = name;
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
 		this.mass = mass;
@@ -18,7 +19,6 @@ class Node {
 		this.angle = 0;
 		this.velocityBasedTensors = [];
 		this.positionBasedTensors = [];
-		this.name = name;
 		this.velocityLoss = velocityLoss;
 		this.positionFunction = positionFunction;
 		this.showFunction = positionFunction;

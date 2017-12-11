@@ -198,137 +198,137 @@ class LeftRightNode extends BinaryActuatorNode {
 	}
 }
 
-/**
- * A SpringDanglerNode is a special type of ActuatorNode that
- * bounces on or dangles on Spring tensors
- * @class
- * @augments BinaryActuatorNode
- */
-class SpringDanglerNode extends ActuatorNode {
-	/**
-	 * @constructor
-	 * @param {Node} obj - The node that this node should influence, often the protagonist node
-	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
-	 * @param {number} mass - The mass of the actuator node.
-	 * @param {string} name - The name of the node.
-	 * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
-	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
-	 * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
-	 */
-	constructor(obj, position1,
-		mass = 0.01, name = 'springdanglernode', positionFunction,
-		showFunction, velocityLoss = 0.99) {
-		super(obj, position1, mass, name, positionFunction, showFunction, velocityLoss);
-		this.iO.lineBreakers = [];
-		this.truss;
-	}
+// /**
+//  * A SpringDanglerNode is a special type of ActuatorNode that
+//  * bounces on or dangles on Spring tensors
+//  * @class
+//  * @augments BinaryActuatorNode
+//  */
+// class SpringDanglerNode extends ActuatorNode {
+// 	/**
+// 	 * @constructor
+// 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
+// 	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
+// 	 * @param {number} mass - The mass of the actuator node.
+// 	 * @param {string} name - The name of the node.
+// 	 * @param {function} positionFunction - A javascript function that, if present, governs the position of this node.
+// 	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
+// 	 * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
+// 	 */
+// 	constructor(obj, position1,
+// 		mass = 0.01, name = 'springdanglernode', positionFunction,
+// 		showFunction, velocityLoss = 0.99) {
+// 		super(obj, position1, mass, name, positionFunction, showFunction, velocityLoss);
+// 		this.iO.lineBreakers = [];
+// 		this.truss;
+// 	}
 
-	/**
-	 * @param  {object} result
-	 */
-	detachFromTruss(result) {
-		this.truss.removeTensor(result.rightTensor);
-		this.truss.removeTensor(result.leftTensor);
-		this.truss.deghostifyTensor(result.originalTensor);
-	}
+// 	/**
+// 	 * @param  {object} result
+// 	 */
+// 	detachFromTruss(result) {
+// 		this.truss.removeTensor(result.rightTensor);
+// 		this.truss.removeTensor(result.leftTensor);
+// 		this.truss.deghostifyTensor(result.originalTensor);
+// 	}
 
 
-	/**
-	 * @param  {Truss} truss
-	 * @param  {Tensor} tensor
-	 * @param  {number} distanceFraction
-	 * @param  {number} dir
-	 */
-	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
-		this.truss = truss;
-		let rightNode = tensor.node2;
-		let leftNode = tensor.node1;
-		if (tensor.node2 == leftNode) {
-			distanceFraction = 1 - distanceFraction;
-		}
+// 	/**
+// 	 * @param  {Truss} truss
+// 	 * @param  {Tensor} tensor
+// 	 * @param  {number} distanceFraction
+// 	 * @param  {number} dir
+// 	 */
+// 	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
+// 		this.truss = truss;
+// 		let rightNode = tensor.node2;
+// 		let leftNode = tensor.node1;
+// 		if (tensor.node2 == leftNode) {
+// 			distanceFraction = 1 - distanceFraction;
+// 		}
 
-		let lineBreaker = {
-			rightTensor: this.truss.addTensor(
-				new PullSpring(this.iO, rightNode, tensor.constant,
-					tensor.equilibriumLength * (1 - distanceFraction))),
-			leftTensor: this.truss.addTensor(
-				new PullSpring(leftNode, this.iO, tensor.constant,
-					tensor.equilibriumLength * (distanceFraction))),
-			originalTensor: tensor,
-			direction: dir,
-		};
+// 		let lineBreaker = {
+// 			rightTensor: this.truss.addTensor(
+// 				new PullSpring(this.iO, rightNode, tensor.constant,
+// 					tensor.equilibriumLength * (1 - distanceFraction))),
+// 			leftTensor: this.truss.addTensor(
+// 				new PullSpring(leftNode, this.iO, tensor.constant,
+// 					tensor.equilibriumLength * (distanceFraction))),
+// 			originalTensor: tensor,
+// 			direction: dir,
+// 		};
 
-		tensor.ghostify();
-		this.iO.lineBreakers.push(lineBreaker);
-	}
+// 		tensor.ghostify();
+// 		this.iO.lineBreakers.push(lineBreaker);
+// 	}
 
-	/**
-	 * @param  {number} time
-	 */
-	updatePosition(time) {
-		super.updatePosition(time); // Call parent in order to update this.iO nodes position
-		let cleanupList = [];
+// 	/**
+// 	 * @param  {number} time
+// 	 */
+// 	updatePosition(time) {
+// 		super.updatePosition(time); // Call parent in order to update this.iO nodes position
+// 		let cleanupList = [];
 
-		for (let lineBreaker of this.iO.lineBreakers) {
-			// i = 0; i < this.iO.lineBreakers.length; i++) {
-			// let lineBreaker = this.iO.lineBreakers[i];
-			lineBreaker.rightTensor.equilibriumLength =
-				(lineBreaker.originalTensor.equilibriumLength +
-					lineBreaker.rightTensor.getLength() -
-					lineBreaker.leftTensor.getLength()) / 2;
-			lineBreaker.leftTensor.equilibriumLength =
-				lineBreaker.originalTensor.equilibriumLength -
-				lineBreaker.rightTensor.equilibriumLength;
-			this.leavingConnectedTensor(lineBreaker, cleanupList);
-		}
-		for (let cleanThis of cleanupList) {
-			removeIfPresent(cleanThis, this.iO.lineBreakers);
-		}
-	}
-	/**
-	 * If the position of the controlled object bounces or leaves on the right or
-	 * left side, disconnect it and restore the tensor to its original.
-	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
-	 * @param  {Array} cleanupList a list of things to remove after all is done
-	 */
-	leavingConnectedTensor(lineBreaker, cleanupList) {
-		let p1 = lineBreaker.leftTensor.getOppositeNode(this.iO).getPosition();
-		let p2 = lineBreaker.rightTensor.getOppositeNode(this.iO).getPosition();
-		let p3 = this.iO.getPosition();
-		let perpendicularDistance = getS(p1, p2, p3);
-		let above = (perpendicularDistance * lineBreaker.direction > 0);
-		let inside = getTInside(p1, p2, p3);
-		let closeParallell = (Math.abs(perpendicularDistance) < 0.2);
+// 		for (let lineBreaker of this.iO.lineBreakers) {
+// 			// i = 0; i < this.iO.lineBreakers.length; i++) {
+// 			// let lineBreaker = this.iO.lineBreakers[i];
+// 			lineBreaker.rightTensor.equilibriumLength =
+// 				(lineBreaker.originalTensor.equilibriumLength +
+// 					lineBreaker.rightTensor.getLength() -
+// 					lineBreaker.leftTensor.getLength()) / 2;
+// 			lineBreaker.leftTensor.equilibriumLength =
+// 				lineBreaker.originalTensor.equilibriumLength -
+// 				lineBreaker.rightTensor.equilibriumLength;
+// 			this.leavingConnectedTensor(lineBreaker, cleanupList);
+// 		}
+// 		for (let cleanThis of cleanupList) {
+// 			removeIfPresent(cleanThis, this.iO.lineBreakers);
+// 		}
+// 	}
+// 	/**
+// 	 * If the position of the controlled object bounces or leaves on the right or
+// 	 * left side, disconnect it and restore the tensor to its original.
+// 	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
+// 	 * @param  {Array} cleanupList a list of things to remove after all is done
+// 	 */
+// 	leavingConnectedTensor(lineBreaker, cleanupList) {
+// 		let p1 = lineBreaker.leftTensor.getOppositeNode(this.iO).getPosition();
+// 		let p2 = lineBreaker.rightTensor.getOppositeNode(this.iO).getPosition();
+// 		let p3 = this.iO.getPosition();
+// 		let perpendicularDistance = getS(p1, p2, p3);
+// 		let above = (perpendicularDistance * lineBreaker.direction > 0);
+// 		let inside = getTInside(p1, p2, p3);
+// 		let closeParallell = (Math.abs(perpendicularDistance) < 0.2);
 
-		if (above && inside) {
-			this.removeFromTensor(lineBreaker, cleanupList, 'Bounce disconnected from ' + lineBreaker.originalTensor.getName());
-		} else if (closeParallell && !inside) {
-			this.removeFromTensor(lineBreaker, cleanupList, 'Endpoint disconnected from ' + lineBreaker.originalTensor.getName());
-			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
-			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
-				multiplyVector(lineBreaker.direction, // wrt to the collision direction
-					perpendicular(lineBreaker.originalTensor.getActual()))));
-		}
-	}
-	/**
-	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
-	 * @param  {Array} cleanupList a list of things to remove after all is done
-	 * @param  {string} logMessage A mesage to display in the log for debug purposes
-	 */
-	removeFromTensor(lineBreaker, cleanupList, logMessage) {
-		console.log(logMessage);
-		this.disconnect(lineBreaker);
-		cleanupList.push(lineBreaker);
-		lineBreaker.originalTensor.resetCollision(this.iO);
-	}
+// 		if (above && inside) {
+// 			this.removeFromTensor(lineBreaker, cleanupList, 'Bounce disconnected from ' + lineBreaker.originalTensor.getName());
+// 		} else if (closeParallell && !inside) {
+// 			this.removeFromTensor(lineBreaker, cleanupList, 'Endpoint disconnected from ' + lineBreaker.originalTensor.getName());
+// 			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
+// 			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
+// 				multiplyVector(lineBreaker.direction, // wrt to the collision direction
+// 					perpendicular(lineBreaker.originalTensor.getActual()))));
+// 		}
+// 	}
+// 	/**
+// 	 * @param  {object} lineBreaker this argument contains thel left, right and original tensor
+// 	 * @param  {Array} cleanupList a list of things to remove after all is done
+// 	 * @param  {string} logMessage A mesage to display in the log for debug purposes
+// 	 */
+// 	removeFromTensor(lineBreaker, cleanupList, logMessage) {
+// 		console.log(logMessage);
+// 		this.disconnect(lineBreaker);
+// 		cleanupList.push(lineBreaker);
+// 		lineBreaker.originalTensor.resetCollision(this.iO);
+// 	}
 
-	/**
-	 * @param  {Array} lineBreaker
-	 */
-	disconnect(lineBreaker) {
-		this.detachFromTruss(lineBreaker);
-	}
-}
+// 	/**
+// 	 * @param  {Array} lineBreaker
+// 	 */
+// 	disconnect(lineBreaker) {
+// 		this.detachFromTruss(lineBreaker);
+// 	}
+// }
 
 
 /**
@@ -347,11 +347,12 @@ class LineBreakerNode extends ActuatorNode {
 	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
 	 * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
 	 */
-	constructor(obj,
-		mass = 0.01, name = 'linebreakernode', positionFunction,
-		showFunction, velocityLoss = 0.99) {
+	constructor(obj, mass = 0.01, name = 'linebreakernode', positionFunction, showFunction, velocityLoss = 0.99) {
 		super(obj, new Position(1, 1), mass, name, positionFunction, showFunction, velocityLoss);
 		this.truss;
+		if (!this.iO.breakList) {
+			this.iO.breakList= [];
+		}
 	}
 
 	/**
@@ -450,15 +451,17 @@ class LineBreakerNode extends ActuatorNode {
 			truss.removeTensor(tensor);
 		}
 
-		if (startNode.immediatelyRight) {
-			startNode.immediatelyRight=startNewLink;
+		let breaker = this.getBreak(startNode, tensor.originalParent);
+		if (breaker && breaker.immediatelyRight) {
+			breaker.immediatelyRight=startNewLink;
 		}
 
-		if (endNode.immediatelyLeft) {
-			endNode.immediatelyLeft=endNewLink;
+		breaker = this.getBreak(endNode, tensor.originalParent);
+		if (breaker && breaker.immediatelyLeft) {
+			breaker.immediatelyLeft=endNewLink;
 		}
 
-		OK, the whole idea with this.iO immediates has to take several lines broken into consideration
+		/* OK, the whole idea with this.iO immediates has to take several lines broken into consideration
 			Classify break moveBy
 				originalParent
 				immediatelyRight
@@ -466,12 +469,19 @@ class LineBreakerNode extends ActuatorNode {
 				direction
 
 				updateRight(parent)
-				updateleft(parent)
+				updateleft(parent) */
 
-		this.iO.immediatelyLeft = startNewLink; // This fails to handle multiple
-		this.iO.immediatelyRight = endNewLink;
+		this.iO.breakList.push(
+			{
+				'original': tensor.originalParent,
+				'immediatelyLeft': startNewLink,
+				'immediatelyRight': endNewLink,
+				'direction': dir,
+			});
 
-		this.iO.direction = dir;
+		// this.iO.immediatelyLeft = startNewLink; // This fails to handle multiple
+		// this.iO.immediatelyRight = endNewLink;
+		// this.iO.direction = dir;
 	}
 	/** Handle the first time a tensor is broken by a node
 	 * @param  {Tensor} tensor
@@ -506,12 +516,28 @@ class LineBreakerNode extends ActuatorNode {
 		}
 	}
 
+	/**
+	 * @param  {Node} startNode
+	 * @param  {Tensor} originalParent
+	 * @return {breaker}
+	 */
+	getBreak(startNode, originalParent) {
+		if (startNode.breakList) {
+			for (let breaker of startNode.breakList) {
+				if (breaker.original==originalParent) {
+					return breaker;
+				}
+			}
+		}
+	}
+
 	/** This function takes care of patching a broken link when the breaking node leaves it
+	 * @param  {object} lineBreaker
 	 * @param  {string} logMessage A mesage to display in the log for debug purposes
 	 */
-	removeFromTensor(logMessage) {
-		let startLink = this.iO.immediatelyLeft;
-		let endLink = this.iO.immediatelyRight;
+	removeFromTensor(lineBreaker, logMessage) {
+		let startLink = lineBreaker.immediatelyLeft;
+		let endLink = lineBreaker.immediatelyRight;
 		let startNode = startLink.node1;
 		let endNode = endLink.node2;
 		let parent = startLink.originalParent;
@@ -543,15 +569,24 @@ class LineBreakerNode extends ActuatorNode {
 			newLink.previous=startLink.previous;
 			newLink.next=endLink.next;
 
-			this.truss.removeTensor(startLink);
-			this.truss.removeTensor(endLink);
+			let breaker = this.getBreak(startNode, parent);
+			if (breaker && breaker.immediatelyRight) {
+				breaker.immediatelyRight=newLink;
+			}
+
+			breaker = this.getBreak(endNode, parent);
+			if (breaker && breaker.immediatelyLeft) {
+				breaker.immediatelyLeft=newLink;
+			}
 		}
 		this.truss.removeTensor(startLink);
 		this.truss.removeTensor(endLink);
 
-		this.iO.immediatelyLeft = undefined; // This fails to handle multiple
-		this.iO.immediatelyRight = undefined;
-		this.iO.direction = 0;
+		// this.iO.immediatelyLeft = undefined; // This fails to handle multiple
+		// this.iO.immediatelyRight = undefined;
+		// this.iO.direction = 0;
+
+		removeIfPresent(lineBreaker, this.iO.breakList);
 
 		console.log(logMessage);
 	}
@@ -578,8 +613,8 @@ class LineBreakerNode extends ActuatorNode {
 	updatePosition(time) {
 		super.updatePosition(time); // Call parent in order to update this.iO nodes position
 
-		if (this.iO.immediatelyLeft) {
-			this.leavingConnectedTensor();
+		for (let lineBreaker of this.iO.breakList) {
+			this.leavingConnectedTensor(lineBreaker);
 		}
 		/* 		let cleanupList = [];
 
@@ -596,26 +631,26 @@ class LineBreakerNode extends ActuatorNode {
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
-	 * @param  {Array} cleanupList a list of things to remove after all is done
+	 * @param  {List} lineBreaker a list of things to remove after all is done
 	 */
-	leavingConnectedTensor() {
-		let p1 = this.iO.immediatelyLeft.getOppositeNode(this.iO).getPosition();
-		let p2 = this.iO.immediatelyRight.getOppositeNode(this.iO).getPosition();
+	leavingConnectedTensor(lineBreaker) {
+		let p1 = lineBreaker.immediatelyLeft.getOppositeNode(this.iO).getPosition();
+		let p2 = lineBreaker.immediatelyRight.getOppositeNode(this.iO).getPosition();
 		let p3 = this.iO.getPosition();
 		let perpendicularDistance = getS(p1, p2, p3);
-		let above = (perpendicularDistance * this.iO.direction > 0);
+		let above = (perpendicularDistance * lineBreaker.direction > 0);
 		let inside = getTInside(p1, p2, p3);
 		let closeParallell = (Math.abs(perpendicularDistance) < 0.01); // 0.2);
 
 		if (above && inside) {
-			this.removeFromTensor('Bounce disconnected from ' + this.iO.name);
+			this.removeFromTensor(lineBreaker, 'Bounce disconnected from ' + this.iO.name);
 		} else if (closeParallell && !inside) {
 			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
 			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
-				multiplyVector(this.iO.direction, // wrt to the collision direction
-					perpendicular(this.iO.immediatelyRight.getActual()))));
+				multiplyVector(lineBreaker.direction, // wrt to the collision direction
+					perpendicular(lineBreaker.immediatelyRight.getActual()))));
 
-			this.removeFromTensor('Endpoint disconnected from ' + this.iO.name);
+			this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + this.iO.name);
 		}
 	}
 }
