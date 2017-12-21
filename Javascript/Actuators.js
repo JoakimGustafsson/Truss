@@ -235,11 +235,12 @@ class LineBreakerNode extends ActuatorNode {
 	/**
 	 * @param  {number} time
 	 */
-	updatePosition(time) {
-		super.updatePosition(time);
+	sense() {
+		// console.log('enter sense'+this.iO.breakList.length);
 		for (let brokenLink of this.iO.breakList) {
-			this.recalcEquilibriumLengths(brokenLink);
+			this.recalcEquilibriumLengths(brokenLink.original);
 		}
+		// console.log('leave sense:'+this.iO.breakList.length);
 	}
 
 	/**
@@ -252,6 +253,7 @@ class LineBreakerNode extends ActuatorNode {
 	 */
 	recalcEquilibriumLengths(brokenLink) {
 		let newLength=0;
+		let segments=0;
 
 		/** support function that loops over chains
 		 * @param  {Tensor} brokenLink The parent Tensor
@@ -272,15 +274,20 @@ class LineBreakerNode extends ActuatorNode {
 			loopOverChain(brokenLink,
 				function(currentTensor) {
 					newLength += currentTensor.getLength();
+					segments++;
 				});
 
 			let multiplicator = brokenLink.equilibriumLength / newLength;
+			let segmentstretch = (newLength-brokenLink.equilibriumLength)/segments;
 
-			// console.log('mulitiplier: '+multiplicator);
+			// console.log('enter loopOverChain');
 
 			loopOverChain(brokenLink, function(currentTensor) {
-				currentTensor.equilibriumLength = currentTensor.getLength() * multiplicator;
+				// currentTensor.equilibriumLength = currentTensor.getLength() * multiplicator;
+				currentTensor.equilibriumLength = currentTensor.getLength() - segmentstretch;
+				currentTensor.calculateForce();
 			});
+			// console.log('leave loopOverChain');
 		}
 	}
 
@@ -357,9 +364,9 @@ class LineBreakerNode extends ActuatorNode {
 	handleFirstBreak(tensor, startNewLink, endNewLink) {
 		tensor.ghostify();
 		let t = this;
-		tensor.callback = function(c) {
-			t.recalcEquilibriumLengths(c);
-		};
+		//tensor.callback = function(c) {
+		//	t.recalcEquilibriumLengths(c);
+		//};
 		tensor.breakStartTensor = startNewLink;
 		tensor.breakEndTensor = endNewLink;
 	}

@@ -48,6 +48,8 @@ class WalkTruss extends Truss {
 		let lineBreakerActuator = this.addNode(
 			new LineBreakerNode(protagonist, 0.01, 'lineBreakerActuator1'));
 
+			this.addSensor(lineBreakerActuator);  // wrong way to do it
+
 		/*
 		// let ego2 = this.addGravityNode(new ProtagonistNode(new Position(4, 1.2), 70, 'Ego2'));
 		let protagonist2 = new ProtagonistNode(new Position(4, 2.3), 70, 'Ego2');
@@ -61,7 +63,7 @@ class WalkTruss extends Truss {
  */
 		// Set up the truss of nodes
 		let f1 = this.addGravityNode(new Node(new Position(1, 2), 100, 'floor1'));
-		f2 = this.addGravityNode(new Node(new Position(5, 3), 100, 'floor2'));
+		f2 = this.addGravityNode(new Node(new Position(5, 4), 100, 'floor2'));
 		let f3 = this.addGravityNode(new Node(new Position(9, 3), 100, 'floor3'));
 		let f4 = this.addGravityNode(new Node(new Position(10, 3), 100, 'floor4'));
 		let f5 = this.addGravityNode(new Node(new Position(14, 3), 100, 'floor5'));
@@ -120,8 +122,8 @@ class WalkTruss extends Truss {
 
 		// Create two gravitywells and two fields towards them that can be used
 		// by the actuator to pull the protagonist left or right
-		let leftEarth = new Node(new Position(-6371e3, -6371e1), 5.97219e25, 'leftEarth', undefined, undefined, 0);
-		let rightEarth = new Node(new Position(6371e3, -6371e1), 5.97219e25, 'rightEarth', undefined, undefined, 0);
+		let leftEarth = new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0);
+		let rightEarth = new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0);
 		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11)); // 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 

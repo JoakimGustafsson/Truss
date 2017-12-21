@@ -286,6 +286,6 @@ class TrussNode extends Node {
 	 */
 	tick(time) {
 		this.truss.tick(time);
-		window.requestAnimationFrame(draw);
+		//window.requestAnimationFrame(draw);
 	};
 }

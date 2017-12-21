@@ -350,6 +350,7 @@ class PullSpring extends Spring {
 			this.force = new Force(0, 0);
 		} else {
 			Spring.prototype.calculateForce.call(this);
+			//console.log(length(this.force));
 		}
 	}
 }

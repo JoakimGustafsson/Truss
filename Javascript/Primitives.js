@@ -197,6 +197,13 @@ function length2(v) {
 	return v.x * v.x + v.y * v.y;
 }
 /**
+ * @param  {Vector} v
+ * @return {number}
+ */
+function length(v) {
+	return Math.sqrt(length2(v));
+}
+/**
  * @param  {number} l
  * @param  {Vector} v
  * @return {Vector}
