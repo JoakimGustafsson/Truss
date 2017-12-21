@@ -17,7 +17,7 @@ class Truss {
 	constructor(view, updateFrequency = 0.01) {
 		this.time = 0;
 		this.view = view;
-		this.collisiontrackingNodes = [];
+		this.sensorNodes = [];
 		this.nodes = [];
 		this.tensors = [];
 		this.updateFrequency = updateFrequency;
@@ -128,33 +128,26 @@ class Truss {
 
 	/**
 	 * Add a node to the list of nodes that should be checked if the collide with a tensor
-	 * @param  {Node} node
+	 * @param  {Node} sensorNode
 	 */
-	addCollider(node) {
-		this.collisiontrackingNodes.push(node);
+	addSensor(sensorNode) {
+		this.sensorNodes.push(sensorNode);
 	};
 
 	/**
 	 * Remove a node to the list of nodes that should be checked if the collide with a tensor
-	 * @param  {Node} node
+	 * @param  {Node} sensorNode
 	 */
-	removeCollider(node) {
-		removeIfPresent(node, this.collisiontrackingNodes);
+	removeSensor(sensorNode) {
+		removeIfPresent(sensorNode, this.sensorNodes);
 	};
+
 	/**
-	 * Go through all nodes added by addCollider() and check if just now
-	 * collided with any Spring.
-	 * If so, that will casue a collisionEvent generated from the Tensors
-	 * checkCollision() function.
+	 * Go through all sensors added by addSensor() and trigger the sense() function
 	 */
-	checkCollisions() {
-		for (let i = 0; i < this.collisiontrackingNodes.length; i++) {
-			let collider = this.collisiontrackingNodes[i];
-			for (let j = 0; j < this.positionBasedTensors.length; j++) {
-				if (this.positionBasedTensors[j].type == TensorType.SPRING) {
-					this.positionBasedTensors[j].checkCollision(collider);
-				}
-			}
+	sense() {
+		for (let sensorNode of this.sensorNodes) {
+			sensorNode.sense();
 		}
 	}
 
@@ -171,7 +164,7 @@ class Truss {
 		this.calculateVelocityBasedForces();
 		this.calculateFinalVelocities();
 		this.updatePositions();
-		this.checkCollisions();
+		this.sense();
 		this.time += this.updateFrequency;
 	}
 
@@ -180,9 +173,6 @@ class Truss {
 	 */
 	clear() {
 		this.view.context.clearRect(0, 0, WIDTH, HEIGHT);
-		// this.view.context.fillStyle = "#FAF7F8";
-		// this.view.context.rect(0,0,WIDTH,HEIGHT);
-		// this.view.context.fill();
 	};
 
 	/**

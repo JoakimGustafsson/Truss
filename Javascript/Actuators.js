@@ -461,16 +461,6 @@ class LineBreakerNode extends ActuatorNode {
 			breaker.immediatelyLeft=endNewLink;
 		}
 
-		/* OK, the whole idea with this.iO immediates has to take several lines broken into consideration
-			Classify break moveBy
-				originalParent
-				immediatelyRight
-				immediatelyLeft
-				direction
-
-				updateRight(parent)
-				updateleft(parent) */
-
 		this.iO.breakList.push(
 			{
 				'original': tensor.originalParent,
@@ -478,11 +468,8 @@ class LineBreakerNode extends ActuatorNode {
 				'immediatelyRight': endNewLink,
 				'direction': dir,
 			});
-
-		// this.iO.immediatelyLeft = startNewLink; // This fails to handle multiple
-		// this.iO.immediatelyRight = endNewLink;
-		// this.iO.direction = dir;
 	}
+
 	/** Handle the first time a tensor is broken by a node
 	 * @param  {Tensor} tensor
 	 * @param  {Tensor} startNewLink
@@ -532,6 +519,25 @@ class LineBreakerNode extends ActuatorNode {
 	}
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
+	 * at either end
+	 * @param  {Object} lineBreaker
+	 */
+	endExit(lineBreaker) {
+		this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
+			multiplyVector(lineBreaker.direction, // wrt to the collision direction
+				perpendicular(lineBreaker.immediatelyRight.getActual()))));
+		this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + this.iO.name);
+	}
+
+	/** This function takes care of patching a broken link when the breaking node leaves it
+	 * at either end
+	 * @param  {Object} lineBreaker
+	 */
+	bounceExit(lineBreaker) {
+		this.removeFromTensor(lineBreaker, 'Bounce disconnected from ' + this.iO.name);
+	}
+
+	/** This function takes care of patching a broken link when the breaking node leaves it
 	 * @param  {object} lineBreaker
 	 * @param  {string} logMessage A mesage to display in the log for debug purposes
 	 */
@@ -544,7 +550,7 @@ class LineBreakerNode extends ActuatorNode {
 
 		if (parent.breakStartTensor == startLink && parent.breakEndTensor == endLink) {
 			// Just one break that goes away
-			parent.deghostifyTensor();
+			parent.deGhostify();
 			parent.resetCollision(this.iO);
 			parent.callback=undefined;
 		} else {
@@ -605,55 +611,30 @@ class LineBreakerNode extends ActuatorNode {
 		pullSpring.originalParent = parent;
 		return this.truss.addTensor(pullSpring);
 	}
+}
 
-
-	/**
-	 * @param  {number} time
-	 */
-	updatePosition(time) {
-		super.updatePosition(time); // Call parent in order to update this.iO nodes position
-
-		for (let lineBreaker of this.iO.breakList) {
-			this.leavingConnectedTensor(lineBreaker);
-		}
-		/* 		let cleanupList = [];
-
-				for (let lineBreaker of this.iO.lineBreakers) {
-					lineBreaker.recalculateConstants();
-					this.leavingConnectedTensor(lineBreaker, cleanupList);
-				}
-				for (let cleanThis of cleanupList) {
-					removeIfPresent(cleanThis, this.iO.lineBreakers);
-				}
-		 */
-	}
-
-	/**
+/**
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
-	 * @param  {List} lineBreaker a list of things to remove after all is done
-	 */
+	 * @param  {List} lineBreaker a list of originaltensor, immediate left and rigt and collisiondirection
 	leavingConnectedTensor(lineBreaker) {
 		let p1 = lineBreaker.immediatelyLeft.getOppositeNode(this.iO).getPosition();
 		let p2 = lineBreaker.immediatelyRight.getOppositeNode(this.iO).getPosition();
 		let p3 = this.iO.getPosition();
 		let perpendicularDistance = getS(p1, p2, p3);
-		let above = (perpendicularDistance * lineBreaker.direction > 0);
+		let above = (perpendicularDistance * lineBreaker.direction > 0.0   );
 		let inside = getTInside(p1, p2, p3);
 		let closeParallell = (Math.abs(perpendicularDistance) < 0.01); // 0.2);
 
 		if (above && inside) {
-			this.removeFromTensor(lineBreaker, 'Bounce disconnected from ' + this.iO.name);
+			this.bounceExit(lineBreaker);
 		} else if (closeParallell && !inside) {
 			// add 0.5 m above the exit node to represent that you can actually lift your knees when exiting a spring
-			this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
-				multiplyVector(lineBreaker.direction, // wrt to the collision direction
-					perpendicular(lineBreaker.immediatelyRight.getActual()))));
-
-			this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + this.iO.name);
+			this.endExit(lineBreaker);
 		}
 	}
 }
+ */
 
 // /**
 //  * @class

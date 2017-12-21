@@ -94,7 +94,7 @@ class Tensor {
 	/**
 	 *
 	 */
-	deghostify() {
+	deGhostify() {
 		this.ghost = false;
 	};
 
