@@ -201,7 +201,7 @@ class Truss {
 	tick() {
 		this.calculate();
 		this.clear();
-		this.show(this.time, 4);
+		this.show(this.time, 5 );
 
 		// Time debugging
 		this.timeDebugToConsole();

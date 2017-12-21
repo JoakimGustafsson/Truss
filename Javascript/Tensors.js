@@ -210,7 +210,7 @@ class Tensor {
 	 */
 	getForce(node) {
 		if (this.callback) {
-			this.callback(this)
+			this.callback(this);
 		}
 
 		let directedforce = this.force;

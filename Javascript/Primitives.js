@@ -21,6 +21,7 @@ let tickTime = 0;
 function tick() {
 	truss.tick(tickTime);
 	tickTime++;
+	window.requestAnimationFrame(tick);
 }
 /**
  * Support function that removes an element from an array the way I expect it to

@@ -60,7 +60,7 @@ class WalkTruss extends Truss {
 				protagonist2, 0.01, 'lb2'));
  */
 		// Set up the truss of nodes
-		let f1 = this.addGravityNode(new Node(new Position(1, 3), 100, 'floor1'));
+		let f1 = this.addGravityNode(new Node(new Position(1, 2), 100, 'floor1'));
 		f2 = this.addGravityNode(new Node(new Position(5, 3), 100, 'floor2'));
 		let f3 = this.addGravityNode(new Node(new Position(9, 3), 100, 'floor3'));
 		let f4 = this.addGravityNode(new Node(new Position(10, 3), 100, 'floor4'));
@@ -120,9 +120,9 @@ class WalkTruss extends Truss {
 
 		// Create two gravitywells and two fields towards them that can be used
 		// by the actuator to pull the protagonist left or right
-		let leftEarth = new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0);
-		let rightEarth = new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0);
-		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
+		let leftEarth = new Node(new Position(-6371e3, -6371e1), 5.97219e25, 'leftEarth', undefined, undefined, 0);
+		let rightEarth = new Node(new Position(6371e3, -6371e1), 5.97219e25, 'rightEarth', undefined, undefined, 0);
+		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11)); // 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 
 		// Add one actuator that takes care of left - right movement

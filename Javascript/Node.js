@@ -209,7 +209,9 @@ class Node {
 
 				canvas.context.strokeStyle = 'red';
 				canvas.context.beginPath();
-				canvas.drawLine(this.getPosition(), addVectors(this.getPosition(), divideVector(this.acceleration, 50)));
+				if (this.acceleration) {
+					canvas.drawLine(this.getPosition(), addVectors(this.getPosition(), divideVector(this.acceleration, 0.5)));
+				}
 				canvas.context.stroke();
 			}
 
@@ -284,5 +286,6 @@ class TrussNode extends Node {
 	 */
 	tick(time) {
 		this.truss.tick(time);
+		window.requestAnimationFrame(draw);
 	};
 }
