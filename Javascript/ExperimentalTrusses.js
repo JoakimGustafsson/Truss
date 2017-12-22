@@ -48,19 +48,22 @@ class WalkTruss extends Truss {
 		let lineBreakerActuator = this.addNode(
 			new LineBreakerNode(protagonist, 0.01, 'lineBreakerActuator1'));
 
-			this.addSensor(lineBreakerActuator);  // wrong way to do it
+		this.addSensor(lineBreakerActuator); // wrong way to do it
 
-		/*
 		// let ego2 = this.addGravityNode(new ProtagonistNode(new Position(4, 1.2), 70, 'Ego2'));
 		let protagonist2 = new ProtagonistNode(new Position(4, 2.3), 70, 'Ego2');
 		this.addNode(protagonist2);
 		let egoGravityField2 = this.addTensor(gravityField(protagonist2)); // Needed to create a jumpactuator
 
 		// Add one actuator to take care of springrunning
-		let lineBreakerNode2 = this.addNode(
-			new LineBreakerNode(
-				protagonist2, 0.01, 'lb2'));
- */
+		let lineBreakerActuator2 = this.addNode(
+			new LineBreakerNode(protagonist2, 0.01, 'lb2'));
+
+		this.addSensor(lineBreakerActuator2); // wrong way to do it
+
+
+
+
 		// Set up the truss of nodes
 		let f1 = this.addGravityNode(new Node(new Position(1, 2), 100, 'floor1'));
 		f2 = this.addGravityNode(new Node(new Position(5, 4), 100, 'floor2'));
@@ -144,11 +147,20 @@ class WalkTruss extends Truss {
 		let collissionsensor = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
 		collissionsensor.registerTrussObjectAndActuator(this, protagonist, lineBreakerActuator);
 
-		let bounceSensor = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor');
+		let bounceSensor = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor1');
 		bounceSensor.registerTrussObjectAndActuator(this, protagonist, lineBreakerActuator);
+
+		let collissionsensor2 = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor2');
+		collissionsensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);
+
+		let bounceSensor2 = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor2');
+		bounceSensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);
 
 		// let collissionsensor2 = new CollisionSensorNode(new Position(5, 1), 0.01, 'CollissionSensor2');
 		// collissionsensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerNode2);
+
+		
+		this.addTensor(new Spring(protagonist, protagonist2, springconstant));
 	}
 }
 

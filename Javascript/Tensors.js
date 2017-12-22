@@ -96,6 +96,7 @@ class Tensor {
 	 */
 	deGhostify() {
 		this.ghost = false;
+		this.collideDistanceMapping={};
 	};
 
 	/**
@@ -250,7 +251,7 @@ class Tensor {
 		}
 		this.collideDistanceMapping[node.name] = newDistance;
 		if (oldDistance * newDistance < 0) {
-			if ((where >= 0) && (where <= 1)) {
+			if ((where >= -0.1) && (where <= 1.1)) {
 				let event = new CustomEvent('collisionEvent', {
 					detail: {
 						'where': where,

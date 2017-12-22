@@ -204,7 +204,7 @@ class Truss {
 		this.show(this.time, 5 );
 
 		// Time debugging
-		this.timeDebugToConsole();
+		// this.timeDebugToConsole();
 	}
 
 	/**

@@ -411,7 +411,7 @@ class LineBreakerNode extends ActuatorNode {
 	endExit(lineBreaker) {
 		this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
 			multiplyVector(lineBreaker.direction, // wrt to the collision direction
-				perpendicular(lineBreaker.immediatelyRight.getActual()))));
+				perpendicular(lineBreaker.original.getActual()))));
 		this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + this.iO.name);
 	}
 
