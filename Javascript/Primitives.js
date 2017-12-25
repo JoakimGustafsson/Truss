@@ -257,6 +257,18 @@ function getTInside(p1, p2, p3) {
 	return ((0 <= t) && (t <= 1));
 }
 
+// This returns true if the closest point from p3 on the line crossing p1 and p2 lies between p1 and p2
+/**
+ * @param  {Position} p1 The line first crosses p1
+ * @param  {Position} p2 The line second crosses p2
+ * @param  {Position} p3 The Position we want to check
+ * @return {number} This represent where on the p1p2 line P3 is closest
+ */
+function getTInside2(p1, p2, p3) {
+	t = getT(p1, p2, p3);
+	return ((0.05 <= t) && (t <= 0.95));
+}
+
 
 // function distancePoint(p1, p2, p3) { // Find the point where a point p3 projects perpendicular to a line between p1 and p2
 //	return addVectors(p3, multiplyVector(getS(p1, p2, p3), perpendicular(subtractvectors(p2, p1))));

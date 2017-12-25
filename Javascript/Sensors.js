@@ -184,11 +184,12 @@ class BounceSensorNode extends Node {
 			let perpendicularDistance = getS(p1, p2, p3);
 			let above = (perpendicularDistance * lineBreaker.direction > 0.0);
 			let inside = getTInside(p1, p2, p3);
+			let inside2 = getTInside2(p1, p2, p3);
 			let closeParallell = (Math.abs(perpendicularDistance) < 0.01); // 0.2);
 
 			if (above && inside) {
 				this.localactuator.bounceExit(lineBreaker);
-			} else if (closeParallell && !inside) {
+			} else if (closeParallell && !inside2) {
 				this.localactuator.endExit(lineBreaker);
 			}
 		}
