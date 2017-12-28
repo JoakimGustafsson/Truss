@@ -364,9 +364,9 @@ class LineBreakerNode extends ActuatorNode {
 	handleFirstBreak(tensor, startNewLink, endNewLink) {
 		tensor.ghostify();
 		let t = this;
-		//tensor.callback = function(c) {
+		// tensor.callback = function(c) {
 		//	t.recalcEquilibriumLengths(c);
-		//};
+		// };
 		tensor.breakStartTensor = startNewLink;
 		tensor.breakEndTensor = endNewLink;
 	}

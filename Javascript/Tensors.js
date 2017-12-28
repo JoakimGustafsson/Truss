@@ -45,27 +45,62 @@ class Tensor {
 
 	/**
 	 * @param  {Node} node
+	 * @param  {number} angle
 	 */
-	addNode1(node) {
+	addNode1(node, angle) {
 		if (this.node1) {
 			this.node1.removeTensor(this);
 		}
 		this.node1 = node;
+		if (angle ) {
+			this.angle1 = angle;
+		} else {
+			this.angle1 = this.getAngle(node)-node.getAngle();
+		}
 		if (node) {
 			node.addTensor(this);
 		}
 	};
+
 	/**
 	 * @param  {Node} node
+	 * @param  {number} angle
 	 */
-	addNode2(node) {
+	addNode2(node, angle) {
 		if (this.node2) {
 			this.node2.removeTensor(this);
 		}
 		this.node2 = node;
+		if (angle) {
+			this.angle2 = angle;
+		} else {
+			this.angle2 = this.getAngle(node)-node.getAngle();
+		}
 		if (node) {
 			node.addTensor(this);
 		}
+	};
+
+	/** Given a node. Return the angle that the tensor wants o have wrt to the node
+	 * @param  {Node} node
+	 * @return {number} wanted angle
+	 */
+	getAngle(node) {
+		if (node==this.node1) {
+			return this.angle1;
+		}
+		return this.angle2;
+	};
+
+	/** Given a node. Return the angle that the tensor wants o have wrt to the node
+	 * @param  {Node} node
+	 * @return {number} wanted angle
+	 */
+	getTorque(node) {
+		if (node==this.node1) {
+			return this.angle1;
+		}
+		return node.getTorqueConstant() * (this.angle2-node.getAngle()-this.getAngle(node));
 	};
 
 	/**
@@ -165,6 +200,26 @@ class Tensor {
 	};
 
 	/**
+	 * Returns the trigonomitrical angle of the tensor.
+	 * @param {Node} node Optional argument, that, if equal to node nr 2 adds PI
+	 * @return {number}
+	 */
+	getAngle(node) {
+		let modifyIfNode2 = 0;
+		if (node=this.node2) {
+			modifyIfNode2 = Math.PI;
+		}
+		if (this.getXLength()==0) {
+			if (this.getYLength() > 0) {
+				return Math.PI/2+modifyIfNode2;
+			} else {
+				return -Math.PI/2+modifyIfNode2;
+			}
+		}
+		return Math.tan(this.getYLength()/this.getXLength())+modifyIfNode2;
+	};
+
+	/**
 	 * Returns the vertical distance between the nodes
 	 * @return {number}
 	 */
@@ -210,9 +265,26 @@ class Tensor {
 	 * @return {number}
 	 */
 	getForce(node) {
-		if (this.callback) {
-			this.callback(this);
+		// if (this.callback) {
+		//	this.callback(this);
+		// }
+
+		let directedforce = this.force;
+		if (node == this.node2) {
+			return directedforce;
+		} else {
+			return directedforce.opposite();
 		}
+	};
+
+	/**
+	 * Returns the force from this tensor resulting from the torque in the opposite node.
+	 * @param  {Node} node
+	 * @return {number}
+	 */
+	getTorqueForce(node) {
+		let opposite = this.getOppositeNode(node);
+		let torque = opposite.angle;
 
 		let directedforce = this.force;
 		if (node == this.node2) {
@@ -246,12 +318,12 @@ class Tensor {
 		let oldDistance = this.collideDistanceMapping[node.name];
 		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
 		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < 0) || (1 < where)) {
+		if ((where < -0.1) || (1.1 < where)) {
 			newDistance = 0;
 		}
 		this.collideDistanceMapping[node.name] = newDistance;
 		if (oldDistance * newDistance < 0) {
-			if ((where >= -0.1) && (where <= 1.1)) {
+			if ((where >= -0) && (where <= 1)) {
 				let event = new CustomEvent('collisionEvent', {
 					detail: {
 						'where': where,
@@ -351,7 +423,7 @@ class PullSpring extends Spring {
 			this.force = new Force(0, 0);
 		} else {
 			Spring.prototype.calculateForce.call(this);
-			//console.log(length(this.force));
+			// console.log(length(this.force));
 		}
 	}
 }

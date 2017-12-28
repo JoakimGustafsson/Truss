@@ -9,14 +9,16 @@ class Node {
 	 * @param  {Function} positionFunction
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
+	 * @param  {number} torqueConstant
 	 */
-	constructor(startPosition, mass = 1, name = 'node', positionFunction, showFunction, velocityLoss = 1) {
+	constructor(startPosition, mass = 1, name = 'node', positionFunction, showFunction, velocityLoss = 1, torqueConstant = 0) {
 		this.name = name;
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
 		this.mass = mass;
 		this.massRadius = Math.sqrt(mass);
 		this.angle = 0;
+		this.torqueConstant = torqueConstant;
 		this.velocityBasedTensors = [];
 		this.positionBasedTensors = [];
 		this.velocityLoss = velocityLoss;
@@ -38,26 +40,44 @@ class Node {
 		return this.localPosition;
 	};
 
-	/** Returns all tensors connected to a node
+	/** return the angle this node has with respect to its initial direction.
+	 * @return {number}
+	 */
+	getAngle() {
+		return this.angle;
+	};
+
+	/** Returns the torque constant
+	 * @return {number}
+	 */
+	getTorqueConstant() {
+		return this.torqueConstant;
+	};
+
+	/** Returns all tensors connected to a node   REMOVE THIS
 	 * @return {Position}
 	 */
-	getTensors() {
+	xgetTensors() {
 		let returnValue=[];
 		return returnValue.concat(this.velocityBasedTensors, this.positionBasedTensors);
 	}
 
 	/**
 	 * Ensures that this node understands that it will recieve force from thsi tensor
-	 * @param  {Tensor} t
+	 * @param  {Tensor} tensor
+	 * @param  {number} angle
 	 * @return {Tensor}
 	 */
-	addTensor(t) {
-		if (t.type == TensorType.ABSORBER) {
-			this.velocityBasedTensors.push(t);
-		} else {
-			this.positionBasedTensors.push(t);
+	addTensor(tensor, angle) {
+		if (!angle && this.torqueConstant) {
+			angle = tensor.getAngle(this) - this.angle;
 		}
-		return t;
+		if (tensor.type == TensorType.ABSORBER) {
+			this.velocityBasedTensors.push({'tensor': tensor});
+		} else {
+			this.positionBasedTensors.push({'tensor': tensor});
+		}
+		return tensor;
 	};
 
 	/**
@@ -65,55 +85,24 @@ class Node {
 	 * @param {Tensor} t
 	 */
 	removeTensor(t) {
+		/**
+		 * @param {object} o
+		 * @param {list} l
+		 */
+		function supportRemove(o, l) {
+			let a = l.findIndex((z) => z.tensor==o);
+			if (a<0) {
+				return;
+			}
+			l.splice(a, 1);
+		}
+
 		if (t.type == TensorType.ABSORBER) {
-			removeIfPresent(t, this.velocityBasedTensors);
+			supportRemove(t, this.velocityBasedTensors);
 		} else {
-			removeIfPresent(t, this.positionBasedTensors);
+			supportRemove(t, this.positionBasedTensors);
 		}
 	}
-
-	/**
-	 * @param  {} direction the
-	 * @param  {Array} ignoreList List of Tensors to avoid
-
-	findTopSpring(direction, ignoreList) {
-		function ignoreThis(t) {
-			return (ignoreList.indexOf(t) + 1);
-		}
-		let steepestTensorSoFar = 0;
-		let steepestRatioSoFar = NaN;
-		for (let i = 0; i < this.positionBasedTensors.length; i++) {
-			let tensor = this.positionBasedTensors[i];
-			let temp = !ignoreThis(tensor);
-			if (temp) { // avoid finding for example the spring you are on or your own spring
-				if (tensor.type == TensorType.SPRING) {
-					if (tensor.getXLength() == 0) {
-						if (tensor.getTopNode != this) {
-							return tensor;
-						} // we have found a vertical spring;
-					} else {
-						let rightNode = tensor.getRightNode();
-						let leftNode = tensor.getOppositeNode(rightNode);
-						let thisRatio = (rightNode.getPosition().y - leftNode.getPosition().y) /
-							(rightNode.getPosition().x - leftNode.getPosition().x);
-						if (rightNode == this && // Moving left
-							direction < 0 &&
-							(isNaN(steepestRatioSoFar) || (thisRatio > steepestRatioSoFar))) {
-							steepestTensorSoFar = tensor;
-							steepestRatioSoFar = thisRatio;
-						} else if (rightNode != this && // Moving right
-							direction > 0 &&
-							(isNaN(steepestRatioSoFar) || (thisRatio < steepestRatioSoFar))) {
-							steepestTensorSoFar = tensor;
-							steepestRatioSoFar = thisRatio;
-						}
-					}
-				}
-			}
-		}
-		return steepestTensorSoFar;
-	};
- */
 
 	/**
 	 * Update the position based on velocity, then let
@@ -181,7 +170,7 @@ class Node {
 		let applier;
 		let tempForce;
 		for (let i = 0; i < forceAppliers.length; i++) {
-			applier = forceAppliers[i];
+			applier = forceAppliers[i].tensor;
 			tempForce = applier.getForce(this);
 			result.add(tempForce);
 		}
@@ -286,6 +275,6 @@ class TrussNode extends Node {
 	 */
 	tick(time) {
 		this.truss.tick(time);
-		//window.requestAnimationFrame(draw);
+		// window.requestAnimationFrame(draw);
 	};
 }

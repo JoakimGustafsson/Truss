@@ -39,7 +39,7 @@ class WalkTruss extends Truss {
 		super(view, updatefrequency);
 
 		// Create a protagonist (yellow circle) and connect it to gravity
-		let protagonist = new ProtagonistNode(new Position(3, 3), 70, 'Ego1');
+		let protagonist = new ProtagonistNode(new Position(3, 2.5), 70, 'Ego1');
 		this.addNode(protagonist);
 
 		let egoGravityField = this.addTensor(gravityField(protagonist)); // Needed to create a jumpactuator
@@ -149,7 +149,7 @@ class WalkTruss extends Truss {
 
 		// let bounceSensor2 = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor2');
 		// bounceSensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);
-		
+
 		// this.addTensor(new Spring(protagonist, protagonist2, springconstant));
 	}
 }
