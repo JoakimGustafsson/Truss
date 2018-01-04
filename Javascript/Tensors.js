@@ -214,8 +214,8 @@ class Tensor {
 				return -Math.PI/2;
 			}
 		}
-		let y = this.getYLength();
-		let x = this.getXLength();
+		let y = this.getYDifference();
+		let x = this.getXDifference();
 		let ratio = y/x;
 		let startAngle = Math.atan(ratio);
 		if (x<0) {
@@ -259,7 +259,7 @@ class Tensor {
 	 * @return {number}
 	 */
 	getYDifference() {
-		return Math.abs(this.node2.getPosition().y - this.node1.getPosition().y);
+		return this.node2.getPosition().y - this.node1.getPosition().y;
 	};
 
 	/**
@@ -494,7 +494,7 @@ class Field extends Tensor {
 		let actualVector = this.getActual();
 		let normalized = normalizeVector(1, actualVector);
 		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
-		this.force = multiplyVector(forceSize, normalized);
+		this.force = multiplyVector(-forceSize, normalized);
 	}
 
 	/**

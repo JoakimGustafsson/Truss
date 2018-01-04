@@ -11,7 +11,7 @@ class Node {
 	 * @param  {number} velocityLoss
 	 * @param  {number} torqueConstant
 	 */
-	constructor(startPosition, mass = 1, name = 'node', positionFunction, showFunction, velocityLoss = 1, torqueConstant = 0) {
+	constructor(startPosition, mass = 1, name = 'node', positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
 		this.name = name;
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
