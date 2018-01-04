@@ -1,6 +1,4 @@
-/**
- *
- */
+
 
 /** Standard inheritance help function. Hopefully not needed anymore
  * @param  {object} childObject
@@ -189,6 +187,31 @@ function dotProduct(v1, v2) {
 function perpendicular(v) {
 	return new Vector(v.y, -v.x);
 }
+
+
+/** Ensure that an Rad angle is inside the -PI to  PI span
+ * @param  {number} angle
+ * @return {number}
+ */
+function anglify(angle) {
+	if (angle>Math.PI) {
+		angle-=2*Math.PI;
+	}
+	if (angle< -Math.PI) {
+		angle+=2*Math.PI;
+	}
+	return angle;
+}
+
+/**
+ * @param  {number} a
+ * @param  {number} b
+ * @return {number}
+ */
+function angleSubstract(a, b) {
+	return anglify(a-b);
+}
+
 /**
  * @param  {Vector} v
  * @return {number}

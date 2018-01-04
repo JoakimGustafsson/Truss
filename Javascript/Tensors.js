@@ -55,7 +55,7 @@ class Tensor {
 		if (angle ) {
 			this.angle1 = angle;
 		} else {
-			this.angle1 = this.getAngle(node)-node.getAngle();
+			this.angle1 = angleSubstract(this.getAngle(node), node.getAngle());
 		}
 		if (node) {
 			node.addTensor(this);
@@ -74,7 +74,7 @@ class Tensor {
 		if (angle) {
 			this.angle2 = angle;
 		} else {
-			this.angle2 = this.getAngle(node)-node.getAngle();
+			this.angle2 = angleSubstract(this.getAngle(node), node.getAngle());
 		}
 		if (node) {
 			node.addTensor(this);
@@ -85,22 +85,26 @@ class Tensor {
 	 * @param  {Node} node
 	 * @return {number} wanted angle
 	 */
-	getAngle(node) {
+	getIdealAngle(node) {
 		if (node==this.node1) {
 			return this.angle1;
 		}
 		return this.angle2;
 	};
 
-	/** Given a node. Return the angle that the tensor wants o have wrt to the node
+
+	/** Given one of the nodes of a tensor node.
+	 * Return the torque.
 	 * @param  {Node} node
 	 * @return {number} wanted angle
 	 */
 	getTorque(node) {
-		if (node==this.node1) {
-			return this.angle1;
-		}
-		return node.getTorqueConstant() * (this.angle2-node.getAngle()-this.getAngle(node));
+		let connectedIdealAngle = this.getIdealAngle(node);
+		let nodeAngle = node.getAngle();
+		let nodeAngleOffset = angleSubstract(connectedIdealAngle, nodeAngle);
+		let tensorAngle = this.getAngle(node);
+		let angleToCorrect = angleSubstract(nodeAngleOffset, tensorAngle);
+		return node.getTorqueConstant() * angleToCorrect;
 	};
 
 	/**
@@ -200,23 +204,46 @@ class Tensor {
 	};
 
 	/**
+	 * @return {number}
+	 */
+	supportAngle() {
+		if (this.getXLength()==0) {
+			if (this.getYLength() > 0) {
+				return Math.PI/2;
+			} else {
+				return -Math.PI/2;
+			}
+		}
+		let y = this.getYLength();
+		let x = this.getXLength();
+		let ratio = y/x;
+		let startAngle = Math.atan(ratio);
+		if (x<0) {
+			startAngle = Math.PI + startAngle;
+		}
+		return startAngle;
+	}
+
+	/**
 	 * Returns the trigonomitrical angle of the tensor.
 	 * @param {Node} node Optional argument, that, if equal to node nr 2 adds PI
 	 * @return {number}
 	 */
 	getAngle(node) {
 		let modifyIfNode2 = 0;
-		if (node=this.node2) {
+		if (node==this.node2) {
 			modifyIfNode2 = Math.PI;
 		}
-		if (this.getXLength()==0) {
-			if (this.getYLength() > 0) {
-				return Math.PI/2+modifyIfNode2;
-			} else {
-				return -Math.PI/2+modifyIfNode2;
-			}
-		}
-		return Math.tan(this.getYLength()/this.getXLength())+modifyIfNode2;
+		// let x = this.supportAngle() * 180/Math.PI;
+		return anglify(this.supportAngle() + modifyIfNode2);
+	};
+
+	/**
+	 * Returns the vertical difference between the nodes
+	 * @return {number}
+	 */
+	getXDifference() {
+		return (this.node2.getPosition().x - this.node1.getPosition().x);
 	};
 
 	/**
@@ -224,7 +251,15 @@ class Tensor {
 	 * @return {number}
 	 */
 	getXLength() {
-		return (this.node1.getPosition().x - this.node2.getPosition().x);
+		return Math.abs(this.getXDifference());
+	};
+
+	/**
+	 * Returns the horizontal difference between the nodes
+	 * @return {number}
+	 */
+	getYDifference() {
+		return Math.abs(this.node2.getPosition().y - this.node1.getPosition().y);
 	};
 
 	/**
@@ -232,7 +267,7 @@ class Tensor {
 	 * @return {number}
 	 */
 	getYLength() {
-		return (this.node1.getPosition().y - this.node2.getPosition().y);
+		return Math.abs(this.getYDifference());
 	};
 
 	/**
@@ -248,7 +283,7 @@ class Tensor {
 	 * @return {Vector}
 	 */
 	getActual() {
-		return new Vector(this.getXLength(), this.getYLength()); ;
+		return new Vector(this.getXDifference(), this.getYDifference()); ;
 	};
 
 	/**
@@ -256,7 +291,7 @@ class Tensor {
 	 * @return {number} The squared length.
 	 */
 	getLengthSquare() {
-		return Math.pow(this.getXLength(), 2) + Math.pow(this.getYLength(), 2);
+		return Math.pow(this.getXDifference(), 2) + Math.pow(this.getYDifference(), 2);
 	};
 
 	/**
@@ -269,12 +304,14 @@ class Tensor {
 		//	this.callback(this);
 		// }
 
-		let directedforce = this.force;
+		let directedforce;
 		if (node == this.node2) {
-			return directedforce;
+			directedforce = this.force;
 		} else {
-			return directedforce.opposite();
+			directedforce = this.force.opposite();
 		}
+
+		return addVectors(directedforce, this.calculateTorqueForce(node));
 	};
 
 	/**
@@ -282,17 +319,22 @@ class Tensor {
 	 * @param  {Node} node
 	 * @return {number}
 	 */
-	getTorqueForce(node) {
+	calculateTorqueForce(node) {
 		let opposite = this.getOppositeNode(node);
-		let torque = opposite.angle;
-
-		let directedforce = this.force;
-		if (node == this.node2) {
-			return directedforce;
-		} else {
-			return directedforce.opposite();
+		if (opposite.getTorqueConstant()==0) {
+			return new Force(0, 0);
 		}
+		let torque = this.getTorque(opposite);
+		if (torque==0) {
+			return new Force(0, 0);
+		}
+		let forceLenth = torque * this.getLength();
+		let actual = this.getActual();
+		let perp = perpendicular(actual);
+		let force = normalizeVector(forceLenth, perp);
+		return force.opposite();
 	};
+
 
 	/** Return {string} the HTML color of the tensor
 	 * @return {string} the HTML color of the tensor
@@ -394,7 +436,7 @@ class Spring extends Tensor {
 		let actualVector = this.getActual();
 		let normalized = normalizeVector(this.equilibriumLength, actualVector);
 		let diffVector = subtractVectors(actualVector, normalized);
-		this.force = multiplyVector(this.constant, diffVector);
+		this.force = multiplyVector(-this.constant, diffVector);
 	}
 }
 
@@ -491,7 +533,7 @@ class Absorber extends Tensor {
 		let parallellVelocity = multiplyVector(
 			dotProduct(actualVector, internalSpeed),
 			divideVector(actualVector, this.getLengthSquare()));
-		this.force = multiplyVector(this.constant, parallellVelocity);
+		this.force = multiplyVector(-this.constant, parallellVelocity);
 	}
 
 	/**
