@@ -60,7 +60,7 @@ class WalkTruss extends Truss {
 
 		// Set up the truss of nodes
 		let f1 = this.addGravityNode(new Node(new Position(1, 2), 100, 'floor1'));
-		f2 = this.addGravityNode(new Node(new Position(5, 4), 100, 'floor2'));
+		f2 = this.addGravityNode(new Node(new Position(5, 4), 100, 'floor2', 0, 0, 0.99, 1000));
 		let f3 = this.addGravityNode(new Node(new Position(9, 3), 100, 'floor3'));
 		let f4 = this.addGravityNode(new Node(new Position(10, 3), 100, 'floor4'));
 		let f5 = this.addGravityNode(new Node(new Position(14, 3), 100, 'floor5'));
@@ -71,9 +71,9 @@ class WalkTruss extends Truss {
 		let b4 = this.addNode(new Node(new Position(10, 6), NaN, 'base4'));
 		let b5 = this.addNode(new Node(new Position(14, 6), NaN, 'base5'));
 
-
+		// rotation
 		let b6 = this.addNode(new Node(new Position(1, 8), NaN, 'fulcrum', undefined, undefined, 1, 1000));
-		let f6 = this.addGravityNode(new Node(new Position(2, 7), 70, 'weight1', 0, 0, 0.99));
+		let f6 = this.addGravityNode(new Node(new Position(2, 7), 70, 'weight1', 0, 0, 0.99, 1000));
 		let f7 = this.addGravityNode(new Node(new Position(3, 6), 70, 'weight2', 0, 0, 0.99));
 
 

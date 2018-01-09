@@ -58,7 +58,7 @@ class Truss {
 	 */
 	addTensor(tensor) {
 		this.tensors.push(tensor);
-		if (tensor.type == TensorType.ABSORBER) {
+		if (tensor.tensorType == TensorType.ABSORBER) {
 			this.velocityBasedTensors.push(tensor);
 		} else {
 			this.positionBasedTensors.push(tensor);
@@ -72,7 +72,7 @@ class Truss {
 	 */
 	removeTensor(tensor) {
 		removeIfPresent(tensor, this.tensors);
-		if (tensor.type == TensorType.ABSORBER) {
+		if (tensor.tensorType == TensorType.ABSORBER) {
 			removeIfPresent(tensor, this.velocityBasedTensors);
 		} else {
 			removeIfPresent(tensor, this.positionBasedTensors);
@@ -103,17 +103,27 @@ class Truss {
 	 * Update all nodes velocities based on Position based forces
 	 */
 	calculatePositionBasedVelocities() {
-		for (let i = 0; i < this.nodes.length; i++) {
-			this.nodes[i].updatePositionBasedVelocity(this.updateFrequency / 100);
+		for (let node of this.nodes) {
+			node.updatePositionBasedVelocity(this.updateFrequency / 100);
 		}
 	};
 
 	/**
 	 * Update all nodes velocities based on Velocity based forces
 	 */
-	calculateFinalVelocities() {
-		for (let i = 0; i < this.nodes.length; i++) {
-			this.nodes[i].updateFinalVelocity(this.updateFrequency / 100);
+	calculateTorques() {
+		for (let node of this.nodes) {
+			node.calculateTorques();
+		}
+	};
+
+	/**
+	 * Update all nodes velocities based on Velocity based forces
+	 */
+	calculateFinalVelocityAndRotation() {
+		for (let node of this.nodes) {
+			node.updateFinalVelocity(this.updateFrequency / 100);
+			node.updateFinalRotation(this.updateFrequency / 100);
 		}
 	};
 
@@ -121,8 +131,8 @@ class Truss {
 	 * Loop through all nodes and move them according to their velocity
 	 */
 	updatePositions() {
-		for (let i = 0; i < this.nodes.length; i++) {
-			this.nodes[i].updatePosition(this.time);
+		for (let node of this.nodes) {
+			node.updatePosition(this.time);
 		}
 	};
 
@@ -159,10 +169,11 @@ class Truss {
 	 * is in order to avoid oscillation as much as possible
 	 */
 	calculate() {
+		this.calculateTorques();
 		this.calculatePositionBasedForces();
 		this.calculatePositionBasedVelocities();
 		this.calculateVelocityBasedForces();
-		this.calculateFinalVelocities();
+		this.calculateFinalVelocityAndRotation();
 		this.updatePositions();
 		this.sense();
 		this.time += this.updateFrequency;

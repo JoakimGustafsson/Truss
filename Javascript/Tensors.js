@@ -22,7 +22,7 @@ class Tensor {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.constant = constant;
-		this.type = type;
+		this.tensorType = type;
 		this.collideDistanceMapping = {};
 		this.force = 0;
 		this.ghost = false;
@@ -96,7 +96,7 @@ class Tensor {
 	/** Given one of the nodes of a tensor node.
 	 * Return the torque.
 	 * @param  {Node} node
-	 * @return {number} wanted angle
+	 * @return {number}
 	 */
 	getTorque(node) {
 		let connectedIdealAngle = this.getIdealAngle(node);
@@ -104,9 +104,47 @@ class Tensor {
 		let nodeAngleOffset = angleSubstract(connectedIdealAngle, nodeAngle);
 		let tensorAngle = this.getAngle(node);
 		let angleToCorrect = angleSubstract(nodeAngleOffset, tensorAngle);
-		return node.getTorqueConstant() * angleToCorrect;
+		let torque=node.getTorqueConstant() * angleToCorrect;
+		if (node==this.node1) {
+			this.torque1=torque;
+		} else {
+			this.torque2=torque;
+		}
+		return torque;
 	};
 
+	/** This retrieves a torque that has been previously calculated during the calculatetorque step.
+	 * @param  {Node} node
+	 * @return {number}
+	 */
+	getStoredTorque(node) {
+		if (node==this.node1) {
+			return this.torque1;
+		}
+		return this.torque2;
+	}
+
+	/**
+	 * Returns the force from this tensor resulting from the torque in the opposite node.
+	 * @param  {Node} node
+	 * @return {number}
+	 */
+	calculateTorqueForce(node) {
+		let opposite = this.getOppositeNode(node);
+		if (opposite.getTorqueConstant()==0) {
+			return new Force(0, 0);
+		}
+		let torque = this.getStoredTorque(opposite);
+		if (torque==0) {
+			return new Force(0, 0);
+		}
+		let forceLenth = torque * this.getLength();
+		let actual = this.getActual();
+		let perp = perpendicular(actual);
+		let force = normalizeVector(forceLenth, perp);
+		return force.opposite();
+	};
+	
 	/**
 	 * Makes sure the actual nodes will take this tensor into consideration
 	 */
@@ -314,26 +352,6 @@ class Tensor {
 		return addVectors(directedforce, this.calculateTorqueForce(node));
 	};
 
-	/**
-	 * Returns the force from this tensor resulting from the torque in the opposite node.
-	 * @param  {Node} node
-	 * @return {number}
-	 */
-	calculateTorqueForce(node) {
-		let opposite = this.getOppositeNode(node);
-		if (opposite.getTorqueConstant()==0) {
-			return new Force(0, 0);
-		}
-		let torque = this.getTorque(opposite);
-		if (torque==0) {
-			return new Force(0, 0);
-		}
-		let forceLenth = torque * this.getLength();
-		let actual = this.getActual();
-		let perp = perpendicular(actual);
-		let force = normalizeVector(forceLenth, perp);
-		return force.opposite();
-	};
 
 
 	/** Return {string} the HTML color of the tensor

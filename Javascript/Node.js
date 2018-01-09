@@ -18,6 +18,7 @@ class Node {
 		this.mass = mass;
 		this.massRadius = Math.sqrt(mass);
 		this.angle = 0;
+		this.turnrate = 0;
 		this.torqueConstant = torqueConstant;
 		this.velocityBasedTensors = [];
 		this.positionBasedTensors = [];
@@ -72,10 +73,10 @@ class Node {
 		if (!angle && this.torqueConstant) {
 			angle = tensor.getAngle(this) - this.angle;
 		}
-		if (tensor.type == TensorType.ABSORBER) {
-			this.velocityBasedTensors.push({'tensor': tensor});
+		if (tensor.tensorType == TensorType.ABSORBER) {
+			this.velocityBasedTensors.push(tensor);
 		} else {
-			this.positionBasedTensors.push({'tensor': tensor});
+			this.positionBasedTensors.push(tensor);
 		}
 		return tensor;
 	};
@@ -90,14 +91,14 @@ class Node {
 		 * @param {list} l
 		 */
 		function supportRemove(o, l) {
-			let a = l.findIndex((z) => z.tensor==o);
+			let a = l.findIndex((z) => z==o);
 			if (a<0) {
 				return;
 			}
 			l.splice(a, 1);
 		}
 
-		if (t.type == TensorType.ABSORBER) {
+		if (t.tensorType == TensorType.ABSORBER) {
 			supportRemove(t, this.velocityBasedTensors);
 		} else {
 			supportRemove(t, this.positionBasedTensors);
@@ -126,11 +127,57 @@ class Node {
 	}
 
 	/**
-	 * Update the velocity based on velocity based tensors
+	 * Update the rotation speed based on velocity based tensors
 	 * @param {number} timeFactor
 	 */
 	updateFinalVelocity(timeFactor) {
 		this.updateVelocity(this.velocityBasedTensors, timeFactor);
+	}
+
+	/**
+	 * Update the rotation speed based on velocity based tensors
+	 * @param {number} timeFactor
+	 */
+	updateFinalRotation(timeFactor) {
+		this.updateRotation(this.positionBasedTensors, timeFactor);
+	}
+
+	/**
+	 * is it possible to turn this node
+	 * @return {number} timeFactor
+	 */
+	turnable() {
+		return (this.torqueConstant && this.torqueConstant!=0);
+	}
+
+	/** Loop through all springs connected to this node and sum them p
+	 * @return {number}
+	 */
+	calculateTorques() {
+		this.sumTorque = 0;
+		if (!this.turnable()) {
+			return;
+		}
+		for (let tensor of this.positionBasedTensors) {
+			if (tensor.tensorType == TensorType.SPRING) {
+				this.sumTorque += tensor.getTorque(this);
+			}
+		}
+		return this.sumTorque;
+	}
+
+	/**
+		 * Calculate the final rotation speed
+		 * @param {Array} forceAppliers
+		 * @param {number} timeFactor
+		 */
+	updateRotation(forceAppliers, timeFactor) {
+		if (this.mass) {
+			this.turnrate+=this.sumTorque/(this.mass*1000);
+		} else {
+			this.turnrate=0; // weightless cannot turn
+		}
+		this.angle+=this.turnrate;
 	}
 
 	/**
@@ -170,7 +217,7 @@ class Node {
 		let applier;
 		let tempForce;
 		for (let i = 0; i < forceAppliers.length; i++) {
-			applier = forceAppliers[i].tensor;
+			applier = forceAppliers[i];
 			tempForce = applier.getForce(this);
 			result.add(tempForce);
 		}
@@ -188,6 +235,11 @@ class Node {
 			canvas.context.strokeStyle = 'lightgrey';
 			canvas.context.beginPath();
 			canvas.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+			canvas.context.stroke();
+
+			canvas.context.beginPath();
+			canvas.drawLine(this.getPosition(), addVectors(this.getPosition(),
+				new Vector(0.2*Math.cos(this.getAngle()), 0.2*Math.sin(this.getAngle()))));
 			canvas.context.stroke();
 
 			if (graphicDebugLevel > 5) {

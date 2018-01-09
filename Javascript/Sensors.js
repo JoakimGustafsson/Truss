@@ -110,7 +110,7 @@ class CollisionSensorNode extends Node {
 	 */
 	sense() {
 		for (let tensor of this.localtruss.positionBasedTensors) {
-			if (tensor.type == TensorType.SPRING) {
+			if (tensor.tensorType == TensorType.SPRING) {
 				tensor.checkCollision(this.localobject); // the tensor will raiose an event that is caught by the collisionFunction()
 			}
 		}
@@ -189,7 +189,7 @@ class BounceSensorNode extends Node {
 
 			if (above && inside) {
 				this.localactuator.bounceExit(lineBreaker);
-			} else if (closeParallell && !inside2) {
+			} else if (closeParallell && !inside) {
 				this.localactuator.endExit(lineBreaker);
 			}
 		}
