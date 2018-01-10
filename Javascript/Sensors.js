@@ -110,7 +110,7 @@ class CollisionSensorNode extends Node {
 	 */
 	sense() {
 		for (let tensor of this.localtruss.positionBasedTensors) {
-			if (tensor.tensorType == TensorType.SPRING) {
+			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
 				tensor.checkCollision(this.localobject); // the tensor will raiose an event that is caught by the collisionFunction()
 			}
 		}
@@ -178,8 +178,10 @@ class BounceSensorNode extends Node {
 	sense() {
 		if (!this.localobject || !this.localobject.breakList) return;
 		for (let lineBreaker of this.localobject.breakList) {
-			let p1 = lineBreaker.immediatelyLeft.getOppositeNode(this.localobject).getPosition();
-			let p2 = lineBreaker.immediatelyRight.getOppositeNode(this.localobject).getPosition();
+			let n1 = lineBreaker.immediatelyLeft.getOppositeNode(this.localobject);
+			let p1= n1.getPosition();
+			let n2 = lineBreaker.immediatelyRight.getOppositeNode(this.localobject);
+			let p2 =n2.getPosition();
 			let p3 = this.localobject.getPosition();
 			let perpendicularDistance = getS(p1, p2, p3);
 			let above = (perpendicularDistance * lineBreaker.direction > 0.0);
@@ -189,9 +191,77 @@ class BounceSensorNode extends Node {
 
 			if (above && inside) {
 				this.localactuator.bounceExit(lineBreaker);
-			} else if (closeParallell && !inside) {
-				this.localactuator.endExit(lineBreaker);
+			} else {
+				if (this.passCloseBy(lineBreaker.immediatelyLeft.node2, lineBreaker.immediatelyLeft.node1)) {
+					console.log('exit at start of tensor ' + lineBreaker.original.getName());
+					let nextTensor = this.getAngleClosestRight(n2, n1, -1);
+					let positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n1, this.localobject);
+					this.localactuator.endExit(lineBreaker, n1, nextTensor, positionAlongNextTensor);
+				} else if (this.passCloseBy(lineBreaker.immediatelyRight.node1, lineBreaker.immediatelyRight.node2)) {
+					console.log('exit at end  of tensor ' + lineBreaker.original.getName());
+					let nextTensor = this.getAngleClosestRight(n1, n2, 1);
+					let positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n2, this.localobject);
+					this.localactuator.endExit(lineBreaker, n2, nextTensor, positionAlongNextTensor);
+				}
 			}
 		}
+	}
+	/** Generate a new position along the tensor, represent egos change one tick, ie the velocity of ego.
+	 * @param  {Tensor} tensor
+	 * @param  {Node} connectionNode
+	 * @param  {Node} ego
+	 * @return {Vector}
+	 */
+	positionVelocityAlongNextTensor(tensor, connectionNode, ego) {
+		let p1 = connectionNode.getPosition();
+		let p2 = tensor.getOppositeNode(connectionNode).getPosition();
+		let originalVector = new Vector(p2.x-p1.x, p2.y-p1.y);
+		let speed = length(ego.velocity);
+		let newShortDisplacementVector = normalizeVector(speed, originalVector);
+		return addVectors(p1, newShortDisplacementVector);
+	}
+
+	/**
+	 * @param  {Node} startNode
+	 * @param  {Node} endNode
+	 * @return {number}
+	 */
+	passCloseBy(startNode, endNode) {
+		let relativeVelocity = subtractVectors(startNode.velocity, endNode.velocity);
+		let p1 = startNode.getPosition();
+		let p2 = endNode.getPosition();
+		let p3 = addVectors(p1, relativeVelocity);
+		let t=getT(p1, p2, p3);
+		if (t>0.5) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @param  {Node} farNode
+	 * @param  {Node} closeNode
+	 * @param  {number} dir Direction
+	 * @return {Tensor}
+	 */
+	getAngleClosestRight(farNode, closeNode, dir) {
+		let closestAngle = - Math.PI;
+		let closestTensor = undefined;
+		let originalAngle = anglify(getAngle(
+			farNode.getPosition().x-closeNode.getPosition().x,
+			farNode.getPosition().y-closeNode.getPosition().y));
+
+		for (let tensor of closeNode.positionBasedTensors) {
+			if (tensor.tensorType==TensorType.SPRING && !tensor.isGhost()) {
+				let tempAngle = tensor.getTensorAngle(closeNode);
+				let tempdiff = angleSubstract(originalAngle, tempAngle);
+				if ((0>tempdiff*dir) && (tempdiff*dir>closestAngle)) {
+					closestAngle = tempdiff;
+					closestTensor = tensor;
+				}
+			}
+		}
+		return closestTensor;
 	}
 }

@@ -347,12 +347,17 @@ class LineBreakerNode extends ActuatorNode {
 			breaker.immediatelyLeft=endNewLink;
 		}
 
+		let outerLayer = this.iO.breakList.length == 0;
+
+		console.log('Attach to tensor: '+tensor.getName());
+
 		this.iO.breakList.push(
 			{
 				'original': tensor.originalParent,
 				'immediatelyLeft': startNewLink,
 				'immediatelyRight': endNewLink,
 				'direction': dir,
+				'outerLayer': outerLayer,
 			});
 	}
 
@@ -407,12 +412,54 @@ class LineBreakerNode extends ActuatorNode {
 	/** This function takes care of patching a broken link when the breaking node leaves it
 	 * at either end
 	 * @param  {Object} lineBreaker
+	 * @param  {Node} connectionNode
+	 * @param  {Tensor} newTensor
+	 * @param  {Position} positionAlongNextTensor
 	 */
-	endExit(lineBreaker) {
-		this.iO.getPosition().add(normalizeVector(0.2, // 2 dm
-			multiplyVector(lineBreaker.direction, // wrt to the collision direction
-				perpendicular(lineBreaker.original.getActual()))));
-		this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + this.iO.name);
+	endExit(lineBreaker, connectionNode, newTensor, positionAlongNextTensor) {
+		this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + lineBreaker.original.getName());
+		if (newTensor && lineBreaker.outerLayer) {
+			let distanceFraction=0.99;
+			let dir = lineBreaker.direction;
+			if (connectionNode==newTensor.node1) {
+				distanceFraction = 0.01;
+			}
+			if (lineBreaker.original.node1==newTensor.node2 || lineBreaker.original.node2==newTensor.node1) {
+				let dir = lineBreaker.direction;
+			} else {
+				let dir = -lineBreaker.direction;
+			}
+
+			this.clearAllInternalLinebreaks(connectionNode);
+			this.iO.setPosition(positionAlongNextTensor);
+
+			this.clearCollisionmappingForThisNode(connectionNode);
+			this.attachToTensor(this.truss, newTensor, distanceFraction, dir);
+		}
+	}
+
+	/**
+	 * @param  {Node} connectionNode
+	 */
+	clearCollisionmappingForThisNode(connectionNode) {
+		for (let tensor of connectionNode.positionBasedTensors) {
+			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
+				tensor.collideDistanceMapping[this.iO.name] = 0;
+			}
+		}
+	}
+
+	/** When the outermost linebreaker has passed an endpoint, make sure that no old (internal) linebreakers to that same node remain
+	 * @param  {Node} node
+	 */
+	clearAllInternalLinebreaks(node) {
+		for (let i = this.iO.breakList.length-1; i>=0; i--) {
+			let lineBreak = this.iO.breakList[i];
+			console.log('checking:'+lineBreak.original.getName());
+			if (lineBreak.immediatelyLeft.node1==node || lineBreak.immediatelyRight.node2==node) {
+				this.removeFromTensor(lineBreak, 'Inner disconnected from ' + lineBreak.original.getName());
+			}
+		}
 	}
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
@@ -420,7 +467,7 @@ class LineBreakerNode extends ActuatorNode {
 	 * @param  {Object} lineBreaker
 	 */
 	bounceExit(lineBreaker) {
-		this.removeFromTensor(lineBreaker, 'Bounce disconnected from ' + this.iO.name);
+		this.removeFromTensor(lineBreaker, 'Bounce disconnected from ' + lineBreaker.original.getName());
 	}
 
 	/** This function takes care of patching a broken link when the breaking node leaves it

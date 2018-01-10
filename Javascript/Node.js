@@ -71,7 +71,7 @@ class Node {
 	 */
 	addTensor(tensor, angle) {
 		if (!angle && this.torqueConstant) {
-			angle = tensor.getAngle(this) - this.angle;
+			angle = tensor.getTensorAngle(this) - this.angle;
 		}
 		if (tensor.tensorType == TensorType.ABSORBER) {
 			this.velocityBasedTensors.push(tensor);
@@ -177,6 +177,7 @@ class Node {
 		} else {
 			this.turnrate=0; // weightless cannot turn
 		}
+		this.turnrate=this.turnrate*0.99;
 		this.angle+=this.turnrate;
 	}
 

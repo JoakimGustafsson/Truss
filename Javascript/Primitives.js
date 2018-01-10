@@ -188,6 +188,28 @@ function perpendicular(v) {
 	return new Vector(v.y, -v.x);
 }
 
+/** returns the angle given a x and y. The angle range is +PI to -PI
+
+	 * @param  {number} x difference in x
+	 * @param  {number} y difference in y
+	 * @return {number} angle
+	 */
+function getAngle(x, y) {
+	if (x==0) {
+		if (y > 0) {
+			return Math.PI/2;
+		} else {
+			return -Math.PI/2;
+		}
+	}
+
+	let ratio = y/x;
+	let returnAngle = Math.atan(ratio);
+	if (x<0) {
+		returnAngle = Math.PI + returnAngle;
+	}
+	return returnAngle;
+}
 
 /** Ensure that an Rad angle is inside the -PI to  PI span
  * @param  {number} angle
@@ -226,9 +248,9 @@ function length2(v) {
 function length(v) {
 	return Math.sqrt(length2(v));
 }
-/**
- * @param  {number} l
- * @param  {Vector} v
+/** given a vector v, scale it so that the length becomes l
+ * @param  {number} l The length of the resulting vector
+ * @param  {Vector} v The original vector
  * @return {Vector}
  */
 function normalizeVector(l, v) {

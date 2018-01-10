@@ -55,7 +55,7 @@ class Tensor {
 		if (angle ) {
 			this.angle1 = angle;
 		} else {
-			this.angle1 = angleSubstract(this.getAngle(node), node.getAngle());
+			this.angle1 = angleSubstract(this.getTensorAngle(node), node.getAngle());
 		}
 		if (node) {
 			node.addTensor(this);
@@ -74,7 +74,7 @@ class Tensor {
 		if (angle) {
 			this.angle2 = angle;
 		} else {
-			this.angle2 = angleSubstract(this.getAngle(node), node.getAngle());
+			this.angle2 = angleSubstract(this.getTensorAngle(node), node.getAngle());
 		}
 		if (node) {
 			node.addTensor(this);
@@ -102,7 +102,7 @@ class Tensor {
 		let connectedIdealAngle = this.getIdealAngle(node);
 		let nodeAngle = node.getAngle();
 		let nodeAngleOffset = angleSubstract(connectedIdealAngle, nodeAngle);
-		let tensorAngle = this.getAngle(node);
+		let tensorAngle = this.getTensorAngle(node);
 		let angleToCorrect = angleSubstract(nodeAngleOffset, tensorAngle);
 		let torque=node.getTorqueConstant() * angleToCorrect;
 		if (node==this.node1) {
@@ -144,7 +144,7 @@ class Tensor {
 		let force = normalizeVector(forceLenth, perp);
 		return force.opposite();
 	};
-	
+
 	/**
 	 * Makes sure the actual nodes will take this tensor into consideration
 	 */
@@ -241,39 +241,19 @@ class Tensor {
 		return this.node1;
 	};
 
-	/**
-	 * @return {number}
-	 */
-	supportAngle() {
-		if (this.getXLength()==0) {
-			if (this.getYLength() > 0) {
-				return Math.PI/2;
-			} else {
-				return -Math.PI/2;
-			}
-		}
-		let y = this.getYDifference();
-		let x = this.getXDifference();
-		let ratio = y/x;
-		let startAngle = Math.atan(ratio);
-		if (x<0) {
-			startAngle = Math.PI + startAngle;
-		}
-		return startAngle;
-	}
 
 	/**
 	 * Returns the trigonomitrical angle of the tensor.
 	 * @param {Node} node Optional argument, that, if equal to node nr 2 adds PI
 	 * @return {number}
 	 */
-	getAngle(node) {
+	getTensorAngle(node) {
 		let modifyIfNode2 = 0;
 		if (node==this.node2) {
 			modifyIfNode2 = Math.PI;
 		}
 		// let x = this.supportAngle() * 180/Math.PI;
-		return anglify(this.supportAngle() + modifyIfNode2);
+		return anglify(getAngle(this.getXDifference(), this.getYDifference()) + modifyIfNode2);
 	};
 
 	/**
@@ -352,8 +332,6 @@ class Tensor {
 		return addVectors(directedforce, this.calculateTorqueForce(node));
 	};
 
-
-
 	/** Return {string} the HTML color of the tensor
 	 * @return {string} the HTML color of the tensor
 	 */
@@ -372,13 +350,10 @@ class Tensor {
 	 * @param  {Node} node
 	 */
 	checkCollision(node) {
-		if (this.isGhost()) {
-			return;
-		}
 		let oldDistance = this.collideDistanceMapping[node.name];
 		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
 		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < -0.1) || (1.1 < where)) {
+		if ((where < -0.0) || (1.0 < where)) {
 			newDistance = 0;
 		}
 		this.collideDistanceMapping[node.name] = newDistance;

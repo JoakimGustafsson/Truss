@@ -39,7 +39,7 @@ class WalkTruss extends Truss {
 		super(view, updatefrequency);
 
 		// Create a protagonist (yellow circle) and connect it to gravity
-		let protagonist = new ProtagonistNode(new Position(3, 2.5), 70, 'Ego1');
+		let protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
 		this.addNode(protagonist);
 
 		let egoGravityField = this.addTensor(gravityField(protagonist)); // Needed to create a jumpactuator
