@@ -60,9 +60,11 @@
 			var mainNode;
 
 			//Main Draw loop
-			function draw() {
-				mainNode.tick();
-				return;
+			var lastFrameTimeMs = 0;
+
+			function mainLoop(timestamp) {
+				mainNode.tick(timestamp/1000);
+				requestAnimationFrame(mainLoop);
 			}
 
 			// Setting up the canvas and ensure other initialization routines are run
@@ -71,7 +73,7 @@
 
 				mainView = new View(new Vector(WIDTH,HEIGHT), new Vector(18,9));
 				mainNode = new TrussNode(new Position(0,0), mainView, 0.01,1, "MainNode")
-				mainNode.truss = new WalkTruss(mainView,0.02);
+				mainNode.truss = new WalkTruss(mainView, 1/60);
 
 				
 /* 
@@ -86,8 +88,8 @@
 				tn.truss.initConnect();
 				mainNode.truss.addNode(tn); */
 
-				return setInterval(draw, mainNode.truss.updateFrequency*1000);
-				//window.requestAnimationFrame(draw);
+				//return setInterval(draw, mainNode.truss.updateFrequency*1000);
+				window.requestAnimationFrame(mainLoop);
 			}
 
 

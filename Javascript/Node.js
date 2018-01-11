@@ -303,11 +303,12 @@ class TrussNode extends Node {
 
 	/**
 	 * Recursively call tick() on the sub-Truss and then update this nodes position
-	 * @param  {number} time
+	 * @param {number} time
+	 * @param {number} delta
 	 */
-	updatePosition(time) {
-		this.truss.tick(time);
-		super.updatePosition(time); // Call parent in order to update this nodes position
+	updatePosition(time, delta) {
+		this.truss.tick(time, delta);
+		super.updatePosition(time, delta); // Call parent in order to update this nodes position
 	};
 
 	/** Displays the Truss's canvas at the correct position

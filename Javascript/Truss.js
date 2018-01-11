@@ -12,19 +12,23 @@ class Truss {
 	 * Trusses can be recursive via the TrussNode, node type.
 	 *
 	 * @param  {View} view
-	 * @param  {number} updateFrequency
+	 * @param  {number} timestep
 	 */
-	constructor(view, updateFrequency = 0.01) {
+	constructor(view, timestep = 1/60) {
 		this.time = 0;
 		this.view = view;
 		this.sensorNodes = [];
 		this.nodes = [];
 		this.tensors = [];
-		this.updateFrequency = updateFrequency;
 		this.positionBasedTensors = [];
 		this.velocityBasedTensors = [];
+
 		this.lastTime = 0;
 		this.lastTicks = 0;
+
+		this.delta=0;
+		this.lastFrameTimeMs=0;
+		this.timestep=timestep;
 	}
 
 	/**
@@ -104,7 +108,7 @@ class Truss {
 	 */
 	calculatePositionBasedVelocities() {
 		for (let node of this.nodes) {
-			node.updatePositionBasedVelocity(this.updateFrequency / 100);
+			node.updatePositionBasedVelocity(this.timestep/100);
 		}
 	};
 
@@ -122,17 +126,18 @@ class Truss {
 	 */
 	calculateFinalVelocityAndRotation() {
 		for (let node of this.nodes) {
-			node.updateFinalVelocity(this.updateFrequency / 100);
-			node.updateFinalRotation(this.updateFrequency / 100);
+			node.updateFinalVelocity(this.timestep/100);
+			node.updateFinalRotation(this.timestep/100);
 		}
 	};
 
 	/**
 	 * Loop through all nodes and move them according to their velocity
+	 * @param {number} time
 	 */
-	updatePositions() {
+	updatePositions(time) {
 		for (let node of this.nodes) {
-			node.updatePosition(this.time);
+			node.updatePosition(time);
 		}
 	};
 
@@ -167,16 +172,16 @@ class Truss {
 	 *
 	 * The reson for separating Position based and Velocity based forces and velocities
 	 * is in order to avoid oscillation as much as possible
+	 * @param {number} time
 	 */
-	calculate() {
+	calculate(time) {
 		this.calculateTorques();
 		this.calculatePositionBasedForces();
 		this.calculatePositionBasedVelocities();
 		this.calculateVelocityBasedForces();
 		this.calculateFinalVelocityAndRotation();
-		this.updatePositions();
+		this.updatePositions(time);
 		this.sense();
-		this.time += this.updateFrequency;
 	}
 
 	/**
@@ -198,7 +203,7 @@ class Truss {
 
 		if (graphicDebugLevel > 3) {
 			for (let i = 0; i < this.nodes.length; i++) {
-				this.nodes[i].show(this.view, this.time, graphicDebugLevel);
+				this.nodes[i].show(this.view, time, graphicDebugLevel);
 			}
 		}
 	}
@@ -208,11 +213,21 @@ class Truss {
 	 * a timestep in which the modelled world moves slightly forward.
 	 *
 	 * This also contains a debuging part that displays time in the console window.
+	 * @param {number} timestamp
 	 */
-	tick() {
-		this.calculate();
+	tick(timestamp) {
+		// Track the accumulated time that hasn't been simulated yet
+		this.delta += timestamp - this.lastFrameTimeMs; // note += here
+		this.lastFrameTimeMs = timestamp;
+
+		// Simulate the total elapsed time in fixed-size chunks
+		while (this.delta >= this.timestep) {
+			this.calculate(this.timestep);
+			this.delta -= this.timestep;
+		}
+		//this.calculate(timestamp, this.delta);
 		this.clear();
-		this.show(this.time, 5 );
+		this.show(timestamp, 5 );
 
 		// Time debugging
 		// this.timeDebugToConsole();
