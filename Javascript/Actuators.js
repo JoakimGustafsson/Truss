@@ -420,22 +420,22 @@ class LineBreakerNode extends ActuatorNode {
 		this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + lineBreaker.original.getName());
 		if (newTensor && lineBreaker.outerLayer) {
 			let distanceFraction=0.99;
-			let dir = lineBreaker.direction;
+			let dir = 0;
 			if (connectionNode==newTensor.node1) {
 				distanceFraction = 0.01;
 			}
 			if (lineBreaker.original.node1==newTensor.node2 || lineBreaker.original.node2==newTensor.node1) {
-				let dir = lineBreaker.direction;
+				dir = lineBreaker.direction;
 			} else {
-				let dir = -lineBreaker.direction;
+				dir = -lineBreaker.direction;
 			}
 
-			this.clearAllInternalLinebreaks(connectionNode);
 			this.iO.setPosition(positionAlongNextTensor);
 
-			this.clearCollisionmappingForThisNode(connectionNode);
 			this.attachToTensor(this.truss, newTensor, distanceFraction, dir);
 		}
+		this.clearAllInternalLinebreaks(connectionNode);
+		this.clearCollisionmappingForThisNode(connectionNode);
 	}
 
 	/**

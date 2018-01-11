@@ -192,15 +192,21 @@ class BounceSensorNode extends Node {
 			if (above && inside) {
 				this.localactuator.bounceExit(lineBreaker);
 			} else {
+				let nextTensor = 0;
+				let positionAlongNextTensor = 0;
 				if (this.passCloseBy(lineBreaker.immediatelyLeft.node2, lineBreaker.immediatelyLeft.node1)) {
 					console.log('exit at start of tensor ' + lineBreaker.original.getName());
-					let nextTensor = this.getAngleClosestRight(n2, n1, -1);
-					let positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n1, this.localobject);
+					nextTensor = this.getAngleClosestRight(n2, n1, -1);
+					if (nextTensor) {
+						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n1, this.localobject);
+					}
 					this.localactuator.endExit(lineBreaker, n1, nextTensor, positionAlongNextTensor);
 				} else if (this.passCloseBy(lineBreaker.immediatelyRight.node1, lineBreaker.immediatelyRight.node2)) {
 					console.log('exit at end  of tensor ' + lineBreaker.original.getName());
-					let nextTensor = this.getAngleClosestRight(n1, n2, 1);
-					let positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n2, this.localobject);
+					nextTensor = this.getAngleClosestRight(n1, n2, 1);
+					if (nextTensor) {
+						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n2, this.localobject);
+					}
 					this.localactuator.endExit(lineBreaker, n2, nextTensor, positionAlongNextTensor);
 				}
 			}
