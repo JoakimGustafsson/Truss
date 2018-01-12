@@ -23,12 +23,12 @@ class Truss {
 		this.positionBasedTensors = [];
 		this.velocityBasedTensors = [];
 
-		this.lastTime = 0;
-		this.lastTicks = 0;
-
 		this.delta=0;
 		this.lastFrameTimeMs=0;
 		this.timestep=timestep;
+		this.fps = 60,
+		this.framesThisSecond = 0,
+		this.lastFpsUpdate = 0;
 	}
 
 	/**
@@ -87,8 +87,9 @@ class Truss {
 	/**
 	 * Calculate all forces caused by a Nodes position.
 	 * For example, Springs or Fields are position based force appliers.
+	 * @param {number} deltaTime
 	 */
-	calculatePositionBasedForces() {
+	calculatePositionBasedForces(deltaTime) {
 		for (let i = 0; i < this.positionBasedTensors.length; i++) {
 			this.positionBasedTensors[i].calculateForce();
 		}
@@ -97,37 +98,41 @@ class Truss {
 	/**
 	 * Calculate all forces caused by a Nodes velocity.
 	 * For example, Absorbers (dampeners) generate a force based on two nodes relative velocity.
+	 * @param {number} deltaTime
 	 */
-	calculateVelocityBasedForces() {
+	calculateVelocityBasedForces(deltaTime) {
 		for (let i = 0; i < this.velocityBasedTensors.length; i++) {
-			this.velocityBasedTensors[i].calculateForce();
+			this.velocityBasedTensors[i].calculateForce(deltaTime);
 		}
 	};
 	/**
 	 * Update all nodes velocities based on Position based forces
+	 * @param {number} deltaTime
 	 */
-	calculatePositionBasedVelocities() {
+	calculatePositionBasedVelocities(deltaTime) {
 		for (let node of this.nodes) {
-			node.updatePositionBasedVelocity(this.timestep/100);
+			node.updatePositionBasedVelocity(deltaTime);
 		}
 	};
 
 	/**
 	 * Update all nodes velocities based on Velocity based forces
+	 * @param {number} deltaTime
 	 */
-	calculateTorques() {
+	calculateTorques(deltaTime) {
 		for (let node of this.nodes) {
-			node.calculateTorques();
+			node.calculateTorques(deltaTime);
 		}
 	};
 
 	/**
 	 * Update all nodes velocities based on Velocity based forces
+	 * @param {number} deltaTime
 	 */
-	calculateFinalVelocityAndRotation() {
+	calculateFinalVelocityAndRotation(deltaTime) {
 		for (let node of this.nodes) {
-			node.updateFinalVelocity(this.timestep/100);
-			node.updateFinalRotation(this.timestep/100);
+			node.updateFinalVelocity(deltaTime);
+			node.updateFinalRotation(deltaTime);
 		}
 	};
 
@@ -160,10 +165,11 @@ class Truss {
 
 	/**
 	 * Go through all sensors added by addSensor() and trigger the sense() function
+	 * @param {number} deltaTime
 	 */
-	sense() {
+	sense(deltaTime) {
 		for (let sensorNode of this.sensorNodes) {
-			sensorNode.sense();
+			sensorNode.sense(deltaTime);
 		}
 	}
 
@@ -177,13 +183,13 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculate(trussTime, deltaTime) {
-		this.calculateTorques();
-		this.calculatePositionBasedForces();
-		this.calculatePositionBasedVelocities();
-		this.calculateVelocityBasedForces();
-		this.calculateFinalVelocityAndRotation();
+		this.calculateTorques(deltaTime);
+		this.calculatePositionBasedForces(deltaTime);
+		this.calculatePositionBasedVelocities(deltaTime);
+		this.calculateVelocityBasedForces(deltaTime);
+		this.calculateFinalVelocityAndRotation(deltaTime);
 		this.updatePositions(trussTime, deltaTime);
-		this.sense();
+		this.sense(deltaTime);
 	}
 
 	/**
@@ -224,33 +230,27 @@ class Truss {
 		this.delta += timestamp - this.lastFrameTimeMs; // note += here
 		this.lastFrameTimeMs = timestamp;
 
+		if (this.delta>0.2) {
+			this.delta=0;
+		}
 		// Simulate the total elapsed time in fixed-size chunks
 		while (this.delta >= this.timestep) {
-			this.calculate(timestamp-this.delta, this.timestep);
+			this.calculate(timestamp-this.delta, this.timestep/2);
 			this.delta -= this.timestep;
 		}
 		// this.calculate(timestamp, this.delta);
 		this.clear();
 		this.show(timestamp, 5 );
 
-		// Time debugging
-		// this.timeDebugToConsole();
-	}
+		if (timestamp > this.lastFpsUpdate + 1) { // update every second
+			this.fps = 0.25 * this.framesThisSecond + (1 - 0.25) * this.fps; // compute the new FPS
 
-	/**
-	 * Support function for debug purposes that displays both game time and real time
-	 */
-	timeDebugToConsole() {
-		let nowSeconds = (new Date()).getSeconds();
-		if (this.lastTime != nowSeconds) {
-			let gameTime = this.time - this.lastTicks;
-			let realTime = nowSeconds - this.lastTime;
-			if (realTime - gameTime > 0.02) {
-				console.log('Game time: ' + gameTime + ' Real time: ' + realTime + ' Diff: ' + (realTime - gameTime));
+			this.lastFpsUpdate = timestamp;
+			this.framesThisSecond = 0;
+			if (FPSdisplay) {
+				FPSdisplay.innerHTML='FPS: '+Math.round(this.fps);
 			}
-			;
-			this.lastTicks = this.time;
-			this.lastTime = nowSeconds;
 		}
+		this.framesThisSecond++;
 	}
 }

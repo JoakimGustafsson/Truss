@@ -49,8 +49,9 @@ class KeySensorNode extends Node {
 	/**
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
+	 * @param {number} deltaTime
 	 */
-	sense() {}
+	sense(deltaTime) {}
 
 	/**
 	 * Combines a key number with a vecor to move if that key is being pressed
@@ -107,8 +108,9 @@ class CollisionSensorNode extends Node {
 	 * Has the iO node collided with any Spring.
 	 * If so, that will casue a collisionEvent generated from the Tensors
 	 * checkCollision() function.
+	 * @param {number} deltaTime
 	 */
-	sense() {
+	sense(deltaTime) {
 		for (let tensor of this.localtruss.positionBasedTensors) {
 			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
 				tensor.checkCollision(this.localobject); // the tensor will raiose an event that is caught by the collisionFunction()
@@ -174,8 +176,9 @@ class BounceSensorNode extends Node {
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
+	 * @param {number} deltaTime
 	 */
-	sense() {
+	sense(deltaTime) {
 		if (!this.localobject || !this.localobject.breakList) return;
 		for (let lineBreaker of this.localobject.breakList) {
 			let n1 = lineBreaker.immediatelyLeft.getOppositeNode(this.localobject);
@@ -194,18 +197,18 @@ class BounceSensorNode extends Node {
 			} else {
 				let nextTensor = 0;
 				let positionAlongNextTensor = 0;
-				if (this.passCloseBy(lineBreaker.immediatelyLeft.node2, lineBreaker.immediatelyLeft.node1)) {
+				if (this.passCloseBy(lineBreaker.immediatelyLeft.node2, lineBreaker.immediatelyLeft.node1, deltaTime)) {
 					console.log('exit at start of tensor ' + lineBreaker.original.getName());
 					nextTensor = this.getAngleClosestRight(n2, n1, -1);
 					if (nextTensor) {
-						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n1, this.localobject);
+						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n1, this.localobject, deltaTime);
 					}
 					this.localactuator.endExit(lineBreaker, n1, nextTensor, positionAlongNextTensor);
-				} else if (this.passCloseBy(lineBreaker.immediatelyRight.node1, lineBreaker.immediatelyRight.node2)) {
+				} else if (this.passCloseBy(lineBreaker.immediatelyRight.node1, lineBreaker.immediatelyRight.node2, deltaTime)) {
 					console.log('exit at end  of tensor ' + lineBreaker.original.getName());
 					nextTensor = this.getAngleClosestRight(n1, n2, 1);
 					if (nextTensor) {
-						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n2, this.localobject);
+						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n2, this.localobject, deltaTime);
 					}
 					this.localactuator.endExit(lineBreaker, n2, nextTensor, positionAlongNextTensor);
 				}
@@ -216,13 +219,14 @@ class BounceSensorNode extends Node {
 	 * @param  {Tensor} tensor
 	 * @param  {Node} connectionNode
 	 * @param  {Node} ego
+	 * @param {number} deltaTime
 	 * @return {Vector}
 	 */
-	positionVelocityAlongNextTensor(tensor, connectionNode, ego) {
+	positionVelocityAlongNextTensor(tensor, connectionNode, ego, deltaTime) {
 		let p1 = connectionNode.getPosition();
 		let p2 = tensor.getOppositeNode(connectionNode).getPosition();
 		let originalVector = new Vector(p2.x-p1.x, p2.y-p1.y);
-		let speed = length(ego.velocity);
+		let speed = length(ego.velocity)*deltaTime;
 		let newShortDisplacementVector = normalizeVector(speed, originalVector);
 		return addVectors(p1, newShortDisplacementVector);
 	}
@@ -230,10 +234,12 @@ class BounceSensorNode extends Node {
 	/**
 	 * @param  {Node} startNode
 	 * @param  {Node} endNode
+	 * @param {number} deltaTime
 	 * @return {number}
 	 */
-	passCloseBy(startNode, endNode) {
-		let relativeVelocity = subtractVectors(startNode.velocity, endNode.velocity);
+	passCloseBy(startNode, endNode, deltaTime) {
+		let realVelocity = subtractVectors(startNode.velocity, endNode.velocity);
+		let relativeVelocity = multiplyVector(deltaTime, realVelocity);
 		let p1 = startNode.getPosition();
 		let p2 = endNode.getPosition();
 		let p3 = addVectors(p1, relativeVelocity);

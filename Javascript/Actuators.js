@@ -85,9 +85,10 @@ class BinaryActuatorNode extends ActuatorNode {
 	 * This calculates the position like a normal Node, but then ensures that it lies on the line
 	 * between position1 and position2.
 	 * @param  {number} time
+	 * @param {number} deltaTime
 	 */
-	updatePosition(time) {
-		super.updatePosition(time);
+	updatePosition(time, deltaTime) {
+		super.updatePosition(time, deltaTime);
 		let fractionPosition = getT(this.position1, this.position2, this.getPosition());
 		if (fractionPosition < 0) {
 			this.setPosition(new Position(this.position1.x, this.position1.y));
@@ -129,9 +130,10 @@ class JumpNode extends BinaryActuatorNode {
 
 	/**
 	 * @param  {number} time
+	 * @param {number} deltaTime
 	 */
-	updatePosition(time) {
-		super.updatePosition(time); // Call parent in order to update this.iO nodes position
+	updatePosition(time, deltaTime) {
+		super.updatePosition(time, deltaTime); // Call parent in order to update this.iO nodes position
 
 		if (this.getState() == 2) {
 			this.gravityField.constant = this.originalGravityConstant * 4;
@@ -178,9 +180,10 @@ class LeftRightNode extends BinaryActuatorNode {
 
 	/**
 	 * @param  {number} time
+	 * @param {number} deltaTime
 	 */
-	updatePosition(time) {
-		super.updatePosition(time); // Call parent in order to update this.iO nodes position
+	updatePosition(time, deltaTime) {
+		super.updatePosition(time, deltaTime); // Call parent in order to update this.iO nodes position
 		this.handleLeftOrRight();
 	}
 
@@ -234,6 +237,7 @@ class LineBreakerNode extends ActuatorNode {
 
 	/**
 	 * @param  {number} time
+	 * @param {number} deltaTime
 	 */
 	sense() {
 		// console.log('enter sense'+this.iO.breakList.length);

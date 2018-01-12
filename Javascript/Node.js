@@ -101,11 +101,11 @@ class Node {
 	 * Update the position based on velocity, then let
 	 * the this.positionFunction (if present) tell where it should actually be
 	 * @param  {number} trussTime
-	 * @param  {number} deltaTime
+	 * @param  {number} timeFactor
 	 */
-	updatePosition(trussTime, deltaTime) {
+	updatePosition(trussTime, timeFactor) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
-		this.localPosition.add(this.velocity);
+		this.localPosition.add(multiplyVector(timeFactor, this.velocity));
 		if (this.positionFunction) {
 			this.setPosition(this.positionFunction(this, trussTime));
 			this.velocity = subtractVectors(this.getPosition(), oldPosition);

@@ -23,6 +23,9 @@
 </head>
 <body style="background-color: #343f48;">
 	<section>
+		<div id ="FPSdisplay" style="position: absolute; left:10px; top:10px; color: white;">
+			abc
+		</div>
 		<table class="tg">
 			<tr>
 				<!-- Graphic editing window -->
@@ -69,7 +72,7 @@
 
 			// Setting up the canvas and ensure other initialization routines are run
 			function init() {
-
+				FPSdisplay = document.getElementById("FPSdisplay");
 
 				mainView = new View(new Vector(WIDTH,HEIGHT), new Vector(18,9));
 				mainNode = new TrussNode(new Position(0,0), mainView, 0.01,1, "MainNode")

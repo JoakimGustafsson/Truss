@@ -39,8 +39,8 @@ class WalkTruss extends Truss {
 		super(view, updatefrequency);
 
 		// Create a protagonist (yellow circle) and connect it to gravity
-		// let protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
-		let protagonist = new ProtagonistNode(new Position(0.1, 1), 70, 'Ego1');
+		let protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
+		// let protagonist = new ProtagonistNode(new Position(0.1, 1), 70, 'Ego1');
 		this.addNode(protagonist);
 
 		let egoGravityField = this.addTensor(gravityField(protagonist)); // Needed to create a jumpactuator
@@ -74,28 +74,28 @@ class WalkTruss extends Truss {
 
 		// rotation
 		let b6 = this.addNode(new Node(new Position(1, 8), NaN, 'fulcrum', undefined, undefined, 1, 1000));
-		let f6 = this.addGravityNode(new Node(new Position(2, 7), 70, 'weight1', 0, 0, 0.99, 1000));
-		let f7 = this.addGravityNode(new Node(new Position(3, 6), 70, 'weight2', 0, 0, 0.99));
+		let f6 = this.addGravityNode(new Node(new Position(2, 7), 70, 'weight1', 0, 0, 0.98, 1000));
+		let f7 = this.addGravityNode(new Node(new Position(3, 6), 70, 'weight2', 0, 0, 0.98));
 
 
-		let springconstant = 50000;
-		let absorbconstant = 5000;
+		let springconstant = 5000;
+		let absorbconstant = 50;
 
-		this.addTensor(new Spring(b6, f6, springconstant));
+		this.addTensor(new Spring(b6, f6, 900));
 		this.addTensor(new Spring(f6, f7, springconstant));
 
 
 		// let startTensor =
-		this.addTensor(new Spring(f1, f2, 90000));
+		this.addTensor(new Spring(f1, f2, 9000));
 
+		this.addTensor(new Spring(b2, f1, springconstant));
+		this.addTensor(new Absorber(b2, f1, absorbconstant));
 		this.addTensor(new Spring(f2, f3, springconstant));
-		this.addTensor(new Spring(f4, f5, springconstant));
+		this.addTensor(new Spring(f4, f5, springconstant*10));
 
 		this.addTensor(new Spring(b1, f2, springconstant));
 		this.addTensor(new Absorber(b1, f2, absorbconstant));
 
-		this.addTensor(new Spring(b2, f1, springconstant));
-		this.addTensor(new Absorber(b2, f1, absorbconstant));
 
 		this.addTensor(new Spring(f2, b3, springconstant));
 		this.addTensor(new Absorber(f2, b3, absorbconstant));
@@ -103,21 +103,21 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(f3, b2, springconstant));
 		this.addTensor(new Absorber(f3, b2, absorbconstant));
 
-		this.addTensor(new Spring(b4, f5, springconstant));
+		this.addTensor(new Spring(b4, f5, springconstant*10));
 		this.addTensor(new Absorber(b4, f5, absorbconstant));
 
-
-		this.addTensor(new Spring(f1, b1, springconstant / 100));
-		this.addTensor(new Spring(f2, b2, springconstant / 100));
-		this.addTensor(new Spring(f3, b3, springconstant / 100));
-		this.addTensor(new Spring(f4, b4, springconstant));
-		this.addTensor(new Spring(f5, b5, springconstant));
+		this.addTensor(new Spring(f1, b1, springconstant*10));
+		this.addTensor(new Spring(f2, b2, springconstant*10));
+		this.addTensor(new Spring(f3, b3, springconstant*10));
+		this.addTensor(new Spring(f4, b4, springconstant*10));
+		this.addTensor(new Spring(f5, b5, springconstant*10));
 
 		this.addTensor(new Absorber(f1, b1, absorbconstant));
 		this.addTensor(new Absorber(f2, b2, absorbconstant));
 		this.addTensor(new Absorber(f3, b3, absorbconstant));
 		this.addTensor(new Absorber(f4, b4, absorbconstant));
 		this.addTensor(new Absorber(f5, b5, absorbconstant));
+
 
 		// Set up a keysensornode and make it sensitive to q, e and space
 		let sensorNode = this.addNode(new KeySensorNode(new Position(2, 1), 0.01, 'myKeySensorNode'));
@@ -146,7 +146,7 @@ class WalkTruss extends Truss {
 			new JumpNode(protagonist, new Position(0.5, 1), new Position(0.5, 2),
 				egoGravityField, 0.05, 'myJumpNode'));
 
-		this.addTensor(new Spring(sensorNode, jumpActuator, 50, 0.1));
+		this.addTensor(new Spring(sensorNode, jumpActuator, 50));
 
 		let collissionsensor = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
 		collissionsensor.registerTrussObjectAndActuator(this, protagonist, lineBreakerActuator);
