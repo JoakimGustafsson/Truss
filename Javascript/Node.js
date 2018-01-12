@@ -55,14 +55,6 @@ class Node {
 		return this.torqueConstant;
 	};
 
-	/** Returns all tensors connected to a node   REMOVE THIS
-	 * @return {Position}
-	 */
-	xgetTensors() {
-		let returnValue=[];
-		return returnValue.concat(this.velocityBasedTensors, this.positionBasedTensors);
-	}
-
 	/**
 	 * Ensures that this node understands that it will recieve force from thsi tensor
 	 * @param  {Tensor} tensor
@@ -83,9 +75,9 @@ class Node {
 
 	/**
 	 * This node will no longer recieve force from this tensor
-	 * @param {Tensor} t
+	 * @param {Tensor} tensor
 	 */
-	removeTensor(t) {
+	removeTensor(tensor) {
 		/**
 		 * @param {object} o
 		 * @param {list} l
@@ -98,23 +90,24 @@ class Node {
 			l.splice(a, 1);
 		}
 
-		if (t.tensorType == TensorType.ABSORBER) {
-			supportRemove(t, this.velocityBasedTensors);
+		if (tensor.tensorType == TensorType.ABSORBER) {
+			supportRemove(tensor, this.velocityBasedTensors);
 		} else {
-			supportRemove(t, this.positionBasedTensors);
+			supportRemove(tensor, this.positionBasedTensors);
 		}
 	}
 
 	/**
 	 * Update the position based on velocity, then let
 	 * the this.positionFunction (if present) tell where it should actually be
-	 * @param  {number} time
+	 * @param  {number} trussTime
+	 * @param  {number} deltaTime
 	 */
-	updatePosition(time) {
+	updatePosition(trussTime, deltaTime) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
 		this.localPosition.add(this.velocity);
 		if (this.positionFunction) {
-			this.setPosition(this.positionFunction(this, time));
+			this.setPosition(this.positionFunction(this, trussTime));
 			this.velocity = subtractVectors(this.getPosition(), oldPosition);
 		}
 	}

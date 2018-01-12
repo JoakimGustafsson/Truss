@@ -10,17 +10,6 @@ function inheritPrototype(childObject, parentObject) {
 	childObject.prototype = copyOfParent;
 }
 
-//let tickTime = 0;
-
-/**
- * The main (most universal) tick function that triggers the main truss
- *
- */
-// function tick() {
-//	truss.tick(tickTime);
-//	tickTime++;
-//}
-
 /**
  * Support function that removes an element from an array the way I expect it to
  * @param  {object} element

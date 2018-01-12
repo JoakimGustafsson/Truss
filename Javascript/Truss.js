@@ -133,11 +133,12 @@ class Truss {
 
 	/**
 	 * Loop through all nodes and move them according to their velocity
-	 * @param {number} time
+	 * @param {number} trussTime
+	 * @param {number} deltaTime
 	 */
-	updatePositions(time) {
+	updatePositions(trussTime, deltaTime) {
 		for (let node of this.nodes) {
-			node.updatePosition(time);
+			node.updatePosition(trussTime, deltaTime);
 		}
 	};
 
@@ -172,15 +173,16 @@ class Truss {
 	 *
 	 * The reson for separating Position based and Velocity based forces and velocities
 	 * is in order to avoid oscillation as much as possible
-	 * @param {number} time
+	 * @param {number} trussTime
+	 * @param {number} deltaTime
 	 */
-	calculate(time) {
+	calculate(trussTime, deltaTime) {
 		this.calculateTorques();
 		this.calculatePositionBasedForces();
 		this.calculatePositionBasedVelocities();
 		this.calculateVelocityBasedForces();
 		this.calculateFinalVelocityAndRotation();
-		this.updatePositions(time);
+		this.updatePositions(trussTime, deltaTime);
 		this.sense();
 	}
 
@@ -197,6 +199,8 @@ class Truss {
 	 * @param  {number} graphicDebugLevel
 	 */
 	show(time, graphicDebugLevel) {
+		// this.view.context.drawimage(); xxx
+
 		for (let i = 0; i < this.tensors.length; i++) {
 			this.tensors[i].show(this.view, graphicDebugLevel);
 		}
@@ -222,10 +226,10 @@ class Truss {
 
 		// Simulate the total elapsed time in fixed-size chunks
 		while (this.delta >= this.timestep) {
-			this.calculate(this.timestep);
+			this.calculate(timestamp-this.delta, this.timestep);
 			this.delta -= this.timestep;
 		}
-		//this.calculate(timestamp, this.delta);
+		// this.calculate(timestamp, this.delta);
 		this.clear();
 		this.show(timestamp, 5 );
 
