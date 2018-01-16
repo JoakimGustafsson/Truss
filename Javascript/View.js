@@ -21,6 +21,14 @@ class View {
 	}
 
 	/**
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(tensorList) {
+		return 'serializedView';
+	}
+
+	/**
 	 * Check if this position is inside the visible screen
 	 * @param  {Position} position
 	 * @return {number} 0 if it is outside
@@ -47,6 +55,7 @@ class View {
 	y(p) {
 		return (p.y + this.offset.y) / this.yScale;
 	};
+
 	/**
 	 * Given a x and y position on this views display, return the world position
 	 * @param  {number} x
@@ -75,6 +84,7 @@ class View {
 	drawCircle(position, radius) {
 		this.context.arc(this.x(position), this.y(position), radius / this.yScale, 0, 2 * Math.PI);
 	};
+
 	/**
 	 * @param  {Position} position
 	 * @param  {string} text
@@ -82,6 +92,7 @@ class View {
 	drawText(position, text) {
 		this.context.fillText(text, this.x(position), this.y(position));
 	};
+
 	/**
 	 * Support function to refresh the ratios so. Should not be manually used
 	 */
@@ -89,6 +100,7 @@ class View {
 		this.xScale = worldViewSize.x / screenSize.x;
 		this.yScale = worldViewSize.y / screenSize.y;
 	};
+
 	/**
 	 * Set the size of the screen display you want to see
 	 * @param  {Vector} screenSize
@@ -97,6 +109,7 @@ class View {
 		this.screenSize = screenSize;
 		this.recalculate();
 	};
+
 	/**
 	 * Set the size of the area in the world you want to see
 	 * @param  {Vector} worldViewSize
@@ -105,6 +118,7 @@ class View {
 		this.worldViewSize = worldViewSize;
 		this.recalculate();
 	};
+
 	/**
 	 * Set where in the world you want to watch
 	 * @param  {Vector} offset

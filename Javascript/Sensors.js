@@ -5,7 +5,13 @@
 
 let keyState = {};
 
-/**
+/** This sensor reads key presses and moves the node a given vector associated with each registered key.
+ * Example
+ *		sensorNode.registerKey(37, new Vector(-1, 0));
+ *		sensorNode.registerKey(65, new Vector(-1, 0));
+ *		sensorNode.registerKey(39, new Vector(1, 0));
+ *		sensorNode.registerKey(68, new Vector(1, 0));
+ *		sensorNode.registerKey(32, new Vector(0, 1));
  * @class
  * @extends Node
  */
@@ -29,6 +35,20 @@ class KeySensorNode extends Node {
 		window.addEventListener('keyup', function(e) {
 			keyState[e.keyCode || e.which] = false;
 		}, true);
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='KeySensorNode';
+		representationObject.startPosition = this.startPosition.serialize();
+		representationObject.keyList = JSON.stringify(this.keyList);
+
+		return representationObject;
 	}
 
 	/**
@@ -62,6 +82,94 @@ class KeySensorNode extends Node {
 		this.keyList.push({
 			'key': keyNr,
 			'vector': v,
+		});
+	};
+}
+
+/** This sensor checks for other nodes close by and moves the node a given vector associated
+ * with each registered node.
+ * Example
+ *		sensorNode.registerProximity(node1, distance, new Vector(1, 0));
+ * @class
+ * @extends Node
+ */
+class ProximitySensorNode extends Node {
+	/**
+	 * @param  {Position} startPosition
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {Function} triggerFunction
+	 * @param  {Function} showFunction
+	 * @param  {number} velocityLoss
+	 */
+	constructor(startPosition, mass = 0.001, name = 'proximitysensornode', triggerFunction, showFunction, velocityLoss = 1) {
+		super(startPosition, mass, name, undefined, showFunction, velocityLoss);
+		this.startPosition = startPosition;
+		this.triggerFunction = triggerFunction;
+		this.proximityList = [];
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='ProximitySensorNode';
+		representationObject.triggerFunction = this.startPosition.serialize();
+
+		let proxies={'className': 'proximityList'};
+		let nr=0;
+		for (let item of this.proximityList) {
+			proxies[nr++]={
+				'node': nodeList.indexOf(item.node),
+				'distance': item.distance,
+				'vector': item.vector.serialize(),
+			};
+		}
+		representationObject.proximityList=proxies;
+
+		return representationObject;
+	}
+
+	/**
+	 * Used to poll if a key has been pressed and moves to the corresponding vector
+	 * Note that several keys can be pressed simultaneously
+	 * @param  {number} trussTime
+	 * @param  {number} timeFactor
+	 */
+	updatePosition(trussTime, timeFactor) {
+		let p = this.startPosition;
+		for (let proximityitem of this.proximityList) {
+			if (nodeDistance(proximityitem.node, this)<=proximityitem.distance) {
+				p = addVectors(p, proximityitem.vector);
+				if (this.triggerFunction) {
+					this.triggerFunction(this, trussTime);
+				}
+			}
+		}
+		this.setPosition(p);
+	};
+
+	/**
+	 * Dummy function. This is better handled in the updatePosition() function since
+	 * the sensor directly inluence the position of the sensor node rather than the iO.
+	 * @param {number} deltaTime
+	 */
+	sense(deltaTime) {}
+
+	/**
+	 * Combines a key number with a vecor to move if that key is being pressed
+	 * @param  {Node} node
+	 * @param  {number} distance
+	 * @param  {Vector} vector
+	 */
+	registerProximity(node, distance, vector) {
+		this.proximityList.push({
+			'node': node,
+			'distance': distance,
+			'vector': vector,
 		});
 	};
 }

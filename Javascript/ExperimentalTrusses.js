@@ -38,6 +38,8 @@ class WalkTruss extends Truss {
 	constructor(view, updatefrequency) {
 		super(view, updatefrequency);
 
+		this.addNode(Earth);
+
 		// Create a protagonist (yellow circle) and connect it to gravity
 		let protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
 		// let protagonist = new ProtagonistNode(new Position(0.1, 1), 70, 'Ego1');
@@ -161,6 +163,35 @@ class WalkTruss extends Truss {
 		// bounceSensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);
 
 		// this.addTensor(new Spring(protagonist, protagonist2, springconstant));
+
+		let Localview =this.view;
+
+		let selectorNode = this.addNode(new Node(new Position(1, 0.9), 100, 'pusher', function(node, n) {
+			if (mouseSet) {
+				return Localview.worldPosition(myX, myY);
+			}
+			return node.getPosition();
+		}));
+
+		let saveTrigger = this.addNode(new ProximitySensorNode(new Position(5, 1), 1, 'proximity1',
+			function() {
+				if (!savedState) {
+					savedState=JSON.stringify(JSON.decycle(mainNode));
+				}
+			}
+		));
+		saveTrigger.registerProximity(selectorNode, 1, new Vector(0.5, 0));
+
+		let loadTrigger = this.addNode(new ProximitySensorNode(new Position(7, 1), 1, 'proximity2',
+			function() {
+				if (savedState) {
+					mainNode=JSON.retrocycle(JSON.parse(savedState));
+					Object.setPrototypeOf(mainNode, TrussNode.prototype);
+					// mainNode.prototype=TrussNode.prototype;
+				}
+			}
+		));
+		loadTrigger.registerProximity(selectorNode, 1, new Vector(0.5, 0));
 	}
 }
 
@@ -179,8 +210,6 @@ class ProtagonistNode extends Node {
 	 */
 	constructor(startPosition, mass = 70, name = 'ProtagonistNode', positionFunction, showFunction, velocityLoss = 1) {
 		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
-		this.actuators = 0;
-		this.sensors = 0;
 	}
 
 	/**
@@ -202,6 +231,7 @@ class ProtagonistNode extends Node {
 		}
 	}
 }
+
 
 /**
  * @param  {View} view

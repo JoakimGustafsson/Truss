@@ -28,6 +28,44 @@ class Node {
 	}
 
 	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representation={'classname': 'Node'};
+		representation.name=this.name;
+		representation.localPosition=this.localPosition.serialize();
+		representation.velocity=this.velocity.serialize();
+		representation.mass=this.mass;
+		representation.massRadius=this.massRadius;
+		representation.angle=this.angle;
+		representation.turnrate=this.turnrate;
+		representation.torqueConstant=this.torqueConstant;
+		representation.velocityBasedTensors = serializeTensorList(this.velocityBasedTensors, nodeList, tensorList);
+		representation.positionBasedTensors = serializeTensorList(this.positionBasedTensors, nodeList, tensorList);
+		representation.velocityLoss=this.velocityLoss;
+		if (this.positionFunction) {
+			representation.positionFunction=this.positionFunction.toString();
+		}
+		if (this.showFunction) {
+			representation.showFunction=this.showFunction.toString();
+		}
+		return representation;
+	}
+
+	/**
+	 * @param  {Array} representationObject
+	 * @param  {Array} tensorlist
+	 * @return {Object}
+	 */
+	deSerialize(representationObject, tensorlist) {
+		let representation={'classname': 'Node'};
+
+		return representation;
+	}
+
+	/**
 	 * @param  {Position} position
 	 */
 	setPosition(position) {
@@ -263,35 +301,73 @@ class TrussNode extends Node {
 	/** Create a node that can contain a Truss within itself.
 	 * @param  {Position} startPosition
 	 * @param  {View} view
-	 * @param  {number} updateFrequency
+	 * @param  {number} timestep
 	 * @param  {number} mass
 	 * @param  {string} name
 	 * @param  {Function} positionFunction
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(startPosition, view, updateFrequency = 0.01,
+	constructor(startPosition = new Vector(0, 0), view, timestep = 0.016,
 		mass = 1, name = 'TrussNode', positionFunction, showFunction, velocityLoss = 1) {
 		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 
-		this.view = view;
 		this.canvas = document.createElement('canvas');
 		this.canvas.name = name;
 		this.canvas.style.top = startPosition.y + 'px';
 		this.canvas.style.left = startPosition.x + 'px';
-		this.canvas.width = this.view.screenSize.x;
-		this.canvas.height = this.view.screenSize.y;
-		this.canvas.style.width = this.view.screenSize.x + 'px';
-		this.canvas.style.height = this.view.screenSize.y + 'px';
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.border = '1px solid red';
 
 		let bg = document.getElementById('TrussBackground');
 		bg.appendChild(this.canvas);
 
-		this.view.context = this.canvas.getContext('2d');
+		if (view) {
+			this.setView(view, timestep);
+		}
+	}
 
-		this.truss = new Truss(this.view, updateFrequency);
+	/**
+	 * @param  {View} view
+	 * @param  {Number} timestep
+	 */
+	setView(view, timestep) {
+		this.view = view;
+		this.view.context = this.canvas.getContext('2d');
+		this.canvas.width = view.screenSize.x;
+		this.canvas.height = view.screenSize.y;
+		this.canvas.style.width = view.screenSize.x + 'px';
+		this.canvas.style.height = view.screenSize.y + 'px';
+		this.truss = new Truss(view, timestep);
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(tensorList);
+		representationObject.classname='TrussNode';
+		let localTensorList=this.makeTensorList();
+		let localNodeList=this.makeNodeList();
+		let nodeListObject={'className': 'NodeList'};
+		let nr=0;
+		for (let node of localNodeList) {
+			nodeListObject[nr++]=node.serialize(nodeList, tensorList);
+		}
+		representationObject['nodes']=nodeListObject;
+
+		let tensorListObject={'className': 'TensorList'};
+		nr=0;
+		for (let tensor of localTensorList) {
+			tensorListObject[nr++]=tensor.serialize(nodeList, tensorList);
+		}
+		representationObject['tensors']=tensorListObject;
+
+		representationObject.view = this.view.serialize();
+		// save the canvas properties
+		return representationObject;
 	}
 
 	/**
@@ -315,13 +391,24 @@ class TrussNode extends Node {
 	};
 
 	/** used ONLY by main loop on the Top level TrussNode
-	 *
-	 * TODO: Consider letting the top caller use updatePosition instead to completely remove this.
-	 *
 	 * @param  {number} time
 	 */
 	tick(time) {
 		this.truss.tick(time);
 		// window.requestAnimationFrame(draw);
 	};
+
+	/**
+	 * @return {Array}
+	 */
+	makeTensorList() {
+		return this.truss.makeTensorList();
+	}
+
+	/**
+	 * @return {Array}
+	 */
+	makeNodeList() {
+		return this.truss.makeNodeList();
+	}
 }

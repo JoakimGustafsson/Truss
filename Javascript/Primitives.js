@@ -44,6 +44,14 @@ class Vector {
 	};
 
 	/**
+	 * Returns the vector pointing in exactly the opposite direction
+	 * @return {Vector} The vector pointing in exactly the oposite direction
+	 */
+	serialize() {
+		return JSON.stringify(this);
+	};
+
+	/**
 	 * Add a vector v to this vector
 	 * @param  {Vector} v
 	 * @return {Vector}
@@ -237,6 +245,18 @@ function length2(v) {
 function length(v) {
 	return Math.sqrt(length2(v));
 }
+
+/** returns the distance between two nodes
+ * @param  {Node} n1
+ * @param  {Node} n2
+ * @return {number}
+ */
+function nodeDistance(n1, n2) {
+	let p1 = n1.getPosition();
+	let p2 = n2.getPosition();
+	return Math.sqrt(Math.pow(p2.x-p1.x, 2)+ Math.pow(p2.y-p1.y, 2));
+}
+
 /** given a vector v, scale it so that the length becomes l
  * @param  {number} l The length of the resulting vector
  * @param  {Vector} v The original vector
@@ -304,17 +324,6 @@ function getTInside2(p1, p2, p3) {
 }
 
 
-// function distancePoint(p1, p2, p3) { // Find the point where a point p3 projects perpendicular to a line between p1 and p2
-//	return addVectors(p3, multiplyVector(getS(p1, p2, p3), perpendicular(subtractvectors(p2, p1))));
-// }
-
-
-//* ***********************************
-
-// function boxLength(v) {
-// 	return Math.max(Math.abs(v.x), Math.abs(v.y));
-// }
-
 /**
  * Check if p1 and p2 are within horizontal or vertical distance from each other
  * Used as a sloppy fast distance check without squareroot operations
@@ -326,3 +335,28 @@ function getTInside2(p1, p2, p3) {
 function boxClose(p1, p2, distance) {
 	return Math.max(Math.abs(p1.x - p2.x), Math.abs(p1.y - p2.y)) < distance;
 }
+
+/**
+ * @param  {Array} objectList
+ * @param  {Array} nodeList
+ * @param  {Array} conversionList
+ * @return {Array}
+ */
+function serializeTensorList(objectList, nodeList, conversionList) {
+	let returnList=[];
+	for (let t of objectList) {
+		returnList.push(conversionList.indexOf(t));
+	}
+	return returnList;
+}
+
+/**
+ * @param  {Object} representationObject
+ * @param  {Object} nodeList
+ * @param  {Object} tensorList
+ */
+function objectFactory(representationObject, nodeList, tensorList) {
+	let newNode = (Function('return new ' + representationObject.classname))();
+	newNode.deSerialize(representationObject, nodeList, tensorList);
+}
+

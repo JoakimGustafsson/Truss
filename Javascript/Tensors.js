@@ -29,6 +29,23 @@ class Tensor {
 	}
 
 	/**
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(localNodeList, tensorList) {
+		let representation={'classname': 'Tensor'};
+		representation.node1=localNodeList.indexOf(this.node1);
+		representation.node2=localNodeList.indexOf(this.node2);
+		representation.constant=this.constant;
+		representation.tensorType=this.tensorType;
+		representation.force=this.force;
+		representation.ghost=this.ghost;
+
+		return representation;
+	}
+
+	/**
 	 * @return {string} The name of the tensor
 	 */
 	getName() {
@@ -420,6 +437,19 @@ class Spring extends Tensor {
 			this.equilibriumLength = this.getLength();
 		}
 	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='Spring';
+		return representationObject;
+	}
+
+
 	/**
 		 * Calculate the force in the Spring based on current length
 		 */
@@ -447,6 +477,17 @@ class PullSpring extends Spring {
 	*/
 	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
 		super(node1, node2, constant, equilibriumLength, type);
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='PullSpring';
+		return representationObject;
 	}
 
 	/**
@@ -478,6 +519,17 @@ class Field extends Tensor {
  */
 	constructor(node1, node2, constant = 1, type = TensorType.FIELD) {
 		super(node1, node2, constant, type);
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='Field';
+		return representationObject;
 	}
 
 	/**
@@ -515,6 +567,17 @@ class Absorber extends Tensor {
  */
 	constructor(node1, node2, constant = 1, type = TensorType.ABSORBER) {
 		super(node1, node2, constant, type);
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='Absorber';
+		return representationObject;
 	}
 
 	/**

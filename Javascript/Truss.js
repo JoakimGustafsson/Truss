@@ -32,6 +32,20 @@ class Truss {
 	}
 
 	/**
+	 * @return {Array}
+	 */
+	makeTensorList() {
+		return this.positionBasedTensors.concat(this.velocityBasedTensors);
+	}
+
+	/**
+	 * @return {Array}
+	 */
+	makeNodeList() {
+		return this.nodes;
+	}
+
+	/**
 	 * Add a node to the truss and it will be updated at ticks and displayed
 	 * @param  {Node} node
 	 * @return {Node}
@@ -196,7 +210,7 @@ class Truss {
 	 * Clear the screen
 	 */
 	clear() {
-		this.view.context.clearRect(0, 0, WIDTH, HEIGHT);
+		this.view.context.clearRect(0, 0, this.view.screenSize.x, this.view.screenSize.y);
 	};
 
 	/**
