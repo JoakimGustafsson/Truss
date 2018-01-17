@@ -48,7 +48,18 @@ class Vector {
 	 * @return {Vector} The vector pointing in exactly the oposite direction
 	 */
 	serialize() {
-		return JSON.stringify(this);
+		return {'x': this.x,
+			'y': this.y};
+	};
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @return {Vector}
+	 */
+	deserialize(restoreObject) {
+		this.x += restoreObject.x;
+		this.y += restoreObject.y;
+		return this;
 	};
 
 	/**
@@ -86,11 +97,12 @@ class Position extends Vector {
 		super(x, y);
 	}
 
+
 	/**
-	 * Add a vector v to this vector
-	 * @param  {Vector} v
-	 * @return {Position}
-	 */
+	* Add a vector v to this vector
+	* @param  {Vector} v
+	* @return {Position}
+	*/
 	add(v) {
 		this.x += v.x;
 		this.y += v.y;
@@ -357,6 +369,6 @@ function serializeTensorList(objectList, nodeList, conversionList) {
  */
 function objectFactory(representationObject, nodeList, tensorList) {
 	let newNode = (Function('return new ' + representationObject.classname))();
-	newNode.deSerialize(representationObject, nodeList, tensorList);
+	newNode.deserialize(representationObject, nodeList, tensorList);
 }
 

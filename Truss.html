@@ -64,9 +64,6 @@
 			function mainLoop(timestamp) {
 				mainNode.tick(timestamp / 1000);
 				requestAnimationFrame(mainLoop);
-				tensors = mainNode.makeTensorList();
-				nodes = mainNode.makeNodeList();
-				mainNode.serialize(nodes, tensors);
 			}
 
 			// Setting up the canvas and ensure other initialization routines are run
@@ -76,8 +73,9 @@
 				FPSdisplay = document.getElementById("FPSdisplay");
 
 				let mainView = new View(new Vector(WIDTH, HEIGHT), new Vector(18, 9));
-				mainNode = new TrussNode(new Position(0, 0), mainView, 0.01, 1, "MainNode")
-				mainNode.truss = new WalkTruss(mainView, 1 / 60);
+				mainNode = new TrussNode(new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss);
+				mainNode.truss.initiate();
+				//mainNode.truss = new WalkTruss(mainView, 1 / 60);
 
 
 				/* 

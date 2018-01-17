@@ -14,8 +14,8 @@ class View {
 	constructor(screenSize, worldViewSize) {
 		this.screenSize = screenSize;
 		this.worldViewSize = worldViewSize;
-		this.xScale = worldViewSize.x / screenSize.x;
-		this.yScale = worldViewSize.y / screenSize.y;
+		this.recalculate();
+
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
 	}
@@ -25,7 +25,23 @@ class View {
 	 * @return {Object}
 	 */
 	serialize(tensorList) {
-		return 'serializedView';
+		return {
+			'screenSize': this.screenSize.serialize(),
+			'worldViewSize': this.worldViewSize.serialize(),
+			'offset': this.offset.serialize(),
+		};
+	}
+
+	/**
+	 * @param {Object} restoreObject
+	 * @return {View}
+	 */
+	deserialize(restoreObject) {
+		this.screenSize = new Vector().deserialize(restoreObject.screenSize);
+		this.worldViewSize = new Vector().deserialize(restoreObject.worldViewSize);
+		this.offset = new Vector().deserialize(restoreObject.offset);
+		this.recalculate();
+		return this;
 	}
 
 	/**
@@ -97,8 +113,11 @@ class View {
 	 * Support function to refresh the ratios so. Should not be manually used
 	 */
 	recalculate() {
-		this.xScale = worldViewSize.x / screenSize.x;
-		this.yScale = worldViewSize.y / screenSize.y;
+		if (!this.worldViewSize || !this.screenSize) {
+			return;
+		}
+		this.xScale = this.worldViewSize.x / this.screenSize.x;
+		this.yScale = this.worldViewSize.y / this.screenSize.y;
 	};
 
 	/**

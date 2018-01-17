@@ -152,7 +152,7 @@ class Tensor {
 			return new Force(0, 0);
 		}
 		let torque = this.getStoredTorque(opposite);
-		if (torque==0) {
+		if (!torque) {
 			return new Force(0, 0);
 		}
 		let forceLenth = torque * this.getLength();
@@ -360,7 +360,7 @@ class Tensor {
 	 * @param  {Node} node
 	 */
 	resetCollision(node) {
-		this.collideDistanceMapping[node.name] = 0;
+		delete this.collideDistanceMapping[node.name];
 	};
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".

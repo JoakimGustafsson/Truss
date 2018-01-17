@@ -23,6 +23,36 @@ class ActuatorNode extends Node {
 			showFunction, velocityLoss);
 		this.iO = obj; // the influenced object
 	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='ActuatorNode';
+		representationObject.iO = nodeList.indexOf(this.iO);
+		return representationObject;
+	}
+
+	/**
+	 * @param {Object} restoreObject
+	 * @return {Node}
+	 */
+	deserialize(restoreObject) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.iO = nodeList.indexOf(this.iO);
+		return this;
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 */
+	deserializeFixLinks(nodeList, tensorList) {
+		this.iO = nodeList[representationObject.iO];
+	}
 }
 
 
@@ -53,6 +83,20 @@ class BinaryActuatorNode extends ActuatorNode {
 		this.position1 = position1;
 		this.position2 = position2;
 		this.vector = subtractVectors(position2, position1);
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='BinaryActuatorNode';
+		representationObject.position1 = this.position1.serialize();
+		representationObject.position2 = this.position2.serialize();
+		representationObject.vector = this.vector.serialize();
+		return representationObject;
 	}
 	/**
 	 * getState will return a 0, 1 or 2 depending if its position is close to position1 or position2
@@ -127,6 +171,18 @@ class JumpNode extends BinaryActuatorNode {
 		this.originalGravityConstant = gravityField.constant;
 	}
 
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='JumpNode';
+		representationObject.gravityField = tensorList.indexOf(this.gravityField);
+		representationObject.originalGravityConstant = this.originalGravityConstant;
+		return representationObject;
+	}
 
 	/**
 	 * @param  {number} time
@@ -171,11 +227,25 @@ class LeftRightNode extends BinaryActuatorNode {
 		mass = 0.01, name = 'leftrightnode', positionFunction,
 		showFunction, velocityLoss = 0.99) {
 		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
-		this.lineBreakers = [];
-		this.truss;
+		// this.lineBreakers = [];
+		// this.truss;
 		this.moveFieldConstant = 6.67e-11;
 		this.rightMovementTensor = rightMovementTensor;
 		this.leftMovementTensor = leftMovementTensor;
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='LeftRightNode';
+		representationObject.moveFieldConstant = this.moveFieldConstant;
+		representationObject.rightMovementTensor = tensorList.indexOf(this.rightMovementTensor);
+		representationObject.leftMovementTensor = tensorList.indexOf(this.leftMovementTensor);
+		return representationObject;
 	}
 
 	/**
@@ -224,6 +294,18 @@ class LineBreakerNode extends ActuatorNode {
 		if (!this.iO.breakList) {
 			this.iO.breakList= [];
 		}
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='LineBreakerNode';
+
+		return representationObject;
 	}
 
 	/**
@@ -300,13 +382,13 @@ class LineBreakerNode extends ActuatorNode {
 	 * by other nodes, so we need to keep track of the immediatelyLeft and immediatelyRight to know the part of the link that is
 	 * currently closest to the node. The linkBreakerRepresentation is added to a list in the influenced object (the iO)
 	 * since a given node may break several Tensors and each has to be handled separately.
-	 * @param  {Truss} truss
+	 * @param  {Truss} trussNode
 	 * @param  {Tensor} tensor
 	 * @param  {number} distanceFraction
 	 * @param  {number} dir
 	 */
-	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
-		this.truss = truss;
+	attachToTensor(trussNode, tensor, distanceFraction = 0.5, dir = -1) {
+		this.truss = trussNode.truss;
 		let startNode = tensor.node1;
 		let endNode = tensor.node2;
 
@@ -338,7 +420,7 @@ class LineBreakerNode extends ActuatorNode {
 			if (tensor.originalParent.node2 == endNewLink.node2) {
 				tensor.originalParent.breakEndTensor = endNewLink;
 			}
-			truss.removeTensor(tensor);
+			this.truss.removeTensor(tensor);
 		}
 
 		let breaker = this.getBreak(startNode, tensor.originalParent);
@@ -436,7 +518,7 @@ class LineBreakerNode extends ActuatorNode {
 
 			this.iO.setPosition(positionAlongNextTensor);
 
-			this.attachToTensor(this.truss, newTensor, distanceFraction, dir);
+			this.attachToTensor(this, newTensor, distanceFraction, dir);
 		}
 		this.clearAllInternalLinebreaks(connectionNode);
 		this.clearCollisionmappingForThisNode(connectionNode);

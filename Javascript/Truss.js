@@ -32,6 +32,15 @@ class Truss {
 	}
 
 	/**
+	 * @param  {Array} superNodeList
+	 * @param  {Array} superTensorList
+	 * @return {Object}
+	 */
+	serialize(superNodeList, superTensorList) {
+		return {};
+	}
+
+	/**
 	 * @return {Array}
 	 */
 	makeTensorList() {
@@ -58,14 +67,14 @@ class Truss {
 	 * Make a tensor unable to cause collisions
 	 * @param  {Tensor} tensor
 	 */
-	ghostifyTensor(tensor) {
+	XXghostifyTensor(tensor) {
 		tensor.ghostify();
 	};
 	/**
 	 * Make a tensor able to cause collisions
 	 * @param  {Tensor} tensor
 	 */
-	deghostifyTensor(tensor) {
+	XXdeghostifyTensor(tensor) {
 		tensor.deghostify();
 	};
 

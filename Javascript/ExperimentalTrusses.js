@@ -37,7 +37,12 @@ class WalkTruss extends Truss {
 	 */
 	constructor(view, updatefrequency) {
 		super(view, updatefrequency);
+	}
 
+	/**
+	 *
+	 */
+	initiate() {
 		this.addNode(Earth);
 
 		// Create a protagonist (yellow circle) and connect it to gravity
@@ -148,13 +153,13 @@ class WalkTruss extends Truss {
 			new JumpNode(protagonist, new Position(0.5, 1), new Position(0.5, 2),
 				egoGravityField, 0.05, 'myJumpNode'));
 
-		this.addTensor(new Spring(sensorNode, jumpActuator, 50));
+		this.addTensor(new Spring(sensorNode, jumpActuator, 500));
 
 		let collissionsensor = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
-		collissionsensor.registerTrussObjectAndActuator(this, protagonist, lineBreakerActuator);
+		collissionsensor.registerTrussObjectAndActuator(mainNode, protagonist, lineBreakerActuator);
 
 		let bounceSensor = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor1');
-		bounceSensor.registerTrussObjectAndActuator(this, protagonist, lineBreakerActuator);
+		bounceSensor.registerTrussObjectAndActuator(mainNode, protagonist, lineBreakerActuator);
 
 		// let collissionsensor2 = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor2');
 		// collissionsensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);
@@ -176,7 +181,7 @@ class WalkTruss extends Truss {
 		let saveTrigger = this.addNode(new ProximitySensorNode(new Position(5, 1), 1, 'proximity1',
 			function() {
 				if (!savedState) {
-					savedState=JSON.stringify(JSON.decycle(mainNode));
+					savedState=mainNode.serialize();
 				}
 			}
 		));
@@ -185,8 +190,9 @@ class WalkTruss extends Truss {
 		let loadTrigger = this.addNode(new ProximitySensorNode(new Position(7, 1), 1, 'proximity2',
 			function() {
 				if (savedState) {
-					mainNode=JSON.retrocycle(JSON.parse(savedState));
-					Object.setPrototypeOf(mainNode, TrussNode.prototype);
+					mainNode=new TrussNode();
+					mainNode.deserialize(savedState);
+					// Object.setPrototypeOf(mainNode, TrussNode.prototype);
 					// mainNode.prototype=TrussNode.prototype;
 				}
 			}
@@ -212,6 +218,16 @@ class ProtagonistNode extends Node {
 		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 	}
 
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='ProtagonistNode';
+		return representationObject;
+	}
 	/**
 	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
 	 * @param  {Canvas} canvas
