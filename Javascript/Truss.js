@@ -19,6 +19,7 @@ class Truss {
 		this.view = view;
 		this.sensorNodes = [];
 		this.nodes = [];
+
 		this.tensors = [];
 		this.positionBasedTensors = [];
 		this.velocityBasedTensors = [];
@@ -37,14 +38,88 @@ class Truss {
 	 * @return {Object}
 	 */
 	serialize(superNodeList, superTensorList) {
-		return {};
+		let representationObject={
+			'classname': 'Truss',
+			'timestep': this.timestep,
+			'fps': this.fps,
+			'framesThisSecond': this.framesThisSecond,
+			'lastFpsUpdate': this.lastFpsUpdate,
+		};
+
+		let nodeList=[];
+		for (let node of this.nodes) {
+			nodeList.push(node.serialize(this.nodes, this.tensors));
+		}
+		representationObject.nodes=nodeList;
+
+
+		let tensorList=[];
+		for (let tensor of this.tensors) {
+			tensorList.push(tensor.serialize(this.nodes, this.tensors));
+		}
+		representationObject.tensors=tensorList;
+
+		representationObject.sensorNodes=serializeList(this.sensorNodes, this.nodes);
+		representationObject.positionBasedTensors=serializeList(this.positionBasedTensors, this.tensors);
+		representationObject.velocityBasedTensors=serializeList(this.velocityBasedTensors, this.tensors);
+
+		representationObject.view = this.view.serialize();
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodeList
+	 * @param  {Array} superTensorList
+	 * @return {Truss}
+	 */
+	deserialize(restoreObject, superNodeList, superTensorList) {
+		// Create empty nodes and tensors
+		let nodeList=[];
+		for (let nodeRestoreObject of restoreObject.nodes) {
+			let node = objectFactory(nodeRestoreObject);
+			nodeList.push(node);
+		}
+
+		let tensorList=[];
+		for (let tensorRestoreObject of restoreObject.tensors) {
+			let tensor = objectFactory(tensorRestoreObject);
+			tensorList.push(tensor);
+		}
+
+		// deserialize them
+		let index=0;
+		for (let node of nodeList) {
+			node.deserialize(restoreObject.nodes[index], nodeList, tensorList);
+			index++;
+		}
+		index=0;
+		for (let tensor of tensorList) {
+			tensor.deserialize(restoreObject.tensors[index], nodeList, tensorList);
+			index++;
+		}
+		this.nodes=nodeList;
+		this.tensors=tensorList;
+
+		this.sensorNodes= deserializeList(restoreObject.sensorNodes, this.nodes);
+		this.positionBasedTensors= deserializeList(restoreObject.positionBasedTensors, this.tensors);
+		this.velocityBasedTensors= deserializeList(restoreObject.velocityBasedTensors, this.tensors);
+		this.lastFrameTimeMs= 0;
+		this.timestep= restoreObject.timestep;
+		this.fps= restoreObject.fps;
+		this.framesThisSecond= restoreObject.framesThisSecond;
+		this.lastFpsUpdate= restoreObject.lastFpsUpdate;
+
+		this.view = new View().deserialize(restoreObject.view);
+
+		return this;
 	}
 
 	/**
 	 * @return {Array}
 	 */
 	makeTensorList() {
-		return this.positionBasedTensors.concat(this.velocityBasedTensors);
+		return this.tensors;
 	}
 
 	/**
@@ -61,21 +136,10 @@ class Truss {
 	 */
 	addNode(node) {
 		this.nodes.push(node);
+		if (node.sensor) {
+			this.addSensor(node);
+		}
 		return node;
-	};
-	/**
-	 * Make a tensor unable to cause collisions
-	 * @param  {Tensor} tensor
-	 */
-	XXghostifyTensor(tensor) {
-		tensor.ghostify();
-	};
-	/**
-	 * Make a tensor able to cause collisions
-	 * @param  {Tensor} tensor
-	 */
-	XXdeghostifyTensor(tensor) {
-		tensor.deghostify();
 	};
 
 	/**
@@ -192,7 +256,7 @@ class Truss {
 	 */
 	sense(deltaTime) {
 		for (let sensorNode of this.sensorNodes) {
-			sensorNode.sense(deltaTime);
+			sensorNode.sense(deltaTime, this);
 		}
 	}
 

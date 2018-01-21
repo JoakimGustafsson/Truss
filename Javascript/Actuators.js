@@ -37,12 +37,14 @@ class ActuatorNode extends Node {
 	}
 
 	/**
-	 * @param {Object} restoreObject
-	 * @return {Node}
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {ActuatorNode}
 	 */
-	deserialize(restoreObject) {
-		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.iO = nodeList.indexOf(this.iO);
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.serialize(nodeList, tensorList);
+		this.iO = nodeList[restoreObject.iO];
 		return this;
 	}
 
@@ -79,10 +81,18 @@ class BinaryActuatorNode extends ActuatorNode {
 	 * @param {number} velocityLoss - A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
 	 */
 	constructor(obj, position1, position2, mass = 0.001, name = 'binarynode', positionFunction, showFunction, velocityLoss = 0.99) {
-		super(obj, new Position(position1.x, position1.y), mass, name, positionFunction, showFunction, velocityLoss);
+		let startPos;
+		if (position1) {
+			startPos=new Position(position1.x, position1.y);
+		} else {
+			startPos= new Position(0, 0);
+		}
+		super(obj, startPos, mass, name, positionFunction, showFunction, velocityLoss);
 		this.position1 = position1;
-		this.position2 = position2;
-		this.vector = subtractVectors(position2, position1);
+		if (position2) {
+			this.position2 = position2;
+			this.vector = subtractVectors(this.position2, this.position1);
+		}
 	}
 
 	/**
@@ -95,9 +105,24 @@ class BinaryActuatorNode extends ActuatorNode {
 		representationObject.classname='BinaryActuatorNode';
 		representationObject.position1 = this.position1.serialize();
 		representationObject.position2 = this.position2.serialize();
-		representationObject.vector = this.vector.serialize();
 		return representationObject;
 	}
+
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {ActuatorNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.position1 = new Position().deserialize(restoreObject.position1);
+		this.position2 = new Position().deserialize(restoreObject.position2);
+		this.vector = subtractVectors(this.position2, this.position1);
+		return this;
+	}
+
 	/**
 	 * getState will return a 0, 1 or 2 depending if its position is close to position1 or position2
 	 * @return {number} - 0, 1 or 2 depending on its position.
@@ -167,8 +192,10 @@ class JumpNode extends BinaryActuatorNode {
 	 */
 	constructor(obj, position1, position2, gravityField, mass = 0.01, name = 'jumpnode', positionFunction, showFunction, velocityLoss) {
 		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
-		this.gravityField = gravityField;
-		this.originalGravityConstant = gravityField.constant;
+		if (gravityField) {
+			this.gravityField = gravityField;
+			this.originalGravityConstant = gravityField.constant;
+		}
 	}
 
 	/**
@@ -182,6 +209,19 @@ class JumpNode extends BinaryActuatorNode {
 		representationObject.gravityField = tensorList.indexOf(this.gravityField);
 		representationObject.originalGravityConstant = this.originalGravityConstant;
 		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {JumpNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.originalGravityConstant = restoreObject.originalGravityConstant;
+		this.gravityField = tensorList[restoreObject.gravityField];
+		return this;
 	}
 
 	/**
@@ -249,6 +289,20 @@ class LeftRightNode extends BinaryActuatorNode {
 	}
 
 	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {LeftRightNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.moveFieldConstant = restoreObject.moveFieldConstant;
+		this.rightMovementTensor = tensorList[restoreObject.rightMovementTensor];
+		this.leftMovementTensor = tensorList[restoreObject.leftMovementTensor];
+		return this;
+	}
+
+	/**
 	 * @param  {number} time
 	 * @param {number} deltaTime
 	 */
@@ -290,11 +344,8 @@ class LineBreakerNode extends ActuatorNode {
 	 */
 	constructor(obj, mass = 0.01, name = 'linebreakernode', positionFunction, showFunction, velocityLoss = 0.99) {
 		super(obj, new Position(1, 1), mass, name, positionFunction, showFunction, velocityLoss);
-		this.truss;
-		if (!this.iO.breakList) {
-			this.iO.breakList= [];
-		}
 	}
+
 
 	/**
 	 * @param  {Array} nodeList
@@ -323,8 +374,10 @@ class LineBreakerNode extends ActuatorNode {
 	 */
 	sense() {
 		// console.log('enter sense'+this.iO.breakList.length);
-		for (let brokenLink of this.iO.breakList) {
-			this.recalcEquilibriumLengths(brokenLink.original);
+		if (this.iO && this.iO.breakList) {
+			for (let brokenLink of this.iO.breakList) {
+				this.recalcEquilibriumLengths(brokenLink.original);
+			}
 		}
 		// console.log('leave sense:'+this.iO.breakList.length);
 	}
@@ -392,6 +445,10 @@ class LineBreakerNode extends ActuatorNode {
 		let startNode = tensor.node1;
 		let endNode = tensor.node2;
 
+		if (!this.iO.breakList) {
+			this.iO.breakList= [];
+		}
+
 		if (!tensor.originalParent) {
 			tensor.originalParent = tensor;
 		}
@@ -436,6 +493,7 @@ class LineBreakerNode extends ActuatorNode {
 		let outerLayer = this.iO.breakList.length == 0;
 
 		console.log('Attach to tensor: '+tensor.getName());
+
 
 		this.iO.breakList.push(
 			{
@@ -607,8 +665,9 @@ class LineBreakerNode extends ActuatorNode {
 		this.truss.removeTensor(startLink);
 		this.truss.removeTensor(endLink);
 
-		removeIfPresent(lineBreaker, this.iO.breakList);
-
+		if (this.iO && this.iO.breakList) {
+			removeIfPresent(lineBreaker, this.iO.breakList);
+		}
 		console.log(logMessage);
 	}
 

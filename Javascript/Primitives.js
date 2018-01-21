@@ -349,15 +349,27 @@ function boxClose(p1, p2, distance) {
 }
 
 /**
- * @param  {Array} objectList
- * @param  {Array} nodeList
- * @param  {Array} conversionList
+ * @param  {Array} currentList
+ * @param  {Array} allObjects
  * @return {Array}
  */
-function serializeTensorList(objectList, nodeList, conversionList) {
+function serializeList(currentList, allObjects) {
 	let returnList=[];
-	for (let t of objectList) {
-		returnList.push(conversionList.indexOf(t));
+	for (let t of currentList) {
+		returnList.push(allObjects.indexOf(t));
+	}
+	return returnList;
+}
+
+/**
+ * @param  {Array} numberList
+ * @param  {Array} allObjects
+ * @return {Array}
+ */
+function deserializeList(numberList, allObjects) {
+	let returnList=[];
+	for (let t of numberList) {
+		returnList.push(allObjects[t]);
 	}
 	return returnList;
 }
@@ -366,9 +378,9 @@ function serializeTensorList(objectList, nodeList, conversionList) {
  * @param  {Object} representationObject
  * @param  {Object} nodeList
  * @param  {Object} tensorList
+ * @return {Object}
  */
 function objectFactory(representationObject, nodeList, tensorList) {
-	let newNode = (Function('return new ' + representationObject.classname))();
-	newNode.deserialize(representationObject, nodeList, tensorList);
+	return (Function('return new ' + representationObject.classname))();
+	// newNode.deserialize(representationObject, nodeList, tensorList);
 }
-

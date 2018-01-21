@@ -42,8 +42,8 @@ class Node {
 		representation.angle=this.angle;
 		representation.turnrate=this.turnrate;
 		representation.torqueConstant=this.torqueConstant;
-		representation.velocityBasedTensors = serializeTensorList(this.velocityBasedTensors, nodeList, tensorList);
-		representation.positionBasedTensors = serializeTensorList(this.positionBasedTensors, nodeList, tensorList);
+		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
+		representation.positionBasedTensors = serializeList(this.positionBasedTensors, tensorList);
 		representation.velocityLoss=this.velocityLoss;
 		if (this.positionFunction) {
 			representation.positionFunction=this.positionFunction.toString();
@@ -71,8 +71,10 @@ class Node {
 
 	/**
 	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
 	 */
-	deserialize(restoreObject) {
+	deserialize(restoreObject, nodeList, tensorList) {
 		this.name = restoreObject.name;
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
@@ -81,31 +83,32 @@ class Node {
 		this.angle = restoreObject.angle;
 		this.turnrate = restoreObject.turnrate;
 		this.torqueConstant = restoreObject.torqueConstant;
-		this.velocityBasedTensors = [];
-		this.positionBasedTensors = [];
+		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
+		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
 		this.velocityLoss = restoreObject.velocityLoss;
 		if (restoreObject.positionFunction) {
-			this.positionFunction = eval(restoreObject.positionFunction);
+			this.positionFunction = restoreObject.positionFunction;
 		}
 		if (restoreObject.showFunction) {
-			this.showFunction = eval(restoreObject.showFunction);
+			this.showFunction = restoreObject.showFunction;
 		}
-		// call handleCanvas
-		// Get view
-		// call setView
 
+		if (restoreObject.breakList) {
+			this.breakList=[];
+			for (let lineBreaker of restoreObject.breakList) {
+				this.breakList.push({
+					'original': tensorList[lineBreaker.originalParent],
+					'immediatelyLeft': tensorList[lineBreaker.startNewLink],
+					'immediatelyRight': tensorList[lineBreaker.endNewLink],
+					'direction': lineBreaker.dir,
+					'outerLayer': lineBreaker.outerLayer,
+				});
+			}
+		}
 		// Set easy properties
 		// Make list of nodes
 		// make list of tensors (using the nodes)
 		// fill in the nodes tensor references
-	}
-
-	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 */
-	deserializeFixLinks(nodeList, tensorList) {
-		//
 	}
 
 	/**
@@ -360,7 +363,7 @@ class TrussNode extends Node {
 
 		if (view) {
 			this.truss = new trussClass(view, timestep);
-			this.setView(view);
+			this.setView();
 		}
 	}
 
@@ -380,15 +383,13 @@ class TrussNode extends Node {
 
 	/**
 	 * @param  {View} view
-	 * @param  {Number} timestep
 	 */
-	setView(view) {
-		this.view = view;
-		this.view.context = this.canvas.getContext('2d');
-		this.canvas.width = view.screenSize.x;
-		this.canvas.height = view.screenSize.y;
-		this.canvas.style.width = view.screenSize.x + 'px';
-		this.canvas.style.height = view.screenSize.y + 'px';
+	setView() {
+		this.truss.view.context = this.canvas.getContext('2d');
+		this.canvas.width = this.truss.view.screenSize.x;
+		this.canvas.height = this.truss.view.screenSize.y;
+		this.canvas.style.width = this.truss.view.screenSize.x + 'px';
+		this.canvas.style.height = this.truss.view.screenSize.y + 'px';
 	}
 
 	/**
@@ -397,24 +398,7 @@ class TrussNode extends Node {
 	 * @return {Object}
 	 */
 	serialize(superNodeList, superTensorList) {
-		let localTensorList=this.makeTensorList();
-		let localNodeList=this.makeNodeList();
-
-		let representationObject = super.serialize(localTensorList);
-		representationObject.classname='TrussNode';
-		let nodeList=[];
-		for (let node of localNodeList) {
-			nodeList.push(node.serialize(localNodeList, localTensorList));
-		}
-		representationObject.nodes=nodeList;
-
-		let tensorList=[];
-		for (let tensor of localTensorList) {
-			tensorList.push(tensor.serialize(localNodeList, localTensorList));
-		}
-		representationObject.tensors=tensorList;
-
-		representationObject.view = this.view.serialize();
+		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.truss = this.truss.serialize();
 
 		// save the canvas properties
@@ -423,22 +407,14 @@ class TrussNode extends Node {
 
 	/**
 	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
 	 */
-	deserialize(restoreObject) {
+	deserialize(restoreObject, superNodes, superTensors) {
 		super.deserialize(restoreObject);
+		this.truss = new Truss().deserialize(restoreObject.truss);
 		this.handleCanvas();
-		this.view = (new View()).deserialize(restoreObject.view);
-		this.setView(this.view);
-		let nodeList=[];
-		for (let nodeRestoreObject of restoreObject.nodes) {
-			let node = objectFactory(nodeRestoreObject);
-			nodeList.push(node);
-		}
-
-		// Set easy properties
-		// Make list of nodes
-		// make list of tensors (using the nodes)
-		// fill in the nodes tensor references
+		this.setView();
 	}
 
 	/**
@@ -467,18 +443,4 @@ class TrussNode extends Node {
 	tick(time) {
 		this.truss.tick(time);
 	};
-
-	/**
-	 * @return {Array}
-	 */
-	makeTensorList() {
-		return this.truss.makeTensorList();
-	}
-
-	/**
-	 * @return {Array}
-	 */
-	makeNodeList() {
-		return this.truss.makeNodeList();
-	}
 }

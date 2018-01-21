@@ -11,14 +11,14 @@
 	<script src="Javascript/Actuators.js" type="text/javascript"></script>
 	<script src="Javascript/Sensors.js" type="text/javascript"></script>
 	<script src="Javascript/ExperimentalTrusses.js" type="text/javascript"></script>
-	<script src="Javascript/cycle.js" type="text/javascript"></script>
-	<script src="Javascript/jquery-3.1.1.js"></script>
+	<!--	<script src="Javascript/cycle.js" type="text/javascript"></script>
+	<script src="Javascript/jquery-3.1.1.js"></script>  -->
 
 	<link rel="stylesheet" type="text/css" href="../Stylefiles/Truss.css">
 
-	<!-- <link rel="icon" type="image/png" href="../Pictures/Atlas white logotype.png" />
+ <link rel="icon" type="image/png" href="../Pictures/Atlas white logotype.png" />
 <link rel="shortcut icon" href="../Pictures/Atlas white logotype.png" />
- -->
+
 
 	<title>Truss</title>
 
@@ -102,7 +102,7 @@
 
 
 			// Make sure the init is not run until all is set up
-			$().ready(init);
+			//$().ready(init);
 
 
 			let myX = 3;
@@ -129,6 +129,8 @@
 			function upMouse(e) {
 				mouseSet = false;
 			}
+
+			init();
 		</script>
 
 	</section>

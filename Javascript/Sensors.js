@@ -2,8 +2,27 @@
  *
  */
 
-
 let keyState = {};
+
+/** Abstract sensor class
+ * @class
+ * @extends Node
+ */
+class SensorNode extends Node {
+	/**
+	 * @param  {Position} startPosition
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {Function} positionFunction
+	 * @param  {Function} showFunction
+	 * @param  {number} velocityLoss
+	 */
+	constructor(startPosition, mass = 0.001, name, positionFunction, showFunction, velocityLoss) {
+		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+		this.sensor=true;
+	}
+}
+
 
 /** This sensor reads key presses and moves the node a given vector associated with each registered key.
  * Example
@@ -15,7 +34,7 @@ let keyState = {};
  * @class
  * @extends Node
  */
-class KeySensorNode extends Node {
+class KeySensorNode extends SensorNode {
 	/**
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
@@ -93,7 +112,7 @@ class KeySensorNode extends Node {
  * @class
  * @extends Node
  */
-class ProximitySensorNode extends Node {
+class ProximitySensorNode extends SensorNode {
 	/**
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
@@ -178,7 +197,7 @@ class ProximitySensorNode extends Node {
  * @class
  * @extends Node
  */
-class CollisionSensorNode extends Node {
+class CollisionSensorNode extends SensorNode {
 	/**
 	 * This class detects collisions between an object and tensors.
 	 * First use registerTrussObjectAndActuator() to connect and object
@@ -186,13 +205,16 @@ class CollisionSensorNode extends Node {
 	 * @param  {Position} position
 	 * @param  {number} mass
 	 * @param  {string} name
+	 * @param  {Node} obj
+	 * @param  {Actuator} actuator
 	 * @param  {Function} positionFunction
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(position, mass = 0.01, name = 'collisionSensorNode', positionFunction, showFunction, velocityLoss) {
+	constructor(position, mass = 0.01, name = 'collisionSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
 		super(position, mass, name, positionFunction, showFunction, velocityLoss);
-		// this.actuator;
+		this.localActuator = actuator;
+		this.localObject = obj;
 		let _this = this;
 		document.addEventListener('collisionEvent',
 			function(e) {
@@ -209,32 +231,21 @@ class CollisionSensorNode extends Node {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='CollisionSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
-		representationObject.localTrussNode = this.localTrussNode.serialize();
+		// representationObject.localTrussNode = nodethis.localTrussNode;
 		representationObject.localObject = nodeList.indexOf(this.localObject);
 
 		return representationObject;
 	}
 
 	/**
-	 * @param  {Truss} trussNode
-	 * @param  {Node} obj
-	 * @param  {Actuator} actuator
-	 */
-	registerTrussObjectAndActuator(trussNode, obj, actuator) {
-		trussNode.truss.addSensor(this);
-		this.localActuator = actuator;
-		this.localTrussNode = trussNode;
-		this.localObject = obj;
-	};
-
-	/**
 	 * Has the iO node collided with any Spring.
 	 * If so, that will casue a collisionEvent generated from the Tensors
 	 * checkCollision() function.
 	 * @param {number} deltaTime
+	 * @param {Truss} truss
 	 */
-	sense(deltaTime) {
-		for (let tensor of this.localTrussNode.truss.positionBasedTensors) {
+	sense(deltaTime, truss) {
+		for (let tensor of truss.positionBasedTensors) {
 			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
 				tensor.checkCollision(this.localObject); // the tensor will raiose an event that is caught by the collisionFunction()
 			}
@@ -270,18 +281,22 @@ class CollisionSensorNode extends Node {
  * @class
  * @extends Node
  */
-class BounceSensorNode extends Node {
+class BounceSensorNode extends SensorNode {
 	/**
 	 * This class detects when an object bounces of a tensor or leaves it at the end.
 	 * @param  {Position} position
 	 * @param  {number} mass
 	 * @param  {string} name
+	 * @param  {Node} obj
+	 * @param  {Actuator} actuator
 	 * @param  {Function} positionFunction
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(position, mass = 0.01, name = 'BounceSensorNode', positionFunction, showFunction, velocityLoss) {
+	constructor(position, mass = 0.01, name = 'BounceSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
 		super(position, mass, name, positionFunction, showFunction, velocityLoss);
+		this.localActuator = actuator;
+		this.localObject = obj;
 	}
 
 	/**
@@ -298,16 +313,6 @@ class BounceSensorNode extends Node {
 		return representationObject;
 	}
 
-	/**
-	 * @param  {Truss} trussNode
-	 * @param  {Node} obj
-	 * @param  {Actuator} actuator
-	 */
-	registerTrussObjectAndActuator(trussNode, obj, actuator) {
-		trussNode.truss.addSensor(this);
-		this.localActuator = actuator;
-		this.localObject = obj;
-	};
 
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or

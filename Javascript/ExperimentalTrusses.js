@@ -155,11 +155,12 @@ class WalkTruss extends Truss {
 
 		this.addTensor(new Spring(sensorNode, jumpActuator, 500));
 
-		let collissionsensor = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor1');
-		collissionsensor.registerTrussObjectAndActuator(mainNode, protagonist, lineBreakerActuator);
+		let collissionsensor = this.addNode(new CollisionSensorNode(new Position(4, 1), 0.01,
+			'CollissionSensor1', protagonist, lineBreakerActuator));
+		// collissionsensor.registerTrussObjectAndActuator(mainNode, protagonist, lineBreakerActuator);
 
-		let bounceSensor = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor1');
-		bounceSensor.registerTrussObjectAndActuator(mainNode, protagonist, lineBreakerActuator);
+		let bounceSensor = this.addNode(new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor1', protagonist, lineBreakerActuator));
+		// bounceSensor.registerTrussObjectAndActuator(mainNode, protagonist, lineBreakerActuator);
 
 		// let collissionsensor2 = new CollisionSensorNode(new Position(4, 1), 0.01, 'CollissionSensor2');
 		// collissionsensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);

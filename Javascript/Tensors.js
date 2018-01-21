@@ -46,6 +46,25 @@ class Tensor {
 	}
 
 	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Tensor}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		// super.deserialize(restoreObject);
+		this.node1=nodeList[restoreObject.node1];
+		this.node2=nodeList[restoreObject.node2];
+		this.constant=restoreObject.constant;
+
+		this.tensorType=restoreObject.tensorType;
+		this.force=restoreObject.force;
+		this.ghost=restoreObject.ghost;
+
+		return this;
+	}
+
+	/**
 	 * @return {string} The name of the tensor
 	 */
 	getName() {
@@ -446,9 +465,21 @@ class Spring extends Tensor {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='Spring';
+		representationObject.equilibriumLength=this.equilibriumLength;
 		return representationObject;
 	}
 
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Spring}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.equilibriumLength=restoreObject.equilibriumLength;
+		return this;
+	}
 
 	/**
 		 * Calculate the force in the Spring based on current length
