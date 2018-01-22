@@ -16,8 +16,8 @@
 
 	<link rel="stylesheet" type="text/css" href="../Stylefiles/Truss.css">
 
- <link rel="icon" type="image/png" href="../Pictures/Atlas white logotype.png" />
-<link rel="shortcut icon" href="../Pictures/Atlas white logotype.png" />
+	<!-- <link rel="icon" type="image/png" href="../Pictures/Atlas white logotype.png" />
+<link rel="shortcut icon" href="../Pictures/Atlas white logotype.png" />  -->
 
 
 	<title>Truss</title>
@@ -75,22 +75,7 @@
 				let mainView = new View(new Vector(WIDTH, HEIGHT), new Vector(18, 9));
 				mainNode = new TrussNode(new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss);
 				mainNode.truss.initiate();
-				//mainNode.truss = new WalkTruss(mainView, 1 / 60);
 
-
-				/* 
-								var vw= new View(new Vector(200,100), new Vector(2,1))
-								var tn= new TrussNode(new Position(200,20), vw, 0.01, 10, "SubTruss", 
-										function(node, tick){
-											return new Position(2+0.5*Math.sin(tick),0.3)
-									}); 
-								var sn1 = tn.truss.addNode(new Node(new Position(1, 0.1), 10, "subnode1")); 
-								var sn2 = tn.truss.addNode(new Node(new Position(1, 0.2), 10, "subnode2")); 
-								tn.truss.addTensor(new Spring(sn1, sn2, 100,0.5));
-								tn.truss.initConnect();
-								mainNode.truss.addNode(tn); */
-
-				//return setInterval(draw, mainNode.truss.updateFrequency*1000);
 				window.requestAnimationFrame(mainLoop);
 
 
@@ -101,7 +86,7 @@
 			}
 
 
-			// Make sure the init is not run until all is set up
+			// Make sure the init is not run until all is set up. Hmmm, stop using JQuery
 			//$().ready(init);
 
 

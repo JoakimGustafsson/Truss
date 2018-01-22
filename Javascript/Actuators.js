@@ -356,6 +356,8 @@ class LineBreakerNode extends ActuatorNode {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='LineBreakerNode';
 
+		alert('how to handle this.truss');
+
 		return representationObject;
 	}
 
@@ -435,13 +437,13 @@ class LineBreakerNode extends ActuatorNode {
 	 * by other nodes, so we need to keep track of the immediatelyLeft and immediatelyRight to know the part of the link that is
 	 * currently closest to the node. The linkBreakerRepresentation is added to a list in the influenced object (the iO)
 	 * since a given node may break several Tensors and each has to be handled separately.
-	 * @param  {Truss} trussNode
+	 * @param  {Truss} truss
 	 * @param  {Tensor} tensor
 	 * @param  {number} distanceFraction
 	 * @param  {number} dir
 	 */
-	attachToTensor(trussNode, tensor, distanceFraction = 0.5, dir = -1) {
-		this.truss = trussNode.truss;
+	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
+		this.truss = truss;
 		let startNode = tensor.node1;
 		let endNode = tensor.node2;
 

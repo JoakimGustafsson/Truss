@@ -258,6 +258,15 @@ function length(v) {
 	return Math.sqrt(length2(v));
 }
 
+/** returns the distance between two positions
+ * @param  {Node} p1
+ * @param  {Node} p2
+ * @return {number}
+ */
+function positionDistance(p1, p2) {
+	return Math.sqrt(Math.pow(p2.x-p1.x, 2)+ Math.pow(p2.y-p1.y, 2));
+}
+
 /** returns the distance between two nodes
  * @param  {Node} n1
  * @param  {Node} n2
@@ -266,7 +275,7 @@ function length(v) {
 function nodeDistance(n1, n2) {
 	let p1 = n1.getPosition();
 	let p2 = n2.getPosition();
-	return Math.sqrt(Math.pow(p2.x-p1.x, 2)+ Math.pow(p2.y-p1.y, 2));
+	return positionDistance(p1, p2);
 }
 
 /** given a vector v, scale it so that the length becomes l

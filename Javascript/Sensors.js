@@ -71,6 +71,19 @@ class KeySensorNode extends SensorNode {
 	}
 
 	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {KeySensorNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.startPosition= new Position().deserialize(restoreObject.startPosition);
+		this.keyList= JSON.parse(restoreObject.keyList);
+		return this;
+	}
+
+	/**
 	 * Used to poll if a key has been pressed and moves to the corresponding vector
 	 * Note that several keys can be pressed simultaneously
 	 * @param  {number} time
@@ -89,8 +102,9 @@ class KeySensorNode extends SensorNode {
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
 	 * @param {number} deltaTime
+	 * @param {Truss} truss
 	 */
-	sense(deltaTime) {}
+	sense(deltaTime, truss) {}
 
 	/**
 	 * Combines a key number with a vecor to move if that key is being pressed
@@ -136,20 +150,43 @@ class ProximitySensorNode extends SensorNode {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='ProximitySensorNode';
-		representationObject.triggerFunction = this.startPosition.serialize();
+		representationObject.startPosition = this.startPosition.serialize();
+		representationObject.triggerFunction = this.triggerFunction;
 
-		let proxies={'className': 'proximityList'};
-		let nr=0;
+		let proxies=[];
 		for (let item of this.proximityList) {
-			proxies[nr++]={
+			proxies.push({
 				'node': nodeList.indexOf(item.node),
 				'distance': item.distance,
 				'vector': item.vector.serialize(),
-			};
+			});
 		}
 		representationObject.proximityList=proxies;
 
 		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {ProximitySensorNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.startPosition= new Position().deserialize(restoreObject.startPosition);
+		this.triggerFunction = restoreObject.triggerFunction;
+
+		let proxies=[];
+		for (let item of restoreObject.proximityList) {
+			proxies.push({
+				'node': nodeList[item.node],
+				'distance': item.distance,
+				'vector': new Vector().deserialize(item.vector),
+			});
+		}
+		this.proximityList=proxies;
+		return this;
 	}
 
 	/**
@@ -161,7 +198,7 @@ class ProximitySensorNode extends SensorNode {
 	updatePosition(trussTime, timeFactor) {
 		let p = this.startPosition;
 		for (let proximityitem of this.proximityList) {
-			if (nodeDistance(proximityitem.node, this)<=proximityitem.distance) {
+			if (positionDistance(proximityitem.node.getPosition(), this.startPosition)<=proximityitem.distance) {
 				p = addVectors(p, proximityitem.vector);
 				if (this.triggerFunction) {
 					this.triggerFunction(this, trussTime);
@@ -175,8 +212,9 @@ class ProximitySensorNode extends SensorNode {
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
 	 * @param {number} deltaTime
+	 * @param {Truss} truss
 	 */
-	sense(deltaTime) {}
+	sense(deltaTime, truss) {}
 
 	/**
 	 * Combines a key number with a vecor to move if that key is being pressed
@@ -231,12 +269,23 @@ class CollisionSensorNode extends SensorNode {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='CollisionSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
-		// representationObject.localTrussNode = nodethis.localTrussNode;
 		representationObject.localObject = nodeList.indexOf(this.localObject);
 
 		return representationObject;
 	}
 
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {CollisionSensorNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.localActuator= nodeList[restoreObject.startPosition];
+		this.localObject = nodeList[restoreObject.triggerFunction];
+		return this;
+	}
 	/**
 	 * Has the iO node collided with any Spring.
 	 * If so, that will casue a collisionEvent generated from the Tensors
@@ -247,7 +296,8 @@ class CollisionSensorNode extends SensorNode {
 	sense(deltaTime, truss) {
 		for (let tensor of truss.positionBasedTensors) {
 			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
-				tensor.checkCollision(this.localObject); // the tensor will raiose an event that is caught by the collisionFunction()
+				tensor.checkCollision(this.localObject, truss);
+				// the tensor will raise an event that is caught by the collisionFunction()
 			}
 		}
 	}
@@ -263,17 +313,15 @@ class CollisionSensorNode extends SensorNode {
 		let where = collisionEvent.detail.where;
 		let from = collisionEvent.detail.from;
 		let tensor = collisionEvent.detail.tensor;
+		let truss = collisionEvent.detail.truss;
 
 		let direction = 'left';
 		if (from > 0) {
 			direction = 'right';
 		}
 		console.log(collider.name +
-			' collided with tensor ' + tensor.getName() + ' at ' + where + ' along its length. It collided from the ' +
-			direction
-		);
-
-		this.localActuator.attachToTensor(this.localTrussNode, tensor, where, from);
+			' collided from the '+direction+' with tensor ' + tensor.getName() + ' at ' + Math.round(where*100) + '% along its length.');
+		this.localActuator.attachToTensor(truss, tensor, where, from);
 	};
 }
 
@@ -309,17 +357,29 @@ class BounceSensorNode extends SensorNode {
 		representationObject.classname='BounceSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
 		representationObject.localObject = nodeList.indexOf(this.localObject);
-
 		return representationObject;
 	}
 
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {CollisionSensorNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.localActuator= nodeList[restoreObject.startPosition];
+		this.localObject = nodeList[restoreObject.triggerFunction];
+		return this;
+	}
 
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
 	 * @param {number} deltaTime
+	 * @param {Truss} truss
 	 */
-	sense(deltaTime) {
+	sense(deltaTime, truss) {
 		if (!this.localObject || !this.localObject.breakList) return;
 		for (let lineBreaker of this.localObject.breakList) {
 			let n1 = lineBreaker.immediatelyLeft.getOppositeNode(this.localObject);

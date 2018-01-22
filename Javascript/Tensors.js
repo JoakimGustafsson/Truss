@@ -384,8 +384,9 @@ class Tensor {
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
 	 * @param  {Node} node
+	 * @param  {Truss} truss
 	 */
-	checkCollision(node) {
+	checkCollision(node, truss) {
 		let oldDistance = this.collideDistanceMapping[node.name];
 		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
 		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
@@ -401,6 +402,7 @@ class Tensor {
 						'from': oldDistance,
 						'collider': node,
 						'tensor': this,
+						'truss': truss,
 					},
 					bubbles: true,
 					cancelable: true,
