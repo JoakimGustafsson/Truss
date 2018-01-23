@@ -17,8 +17,7 @@ class ActuatorNode extends Node {
 	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
 	 * @param {number} velocityLoss - A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
 	 */
-	constructor(obj, startPosition, mass = 0.001, name = 'actuatornode',
-		positionFunction, showFunction, velocityLoss = 0.99) {
+	constructor(obj, startPosition, mass = 0.001, name = 'actuatornode', positionFunction, showFunction, velocityLoss = 0.99) {
 		super(startPosition, mass, name, positionFunction,
 			showFunction, velocityLoss);
 		this.iO = obj; // the influenced object
@@ -43,7 +42,7 @@ class ActuatorNode extends Node {
 	 * @return {ActuatorNode}
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
-		super.serialize(nodeList, tensorList);
+		super.deserialize(restoreObject, nodeList, tensorList);
 		this.iO = nodeList[restoreObject.iO];
 		return this;
 	}

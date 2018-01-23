@@ -37,6 +37,8 @@ class Tensor {
 		let representation={'classname': 'Tensor'};
 		representation.node1=localNodeList.indexOf(this.node1);
 		representation.node2=localNodeList.indexOf(this.node2);
+		representation.angle1=this.angle1;
+		representation.angle2=this.angle2;
 		representation.constant=this.constant;
 		representation.tensorType=this.tensorType;
 		representation.force=this.force;
@@ -55,6 +57,8 @@ class Tensor {
 		// super.deserialize(restoreObject);
 		this.node1=nodeList[restoreObject.node1];
 		this.node2=nodeList[restoreObject.node2];
+		this.angle1=restoreObject.angle1;
+		this.angle2=restoreObject.angle2;
 		this.constant=restoreObject.constant;
 
 		this.tensorType=restoreObject.tensorType;

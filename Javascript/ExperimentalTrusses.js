@@ -80,9 +80,9 @@ class WalkTruss extends Truss {
 		let b5 = this.addNode(new Node(new Position(14, 6), NaN, 'base5'));
 
 		// rotation
-		let b6 = this.addNode(new Node(new Position(1, 8), NaN, 'fulcrum', undefined, undefined, 1, 1000));
-		let f6 = this.addGravityNode(new Node(new Position(2, 7), 70, 'weight1', 0, 0, 0.98, 1000));
-		let f7 = this.addGravityNode(new Node(new Position(3, 6), 70, 'weight2', 0, 0, 0.98));
+		let b6 = this.addNode(new Node(new Position(2, 7), NaN, 'fulcrum', undefined, undefined, 1, 1000));
+		let f6 = this.addGravityNode(new Node(new Position(3, 6), 70, 'weight1', 0, 0, 0.98, 1000));
+		let f7 = this.addGravityNode(new Node(new Position(4, 5), 70, 'weight2', 0, 0, 0.98));
 
 
 		let springconstant = 5000;
@@ -242,7 +242,7 @@ class ProtagonistNode extends Node {
 		if (canvas.inside(this.getPosition())) {
 			canvas.context.strokeStyle = 'yellow';
 			canvas.context.beginPath();
-			canvas.drawCircle(this.getPosition(), 1);
+			canvas.drawCircle(this.getPosition(), 0.5);
 			canvas.context.stroke();
 			canvas.context.strokeStyle = 'red';
 			canvas.context.beginPath();
