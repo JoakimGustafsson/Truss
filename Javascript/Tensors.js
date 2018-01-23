@@ -510,6 +510,7 @@ class PullSpring extends Spring {
 	*/
 	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
 		super(node1, node2, constant, equilibriumLength, type);
+		this.originalParent = undefined; // To remember that this can be set by linebreakers
 	}
 
 	/**
@@ -520,7 +521,20 @@ class PullSpring extends Spring {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='PullSpring';
+		representationObject.originalParent = tensorList.indexOf(this.originalParent);
 		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Spring}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.originalParent = tensorList[restoreObject.originalParent];
+		return this;
 	}
 
 	/**

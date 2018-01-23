@@ -356,12 +356,10 @@ class LineBreakerNode extends ActuatorNode {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='LineBreakerNode';
 
-		alert('how to handle this.truss');
-
 		return representationObject;
 	}
 
-	/**
+	/** REMOVE THIS?
 	 * @param  {object} linkBreakerRepresentation
 	 */
 	detachFromTruss(linkBreakerRepresentation) {
@@ -443,7 +441,6 @@ class LineBreakerNode extends ActuatorNode {
 	 * @param  {number} dir
 	 */
 	attachToTensor(truss, tensor, distanceFraction = 0.5, dir = -1) {
-		this.truss = truss;
 		let startNode = tensor.node1;
 		let endNode = tensor.node2;
 
@@ -456,6 +453,7 @@ class LineBreakerNode extends ActuatorNode {
 		}
 
 		let startNewLink = this.createChildTensor(
+			truss,
 			startNode, this.iO,
 			tensor.constant,
 			tensor.equilibriumLength * distanceFraction,
@@ -463,6 +461,7 @@ class LineBreakerNode extends ActuatorNode {
 
 
 		let endNewLink = this.createChildTensor(
+			truss,
 			this.iO, endNode,
 			tensor.constant,
 			tensor.equilibriumLength * (1 - distanceFraction),
@@ -479,7 +478,7 @@ class LineBreakerNode extends ActuatorNode {
 			if (tensor.originalParent.node2 == endNewLink.node2) {
 				tensor.originalParent.breakEndTensor = endNewLink;
 			}
-			this.truss.removeTensor(tensor);
+			truss.removeTensor(tensor);
 		}
 
 		let breaker = this.getBreak(startNode, tensor.originalParent);
@@ -557,13 +556,14 @@ class LineBreakerNode extends ActuatorNode {
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
 	 * at either end
+	 * @param  {Truss} truss
 	 * @param  {Object} lineBreaker
 	 * @param  {Node} connectionNode
 	 * @param  {Tensor} newTensor
 	 * @param  {Position} positionAlongNextTensor
 	 */
-	endExit(lineBreaker, connectionNode, newTensor, positionAlongNextTensor) {
-		this.removeFromTensor(lineBreaker, 'Endpoint disconnected from ' + lineBreaker.original.getName());
+	endExit(truss, lineBreaker, connectionNode, newTensor, positionAlongNextTensor) {
+		this.removeFromTensor(truss, lineBreaker, 'Endpoint disconnected from ' + lineBreaker.original.getName());
 		if (newTensor && lineBreaker.outerLayer) {
 			let distanceFraction=0.99;
 			let dir = 0;
@@ -578,9 +578,9 @@ class LineBreakerNode extends ActuatorNode {
 
 			this.iO.setPosition(positionAlongNextTensor);
 
-			this.attachToTensor(this, newTensor, distanceFraction, dir);
+			this.attachToTensor(truss, newTensor, distanceFraction, dir);
 		}
-		this.clearAllInternalLinebreaks(connectionNode);
+		this.clearAllInternalLinebreaks(truss, connectionNode);
 		this.clearCollisionmappingForThisNode(connectionNode);
 	}
 
@@ -596,31 +596,34 @@ class LineBreakerNode extends ActuatorNode {
 	}
 
 	/** When the outermost linebreaker has passed an endpoint, make sure that no old (internal) linebreakers to that same node remain
+	 * @param  {Truss} truss
 	 * @param  {Node} node
 	 */
-	clearAllInternalLinebreaks(node) {
+	clearAllInternalLinebreaks(truss, node) {
 		for (let i = this.iO.breakList.length-1; i>=0; i--) {
 			let lineBreak = this.iO.breakList[i];
 			console.log('checking:'+lineBreak.original.getName());
 			if (lineBreak.immediatelyLeft.node1==node || lineBreak.immediatelyRight.node2==node) {
-				this.removeFromTensor(lineBreak, 'Inner disconnected from ' + lineBreak.original.getName());
+				this.removeFromTensor(truss, lineBreak, 'Inner disconnected from ' + lineBreak.original.getName());
 			}
 		}
 	}
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
 	 * at either end
+	 * @param  {Truss} truss
 	 * @param  {Object} lineBreaker
 	 */
-	bounceExit(lineBreaker) {
-		this.removeFromTensor(lineBreaker, 'Bounce disconnected from ' + lineBreaker.original.getName());
+	bounceExit(truss, lineBreaker) {
+		this.removeFromTensor(truss, lineBreaker, 'Bounce disconnected from ' + lineBreaker.original.getName());
 	}
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
+	 * @param  {Truss} truss
 	 * @param  {object} lineBreaker
 	 * @param  {string} logMessage A mesage to display in the log for debug purposes
 	 */
-	removeFromTensor(lineBreaker, logMessage) {
+	removeFromTensor(truss, lineBreaker, logMessage) {
 		let startLink = lineBreaker.immediatelyLeft;
 		let endLink = lineBreaker.immediatelyRight;
 		let startNode = startLink.node1;
@@ -634,6 +637,7 @@ class LineBreakerNode extends ActuatorNode {
 			parent.callback=undefined;
 		} else {
 			let newLink = this.createChildTensor(
+				truss,
 				startNode, endNode,
 				parent.constant,
 				startLink.equilibriumLength + endLink.equilibriumLength,
@@ -664,8 +668,8 @@ class LineBreakerNode extends ActuatorNode {
 				breaker.immediatelyLeft=newLink;
 			}
 		}
-		this.truss.removeTensor(startLink);
-		this.truss.removeTensor(endLink);
+		truss.removeTensor(startLink);
+		truss.removeTensor(endLink);
 
 		if (this.iO && this.iO.breakList) {
 			removeIfPresent(lineBreaker, this.iO.breakList);
@@ -675,6 +679,7 @@ class LineBreakerNode extends ActuatorNode {
 
 	/**
 	 * Creates a new child PullSpring and adds it to the truss
+	 * @param  {Truss} truss
 	 * @param  {Node} leftNode
 	 * @param  {Node} rightNode
 	 * @param  {number} constant
@@ -682,9 +687,9 @@ class LineBreakerNode extends ActuatorNode {
 	 * @param  {tensor} parent
 	 * @return {PullSpring} The new Pullspring connecting the two nodes
 	 */
-	createChildTensor(leftNode, rightNode, constant, equilibriumLength, parent) {
+	createChildTensor(truss, leftNode, rightNode, constant, equilibriumLength, parent) {
 		let pullSpring = new PullSpring(leftNode, rightNode, constant, equilibriumLength);
 		pullSpring.originalParent = parent;
-		return this.truss.addTensor(pullSpring);
+		return truss.addTensor(pullSpring);
 	}
 }

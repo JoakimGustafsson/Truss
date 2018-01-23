@@ -27,7 +27,7 @@
 <body style="background-color: #343f48;">
 	<section>
 		<div id="FPSdisplay" style="position: absolute; left:10px; top:10px; color: white;">
-			abc
+			
 		</div>
 		<table class="tg">
 			<tr>
@@ -56,12 +56,18 @@
 
 		<script type="text/javascript">
 			var mainNode;
+			var newMainNode;
 			var savedState = 0;
 
 			var tensors,nodes;
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
+				if (newMainNode) {
+					mainNode.truss.clear();
+					mainNode=newMainNode;
+					newMainNode=undefined;
+				}
 				mainNode.tick(timestamp / 1000);
 				requestAnimationFrame(mainLoop);
 			}

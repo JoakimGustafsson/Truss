@@ -279,8 +279,6 @@ class Truss {
 		this.sense(deltaTime);
 	}
 
- // fuck. the trussnode will not be part of the nodelist since it exist one stair up. so sending the truss is probably the right thing to do in serialize EarthCenter.
-
 	/**
 	 * Clear the screen
 	 */

@@ -282,8 +282,8 @@ class CollisionSensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
-		this.localActuator= nodeList[restoreObject.startPosition];
-		this.localObject = nodeList[restoreObject.triggerFunction];
+		this.localActuator= nodeList[restoreObject.localActuator];
+		this.localObject = nodeList[restoreObject.localObject];
 		return this;
 	}
 	/**
@@ -368,8 +368,8 @@ class BounceSensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
-		this.localActuator= nodeList[restoreObject.startPosition];
-		this.localObject = nodeList[restoreObject.triggerFunction];
+		this.localActuator= nodeList[restoreObject.localActuator];
+		this.localObject = nodeList[restoreObject.localObject];
 		return this;
 	}
 
@@ -394,7 +394,7 @@ class BounceSensorNode extends SensorNode {
 			let closeParallell = (Math.abs(perpendicularDistance) < 0.01); // 0.2);
 
 			if (above && inside) {
-				this.localActuator.bounceExit(lineBreaker);
+				this.localActuator.bounceExit(truss, lineBreaker);
 			} else {
 				let nextTensor = 0;
 				let positionAlongNextTensor = 0;
@@ -404,14 +404,14 @@ class BounceSensorNode extends SensorNode {
 					if (nextTensor) {
 						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n1, this.localObject, deltaTime);
 					}
-					this.localActuator.endExit(lineBreaker, n1, nextTensor, positionAlongNextTensor);
+					this.localActuator.endExit(truss, lineBreaker, n1, nextTensor, positionAlongNextTensor);
 				} else if (this.passCloseBy(lineBreaker.immediatelyRight.node1, lineBreaker.immediatelyRight.node2, deltaTime)) {
 					console.log('exit at end  of tensor ' + lineBreaker.original.getName());
 					nextTensor = this.getAngleClosestRight(n1, n2, 1);
 					if (nextTensor) {
 						positionAlongNextTensor = this.positionVelocityAlongNextTensor(nextTensor, n2, this.localObject, deltaTime);
 					}
-					this.localActuator.endExit(lineBreaker, n2, nextTensor, positionAlongNextTensor);
+					this.localActuator.endExit(truss, lineBreaker, n2, nextTensor, positionAlongNextTensor);
 				}
 			}
 		}

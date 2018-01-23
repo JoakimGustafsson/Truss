@@ -1,7 +1,7 @@
 /**
  *
  */
-
+let Localview=undefined;
 let EarthCenter = new Position(0, 6371e3);
 let Earth = new Node(EarthCenter, 5.97219e24, 'Earth', undefined, undefined, 0);
 
@@ -136,8 +136,8 @@ class WalkTruss extends Truss {
 
 		// Create two gravitywells and two fields towards them that can be used
 		// by the actuator to pull the protagonist left or right
-		let leftEarth = new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0);
-		let rightEarth = new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0);
+		let leftEarth = this.addNode(new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
+		let rightEarth =this.addNode( new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
 		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11)); // 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 
@@ -145,6 +145,7 @@ class WalkTruss extends Truss {
 		let leftRightActuatorNode = this.addNode(
 			new LeftRightNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
 				leftField1, rightField1, 0.05, 'myLeftRightNode', 0, 0, 0.99));
+
 		// Connect it via a spring to the keysensor node
 		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
 
@@ -170,7 +171,7 @@ class WalkTruss extends Truss {
 
 		// this.addTensor(new Spring(protagonist, protagonist2, springconstant));
 
-		let Localview =this.view;
+		Localview =this.view;
 
 		let selectorNode = this.addNode(new Node(new Position(1, 0.9), 100, 'pusher', function(node, n) {
 			if (mouseSet) {
@@ -191,10 +192,12 @@ class WalkTruss extends Truss {
 		let loadTrigger = this.addNode(new ProximitySensorNode(new Position(7, 1), 1, 'proximity2',
 			function() {
 				if (savedState) {
-					mainNode=new TrussNode();
-					mainNode.deserialize(savedState);
+					// mainNode.truss.clear();
+					newMainNode=new TrussNode();
+					newMainNode.deserialize(savedState);
 					// Object.setPrototypeOf(mainNode, TrussNode.prototype);
 					// mainNode.prototype=TrussNode.prototype;
+					savedState=undefined;
 				}
 			}
 		));

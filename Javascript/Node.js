@@ -24,7 +24,7 @@ class Node {
 		this.positionBasedTensors = [];
 		this.velocityLoss = velocityLoss;
 		this.positionFunction = positionFunction;
-		this.showFunction = positionFunction;
+		this.showFunction = showFunction;
 	}
 
 	/**
@@ -56,10 +56,10 @@ class Node {
 		if (this.breakList) {
 			for (let lineBreaker of this.breakList) {
 				storeBreakList.push({
-					'original': tensorList.indexOf(lineBreaker.originalParent),
-					'immediatelyLeft': tensorList.indexOf(lineBreaker.startNewLink),
-					'immediatelyRight': tensorList.indexOf(lineBreaker.endNewLink),
-					'direction': lineBreaker.dir,
+					'original': tensorList.indexOf(lineBreaker.original),
+					'immediatelyLeft': tensorList.indexOf(lineBreaker.immediatelyLeft),
+					'immediatelyRight': tensorList.indexOf(lineBreaker.immediatelyRight),
+					'direction': lineBreaker.direction,
 					'outerLayer': lineBreaker.outerLayer,
 				});
 			}
@@ -87,20 +87,20 @@ class Node {
 		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
 		this.velocityLoss = restoreObject.velocityLoss;
 		if (restoreObject.positionFunction) {
-			this.positionFunction = restoreObject.positionFunction;
+			this.positionFunction = eval('('+restoreObject.positionFunction+')');
 		}
 		if (restoreObject.showFunction) {
-			this.showFunction = restoreObject.showFunction;
+			this.showFunction = eval('('+restoreObject.showFunction+')');
 		}
 
 		if (restoreObject.breakList) {
 			this.breakList=[];
 			for (let lineBreaker of restoreObject.breakList) {
 				this.breakList.push({
-					'original': tensorList[lineBreaker.originalParent],
-					'immediatelyLeft': tensorList[lineBreaker.startNewLink],
-					'immediatelyRight': tensorList[lineBreaker.endNewLink],
-					'direction': lineBreaker.dir,
+					'original': tensorList[lineBreaker.original],
+					'immediatelyLeft': tensorList[lineBreaker.immediatelyLeft],
+					'immediatelyRight': tensorList[lineBreaker.immediatelyRight],
+					'direction': lineBreaker.direction,
 					'outerLayer': lineBreaker.outerLayer,
 				});
 			}
@@ -359,6 +359,8 @@ class TrussNode extends Node {
 		mass = 1, name = 'trussNode', trussClass='Truss', positionFunction, showFunction, velocityLoss = 1) {
 		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 
+
+		this.canvas = document.createElement('canvas');
 		this.handleCanvas();
 
 		if (view) {
@@ -371,7 +373,6 @@ class TrussNode extends Node {
 	 *
 	 */
 	handleCanvas() {
-		this.canvas = document.createElement('canvas');
 		this.canvas.name = this.name;
 		this.canvas.style.top = this.localPosition.y + 'px';
 		this.canvas.style.left = this.localPosition.x + 'px';
