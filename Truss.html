@@ -27,7 +27,7 @@
 <body style="background-color: #343f48;">
 	<section>
 		<div id="FPSdisplay" style="position: absolute; left:10px; top:10px; color: white;">
-			
+
 		</div>
 		<table class="tg">
 			<tr>
@@ -59,14 +59,19 @@
 			var newMainNode;
 			var savedState = 0;
 
-			var tensors,nodes;
+			var tensors, nodes;
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
 				if (newMainNode) {
 					mainNode.truss.clear();
-					mainNode=newMainNode;
-					newMainNode=undefined;
+					mainNode = newMainNode;
+
+					mainNode.canvas.onmousemove = myMove;
+					mainNode.canvas.onmousedown = downMouse;
+					mainNode.canvas.onmouseup = upMouse;
+
+					newMainNode = undefined;
 				}
 				mainNode.tick(timestamp / 1000);
 				requestAnimationFrame(mainLoop);

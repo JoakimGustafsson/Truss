@@ -37,6 +37,20 @@ class Tensor {
 		let representation={'classname': 'Tensor'};
 		representation.node1=localNodeList.indexOf(this.node1);
 		representation.node2=localNodeList.indexOf(this.node2);
+
+		if (this.breakStartTensor) {
+			representation.breakStartTensor=tensorList.indexOf(this.breakStartTensor);
+		}
+		if (this.breakEndTensor) {
+			representation.breakEndTensor=tensorList.indexOf(this.breakEndTensor);
+		}
+		if (this.next) {
+			representation.next=tensorList.indexOf(this.next);
+		}
+		if (this.previous) {
+			representation.previous=tensorList.indexOf(this.previous);
+		}
+
 		representation.angle1=this.angle1;
 		representation.angle2=this.angle2;
 		representation.constant=this.constant;
@@ -59,6 +73,21 @@ class Tensor {
 		this.node2=nodeList[restoreObject.node2];
 		this.angle1=restoreObject.angle1;
 		this.angle2=restoreObject.angle2;
+
+
+		if (restoreObject.next) {
+			this.next=tensorList[restoreObject.next];
+		}
+		if (restoreObject.previous) {
+			this.previous=tensorList[restoreObject.previous];
+		}
+		if (restoreObject.breakStartTensor) {
+			this.breakStartTensor=tensorList[restoreObject.breakStartTensor];
+		}
+		if (restoreObject.breakEndTensor) {
+			this.breakEndTensor=tensorList[restoreObject.breakEndTensor];
+		}
+
 		this.constant=restoreObject.constant;
 
 		this.tensorType=restoreObject.tensorType;

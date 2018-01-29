@@ -154,7 +154,7 @@ class WalkTruss extends Truss {
 			new JumpNode(protagonist, new Position(0.5, 1), new Position(0.5, 2),
 				egoGravityField, 0.05, 'myJumpNode'));
 
-		this.addTensor(new Spring(sensorNode, jumpActuator, 500));
+		this.addTensor(new Spring(sensorNode, jumpActuator, 500, 0.1));
 
 		let collissionsensor = this.addNode(new CollisionSensorNode(new Position(4, 1), 0.01,
 			'CollissionSensor1', protagonist, lineBreakerActuator));
