@@ -1,12 +1,18 @@
 
 /**
+ * @param  {Truss} truss
  * @param  {Element} element
- * @param  {Position} a
- * @param  {Position} b
- * @param  {Position} c
- * @param  {Position} d
+ * @param  {Position} ar
+ * @param  {Position} br
+ * @param  {Position} cr
+ * @param  {Position} dr
  */
-function warpMatrix(element, a, b, c, d) {
+function warpMatrix(truss, element, ar, br, cr, dr) {
+	let a = truss.view.screenPosition(ar);
+	let b = truss.view.screenPosition(br);
+	let c = truss.view.screenPosition(cr);
+	let d = truss.view.screenPosition(dr);
+
 	let h = element.height;
 	let w = element.width;
 

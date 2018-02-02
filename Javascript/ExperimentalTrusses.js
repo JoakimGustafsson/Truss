@@ -45,6 +45,7 @@ class WalkTruss extends Truss {
 	initiate() {
 		this.addNode(Earth);
 
+		/*
 		// Create a protagonist (yellow circle) and connect it to gravity
 		let protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
 		// let protagonist = new ProtagonistNode(new Position(0.1, 1), 70, 'Ego1');
@@ -71,18 +72,31 @@ class WalkTruss extends Truss {
 		f2 = this.addGravityNode(new Node(new Position(5, 4), 100, 'floor2', 0, 0, 0.99, 1000));
 		let f3 = this.addGravityNode(new Node(new Position(9, 3), 100, 'floor3'));
 		let f4 = this.addGravityNode(new Node(new Position(10, 3), 100, 'floor4'));
-		let f5 = this.addGravityNode(new Node(new Position(14, 3), 100, 'floor5'));
+		let f5 = this.addGravityNode(new Node(new Position(12, 3), 100, 'floor5'));
 
 		let b1 = this.addNode(new Node(new Position(1, 7), NaN, 'base1'));
 		let b2 = this.addNode(new Node(new Position(5, 6), NaN, 'base2'));
 		let b3 = this.addNode(new Node(new Position(9, 6), NaN, 'base3'));
 		let b4 = this.addNode(new Node(new Position(10, 6), NaN, 'base4'));
-		let b5 = this.addNode(new Node(new Position(14, 6), NaN, 'base5'));
+		let b5 = this.addNode(new Node(new Position(12, 6), NaN, 'base5')); */
 
+		var pic =document.getElementById("dimage");
 		// rotation
-		let b6 = this.addNode(new Node(new Position(2, 7), NaN, 'fulcrum', undefined, undefined, 1, 1000));
-		let f6 = this.addGravityNode(new Node(new Position(3, 6), 70, 'weight1', 0, 0, 0.98, 1000));
-		let f7 = this.addGravityNode(new Node(new Position(4, 5), 70, 'weight2', 0, 0, 0.98));
+		let b6 = this.addNode(new Node(new Position(2, 3.5), NaN, 'fulcrum', undefined, undefined, 1, 1000));
+		let f6 = this.addGravityNode(new Node(new Position(3, 2), 10, 'bar 1', 0, 0, 0.99, 200));
+		let f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0, 0, 0.99, 0));
+
+		let leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0, 0, 0.99));
+		let bottompic = this.addGravityNode(new Node(new Position(4, 3), 70, 'bottom', 0, 0, 1));
+		let rightpic = this.addGravityNode(new Node(new Position(5, 2), 10, 'right', 0,
+			function() {
+				warpMatrix(mainNode.truss, pic,
+					rightpic.getPosition(),
+					f7.getPosition(),
+					bottompic.getPosition(),
+					leftpic.getPosition());
+			}
+		));
 
 
 		let springconstant = 5000;
@@ -91,7 +105,13 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(b6, f6, 900));
 		this.addTensor(new Spring(f6, f7, springconstant));
 
+		this.addTensor(new Spring(f7, leftpic, springconstant*10));
+		this.addTensor(new Spring(leftpic, bottompic, springconstant/10));
+		this.addTensor(new Spring(bottompic, rightpic, springconstant));
+		this.addTensor(new Spring(leftpic, rightpic, springconstant/10));
+		this.addTensor(new Spring(rightpic, f7, springconstant));
 
+		/*
 		// let startTensor =
 		this.addTensor(new Spring(f1, f2, 9000));
 
@@ -202,8 +222,10 @@ class WalkTruss extends Truss {
 			}
 		));
 		loadTrigger.registerProximity(selectorNode, 1, new Vector(0.5, 0));
+		*/
 	}
 }
+
 
 /**
  * @class
@@ -252,75 +274,3 @@ class ProtagonistNode extends Node {
 	}
 }
 
-
-/**
- * @param  {View} view
- * @param  {number} updatefrequency
-
-function MyTruss(view, updatefrequency) {
-	Truss.call(this, view, updatefrequency);
-
-	let myX = 3;
-	let myY = 3;
-	let mouseSet = false;
-
-	/**
-	 * @param  {Event} e
-	 *
-	function myMove(e) {
-		myX = e.pageX;
-		myY = e.pageY;
-	}
-
-	/**
-	 * @param  {Event} e
-	 *
-	function downMouse(e) {
-		mouseSet = true;
-	}
-
-	/**
-	 * @param  {Event} e
-	 *
-	function upMouse(e) {
-		mouseSet = false;
-	}
-
-	let thisTrussView = this.view;
-	thisTrussView.context.canvas.onmousemove = myMove;
-	thisTrussView.context.canvas.onmousedown = downMouse;
-	thisTrussView.context.canvas.onmouseup = upMouse;
-
-
-	let n1 = this.addNode(new Node(new Position(1, 0.3), 5, 'fulcrum', function(node, tick) {
-		return new Position(1 + 0.5 * Math.sin(tick), 0.3);
-	}));
-	let n2 = this.addNode(new Node(new Position(1.3, 0.6), 10, 'right'));
-	let n3 = this.addNode(new Node(new Position(1, 0.9), 100, 'down', function(node, n) {
-		if (mouseSet) {
-			return thisTrussView.worldPosition(myX, myY);
-		}
-		return node.getPosition();
-	}));
-	let n4 = this.addNode(new Node(new Position(0.7, 0.6), 10, 'left'));
-
-	this.addTensor(new Spring(n1, n2, 100));
-	this.addTensor(new Spring(n2, n3, 500));
-	this.addTensor(new Spring(n3, n4, 500));
-	this.addTensor(new Spring(n4, n1, 100));
-	this.addTensor(new Spring(n2, n4, 100));
-
-
-	this.addTensor(new Absorber(n1, n2, 100));
-	this.addTensor(new Absorber(n2, n3, 249));
-	this.addTensor(new Absorber(n3, n4, 500));
-	this.addTensor(new Absorber(n4, n1, 500));
-	this.addTensor(new Absorber(n2, n4, 100));
-
-	this.addTensor(gravityField(n2));
-	this.addTensor(gravityField(n3));
-	this.addTensor(gravityField(n4));
-
-	this.initConnect();
-}
-*/

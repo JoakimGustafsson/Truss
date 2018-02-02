@@ -22,7 +22,7 @@ function removeIfPresent(element, list) {
 	}
 }
 /**
- * The bas vector class used to represent a point on a two dimensional plane
+ * The base vector class used to represent a point on a two dimensional plane
  * @class
  */
 class Vector {
@@ -225,10 +225,10 @@ function getAngle(x, y) {
  * @return {number}
  */
 function anglify(angle) {
-	if (angle>Math.PI) {
+	while (angle>Math.PI) {
 		angle-=2*Math.PI;
 	}
-	if (angle< -Math.PI) {
+	while (angle< -Math.PI) {
 		angle+=2*Math.PI;
 	}
 	return angle;
@@ -241,6 +241,15 @@ function anglify(angle) {
  */
 function angleSubstract(a, b) {
 	return anglify(a-b);
+}
+
+/**
+ * @param  {number} a
+ * @param  {number} b
+ * @return {number}
+ */
+function angleAdd(a, b) {
+	return anglify(a+b);
 }
 
 /**

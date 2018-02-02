@@ -254,7 +254,7 @@ class Node {
 		} else {
 			this.turnrate=0; // weightless cannot turn
 		}
-		this.turnrate=this.turnrate*0.99;
+		this.turnrate=this.turnrate*0.8;
 		this.angle+=this.turnrate;
 	}
 

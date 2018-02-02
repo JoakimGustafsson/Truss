@@ -83,6 +83,15 @@ class View {
 	};
 
 	/**
+	 * Given a x and y position in the world, return the screen position
+	 * @param  {Position} node
+	 * @return {Position}
+	 */
+	screenPosition(node) {
+		return new Position(this.x(node), this.y(node));
+	};
+
+	/**
 	 * Assuming that the context has been set, draw a line between two in-world positions
 	 * @param  {Position} position1
 	 * @param  {Position} position2

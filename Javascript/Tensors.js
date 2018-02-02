@@ -168,12 +168,19 @@ class Tensor {
 	 * @return {number}
 	 */
 	getTorque(node) {
-		let connectedIdealAngle = this.getIdealAngle(node);
-		let nodeAngle = node.getAngle();
-		let nodeAngleOffset = angleSubstract(connectedIdealAngle, nodeAngle);
+		let idealAngle = this.getIdealAngle(node);
 		let tensorAngle = this.getTensorAngle(node);
-		let angleToCorrect = angleSubstract(nodeAngleOffset, tensorAngle);
-		let torque=node.getTorqueConstant() * angleToCorrect;
+		let theNodeShouldHaveAngle = tensorAngle-idealAngle;
+
+		let nodeAngle = anglify(node.getAngle());
+		let correctionAngle = nodeAngle - theNodeShouldHaveAngle;
+
+
+		// let wantedAbsoluteAngle = relativeIdealAngle + nodeAngle;
+		// let absoluteTensorAngle = this.getTensorAngle(node);
+		// // let relativeTensorAngle = angleAdd(absoluteTensorAngle, nodeAngle);
+		// let angleToCorrect = wantedAbsoluteAngle - absoluteTensorAngle;
+		let torque= node.getTorqueConstant() * correctionAngle;
 		if (node==this.node1) {
 			this.torque1=torque;
 		} else {
