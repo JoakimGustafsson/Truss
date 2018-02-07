@@ -13,8 +13,8 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	let c = truss.view.screenPosition(cr);
 	let d = truss.view.screenPosition(dr);
 
-	let h = element.height;
-	let w = element.width;
+	let h = element.offsetHeight;
+	let w = element.offsetWidth;
 
 	let m = [];
 

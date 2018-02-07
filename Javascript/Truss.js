@@ -287,6 +287,33 @@ class Truss {
 	};
 
 	/**
+	 * @param  {Position} position
+	 * @param  {number} maxDistance
+	 * @param  {Node} avoid
+	 * @return {Object}
+	 */
+	getClosestObject(position, maxDistance, avoid) {
+		let lowestDistance=1000000000;
+		let closest;
+		for (let node of this.nodes) {
+			if (Position.distance(position, node.getPosition())<lowestDistance && node!=avoid) {
+				lowestDistance=Position.distance(position, node.getPosition());
+				closest=node;
+			}
+		}
+		for (let tensor of this.tensors) {
+			if (Position.distance(position, tensor.getPosition())<lowestDistance && tensor!=avoid) {
+				lowestDistance=Position.distance(position, tensor.getPosition());
+				closest=tensor;
+			}
+		}
+		if (lowestDistance>maxDistance) {
+			return;
+		}
+		return closest;
+	}
+
+	/**
 	 * The Show function ask all tensors and nodes to draw themselves
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel

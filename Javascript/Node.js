@@ -11,7 +11,9 @@ class Node {
 	 * @param  {number} velocityLoss
 	 * @param  {number} torqueConstant
 	 */
-	constructor(startPosition, mass = 1, name = 'node', positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
+	constructor(startPosition = new Position(0, 0), mass = 1, name = 'node',
+		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
+		this.properties = new PropertyList();
 		this.name = name;
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
@@ -25,6 +27,52 @@ class Node {
 		this.velocityLoss = velocityLoss;
 		this.positionFunction = positionFunction;
 		this.showFunction = showFunction;
+
+
+		this.addProperty(new Property(this,
+			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
+			'The name of the node.'));
+
+		this.addProperty(new Property(this,
+			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The mass of the node in Kilograms.'));
+		this.addProperty(new Property(this,
+			'angle', 'angle', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The angle of the node.'));
+		this.addProperty(new Property(this,
+			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).'));
+	}
+
+	/** Handling properties
+	 * @param  {Property} property
+	 * @return {Property}
+	 */
+	addProperty(property) {
+		return this.properties.addProperty(property);
+	}
+
+	/** Handling properties
+	 * @return {Property}
+	 */
+	getProperties() {
+		return this.properties;
+	}
+
+	/** Handling properties
+	 * @param  {element} element
+	 * @return {Property}
+	 */
+	populateProperties(element) {
+		return this.properties.populateProperties(element);
+	}
+
+	/** Handling properties
+	 * @param  {element} element
+	 * @return {Property}
+	 */
+	clearProperties(element) {
+		return this.properties.clearProperties(element);
 	}
 
 	/**
@@ -189,10 +237,10 @@ class Node {
 	 */
 	updatePosition(trussTime, timeFactor) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
-		this.localPosition.add(multiplyVector(timeFactor, this.velocity));
+		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
 		if (this.positionFunction) {
 			this.setPosition(this.positionFunction(this, trussTime));
-			this.velocity = subtractVectors(this.getPosition(), oldPosition);
+			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
 		}
 	}
 
@@ -271,8 +319,8 @@ class Node {
 		} else {
 			acceleration = new Vector(0, 0);
 		}
-		this.velocity = addVectors(multiplyVector(this.velocityLoss, this.velocity),
-			multiplyVector(timeFactor, acceleration));
+		this.velocity = Vector.addVectors(Vector.multiplyVector(this.velocityLoss, this.velocity),
+			Vector.multiplyVector(timeFactor, acceleration));
 	}
 
 	/**
@@ -282,7 +330,7 @@ class Node {
 	 */
 	getAcceleration(forceAppliers) {
 		//		this.acceleration=this.sumAllForces(forceAppliers).divide(this.mass)
-		return divideVector(this.sumAllForces(forceAppliers), this.mass);
+		return Vector.divideVector(this.sumAllForces(forceAppliers), this.mass);
 	}
 
 	/**
@@ -303,38 +351,69 @@ class Node {
 	}
 
 	/**
+	 * @param  {number} type Where 0 is unselect, 1 means its pointed on and 2 is selected
+	 */
+	setHighlight(type) {
+		this.highlighted=type;
+	}
+
+
+	/**
 	 * Draw the circle representing the node
 	 * @param {Canvas} canvas
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */
 	show(canvas, time, graphicDebugLevel = 0) {
+		let cxt = canvas.context;
 		if (canvas.inside(this.getPosition())) {
-			canvas.context.strokeStyle = 'lightgrey';
-			canvas.context.beginPath();
+			this.highLight(cxt);
+			cxt.beginPath();
 			canvas.drawCircle(this.getPosition(), 0.03 * this.massRadius);
-			canvas.context.stroke();
+			cxt.stroke();
 
-			canvas.context.beginPath();
-			canvas.drawLine(this.getPosition(), addVectors(this.getPosition(),
+			cxt.beginPath();
+			canvas.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
 				new Vector(0.2*Math.cos(this.getAngle()), 0.2*Math.sin(this.getAngle()))));
-			canvas.context.stroke();
+			cxt.stroke();
 
 			if (graphicDebugLevel > 5) {
-				canvas.context.strokeStyle = 'lightblue';
-				canvas.context.beginPath();
-				canvas.drawLine(this.getPosition(), addVectors(this.getPosition(), divideVector(this.velocity, 0.1)));
-				canvas.context.stroke();
+				cxt.strokeStyle = 'lightblue';
+				cxt.beginPath();
+				canvas.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.1)));
+				cxt.stroke();
 
-				canvas.context.strokeStyle = 'red';
-				canvas.context.beginPath();
+				cxt.strokeStyle = 'red';
+				cxt.beginPath();
 				if (this.acceleration) {
-					canvas.drawLine(this.getPosition(), addVectors(this.getPosition(), divideVector(this.acceleration, 0.5)));
+					canvas.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 0.5)));
 				}
-				canvas.context.stroke();
+				cxt.stroke();
 			}
 
 			if (this.showFunction) this.showFunction(this, time);
+		}
+	}
+
+	/**
+	 * @param  {Context} ctx
+	 */
+	highLight(ctx) {
+		if (!this.highlighted) {
+			ctx.strokeStyle = 'lightgrey';
+			ctx.shadowBlur = 0;
+			ctx.lineWidth = 2;
+			ctx.shadowColor = 'black';
+		} else if (this.highlighted == 1) {
+			ctx.strokeStyle = 'orange';
+			ctx.shadowBlur = 40;
+			ctx.lineWidth = 4;
+			ctx.shadowColor = 'orange';
+		} else {
+			ctx.strokeStyle = 'yellow';
+			ctx.shadowBlur = 60;
+			ctx.lineWidth = 6;
+			ctx.shadowColor = 'yellow';
 		}
 	}
 }
@@ -434,6 +513,7 @@ class TrussNode extends Node {
 	 * @param  {number} graphicDebugLevel=0
 	 */
 	show(v, time, graphicDebugLevel = 0) {
+		this.highLight(canvas.context);
 		this.canvas.style.left = v.x(this.localPosition) + 'px';
 		this.canvas.style.top = v.y(this.localPosition) + 'px';
 	};
@@ -443,5 +523,85 @@ class TrussNode extends Node {
 	 */
 	tick(time) {
 		this.truss.tick(time);
+	};
+}
+
+/**
+ * @class
+ * @extends Node
+ */
+class HTMLNode extends Node {
+	/**
+	 * @param  {HTMLElement} element
+	 * @param  {Truss} truss
+	 * @param  {Position} startPosition
+	 * @param  {Position} leftTopPosition
+	 * @param  {Position} rightTopPosition
+	 * @param  {Position} leftBottomPosition
+	 * @param  {Position} rightBottomPosition
+	 */
+	constructor(element, truss, startPosition, leftTopPosition, rightTopPosition, leftBottomPosition, rightBottomPosition) {
+		super(startPosition);
+		this.element=element;
+		this.truss=truss;
+
+		this.nail = truss.addNode(new Node(startPosition, NaN, 'nail'));
+		this.leftTopNode = truss.addNode(new Node(leftTopPosition, 1, 'leftTop'));
+		this.rightTopNode = truss.addNode(new Node(rightTopPosition, 1, 'rightTop'));
+		this.leftBottomNode = truss.addGravityNode(new Node(leftBottomPosition, 1, 'leftBottom'));
+		this.rightBottomNode = truss.addGravityNode(new Node(rightBottomPosition, 1, 'rightBottom'));
+
+		this.a = truss.addTensor(new Spring(this.leftTopNode, this.nail, 20));
+		this.b = truss.addTensor(new Spring(this.nail, this.rightTopNode, 20));
+		this.c = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 30));
+
+		this.leftSpring = truss.addTensor(new Spring(this.leftTopNode, this.leftBottomNode, 10));
+		this.rightSpring = truss.addTensor(new Spring(this.rightTopNode, this.rightBottomNode, 10));
+
+		warpMatrix(truss, element,
+			this.leftTopNode.getPosition(),
+			this.rightTopNode.getPosition(),
+			this.rightBottomNode.getPosition(),
+			this.rightBottomNode.getPosition());
+	}
+
+
+	/**
+	 * @param  {Array} superNodeList
+	 * @param  {Array} superTensorList
+	 * @return {Object}
+	 */
+	serialize(superNodeList, superTensorList) {
+		let representationObject = super.serialize(superNodeList, superTensorList);
+		representationObject.truss = this.truss.serialize();
+
+		// save the canvas properties
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 */
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject);
+		this.truss = new Truss().deserialize(restoreObject.truss);
+		this.handleCanvas();
+		this.setView();
+	}
+
+	/** Displays the Truss's canvas at the correct position
+	 * @param  {Canvas} canvas
+	 * @param  {number} time
+	 * @param  {number} graphicDebugLevel=0
+	 */
+	show(canvas, time, graphicDebugLevel = 0) {
+		this.highLight(canvas.context);
+		warpMatrix(this.truss, this.element,
+			this.leftTopNode.getPosition(),
+			this.rightTopNode.getPosition(),
+			this.leftBottomNode.getPosition(),
+			this.rightBottomNode.getPosition());
 	};
 }

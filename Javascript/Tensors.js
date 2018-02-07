@@ -150,6 +150,19 @@ class Tensor {
 		}
 	};
 
+	/** Returns the midpoint of the tensor
+	 * @return {Position}
+	 */
+	getPosition() {
+		if (this.node1 && this.node2) {
+			let p1=this.node1.getPosition();
+			let p2=this.node2.getPosition();
+			return new Position((p2.x+p1.x)/2, (p2.y+p1.y)/2);
+		}
+		return new Position(0, 0);
+	};
+
+
 	/** Given a node. Return the angle that the tensor wants o have wrt to the node
 	 * @param  {Node} node
 	 * @return {number} wanted angle
@@ -405,7 +418,7 @@ class Tensor {
 			directedforce = this.force.opposite();
 		}
 
-		return addVectors(directedforce, this.calculateTorqueForce(node));
+		return Vector.addVectors(directedforce, this.calculateTorqueForce(node));
 	};
 
 	/** Return {string} the HTML color of the tensor
@@ -451,6 +464,15 @@ class Tensor {
 			}
 		}
 	};
+
+
+	/**
+	 * @param  {number} type Where 0 is unselect, 1 means its pointed on and 2 is selected
+	 */
+	setHighlight(type) {
+		this.highlighted=type;
+	}
+
 	/**
 	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
 	 * @param  {Canvas} canvas
@@ -461,8 +483,7 @@ class Tensor {
 		let node1 = this.node1;
 		let node2 = this.node2;
 		if (!(this.isGhost()) && (!(this instanceof Field) || (graphicDebugLevel > 7))) {
-			ctx.strokeStyle = this.getColour();
-			ctx.lineWidth = 3;
+			this.highLight(ctx);
 			ctx.beginPath();
 			canvas.drawLine(node1.getPosition(), node2.getPosition());
 			ctx.stroke();
@@ -471,11 +492,33 @@ class Tensor {
 				ctx.fillStyle = 'black';
 				ctx.font = '20px Arial';
 				ctx.textAlign = 'left';
-				let textPos = subtractVectors(node1, divideVector(this.getActual(), 2));
+				let textPos = Vector.subtractVectors(node1, divideVector(this.getActual(), 2));
 				canvas.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
 			}
 		}
 	};
+
+	/**
+	 * @param  {Context} ctx
+	 */
+	highLight(ctx) {
+		ctx.strokeStyle = this.getColour();
+		ctx.lineWidth = 3;
+		if (!this.highlighted) {
+			ctx.shadowBlur = 0;
+			ctx.shadowColor = 'black';
+		} else if (this.highlighted == 1) {
+			ctx.shadowBlur = 40;
+			ctx.lineWidth = 4;
+			ctx.strokeStyle='orange';
+			ctx.shadowColor = 'orange';
+		} else {
+			ctx.shadowBlur = 60;
+			ctx.shadowColor = 'yellow';
+			ctx.lineWidth = 6;
+			ctx.strokeStyle='yellow';
+		}
+	}
 }
 
 
@@ -531,8 +574,8 @@ class Spring extends Tensor {
 		//	return this.force=new Force(0,0);
 		let actualVector = this.getActual();
 		let normalized = normalizeVector(this.equilibriumLength, actualVector);
-		let diffVector = subtractVectors(actualVector, normalized);
-		this.force = multiplyVector(-this.constant, diffVector);
+		let diffVector = Vector.subtractVectors(actualVector, normalized);
+		this.force = Vector.multiplyVector(-this.constant, diffVector);
 	}
 }
 
@@ -626,7 +669,7 @@ class Field extends Tensor {
 		let actualVector = this.getActual();
 		let normalized = normalizeVector(1, actualVector);
 		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
-		this.force = multiplyVector(-forceSize, normalized);
+		this.force = Vector.multiplyVector(-forceSize, normalized);
 	}
 
 	/**
@@ -672,11 +715,11 @@ class Absorber extends Tensor {
 	*/
 	calculateForce() {
 		let actualVector = this.getActual();
-		let internalSpeed = subtractVectors(this.node1.velocity, this.node2.velocity);
-		let parallellVelocity = multiplyVector(
+		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
+		let parallellVelocity = Vector.multiplyVector(
 			dotProduct(actualVector, internalSpeed),
 			divideVector(actualVector, this.getLengthSquare()));
-		this.force = multiplyVector(-this.constant, parallellVelocity);
+		this.force = Vector.multiplyVector(-this.constant, parallellVelocity);
 	}
 
 	/**

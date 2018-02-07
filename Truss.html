@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8" />
 	<script src="Javascript/Primitives.js" type="text/javascript"></script>
+	<script src="Javascript/Property.js" type="text/javascript"></script>
 	<script src="Javascript/View.js" type="text/javascript"></script>
 	<script src="Javascript/Node.js" type="text/javascript"></script>
 	<script src="Javascript/Tensors.js" type="text/javascript"></script>
@@ -26,35 +27,23 @@
 </head>
 
 <body style="background-color: #343f48; margin:0px;">
-	<img id="dimage" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px;" alt="Mountain View">
+	<img id="dimage" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; " alt="Mountain View">
+	
 	<section>
 
+		<div id="configview" style="position: absolute; z-index:1000; color: green; width:200px; height:200px; background-color:red;">
+			Hej
+			<button type="button" onclick="alert('Hello')">Click Me!</button>
+			<input name="testf" type="text" value="xxx"> 
+		</div>
+
 		<div id="FPSdisplay" style="position: absolute; left:10px; top:10px; color: white;">
+		</div>
+
+
+		<div id="TrussBackground" align="left">
 
 		</div>
-		<table class="tg">
-			<tr>
-				<!-- Graphic editing window -->
-				<th class="tg-2ktp" colspan="6" style="border-color: black; border-style: solid; border-width: 0px;">
-					<div>
-
-						<div id="TrussBackground" align="left">
-
-						</div>
-
-					</div>
-				</th>
-				<!-- Info window -->
-
-				<th class="tg-fbi7" rowspan="5" style="border-color: black; border-style: solid; border-width: 0px;">
-
-				</th>
-
-			</tr>
-			<tr style="height: 99%;">
-
-			</tr>
-		</table>
 
 
 		<script type="text/javascript">
@@ -63,6 +52,7 @@
 			var savedState = 0;
 
 			var tensors, nodes;
+			var selectedObject
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
@@ -89,6 +79,9 @@
 				let mainView = new View(new Vector(WIDTH, HEIGHT), new Vector(18, 9));
 				mainNode = new TrussNode(new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss);
 				mainNode.truss.initiate();
+
+
+				selectedObject=mainNode;
 
 				window.requestAnimationFrame(mainLoop);
 
@@ -130,11 +123,6 @@
 			}
 
 			init();
-
-
-			function settrans() {
-				warpMatrix(document.getElementById("dimage"), {"x": 250,"y": 250} , {"x": 650,"y": 100} , {"x": 100,"y": 700} , {"x": 1000,"y": 1050} );
-			}
 
 		</script>
 

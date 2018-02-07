@@ -88,7 +88,7 @@ class View {
 	 * @return {Position}
 	 */
 	screenPosition(node) {
-		return new Position(this.x(node), this.y(node));
+		return new Position(this.x(node)+1, this.y(node)+1);
 	};
 
 	/**

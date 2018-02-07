@@ -44,6 +44,7 @@ class WalkTruss extends Truss {
 	 */
 	initiate() {
 		this.addNode(Earth);
+		let sensor = this.addNode(new Selector());
 
 		/*
 		// Create a protagonist (yellow circle) and connect it to gravity
@@ -80,7 +81,7 @@ class WalkTruss extends Truss {
 		let b4 = this.addNode(new Node(new Position(10, 6), NaN, 'base4'));
 		let b5 = this.addNode(new Node(new Position(12, 6), NaN, 'base5')); */
 
-		var pic =document.getElementById("dimage");
+		let pic =document.getElementById('dimage');
 		// rotation
 		let b6 = this.addNode(new Node(new Position(2, 3.5), NaN, 'fulcrum', undefined, undefined, 1, 1000));
 		let f6 = this.addGravityNode(new Node(new Position(3, 2), 10, 'bar 1', 0, 0, 0.99, 200));
@@ -110,6 +111,17 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(bottompic, rightpic, springconstant));
 		this.addTensor(new Spring(leftpic, rightpic, springconstant/10));
 		this.addTensor(new Spring(rightpic, f7, springconstant));
+
+		let elem =document.getElementById('configview');
+		let nail = this.addNode(new HTMLNode(elem, mainNode.truss,
+			new Position(7.5, 1),
+			new Position(6, 2),
+			new Position(8, 2),
+			new Position(6, 4),
+			new Position(8, 4)));
+
+
+		nail.populateProperties(elem);
 
 		/*
 		// let startTensor =

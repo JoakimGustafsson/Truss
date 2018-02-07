@@ -4,6 +4,36 @@ div {
 	position: absolute;
 }
 
+
+.parameterEditArea {
+	background-color: #f6f6f6;
+	position: relative;
+}
+
+  .valuepair {
+	overflow:auto;
+	background-color: #f6f6f6;
+	position: relative;
+	font-family: Arial;
+  }
+  
+  .lname{
+	float:left; 
+ 	background-color: #f6f6f6; 
+	color: black;
+	margin:10px 10px 10px 10px;
+	position: relative;
+	font-family: Arial;
+  }
+  .rvalue{
+	float:right; 
+ 	background-color: #f6f6f6; 
+	position: relative;
+	font-family: Arial;
+  }
+
+
+
 #loadingScreen {
 	z-index: 3;
 	background-color: white;
@@ -47,31 +77,6 @@ div {
 	position: relative;
 	font-family: Arial;
 }
-  .sectionmiddle {
-	background-color: #f6f6f6;
-	position: relative;
-}
-
-  .valuepair {
-	overflow:auto;
-	background-color: #f6f6f6;
-	position: relative;
-	font-family: Arial;
-  }
-  
-  .lname{
-	float:left; 
- 	background-color: #f6f6f6; 
-	margin:10px 10px 10px 10px;
-	position: relative;
-	font-family: Arial;
-  }
-  .rvalue{
-	float:right; 
- 	background-color: #f6f6f6; 
-	position: relative;
-	font-family: Arial;
-  }
   
 .dot {
 	position: absolute;

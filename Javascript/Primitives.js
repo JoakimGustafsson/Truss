@@ -1,5 +1,3 @@
-
-
 /** Standard inheritance help function. Hopefully not needed anymore
  * @param  {object} childObject
  * @param  {object} parentObject
@@ -28,9 +26,9 @@ function removeIfPresent(element, list) {
 class Vector {
 	/**
 	 * Create a vector consisting of an x and a y position
-  * @param  {number} x=0
-  * @param  {number} y=0
-  */
+	 * @param  {number} x=0
+	 * @param  {number} y=0
+	 */
 	constructor(x = 0, y = 0) {
 		this.x = x;
 		this.y = y;
@@ -48,8 +46,10 @@ class Vector {
 	 * @return {Vector} The vector pointing in exactly the oposite direction
 	 */
 	serialize() {
-		return {'x': this.x,
-			'y': this.y};
+		return {
+			'x': this.x,
+			'y': this.y,
+		};
 	};
 
 	/**
@@ -83,7 +83,57 @@ class Vector {
 		this.y /= c;
 		return this;
 	};
+
+	/** Class method that Returns a new vector that is the sum of two vectors
+	 * @param  {Vector} v1
+	 * @param  {Vector} v2
+	 * @return {Vector}
+	 */
+	static addVectors(v1, v2) {
+		return new Vector(v1.x + v2.x, v1.y + v2.y);
+	}
+
+	/**
+	 * @param  {Vector} v1
+	 * @param  {Vector} v2
+	 * @return {number}
+	 */
+	static subtractVectors(v1, v2) {
+		return new Vector(v1.x - v2.x, v1.y - v2.y);
+	}
+	/**
+	 * @param  {number} m
+	 * @param  {Vector} v1
+	 * @return {Vector}
+	 */
+	static multiplyVector(m, v1) {
+		return new Vector(m * v1.x, m * v1.y);
+	}
+	/**
+	 * @param  {Vector} v1
+	 * @param  {number} m
+	 * @return {Vector}
+	 */
+	static divideVector(v1, m) {
+		return new Vector(v1.x / m, v1.y / m);
+	}
+
+	/**
+	 * @param  {Vector} v
+	 * @return {number}
+	 */
+	static length2(v) {
+		return v.x * v.x + v.y * v.y;
+	}
+	/**
+	 * @param  {Vector} v
+	 * @return {number}
+	 */
+	static length(v) {
+		return Math.sqrt(length2(v));
+	}
 }
+
 /**
  * @class
  * @extends Vector
@@ -99,15 +149,26 @@ class Position extends Vector {
 
 
 	/**
-	* Add a vector v to this vector
-	* @param  {Vector} v
-	* @return {Position}
-	*/
+	 * Add a vector v to this vector
+	 * @param  {Vector} v
+	 * @return {Position}
+	 */
 	add(v) {
 		this.x += v.x;
 		this.y += v.y;
 		return this;
 	};
+
+
+	/** returns the distance between two positions
+	 * @param  {Node} p1
+	 * @param  {Node} p2
+	 * @return {number}
+	 */
+	static distance(p1, p2) {
+		return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+	}
+
 }
 
 /**
@@ -154,38 +215,6 @@ class Velocity extends Vector {
  * @param  {Vector} v2
  * @return {number}
  */
-function addVectors(v1, v2) {
-	return new Vector(v1.x + v2.x, v1.y + v2.y);
-}
-/**
- * @param  {Vector} v1
- * @param  {Vector} v2
- * @return {number}
- */
-function subtractVectors(v1, v2) {
-	return new Vector(v1.x - v2.x, v1.y - v2.y);
-}
-/**
- * @param  {number} m
- * @param  {Vector} v1
- * @return {Vector}
- */
-function multiplyVector(m, v1) {
-	return new Vector(m * v1.x, m * v1.y);
-}
-/**
- * @param  {Vector} v1
- * @param  {number} m
- * @return {Vector}
- */
-function divideVector(v1, m) {
-	return new Vector(v1.x / m, v1.y / m);
-}
-/**
- * @param  {Vector} v1
- * @param  {Vector} v2
- * @return {number}
- */
 function dotProduct(v1, v2) {
 	return v1.x * v2.x + v1.y * v2.y;
 }
@@ -204,17 +233,17 @@ function perpendicular(v) {
 	 * @return {number} angle
 	 */
 function getAngle(x, y) {
-	if (x==0) {
+	if (x == 0) {
 		if (y > 0) {
-			return Math.PI/2;
+			return Math.PI / 2;
 		} else {
-			return -Math.PI/2;
+			return -Math.PI / 2;
 		}
 	}
 
-	let ratio = y/x;
+	let ratio = y / x;
 	let returnAngle = Math.atan(ratio);
-	if (x<0) {
+	if (x < 0) {
 		returnAngle = Math.PI + returnAngle;
 	}
 	return returnAngle;
@@ -225,11 +254,11 @@ function getAngle(x, y) {
  * @return {number}
  */
 function anglify(angle) {
-	while (angle>Math.PI) {
-		angle-=2*Math.PI;
+	while (angle > Math.PI) {
+		angle -= 2 * Math.PI;
 	}
-	while (angle< -Math.PI) {
-		angle+=2*Math.PI;
+	while (angle < -Math.PI) {
+		angle += 2 * Math.PI;
 	}
 	return angle;
 }
@@ -240,7 +269,7 @@ function anglify(angle) {
  * @return {number}
  */
 function angleSubstract(a, b) {
-	return anglify(a-b);
+	return anglify(a - b);
 }
 
 /**
@@ -249,31 +278,7 @@ function angleSubstract(a, b) {
  * @return {number}
  */
 function angleAdd(a, b) {
-	return anglify(a+b);
-}
-
-/**
- * @param  {Vector} v
- * @return {number}
- */
-function length2(v) {
-	return v.x * v.x + v.y * v.y;
-}
-/**
- * @param  {Vector} v
- * @return {number}
- */
-function length(v) {
-	return Math.sqrt(length2(v));
-}
-
-/** returns the distance between two positions
- * @param  {Node} p1
- * @param  {Node} p2
- * @return {number}
- */
-function positionDistance(p1, p2) {
-	return Math.sqrt(Math.pow(p2.x-p1.x, 2)+ Math.pow(p2.y-p1.y, 2));
+	return anglify(a + b);
 }
 
 /** returns the distance between two nodes
@@ -294,7 +299,7 @@ function nodeDistance(n1, n2) {
  */
 function normalizeVector(l, v) {
 	let length = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2));
-	return multiplyVector(l / length, v);
+	return Vector.multiplyVector(l / length, v);
 }
 
 
@@ -372,7 +377,7 @@ function boxClose(p1, p2, distance) {
  * @return {Array}
  */
 function serializeList(currentList, allObjects) {
-	let returnList=[];
+	let returnList = [];
 	for (let t of currentList) {
 		returnList.push(allObjects.indexOf(t));
 	}
@@ -385,7 +390,7 @@ function serializeList(currentList, allObjects) {
  * @return {Array}
  */
 function deserializeList(numberList, allObjects) {
-	let returnList=[];
+	let returnList = [];
 	for (let t of numberList) {
 		returnList.push(allObjects[t]);
 	}

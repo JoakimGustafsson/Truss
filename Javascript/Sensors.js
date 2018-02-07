@@ -19,7 +19,7 @@ class SensorNode extends Node {
 	 */
 	constructor(startPosition, mass = 0.001, name, positionFunction, showFunction, velocityLoss) {
 		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
-		this.sensor=true;
+		this.sensor = true;
 	}
 }
 
@@ -63,7 +63,7 @@ class KeySensorNode extends SensorNode {
 	 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='KeySensorNode';
+		representationObject.classname = 'KeySensorNode';
 		representationObject.startPosition = this.startPosition.serialize();
 		representationObject.keyList = JSON.stringify(this.keyList);
 
@@ -78,8 +78,8 @@ class KeySensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
-		this.startPosition= new Position().deserialize(restoreObject.startPosition);
-		this.keyList= JSON.parse(restoreObject.keyList);
+		this.startPosition = new Position().deserialize(restoreObject.startPosition);
+		this.keyList = JSON.parse(restoreObject.keyList);
 		return this;
 	}
 
@@ -92,7 +92,7 @@ class KeySensorNode extends SensorNode {
 		let p = this.startPosition;
 		for (let i = 0; i < this.keyList.length; i++) {
 			if (keyState[this.keyList[i].key]) {
-				p = addVectors(p, this.keyList[i].vector);
+				p = Vector.addVectors(p, this.keyList[i].vector);
 			}
 		}
 		this.setPosition(p);
@@ -149,11 +149,11 @@ class ProximitySensorNode extends SensorNode {
 	 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='ProximitySensorNode';
+		representationObject.classname = 'ProximitySensorNode';
 		representationObject.startPosition = this.startPosition.serialize();
 		representationObject.triggerFunction = this.triggerFunction;
 
-		let proxies=[];
+		let proxies = [];
 		for (let item of this.proximityList) {
 			proxies.push({
 				'node': nodeList.indexOf(item.node),
@@ -161,7 +161,7 @@ class ProximitySensorNode extends SensorNode {
 				'vector': item.vector.serialize(),
 			});
 		}
-		representationObject.proximityList=proxies;
+		representationObject.proximityList = proxies;
 
 		return representationObject;
 	}
@@ -174,10 +174,10 @@ class ProximitySensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
-		this.startPosition= new Position().deserialize(restoreObject.startPosition);
+		this.startPosition = new Position().deserialize(restoreObject.startPosition);
 		this.triggerFunction = restoreObject.triggerFunction;
 
-		let proxies=[];
+		let proxies = [];
 		for (let item of restoreObject.proximityList) {
 			proxies.push({
 				'node': nodeList[item.node],
@@ -185,7 +185,7 @@ class ProximitySensorNode extends SensorNode {
 				'vector': new Vector().deserialize(item.vector),
 			});
 		}
-		this.proximityList=proxies;
+		this.proximityList = proxies;
 		return this;
 	}
 
@@ -198,8 +198,8 @@ class ProximitySensorNode extends SensorNode {
 	updatePosition(trussTime, timeFactor) {
 		let p = this.startPosition;
 		for (let proximityitem of this.proximityList) {
-			if (positionDistance(proximityitem.node.getPosition(), this.startPosition)<=proximityitem.distance) {
-				p = addVectors(p, proximityitem.vector);
+			if (positionDistance(proximityitem.node.getPosition(), this.startPosition) <= proximityitem.distance) {
+				p = Vector.addVectors(p, proximityitem.vector);
 				if (this.triggerFunction) {
 					this.triggerFunction(this, trussTime);
 				}
@@ -267,7 +267,7 @@ class CollisionSensorNode extends SensorNode {
 	 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='CollisionSensorNode';
+		representationObject.classname = 'CollisionSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
 		representationObject.localObject = nodeList.indexOf(this.localObject);
 
@@ -282,7 +282,7 @@ class CollisionSensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
-		this.localActuator= nodeList[restoreObject.localActuator];
+		this.localActuator = nodeList[restoreObject.localActuator];
 		this.localObject = nodeList[restoreObject.localObject];
 		return this;
 	}
@@ -320,14 +320,15 @@ class CollisionSensorNode extends SensorNode {
 			direction = 'right';
 		}
 		console.log(collider.name +
-			' collided from the '+direction+' with tensor ' + tensor.getName() + ' at ' + Math.round(where*100) + '% along its length.');
+			' collided from the ' + direction + ' with tensor ' +
+			tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
 		this.localActuator.attachToTensor(truss, tensor, where, from);
 	};
 }
 
 /**
  * @class
- * @extends Node
+ * @extends SensorNode
  */
 class BounceSensorNode extends SensorNode {
 	/**
@@ -354,7 +355,7 @@ class BounceSensorNode extends SensorNode {
 	 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='BounceSensorNode';
+		representationObject.classname = 'BounceSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
 		representationObject.localObject = nodeList.indexOf(this.localObject);
 		return representationObject;
@@ -368,7 +369,7 @@ class BounceSensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
-		this.localActuator= nodeList[restoreObject.localActuator];
+		this.localActuator = nodeList[restoreObject.localActuator];
 		this.localObject = nodeList[restoreObject.localObject];
 		return this;
 	}
@@ -383,9 +384,9 @@ class BounceSensorNode extends SensorNode {
 		if (!this.localObject || !this.localObject.breakList) return;
 		for (let lineBreaker of this.localObject.breakList) {
 			let n1 = lineBreaker.immediatelyLeft.getOppositeNode(this.localObject);
-			let p1= n1.getPosition();
+			let p1 = n1.getPosition();
 			let n2 = lineBreaker.immediatelyRight.getOppositeNode(this.localObject);
-			let p2 =n2.getPosition();
+			let p2 = n2.getPosition();
 			let p3 = this.localObject.getPosition();
 			let perpendicularDistance = getS(p1, p2, p3);
 			let above = (perpendicularDistance * lineBreaker.direction > 0.0);
@@ -426,10 +427,10 @@ class BounceSensorNode extends SensorNode {
 	positionVelocityAlongNextTensor(tensor, connectionNode, ego, deltaTime) {
 		let p1 = connectionNode.getPosition();
 		let p2 = tensor.getOppositeNode(connectionNode).getPosition();
-		let originalVector = new Vector(p2.x-p1.x, p2.y-p1.y);
-		let speed = length(ego.velocity)*deltaTime;
+		let originalVector = new Vector(p2.x - p1.x, p2.y - p1.y);
+		let speed = length(ego.velocity) * deltaTime;
 		let newShortDisplacementVector = normalizeVector(speed, originalVector);
-		return addVectors(p1, newShortDisplacementVector);
+		return Vector.addVectors(p1, newShortDisplacementVector);
 	}
 
 	/**
@@ -439,13 +440,13 @@ class BounceSensorNode extends SensorNode {
 	 * @return {number}
 	 */
 	passCloseBy(startNode, endNode, deltaTime) {
-		let realVelocity = subtractVectors(startNode.velocity, endNode.velocity);
+		let realVelocity = Vector.subtractVectors(startNode.velocity, endNode.velocity);
 		let relativeVelocity = multiplyVector(deltaTime, realVelocity);
 		let p1 = startNode.getPosition();
 		let p2 = endNode.getPosition();
-		let p3 = addVectors(p1, relativeVelocity);
-		let t=getT(p1, p2, p3);
-		if (t>0.5) {
+		let p3 = Vector.addVectors(p1, relativeVelocity);
+		let t = getT(p1, p2, p3);
+		if (t > 0.5) {
 			return true;
 		} else {
 			return false;
@@ -459,22 +460,107 @@ class BounceSensorNode extends SensorNode {
 	 * @return {Tensor}
 	 */
 	getAngleClosestRight(farNode, closeNode, dir) {
-		let closestAngle = - Math.PI;
+		let closestAngle = -Math.PI;
 		let closestTensor = undefined;
 		let originalAngle = anglify(getAngle(
-			farNode.getPosition().x-closeNode.getPosition().x,
-			farNode.getPosition().y-closeNode.getPosition().y));
+			farNode.getPosition().x - closeNode.getPosition().x,
+			farNode.getPosition().y - closeNode.getPosition().y));
 
 		for (let tensor of closeNode.positionBasedTensors) {
-			if (tensor.tensorType==TensorType.SPRING && !tensor.isGhost()) {
+			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
 				let tempAngle = tensor.getTensorAngle(closeNode);
 				let tempdiff = angleSubstract(originalAngle, tempAngle);
-				if ((0>tempdiff*dir) && (tempdiff*dir>closestAngle)) {
+				if ((0 > tempdiff * dir) && (tempdiff * dir > closestAngle)) {
 					closestAngle = tempdiff;
 					closestTensor = tensor;
 				}
 			}
 		}
 		return closestTensor;
+	}
+}
+
+
+/**
+ * @class
+ * @extends SensorNode
+ */
+class Selector extends SensorNode {
+	/**
+	 * This class detects when an object bounces of a tensor or leaves it at the end.
+	 * @param  {TrussNode} trussNode
+	 */
+	constructor() {
+		super();
+		this.lastPointedOn;
+		this.cursorPosition = new Position(0, 0);
+	}
+
+
+	/**
+	 * If the position of the controlled object bounces or leaves on the right or
+	 * left side, disconnect it and restore the tensor to its original.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	sense(deltaTime, truss) {
+		this.cursorPosition = truss.view.worldPosition(myX, myY);
+		let closest = truss.getClosestObject(this.cursorPosition, 0.5, this);
+
+		if (!mouseSet) {
+			if (!closest) {
+				if (this.lastPointedOn && this.lastPointedOn != selectedObject) {
+					this.lastPointedOn.setHighlight(0);
+				}
+				this.lastPointedOn = undefined;
+			} else { // There is a closest object
+				if (closest != selectedObject && this.lastPointedOn != closest) {
+					if (this.lastPointedOn && this.lastPointedOn != selectedObject) {
+						this.lastPointedOn.setHighlight(0);
+					}
+					closest.setHighlight(1);
+					this.lastPointedOn = closest;
+				}
+			}
+		} else { // Mouse pressed
+			if (selectedObject) {
+				selectedObject.setHighlight(0);
+			}
+			if (closest) {
+				closest.setHighlight(2);
+			}
+			selectedObject = closest;
+		}
+	}
+
+	/**
+	 * Update the position based on velocity, then let
+	 * the this.positionFunction (if present) tell where it should actually be
+	 * @param  {number} trussTime
+	 * @param  {number} timeFactor
+	 */
+	updatePosition(trussTime, timeFactor) {
+		this.setPosition(this.cursorPosition);
+	}
+
+	/**
+	 * Draw the circle representing the node
+	 * @param {Canvas} canvas
+	 * @param {number} time
+	 * @param {number} graphicDebugLevel
+	 */
+	show(canvas, time, graphicDebugLevel = 0) {
+		this.highLight(canvas.context);
+		if (canvas.inside(this.getPosition())) {
+			canvas.context.strokeStyle = 'Yellow';
+			canvas.context.lineWidth = 1;
+			canvas.context.beginPath();
+			canvas.drawCircle(this.getPosition(), 0.1);
+			canvas.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+				Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
+			canvas.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+			canvas.context.stroke();
+		}
 	}
 }
