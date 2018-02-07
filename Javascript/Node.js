@@ -71,7 +71,7 @@ class Node {
 	 * @param  {element} element
 	 * @return {Property}
 	 */
-	clearProperties(element) {
+	XXXXclearProperties(element) {
 		return this.properties.clearProperties(element);
 	}
 
@@ -360,33 +360,34 @@ class Node {
 
 	/**
 	 * Draw the circle representing the node
-	 * @param {Canvas} canvas
+	 * @param {Truss} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */
-	show(canvas, time, graphicDebugLevel = 0) {
-		let cxt = canvas.context;
-		if (canvas.inside(this.getPosition())) {
+	show(truss, time, graphicDebugLevel = 0) {
+		let view = truss.view;
+		let cxt = view.context;
+		if (view.inside(this.getPosition())) {
 			this.highLight(cxt);
 			cxt.beginPath();
-			canvas.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+			view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
 			cxt.stroke();
 
 			cxt.beginPath();
-			canvas.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
+			view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
 				new Vector(0.2*Math.cos(this.getAngle()), 0.2*Math.sin(this.getAngle()))));
 			cxt.stroke();
 
 			if (graphicDebugLevel > 5) {
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
-				canvas.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.1)));
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.1)));
 				cxt.stroke();
 
 				cxt.strokeStyle = 'red';
 				cxt.beginPath();
 				if (this.acceleration) {
-					canvas.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 0.5)));
+					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 0.5)));
 				}
 				cxt.stroke();
 			}
@@ -429,13 +430,13 @@ class TrussNode extends Node {
 	 * @param  {number} timestep
 	 * @param  {number} mass
 	 * @param  {string} name
-	 * @param  {Object} trussClass
+	 * @param  {Object} TrussClass
 	 * @param  {Function} positionFunction
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
 	constructor(startPosition = new Vector(0, 0), view, timestep = 0.016,
-		mass = 1, name = 'trussNode', trussClass='Truss', positionFunction, showFunction, velocityLoss = 1) {
+		mass = 1, name = 'trussNode', TrussClass='Truss', positionFunction, showFunction, velocityLoss = 1) {
 		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 
 
@@ -443,7 +444,7 @@ class TrussNode extends Node {
 		this.handleCanvas();
 
 		if (view) {
-			this.truss = new trussClass(view, timestep);
+			this.truss = new TrussClass(view, timestep);
 			this.setView();
 		}
 	}
@@ -508,14 +509,14 @@ class TrussNode extends Node {
 	};
 
 	/** Displays the Truss's canvas at the correct position
-	 * @param  {View} v
+	 * @param  {Truss} truss
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
 	 */
-	show(v, time, graphicDebugLevel = 0) {
+	show(truss, time, graphicDebugLevel = 0) {
 		this.highLight(canvas.context);
-		this.canvas.style.left = v.x(this.localPosition) + 'px';
-		this.canvas.style.top = v.y(this.localPosition) + 'px';
+		this.canvas.style.left = truss.view.x(this.localPosition) + 'px';
+		this.canvas.style.top = truss.view.y(this.localPosition) + 'px';
 	};
 
 	/** used ONLY by main loop on the Top level TrussNode
@@ -531,7 +532,7 @@ class TrussNode extends Node {
  * @extends Node
  */
 class HTMLNode extends Node {
-	/**
+	/** This class displays a HTML element as a dynamic square between the four input nodes.
 	 * @param  {HTMLElement} element
 	 * @param  {Truss} truss
 	 * @param  {Position} startPosition
@@ -543,13 +544,12 @@ class HTMLNode extends Node {
 	constructor(element, truss, startPosition, leftTopPosition, rightTopPosition, leftBottomPosition, rightBottomPosition) {
 		super(startPosition);
 		this.element=element;
-		this.truss=truss;
 
 		this.nail = truss.addNode(new Node(startPosition, NaN, 'nail'));
-		this.leftTopNode = truss.addNode(new Node(leftTopPosition, 1, 'leftTop'));
-		this.rightTopNode = truss.addNode(new Node(rightTopPosition, 1, 'rightTop'));
-		this.leftBottomNode = truss.addGravityNode(new Node(leftBottomPosition, 1, 'leftBottom'));
-		this.rightBottomNode = truss.addGravityNode(new Node(rightBottomPosition, 1, 'rightBottom'));
+		this.leftTopNode = truss.addNode(new Node(leftTopPosition, 1, 'leftTop', 0, 0, 1));
+		this.rightTopNode = truss.addNode(new Node(rightTopPosition, 1, 'rightTop', 0, 0, 1));
+		this.leftBottomNode = truss.addGravityNode(new Node(leftBottomPosition, 1, 'leftBottom', 0, 0, 0.99));
+		this.rightBottomNode = truss.addGravityNode(new Node(rightBottomPosition, 1, 'rightBottom', 0, 0, 0.99));
 
 		this.a = truss.addTensor(new Spring(this.leftTopNode, this.nail, 20));
 		this.b = truss.addTensor(new Spring(this.nail, this.rightTopNode, 20));
@@ -572,10 +572,8 @@ class HTMLNode extends Node {
 	 * @return {Object}
 	 */
 	serialize(superNodeList, superTensorList) {
-		let representationObject = super.serialize(superNodeList, superTensorList);
-		representationObject.truss = this.truss.serialize();
-
-		// save the canvas properties
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname = 'HTMLNode';
 		return representationObject;
 	}
 
@@ -585,20 +583,17 @@ class HTMLNode extends Node {
 	 * @param  {Array} superTensors
 	 */
 	deserialize(restoreObject, superNodes, superTensors) {
-		super.deserialize(restoreObject);
-		this.truss = new Truss().deserialize(restoreObject.truss);
-		this.handleCanvas();
-		this.setView();
+		return;
 	}
 
 	/** Displays the Truss's canvas at the correct position
-	 * @param  {Canvas} canvas
+	 * @param  {Truss} truss
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
 	 */
-	show(canvas, time, graphicDebugLevel = 0) {
-		this.highLight(canvas.context);
-		warpMatrix(this.truss, this.element,
+	show(truss, time, graphicDebugLevel = 0) {
+		this.highLight(truss.view.context);
+		warpMatrix(truss, this.element,
 			this.leftTopNode.getPosition(),
 			this.rightTopNode.getPosition(),
 			this.leftBottomNode.getPosition(),

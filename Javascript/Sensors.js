@@ -421,7 +421,7 @@ class BounceSensorNode extends SensorNode {
 	 * @param  {Tensor} tensor
 	 * @param  {Node} connectionNode
 	 * @param  {Node} ego
-	 * @param {number} deltaTime
+	 * @param  {number} deltaTime
 	 * @return {Vector}
 	 */
 	positionVelocityAlongNextTensor(tensor, connectionNode, ego, deltaTime) {
@@ -523,13 +523,25 @@ class Selector extends SensorNode {
 				}
 			}
 		} else { // Mouse pressed
-			if (selectedObject) {
-				selectedObject.setHighlight(0);
+			if (selectedObject!=closest) {
+				if (selectedObject) {
+					selectedObject.setHighlight(0);
+				}
+				if (closest) {
+					closest.setHighlight(2);
+				}
+				let previousSelectedObject=selectedObject;
+				selectedObject = closest;
+				let event = new CustomEvent('selectionEvent', {
+					detail: {
+						'selectedObject': selectedObject,
+						'previousSelectedObject': previousSelectedObject,
+					},
+					bubbles: true,
+					cancelable: true,
+				});
+				document.dispatchEvent(event);
 			}
-			if (closest) {
-				closest.setHighlight(2);
-			}
-			selectedObject = closest;
 		}
 	}
 
@@ -545,22 +557,23 @@ class Selector extends SensorNode {
 
 	/**
 	 * Draw the circle representing the node
-	 * @param {Canvas} canvas
+	 * @param {Truss} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */
-	show(canvas, time, graphicDebugLevel = 0) {
-		this.highLight(canvas.context);
-		if (canvas.inside(this.getPosition())) {
-			canvas.context.strokeStyle = 'Yellow';
-			canvas.context.lineWidth = 1;
-			canvas.context.beginPath();
-			canvas.drawCircle(this.getPosition(), 0.1);
-			canvas.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+	show(truss, time, graphicDebugLevel = 0) {
+		let view=truss.view;
+		this.highLight(view.context);
+		if (view.inside(this.getPosition())) {
+			view.context.strokeStyle = 'Yellow';
+			view.context.lineWidth = 1;
+			view.context.beginPath();
+			view.drawCircle(this.getPosition(), 0.1);
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
 				Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
-			canvas.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
 				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
-			canvas.context.stroke();
+			view.context.stroke();
 		}
 	}
 }

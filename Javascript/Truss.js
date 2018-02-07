@@ -322,12 +322,12 @@ class Truss {
 		// this.view.context.drawimage(); xxx
 
 		for (let i = 0; i < this.tensors.length; i++) {
-			this.tensors[i].show(this.view, graphicDebugLevel);
+			this.tensors[i].show(this, graphicDebugLevel);
 		}
 
 		if (graphicDebugLevel > 3) {
 			for (let i = 0; i < this.nodes.length; i++) {
-				this.nodes[i].show(this.view, time, graphicDebugLevel);
+				this.nodes[i].show(this, time, graphicDebugLevel);
 			}
 		}
 	}

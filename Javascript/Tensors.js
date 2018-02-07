@@ -23,9 +23,40 @@ class Tensor {
 		this.node2 = node2;
 		this.constant = constant;
 		this.tensorType = type;
+		this.properties = new PropertyList();
 		this.collideDistanceMapping = {};
 		this.force = 0;
 		this.ghost = false;
+
+		this.addProperty(new Property(this,
+			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The links constant.'));
+		this.addProperty(new Property(this,
+			'tensorType', 'tensorType', 'Type', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The links type number.'));
+	}
+
+	/** Handling properties
+	 * @param  {Property} property
+	 * @return {Property}
+	 */
+	addProperty(property) {
+		return this.properties.addProperty(property);
+	}
+
+	/** Handling properties
+	 * @return {Property}
+	 */
+	getProperties() {
+		return this.properties;
+	}
+
+	/** Handling properties
+	 * @param  {element} element
+	 * @return {Property}
+	 */
+	populateProperties(element) {
+		return this.properties.populateProperties(element);
 	}
 
 	/**
@@ -475,17 +506,18 @@ class Tensor {
 
 	/**
 	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
-	 * @param  {Canvas} canvas
+	 * @param  {truss} truss
 	 * @param  {number} graphicDebugLevel=0
 	 */
-	show(canvas, graphicDebugLevel = 0) {
-		let ctx = canvas.context;
+	show(truss, graphicDebugLevel = 0) {
+		let view = truss.view;
+		let ctx = view.context;
 		let node1 = this.node1;
 		let node2 = this.node2;
 		if (!(this.isGhost()) && (!(this instanceof Field) || (graphicDebugLevel > 7))) {
 			this.highLight(ctx);
 			ctx.beginPath();
-			canvas.drawLine(node1.getPosition(), node2.getPosition());
+			view.drawLine(node1.getPosition(), node2.getPosition());
 			ctx.stroke();
 			if (graphicDebugLevel > 7) {
 				ctx.beginPath();
@@ -493,7 +525,7 @@ class Tensor {
 				ctx.font = '20px Arial';
 				ctx.textAlign = 'left';
 				let textPos = Vector.subtractVectors(node1, divideVector(this.getActual(), 2));
-				canvas.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
+				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
 			}
 		}
 	};
@@ -540,6 +572,9 @@ class Spring extends Tensor {
 		if (this.equilibriumLength <= 0 && node1 && node2) {
 			this.equilibriumLength = this.getLength();
 		}
+		this.addProperty(new Property(this,
+			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'How long should the relaxed spring be.'));
 	}
 
 	/**

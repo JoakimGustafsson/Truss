@@ -112,16 +112,18 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(leftpic, rightpic, springconstant/10));
 		this.addTensor(new Spring(rightpic, f7, springconstant));
 
-		let elem =document.getElementById('configview');
+		let elem =document.getElementById('configarea');
 		let nail = this.addNode(new HTMLNode(elem, mainNode.truss,
-			new Position(7.5, 1),
-			new Position(6, 2),
-			new Position(8, 2),
-			new Position(6, 4),
-			new Position(8, 4)));
+			new Position(7, 1),
+			new Position(5, 2),
+			new Position(9, 2),
+			new Position(6, 5),
+			new Position(10, 5)));
 
 
-		nail.populateProperties(elem);
+		let editarea =document.getElementById('configview');
+
+		let hammer = this.addNode(new HTMLEditNode(undefined, editarea));
 
 		/*
 		// let startTensor =

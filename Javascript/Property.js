@@ -47,23 +47,15 @@ class PropertyList {
      * @param  {element} element
      */
 	populateProperties(element) {
-		// this.clearProperties();
 		for (let i = 0; i < this.list.length; i++) {
 			this.list[i].populateProperty(element);
 		}
-		// this.cleanUpEmpty();
 	}
-	/**
-     */
-	clearProperties() {
-		for (let i = 0; i < parameterDivs.length; i++) {
-			parameterDivs[i].innerHTML = '';
-		}
-	}
+
 
 	/**
      */
-	cleanUpEmpty() {
+	XXcleanUpEmpty() {
 		/**
          * @param  {Element} element
          * @return {Number}
@@ -87,12 +79,13 @@ class PropertyList {
 			}
 		}
 	}
-	/**
-     * @param  {Object} selectedObject
+
+	/** Loop through all properties and display the values from the inputObject
+     * @param  {Object} inputObject
      */
-	ShowPropertyValues(selectedObject) {
+	showPropertyValues(inputObject) {
 		for (let i = 0; i < this.list.length; i++) {
-			this.list[i].showPropertyValue(selectedObject);
+			this.list[i].showPropertyValue(inputObject);
 		}
 	}
 }
@@ -138,10 +131,11 @@ class Property {
 	constructor(worldObject, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText) {
 		this.worldObject = worldObject;
 		this.propertyName = '\''+propertyName+'\'';
-		this.identity = idHTML;
+		this.identity = 'editWindowTruss'+idHTML;
 		this.title = displayTitle;
 		this.type = parameterType;
 		this.help = helpText;
+		this.HTMLElement = undefined; ;
 
 		// this.selections = '';
 		/* if (displayOrder == ParameterCategory.APPEARANCE) this.element = appearanceDiv;
@@ -160,9 +154,7 @@ class Property {
 		let a = this.worldObject;
 		let b = this.propertyName;
 		if (!temp) {
-			let g = function(x) {
-				this.worldObject[this.propertyName]=x;
-			};
+			let g = function(x) {};
 			return g;
 		}
 		return temp;
@@ -174,6 +166,7 @@ class Property {
 	/* __lookupSetter__ */
 	// Object.getOwnPropertyDescriptor(obj, 'MyField').set;
 
+
 	/**
      * @param {HTMLElement} element
 	 */
@@ -181,7 +174,7 @@ class Property {
 		let display = '';
 		/* if ((hideDetails) && (this.getImportance() < 6)) {
 			display = ' style="display:none" ';
-		}*/
+
 		if (this.type == ParameteType.LONGSTRING) {
 			element.innerHTML = element.innerHTML +
                 '<div  class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
@@ -197,7 +190,7 @@ class Property {
                 '</div>' +
                 '</div>' +
                 '</div>';
-		}
+		}}*/
 		if (this.type == ParameteType.NUMBER) {
 			element.innerHTML = element.innerHTML +
                 '<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
@@ -226,7 +219,7 @@ class Property {
                 '</div>' +
                 '</div>';
 		}
-		if (this.type == ParameteType.SELECTION) {
+		/* if (this.type == ParameteType.SELECTION) {
 			let makeSmall = '';
 			if (this.selections.length > 5) makeSmall = ' style="font-size: 16px;" ';
 			element.innerHTML = element.innerHTML +
@@ -261,7 +254,9 @@ class Property {
                 '</div>' +
                 '</div>' +
                 '</div>';
-		}
+        }}*/
+
+		// this.HTMLElement=document.getElementById(this.identity);
 
 		/*
 		if (this.type == 'Audio' || this.type == 'Video') {
@@ -308,18 +303,16 @@ class Property {
 	/**
 	 * @param  {Object} selectedObject
 	 */
-	ShowPropertyValue(selectedObject) {
+	showPropertyValue(selectedObject) {
 		let element = document.getElementById(this.identity);
 		if ((element == undefined) || (element == null)) {
 			alert('ShowPropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
 		}
 		if (this.type == 'Picture') {
-			element.src = eval('selectedObject.' + this.getter + '()');
+			element.src = eval('selectedObject['+this.propertyName+']');
 		} else {
-			element.value = eval('selectedObject.' + this.getter + '()');
+			element.value = eval('selectedObject['+this.propertyName+']');
 		}
-
-		// UpdateSelectedProperties(selectedObject);
 	};
 }
 

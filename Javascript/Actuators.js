@@ -692,3 +692,77 @@ class LineBreakerNode extends ActuatorNode {
 		return truss.addTensor(pullSpring);
 	}
 }
+
+
+/**
+ * A LeftRightNode is a special type of BinaryActuatorNode that represents a node that is used to
+ * influence the behaviour of another node.
+ *
+ *
+ * @class
+ * @augments ActuatorNode
+ */
+class HTMLEditNode extends ActuatorNode {
+	/**
+	 * @constructor
+	 * @param {Node} obj - The node that this node should influence, often the protagonist node
+	 * @param {Element} element - The HTML element that should display the edit area
+	 * @param {string} name - The name of the node.
+	 */
+	constructor(obj, element, name = 'HTMLEditNode') {
+		super(obj, new Position(0, 0), NaN, name);
+		this.element=element;
+		let _this = this;
+
+		document.addEventListener('selectionEvent',
+			function(e) {
+				_this.select.call(_this, e);
+			}, false);
+	}
+
+	/**
+	 * @param  {Event} selectionEvent
+	 */
+	select(selectionEvent) {
+		this.iO = selectionEvent.detail.selectedObject;
+		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
+
+		this.element.innerHTML='';
+		if (this.iO) {
+			this.iO.properties.populateProperties(this.element);
+		}
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='HTMLEditNode';
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {HTMLEditNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		return this;
+	}
+
+	/**
+	 * @param  {number} time
+	 * @param {number} deltaTime
+	 */
+	updatePosition(time, deltaTime) {
+		// super.updatePosition(time, deltaTime);
+		if (this.iO) {
+			this.iO.properties.showPropertyValues(this.iO);
+		}
+	}
+}
