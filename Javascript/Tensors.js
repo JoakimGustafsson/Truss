@@ -27,6 +27,7 @@ class Tensor {
 		this.collideDistanceMapping = {};
 		this.force = 0;
 		this.ghost = false;
+		this.isTensor=true;
 
 		this.addProperty(new Property(this,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,

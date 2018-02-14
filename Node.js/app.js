@@ -10,7 +10,10 @@ app.use(express.static(path.join(__dirname, '../..')));
 
 app.use(express.static(path.join(__dirname, '../../Truss')));
 app.use(express.static(path.join(__dirname, '../../Truss/Javascript')));
+app.use(express.static(path.join(__dirname, '../../Truss/Saves')));
+app.use(express.static(path.join(__dirname, '../../Truss/Resources')));
 
+/*
 app.use(express.static(path.join(__dirname, '../Operator Instruction')));
 app.use(express.static(path.join(__dirname, '../Operator Instruction/WebContent')));
 app.use(express.static(path.join(__dirname, '../Operator Instruction/Resources')));
@@ -21,6 +24,7 @@ app.use(express.static(path.join(__dirname, '../Operator Instruction Editor/WebC
 
 app.use(express.static(path.join(__dirname, '../File upload code/Views')));
 app.use(express.static(path.join(__dirname, '../File upload code/Public')));
+*/
 
 app.get('/', function(req, res){
   res.sendFile(path.join(__dirname, '../Truss.html'));
@@ -85,7 +89,7 @@ app.post('/save', function(req, res){
 //		    console.log("obj"+obj);
 //		    console.log("obj.fileName:"+obj.fileName);
 //		    console.log("obj.fileContent:"+obj.fileContent);
-		    fs.writeFile("../Operator Instruction/Saves/"+obj.fileName, obj.fileContent, function(err) {
+		    fs.writeFile("../Truss/Saves/"+obj.fileName, JSON.stringify(obj.fileContent), function(err) {
 		        if(err) {
 		            return console.log(err);
 		        }

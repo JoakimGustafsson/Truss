@@ -27,7 +27,18 @@ class Node {
 		this.velocityLoss = velocityLoss;
 		this.positionFunction = positionFunction;
 		this.showFunction = showFunction;
+		this.isNode=true;
 
+		Object.defineProperty(this, 'degree', {
+			get: function() {
+				return Math.round(this.angle*180/(Math.PI))
+				;
+			},
+			set: function(value) {
+				this.angle = value*Math.PI/180
+				;
+			},
+		});
 
 		this.addProperty(new Property(this,
 			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
@@ -36,8 +47,12 @@ class Node {
 		this.addProperty(new Property(this,
 			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The mass of the node in Kilograms.'));
+
 		this.addProperty(new Property(this,
-			'angle', 'angle', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The position counted from the upper left corner.'));
+		this.addProperty(new Property(this,
+			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle of the node.'));
 		this.addProperty(new Property(this,
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
@@ -159,7 +174,15 @@ class Node {
 		// fill in the nodes tensor references
 	}
 
-	/**
+	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
+	 * @param  {Position} position
+	 */
+	copyPosition(position) {
+		this.localPosition.x = position.x;
+		this.localPosition.y = position.y;
+	};
+
+	/** Assign a position object to the node. Also consider use of copyPosition() instead.
 	 * @param  {Position} position
 	 */
 	setPosition(position) {
@@ -373,12 +396,13 @@ class Node {
 			view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
 			cxt.stroke();
 
-			cxt.beginPath();
-			view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-				new Vector(0.2*Math.cos(this.getAngle()), 0.2*Math.sin(this.getAngle()))));
-			cxt.stroke();
 
 			if (graphicDebugLevel > 5) {
+				cxt.beginPath();
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
+					new Vector(0.2*Math.cos(this.getAngle()), 0.2*Math.sin(this.getAngle()))));
+				cxt.stroke();
+
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
 				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.1)));
@@ -480,6 +504,7 @@ class TrussNode extends Node {
 	 */
 	serialize(superNodeList, superTensorList) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
+		let representation={'classname': 'TrussNode'};
 		representationObject.truss = this.truss.serialize();
 
 		// save the canvas properties
@@ -498,6 +523,12 @@ class TrussNode extends Node {
 		this.setView();
 	}
 
+	/**
+	 * Pauses the position updates
+	 */
+	togglePause() {
+		this.truss.togglePause();
+	}
 	/**
 	 * Recursively call tick() on the sub-Truss and then update this nodes position
 	 * @param {number} time
@@ -542,17 +573,41 @@ class HTMLNode extends Node {
 	 * @param  {Position} rightBottomPosition
 	 */
 	constructor(element, truss, startPosition, leftTopPosition, rightTopPosition, leftBottomPosition, rightBottomPosition) {
-		super(startPosition);
+		super(startPosition, NaN, 'HTMLNodeNail');
 		this.element=element;
 
-		this.nail = truss.addNode(new Node(startPosition, NaN, 'nail'));
-		this.leftTopNode = truss.addNode(new Node(leftTopPosition, 1, 'leftTop', 0, 0, 1));
-		this.rightTopNode = truss.addNode(new Node(rightTopPosition, 1, 'rightTop', 0, 0, 1));
+		Object.defineProperty(this, 'idString', {
+			get: function() {
+				if (this.element) {
+					return this.element.id;
+				}
+			},
+			set: function(value) {
+				let oldElement =this.element;
+				if (oldElement) {
+					restoreMatrix(oldElement);
+				}
+				let newElement = document.getElementById(value);
+				if (newElement) {
+					this.element = newElement;
+				} else {
+					this.element= undefined;
+				}
+			},
+		});
+
+		this.addProperty(new Property(this,
+			'idString', 'idString', 'Element id', ParameteType.STRING, ParameterCategory.CONTENT,
+			'The HTML elements id.'));
+
+		// this.nail = truss.addNode(new Node(startPosition, NaN, 'nail'));
+		this.leftTopNode = truss.addNode(new Node(leftTopPosition, 1, 'leftTop', 0, 0, 0.99));
+		this.rightTopNode = truss.addNode(new Node(rightTopPosition, 1, 'rightTop', 0, 0, 0.99));
 		this.leftBottomNode = truss.addGravityNode(new Node(leftBottomPosition, 1, 'leftBottom', 0, 0, 0.99));
 		this.rightBottomNode = truss.addGravityNode(new Node(rightBottomPosition, 1, 'rightBottom', 0, 0, 0.99));
 
-		this.a = truss.addTensor(new Spring(this.leftTopNode, this.nail, 20));
-		this.b = truss.addTensor(new Spring(this.nail, this.rightTopNode, 20));
+		this.a = truss.addTensor(new Spring(this.leftTopNode, this, 20));
+		this.b = truss.addTensor(new Spring(this, this.rightTopNode, 20));
 		this.c = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 30));
 
 		this.leftSpring = truss.addTensor(new Spring(this.leftTopNode, this.leftBottomNode, 10));
@@ -572,7 +627,7 @@ class HTMLNode extends Node {
 	 * @return {Object}
 	 */
 	serialize(superNodeList, superTensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'HTMLNode';
 		return representationObject;
 	}
@@ -593,10 +648,12 @@ class HTMLNode extends Node {
 	 */
 	show(truss, time, graphicDebugLevel = 0) {
 		this.highLight(truss.view.context);
-		warpMatrix(truss, this.element,
-			this.leftTopNode.getPosition(),
-			this.rightTopNode.getPosition(),
-			this.leftBottomNode.getPosition(),
-			this.rightBottomNode.getPosition());
+		if (this.element) {
+			warpMatrix(truss, this.element,
+				this.leftTopNode.getPosition(),
+				this.rightTopNode.getPosition(),
+				this.leftBottomNode.getPosition(),
+				this.rightBottomNode.getPosition());
+		}
 	};
 }

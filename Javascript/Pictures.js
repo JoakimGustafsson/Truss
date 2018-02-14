@@ -42,7 +42,7 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	m[21] = m[24] * c.x + (c.x - a.x) / h;
 	m[22] = m[24] * c.y + (c.y - a.y) / h;
 
-	text = 'matrix3d(' +
+	let text = 'matrix3d(' +
         m[11] + ',' + m[12] + ',0,' + m[14] + ', ' +
         m[21] + ',' + m[22] + ',0,' + m[24] + ', ' +
         '0,0,1,0, ' +
@@ -52,6 +52,21 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	element.style['transform-origin'] = 'left top 0px';
 	element.style.transform = text;
 
+	element.style['-webkit-transform-origin'] = 'left top 0px';
+	element.style.webkitTransform = text;
+}
+
+/**
+ * @param  {HTMLElement} element
+ */
+function restoreMatrix(element) {
+	let text = 'matrix3d(' +
+	'1,0,0,0, ' +
+	'0,1,0,0, ' +
+	'0,0,1,0, ' +
+	'0,0,0,1)';
+	element.style['transform-origin'] = 'left top 0px';
+	element.style.transform = text;
 	element.style['-webkit-transform-origin'] = 'left top 0px';
 	element.style.webkitTransform = text;
 }

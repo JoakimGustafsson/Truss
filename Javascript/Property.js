@@ -16,6 +16,7 @@ let ParameteType = {
 	NUMBER: 2,
 	SELECTION: 3,
 	PICTURE: 4,
+	POSITION: 5,
 };
 
 
@@ -24,28 +25,28 @@ let ParameteType = {
  */
 class PropertyList {
 	/**
-     */
+	 */
 	constructor() {
 		this.list = [];
 	}
 
 	/**
-     * @param  {Property} prop
-     */
+	 * @param  {Property} prop
+	 */
 	addProperty(prop) {
 		this.list.push(prop);
 	}
 
 	/**
-     * @return {Array}
-     */
+	 * @return {Array}
+	 */
 	getProperties() {
 		return this.list;
 	}
 
 	/**
-     * @param  {element} element
-     */
+	 * @param  {element} element
+	 */
 	populateProperties(element) {
 		for (let i = 0; i < this.list.length; i++) {
 			this.list[i].populateProperty(element);
@@ -54,12 +55,12 @@ class PropertyList {
 
 
 	/**
-     */
+	 */
 	XXcleanUpEmpty() {
 		/**
-         * @param  {Element} element
-         * @return {Number}
-         */
+		 * @param  {Element} element
+		 * @return {Number}
+		 */
 		function isVisible(element) {
 			let display;
 			for (let j = 0; j < element.children.length; j++) {
@@ -81,8 +82,8 @@ class PropertyList {
 	}
 
 	/** Loop through all properties and display the values from the inputObject
-     * @param  {Object} inputObject
-     */
+	 * @param  {Object} inputObject
+	 */
 	showPropertyValues(inputObject) {
 		for (let i = 0; i < this.list.length; i++) {
 			this.list[i].showPropertyValue(inputObject);
@@ -120,22 +121,22 @@ editComplete = function() {
  */
 class Property {
 	/**
-     * @param  {Object} worldObject
-     * @param  {string} propertyName
-     * @param  {string} idHTML
-     * @param  {string} displayTitle
-     * @param  {ParameteType} parameterType
-     * @param  {parameterCategory} parameterCategory
-     * @param  {string} helpText
-     */
+	 * @param  {Object} worldObject
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {ParameteType} parameterType
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 */
 	constructor(worldObject, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText) {
 		this.worldObject = worldObject;
-		this.propertyName = '\''+propertyName+'\'';
-		this.identity = 'editWindowTruss'+idHTML;
+		this.propertyName = propertyName;
+		this.identity = 'editWindowTruss' + idHTML;
 		this.title = displayTitle;
 		this.type = parameterType;
 		this.help = helpText;
-		this.HTMLElement = undefined; ;
+		this.HTMLElement = undefined;
 
 		// this.selections = '';
 		/* if (displayOrder == ParameterCategory.APPEARANCE) this.element = appearanceDiv;
@@ -147,7 +148,7 @@ class Property {
 	}
 
 	/**
-     * @return {Function}
+	 * @return {Function}
 	 */
 	getOnChange() {
 		let temp = Object.getOwnPropertyDescriptor(this.worldObject, this.propertyName).set;
@@ -168,7 +169,7 @@ class Property {
 
 
 	/**
-     * @param {HTMLElement} element
+	 * @param {HTMLElement} element
 	 */
 	populateProperty(element) {
 		let display = '';
@@ -193,31 +194,31 @@ class Property {
 		}}*/
 		if (this.type == ParameteType.NUMBER) {
 			element.innerHTML = element.innerHTML +
-                '<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
-                '<div class="valuepair">' +
-                '<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
-                '<div class="rvalue">' +
-                '<input class="text" type="text" id="' + this.identity + '" value="30"' +
-                ' onblur=""' +
-                ' style="width: 140px"' +
-                ' oninput="(function (e,x){selectedObject['+this.propertyName+']=x.value;})(event,this)">' +
-                '</div>' +
-                '</div>' +
-                '</div>';
+				'<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
+				'<div class="valuepair">' +
+				'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
+				'<div class="rvalue">' +
+				'<input class="text" type="text" id="' + this.identity + '" value="30"' +
+				' onblur=""' +
+				' style="width: 140px"' +
+				' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
+				'</div>' +
+				'</div>' +
+				'</div>';
 		}
 		if (this.type == ParameteType.STRING) {
-			element.myDummy=this;
+			element.myDummy = this;
 			element.innerHTML = element.innerHTML +
-                '<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
-                '<div class="valuepair">' +
-                '<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
-                '<div class="rvalue">' +
-                '<input class="text" type="text" id="' + this.identity + '"' +
-                ' onblur="" style="width: 140px"'+
-                ' oninput="(function (e,x){selectedObject['+this.propertyName+']=x.value;})(event,this)">' +
-                '</div>' +
-                '</div>' +
-                '</div>';
+				'<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
+				'<div class="valuepair">' +
+				'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
+				'<div class="rvalue">' +
+				'<input class="text" type="text" id="' + this.identity + '"' +
+				' onblur="" style="width: 140px"' +
+				' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
+				'</div>' +
+				'</div>' +
+				'</div>';
 		}
 		/* if (this.type == ParameteType.SELECTION) {
 			let makeSmall = '';
@@ -234,27 +235,29 @@ class Property {
                 '</div>' +
                 '</div>' +
                 '</div>';
-		}
-		if (this.type == ParameteType.PICTURE) {
+		}*/
+		if (this.type == ParameteType.POSITION) {
 			element.innerHTML = element.innerHTML +
-                '<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
-                '<div class="valuepair">' +
-                '<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
-                '<div class="rvalue">' +
-                '<img id="' + this.identity + '"' +
-                ' style="width: 140px; height: 100px; text-align: left;"' +
-                ' onclick="setupFileSelectionPanel(\'pictureselect\',' +
-                'function(type, filename){ ' +
-                //								'alert(type, filename);'+
-                'var x=document.getElementById(\'' + this.identity + '\'); ' +
-                'x.src=filename;' +
-                'x.value=filename;' +
-                'x.oninput();})"' +
-                ' oninput="' + this.getOnChange() + '">' +
-                '</div>' +
-                '</div>' +
-                '</div>';
-        }}*/
+				'<div class="parameterEditArea"' + display +
+				'style="overflow: auto;" id="' + this.identity + 'Container">' +
+				'<div class="valuepair" style="float:left; width:33%">' +
+				'<div class="lname">X</div>' +
+				'<div class="rvalue" >' +
+				'<input class="text" type="text" id="' + this.identity + 'X" value="30"' +
+				' onblur="" style="width: 60px"' +
+				' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].x=parseInt(z.value,0);})(event,this)">' +
+				'</div>' +
+				'</div>' +
+				'<div class="valuepair" style="float:right;width:33%">' +
+				'<div class="lname">Y</div>' +
+				'<div class="rvalue">' +
+				'<input class="text" type="text" id="' + this.identity + 'Y" value="30"' +
+				' onblur="" style="width: 60px"' +
+				' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].y=parseInt(z.value,0);})(event,this)">' +
+				'</div>' +
+				'</div>' +
+				'</div>';
+		}
 
 		// this.HTMLElement=document.getElementById(this.identity);
 
@@ -287,7 +290,7 @@ class Property {
 
 	/**
 	 * @param {Array} list
-     * @return {string}
+	 * @return {string}
 	 */
 	generateOptions(list) {
 		let res = '';
@@ -304,14 +307,23 @@ class Property {
 	 * @param  {Object} selectedObject
 	 */
 	showPropertyValue(selectedObject) {
-		let element = document.getElementById(this.identity);
-		if ((element == undefined) || (element == null)) {
-			alert('ShowPropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
-		}
-		if (this.type == 'Picture') {
-			element.src = eval('selectedObject['+this.propertyName+']');
+		if (this.type == ParameteType.POSITION) {
+			let elementX = document.getElementById(this.identity + 'X');
+			let elementY = document.getElementById(this.identity + 'Y');
+			if ((elementX == undefined) || (elementX == null)) {
+				alert('ShowPropertyValue cannot find HTML element ' + this.identity + 'X & Y. (Title:' + this.title + ')');
+				return;
+			} else {
+				elementX.value = Math.round(100 * selectedObject[this.propertyName].x) / 100;
+				elementY.value = Math.round(100 * selectedObject[this.propertyName].y) / 100;
+			}
 		} else {
-			element.value = eval('selectedObject['+this.propertyName+']');
+			let element = document.getElementById(this.identity);
+			if ((element == undefined) || (element == null)) {
+				alert('ShowPropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
+				return;
+			}
+			element.value = selectedObject[this.propertyName];
 		}
 	};
 }
@@ -322,7 +334,7 @@ class Property {
  * @param  {string} elementName
  * @param  {unction} callfunction
  */
-function UpdatePropertyValue(elementName, callfunction) {
+function XXXUpdatePropertyValue(elementName, callfunction) {
 	if (!selectedObject) {
 		alert('No object selected (' + elementName + ')');
 		return;
@@ -337,4 +349,3 @@ function UpdatePropertyValue(elementName, callfunction) {
 	}
 	eval('selectedObject.' + callfunction + '("' + textify(value) + '")');
 }
-

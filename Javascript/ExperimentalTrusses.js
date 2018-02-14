@@ -114,11 +114,11 @@ class WalkTruss extends Truss {
 
 		let elem =document.getElementById('configarea');
 		let nail = this.addNode(new HTMLNode(elem, mainNode.truss,
-			new Position(7, 1),
+			new Position(7.5, 1),
 			new Position(5, 2),
-			new Position(9, 2),
+			new Position(10, 2),
 			new Position(6, 5),
-			new Position(10, 5)));
+			new Position(11, 5)));
 
 
 		let editarea =document.getElementById('configview');

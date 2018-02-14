@@ -275,7 +275,10 @@ class Truss {
 		this.calculatePositionBasedVelocities(deltaTime);
 		this.calculateVelocityBasedForces(deltaTime);
 		this.calculateFinalVelocityAndRotation(deltaTime);
-		this.updatePositions(trussTime, deltaTime);
+		
+		if (!this.paused) {
+			this.updatePositions(trussTime, deltaTime);
+		}
 		this.sense(deltaTime);
 	}
 
@@ -333,6 +336,17 @@ class Truss {
 	}
 
 	/**
+	 */
+	togglePause() {
+		if (!this.paused) {
+			this.delta=-1;
+			this.paused=true;
+		} else {
+			this.paused=false;
+		}
+	}
+
+	/**
 	 * The truss main tick function. this function is called to generate
 	 * a timestep in which the modelled world moves slightly forward.
 	 *
@@ -343,10 +357,10 @@ class Truss {
 		// Track the accumulated time that hasn't been simulated yet
 		this.delta += timestamp - this.lastFrameTimeMs; // note += here
 		this.lastFrameTimeMs = timestamp;
-
 		if (this.delta>0.2) {
 			this.delta=0;
 		}
+
 		// Simulate the total elapsed time in fixed-size chunks
 		while (this.delta >= this.timestep) {
 			this.calculate(timestamp-this.delta, this.timestep/2);
