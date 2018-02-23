@@ -147,26 +147,6 @@ class Property {
 		else this.element = otherDiv;*/
 	}
 
-	/**
-	 * @return {Function}
-	 */
-	getOnChange() {
-		let temp = Object.getOwnPropertyDescriptor(this.worldObject, this.propertyName).set;
-		let a = this.worldObject;
-		let b = this.propertyName;
-		if (!temp) {
-			let g = function(x) {};
-			return g;
-		}
-		return temp;
-	}
-
-	/* __lookupGetter__ */
-	// Object.getOwnPropertyDescriptor(obj, 'MyField').get;
-
-	/* __lookupSetter__ */
-	// Object.getOwnPropertyDescriptor(obj, 'MyField').set;
-
 
 	/**
 	 * @param {HTMLElement} element
@@ -349,3 +329,121 @@ function XXXUpdatePropertyValue(elementName, callfunction) {
 	}
 	eval('selectedObject.' + callfunction + '("' + textify(value) + '")');
 }
+
+/**
+ *
+ *
+ * @class
+ * @augments SensorNode
+ */
+class HTMLEditNode extends SensorNode {
+	/**
+	 * @constructor
+	 * @param {Node} obj - The node that this node should influence, often the protagonist node
+	 * @param {Element} element - The HTML element that should display the edit area
+	 * @param {string} name - The name of the node.
+	 */
+	constructor(obj, element, name = 'HTMLEditNode') {
+		super(new Position(0, 0), NaN, name);
+		this.element=element;
+		let _this = this;
+
+		document.addEventListener('selectionEvent',
+			function(e) {
+				_this.select.call(_this, e);
+			}, false);
+	}
+
+	/**
+	 * @param  {Event} selectionEvent
+	 */
+	select(selectionEvent) {
+		this.iO = selectionEvent.detail.selectedObject;
+		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
+
+		this.element.innerHTML='';
+		if (this.iO) {
+			this.iO.properties.populateProperties(this.element);
+		}
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='HTMLEditNode';
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {HTMLEditNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		return this;
+	}
+
+	/**
+	 * Use sense in order to make pause work
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	sense(deltaTime, truss) {
+		// super.updatePosition(time, deltaTime);
+		if (this.iO) {
+			this.iO.properties.showPropertyValues(this.iO);
+		}
+	}
+}
+
+/**
+ * @class
+ */
+class EditPropertyWindow {
+	/**
+	 * @param  {TrussNode} trussNode
+	 * @param  {Position} topScreenPos
+	 * @param  {number} screenWidth
+	 * @param  {number} screenHeight
+	 */
+	constructor(trussNode, topScreenPos, screenWidth, screenHeight) {
+		// let truss = trussNode.truss;
+		let elem = document.getElementById('configarea');
+		let editarea = document.getElementById('configview');
+		// this.truss=truss;
+		this.nail = new HTMLNode(elem);
+		this.hammer = new HTMLEditNode(undefined, editarea);
+		let _this = this;
+
+		document.addEventListener('selectionEvent',
+			function(e) {
+				_this.select.call(_this, e);
+			}, false);
+	}
+
+	/**
+	 * @param  {Event} selectionEvent
+	 */
+	select(selectionEvent) {
+		let selectedObject = selectionEvent.detail.selectedObject;
+		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
+		let truss = selectionEvent.detail.truss;
+		if (!previousSelectedObject && selectedObject) {
+			this.nail.create(truss, new Position(600, 100));
+			truss.addNode(this.nail);
+			truss.addNode(this.hammer);
+		} else if (previousSelectedObject && !selectedObject) {
+			this.nail.hide(truss);
+			// this.hammer.hide(truss);
+			truss.removeNode(this.nail);
+			truss.removeNode(this.hammer);
+		}
+	}
+}
+

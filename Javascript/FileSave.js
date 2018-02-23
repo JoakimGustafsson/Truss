@@ -1,31 +1,17 @@
-/**
- * @param  {string} fileName
- * @param  {string} fileToSave
- * @param  {string} extension
+/** Support function that returns the filename from a filepath
+ * @param  {string} filename
+ * @return {string}
  */
-function saveFile1(fileName, fileToSave, extension) {
-	// ensure citations are handled correctly
-	fileToSave = JSON.stringify(fileToSave);
+function getShortFileName(filename) {
+	return filename.split('/').pop().split('.')[0];
+}
 
-	if (getFileExtension(fileName)!=extension) {
-		fileName=fileName+'.'+extension;
-	}
-
-	$.ajax({
-		url: '/save',
-		type: 'POST',
-		data: '{ "fileName":"'+fileName+'", "fileContent":'+fileToSave+'}',
-		processData: false,
-		contentType: false,
-		success: function(data) {
-			console.log('Save successful!\n' + data);
-			cleanupFilemanagementViews(data);
-		},
-		xhr: function() {
-			let xhr = new XMLHttpRequest();
-			return xhr;
-		},
-	});
+/** Support function that returns the file extension from a filepath
+ * @param  {string} filename
+ * @return {string}
+ */
+function getFileExtension(filename) {
+	return filename.split('.').pop();
 }
 
 /**
@@ -38,13 +24,13 @@ function httpPostAsync(theUrl, callback, fileContent, fileName) {
 	let xmlHttp = new XMLHttpRequest();
 
 	xmlHttp.open('POST', theUrl);
-    xmlHttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+	xmlHttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
 
 	xmlHttp.onreadystatechange = function() {
 		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
 			callback(xmlHttp.responseText);
 		}
-    };
+	};
 
 	let temp = {
 		'fileName': fileName,
@@ -52,12 +38,21 @@ function httpPostAsync(theUrl, callback, fileContent, fileName) {
 	};
 
 	xmlHttp.send(JSON.stringify(temp));
+}
 
-    
-/*
-	xmlHttp.open('POST', theUrl, true); // true for asynchronous
-    xmlHttp.send();
-*/
+/**
+ * @param  {string} theUrl
+ * @param  {string} callback
+ */
+function httpGetAsync(theUrl, callback) {
+	let xmlHttp = new XMLHttpRequest();
+	xmlHttp.onreadystatechange = function() {
+		if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+			callback(xmlHttp.responseText);
+		}
+	};
+	xmlHttp.open('GET', theUrl, true); // true for asynchronous
+	xmlHttp.send();
 }
 
 
@@ -66,7 +61,74 @@ function httpPostAsync(theUrl, callback, fileContent, fileName) {
  */
 function saveFile(fileName) {
 	httpPostAsync('/save', function(x) {
-		alert(x);
-	}, mainNode.serialize(), fileName+'.tnd');
-	// saveFile1(fileName, mainNode.serialize(), 'truss');
+		console.log('Server reported: ' + x);
+	}, mainNode.serialize(), fileName + '.tnd');
+}
+
+/**
+ * @param  {string} folderName
+ */
+function directory(folderName) {
+	httpGetAsync('/dir/' + folderName, function(x) {
+		console.log('Server reported: ' + x);
+		displaySaves(x);
+	});
+}
+
+/** @param  {string} fileName
+*/
+function loadFile(fileName) {
+	httpGetAsync('/load/' + fileName, function(x) {
+		console.log('Server reported: ' + x);
+		newMainNode=new TrussNode();
+		newMainNode.deserialize(JSON.parse(x));
+	});
+}
+
+/**
+	 * @param  {element} element
+	 */
+function highLightFile(element) {
+	element.className='selectedfilename';
+}
+/**
+	 * @param  {element} element
+	 */
+function unhighLightFile(element) {
+	element.className='filename';
+}
+
+/**
+ * @param  {string} text
+ * @param  {string} extension
+ */
+function displaySaves(text) {
+	let fullPath;
+	let element;
+
+	let fileListElement = document.getElementById('fileList');
+	if (!fileListElement) {
+		alert('Could not file file list window.');
+		return;
+	}
+	fileListElement.innerHTML='';
+	let fileList = JSON.parse(text);
+	let fileName;
+	// XXclearDropDown();
+	for (let i = 0; i < fileList.length; i++) {
+		fileName = fileList[i];
+		if (getFileExtension(fileName) == 'tnd') {
+			fullPath = '../Saves/' + fileName;
+			element = document.createElement('span');
+			element.className = 'filename';
+			element.innerHTML = fileName;
+			fileListElement.appendChild(element);
+			fileListElement.appendChild(document.createElement('br'));
+			element.title = fileName;
+			element.setAttribute('onclick', 'loadFile(\'' + fileName + '\');');
+			element.setAttribute('onmouseover', 'highLightFile(this);');
+			element.setAttribute('onmouseout', 'unhighLightFile(this);');
+		}
+	}
+	// XXaddToDropDown('LOAD', '', true);
 }

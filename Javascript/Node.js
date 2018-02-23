@@ -18,7 +18,11 @@ class Node {
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
 		this.mass = mass;
-		this.massRadius = Math.sqrt(mass);
+		if (mass) {
+			this.massRadius = Math.sqrt(mass);
+		} else {
+			this.massRadius = 5;
+		}
 		this.angle = 0;
 		this.turnrate = 0;
 		this.torqueConstant = torqueConstant;
@@ -82,13 +86,6 @@ class Node {
 		return this.properties.populateProperties(element);
 	}
 
-	/** Handling properties
-	 * @param  {element} element
-	 * @return {Property}
-	 */
-	XXXXclearProperties(element) {
-		return this.properties.clearProperties(element);
-	}
 
 	/**
 	 * @param  {Array} nodeList
@@ -174,6 +171,12 @@ class Node {
 		// fill in the nodes tensor references
 	}
 
+	/**
+	 */
+	resetVelocity() {
+		this.velocity.x=0;
+		this.velocity.y=0;
+	}
 	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
 	 * @param  {Position} position
 	 */
@@ -504,7 +507,7 @@ class TrussNode extends Node {
 	 */
 	serialize(superNodeList, superTensorList) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
-		let representation={'classname': 'TrussNode'};
+		representationObject.classname= 'TrussNode';
 		representationObject.truss = this.truss.serialize();
 
 		// save the canvas properties
@@ -565,15 +568,9 @@ class TrussNode extends Node {
 class HTMLNode extends Node {
 	/** This class displays a HTML element as a dynamic square between the four input nodes.
 	 * @param  {HTMLElement} element
-	 * @param  {Truss} truss
-	 * @param  {Position} startPosition
-	 * @param  {Position} leftTopPosition
-	 * @param  {Position} rightTopPosition
-	 * @param  {Position} leftBottomPosition
-	 * @param  {Position} rightBottomPosition
 	 */
-	constructor(element, truss, startPosition, leftTopPosition, rightTopPosition, leftBottomPosition, rightBottomPosition) {
-		super(startPosition, NaN, 'HTMLNodeNail');
+	constructor(element) {
+		super();
 		this.element=element;
 
 		Object.defineProperty(this, 'idString', {
@@ -599,37 +596,63 @@ class HTMLNode extends Node {
 		this.addProperty(new Property(this,
 			'idString', 'idString', 'Element id', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The HTML elements id.'));
+	}
 
-		// this.nail = truss.addNode(new Node(startPosition, NaN, 'nail'));
-		this.leftTopNode = truss.addNode(new Node(leftTopPosition, 1, 'leftTop', 0, 0, 0.99));
-		this.rightTopNode = truss.addNode(new Node(rightTopPosition, 1, 'rightTop', 0, 0, 0.99));
-		this.leftBottomNode = truss.addGravityNode(new Node(leftBottomPosition, 1, 'leftBottom', 0, 0, 0.99));
-		this.rightBottomNode = truss.addGravityNode(new Node(rightBottomPosition, 1, 'rightBottom', 0, 0, 0.99));
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Position} topScreenPos
+	 */
+	create(truss, topScreenPos) {
+		this.element.style.display='block';
+		let screenWidth=this.element.offsetWidth;
+		let screenHeight=this.element.offsetHeight;
 
-		this.a = truss.addTensor(new Spring(this.leftTopNode, this, 20));
-		this.b = truss.addTensor(new Spring(this, this.rightTopNode, 20));
-		this.c = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 30));
+		this.nail = truss.addNode(new Node(
+			truss.view.worldPosition(topScreenPos.x+screenWidth/2, topScreenPos.y/2), NaN, 'nayl', 0, 0, 0.99));
+		this.leftTopNode = truss.addNode(new Node(
+			truss.view.worldPosition(topScreenPos.x, topScreenPos.y), 1, 'leftTop', 0, 0, 0.99));
+		this.rightTopNode = truss.addNode(new Node(
+			truss.view.worldPosition(topScreenPos.x+screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
+		this.leftBottomNode = truss.addGravityNode(new Node(
+			truss.view.worldPosition(topScreenPos.x, topScreenPos.y+screenHeight), 1, 'leftBottom', 0, 0, 0.99));
+		this.rightBottomNode = truss.addGravityNode(new Node(
+			truss.view.worldPosition(topScreenPos.x+screenWidth, topScreenPos.y+screenHeight), 1, 'rightBottom', 0, 0, 0.99));
 
+		this.leftBand = truss.addTensor(new Spring(this.leftTopNode, this.nail, 20));
+		this.rightBand = truss.addTensor(new Spring(this.nail, this.rightTopNode, 20));
+		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 30));
 		this.leftSpring = truss.addTensor(new Spring(this.leftTopNode, this.leftBottomNode, 10));
 		this.rightSpring = truss.addTensor(new Spring(this.rightTopNode, this.rightBottomNode, 10));
+	}
 
-		warpMatrix(truss, element,
-			this.leftTopNode.getPosition(),
-			this.rightTopNode.getPosition(),
-			this.rightBottomNode.getPosition(),
-			this.rightBottomNode.getPosition());
+	/**
+	 * @param  {Truss} truss
+	 */
+	hide(truss) {
+		this.element.style.display='none';
+		truss.removeTensor(this.leftBand);
+		truss.removeTensor(this.rightBand);
+		truss.removeTensor(this.topBand);
+		truss.removeTensor(this.leftSpring);
+		truss.removeTensor(this.rightSpring);
+
+		truss.removeNode(this.nail);
+		truss.removeNode(this.leftTopNode);
+		truss.removeNode(this.rightTopNode);
+		truss.removeNode(this.leftBottomNode);
+		truss.removeNode(this.rightBottomNode);
 	}
 
 
 	/**
 	 * @param  {Array} superNodeList
 	 * @param  {Array} superTensorList
-	 * @return {Object}
 	 */
 	serialize(superNodeList, superTensorList) {
-		let representationObject = super.serialize(superNodeList, superTensorList);
-		representationObject.classname = 'HTMLNode';
-		return representationObject;
+		return;
+		// let representationObject = super.serialize(superNodeList, superTensorList);
+		// representationObject.classname = 'HTMLNode';
+		// return representationObject;
 	}
 
 	/**
@@ -647,6 +670,7 @@ class HTMLNode extends Node {
 	 * @param  {number} graphicDebugLevel=0
 	 */
 	show(truss, time, graphicDebugLevel = 0) {
+		super.show(truss, time, graphicDebugLevel);
 		this.highLight(truss.view.context);
 		if (this.element) {
 			warpMatrix(truss, this.element,

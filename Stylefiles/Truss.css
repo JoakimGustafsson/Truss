@@ -188,6 +188,27 @@ positionEditArea {
 	font-size: 16px;
 }
 
+#fileList {
+	padding: 5px;
+	background-color: white;
+	color: black;
+	font-family: Arial;
+	font-size: 16px;
+}
+
+.filename {
+	background-color: white;
+	color: black;
+	font-family: Arial;
+	font-size: 16px;
+}
+
+.selectedfilename {
+	background-color: blue;
+	color: white;
+	font-family: Arial;
+	font-size: 16px;
+}
 
 .tabsectionheader {
 	color: white;
@@ -247,6 +268,17 @@ div.tab button.active {
    /*  border: 1px solid #ccc; */
     border-top: none; 
 }
+
+.simpleButton{
+	border: none;
+	border-radius: 10px; 
+	padding:5px; 
+	background-color: #505E6B;
+	font-family: Arial;
+	color: white;
+    outline: none;
+}
+
 /*
 @ -webkit-keyframes up {
 	0%,

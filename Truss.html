@@ -5,14 +5,13 @@
 	<meta charset="UTF-8" />
 	<script src="Javascript/Primitives.js" type="text/javascript"></script>
 	<script src="Javascript/FileSave.js" type="text/javascript"></script>
-	<script src="Javascript/FileLoad.js" type="text/javascript"></script>
-	<script src="Javascript/Property.js" type="text/javascript"></script>
 	<script src="Javascript/View.js" type="text/javascript"></script>
 	<script src="Javascript/Node.js" type="text/javascript"></script>
 	<script src="Javascript/Tensors.js" type="text/javascript"></script>
 	<script src="Javascript/Truss.js" type="text/javascript"></script>
 	<script src="Javascript/Actuators.js" type="text/javascript"></script>
 	<script src="Javascript/Sensors.js" type="text/javascript"></script>
+	<script src="Javascript/Property.js" type="text/javascript"></script>
 	<script src="Javascript/Pictures.js" type="text/javascript"></script>
 	<script src="Javascript/ExperimentalTrusses.js" type="text/javascript"></script>
 	<!--	<script src="Javascript/cycle.js" type="text/javascript"></script>
@@ -38,8 +37,9 @@
 
 			<div class="tab">
 				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
+				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'connectionDiv')">CONNECTIONS</button>
 				<button class="tablinks tabsectionheader" id="addButton" onclick="openBottomPanel(event, 'addDiv')">ADD</button>
-				<button class="tablinks tabsectionheader" onclick="openBottomPanel(event, 'generalDiv'); ">GENERAL</button>
+				<!-- <button class="tablinks tabsectionheader" onclick="openBottomPanel(event, 'generalDiv'); ">GENERAL</button> -->
 				<button class="tablinks tabsectionheader advanced" onclick="openBottomPanel(event, 'fileDiv')">FILE</button>
 			</div>
 
@@ -47,34 +47,43 @@
 				<!--- div class="sectionheader">Configuration</div> -->
 				<div class="sectionbase" id="configview"></div>
 				<div>
-					<button type="button" onclick="mainNode.togglePause()">Pause</button>
-					<button type="button" onclick="mainNode.toggleMove()">Move</button>
+					<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
+					<button class="simpleButton" type="button" onclick="mainNode.toggleMove()">Lock</button>
 				</div>
 			</div>
 
 			<div id="addDiv" class="footerbackgroundarea tabcontent">
 				<!--- div class="sectionheader">Configuration</div> -->
-				<button type="button">New Node</button>
-				<button type="button">New Tensor</button>
+				<button class="simpleButton" type="button">New Node</button>
+				<button class="simpleButton" type="button">New Gravity Node</button>
+				<button class="simpleButton" type="button">New Tensor</button>
 			</div>
 
 			<div id="generalDiv" class="footerbackgroundarea tabcontent">
-				Hehe
+				general stuff
 			</div>
+
+			<div id="connectionDiv" class="footerbackgroundarea tabcontent">
+				list of tensors and their other node
+			</div>
+
 			<div id="fileDiv" class="footerbackgroundarea tabcontent">
 
+				<div class="sectionbase" id="configview">
+					
+				<div class="fileList" id="fileList">X</div>
+
 					<div class="valuepair">
-							<div title="Filename" class="lname">Filename</div>
-							<div class="rvalue">' +
-							<input class="text" type="text" id="fileNameInput" value="myFile"
-							 style="text-align: right; width:140px;">
-							</div>
-							</div>
+						<div title="Filename" class="lname">Filename</div>
+						<div class="rvalue">' +
+							<input class="text" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px;">
+						</div>
+					</div>
+				</div>
 
 
-
-				<button type="button"  onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
-				<button type="button">Load</button>
+				<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
+				<button class="simpleButton" type="button" onclick="directory('Saves');">Load</button>
 			</div>
 
 
@@ -139,7 +148,7 @@
 				mainNode.truss.initiate();
 
 
-				selectedObject = mainNode;
+				// selectedObject = mainNode;
 
 				window.requestAnimationFrame(mainLoop);
 

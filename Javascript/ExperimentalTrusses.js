@@ -1,7 +1,7 @@
 /**
  *
  */
-let Localview=undefined;
+let Localview = undefined;
 let EarthCenter = new Position(0, 6371e3);
 let Earth = new Node(EarthCenter, 5.97219e24, 'Earth', undefined, undefined, 0);
 
@@ -14,6 +14,14 @@ let f2;
 function gravityField(node) {
 	return new Field(Earth, node, 6.67e-11);
 }
+
+
+/**
+ */
+function makeEdit() {
+	let a = new EditPropertyWindow(mainNode, new Position(100, 100), 500, 500);
+}
+
 /**
  * @class
  * @extends Truss
@@ -81,7 +89,7 @@ class WalkTruss extends Truss {
 		let b4 = this.addNode(new Node(new Position(10, 6), NaN, 'base4'));
 		let b5 = this.addNode(new Node(new Position(12, 6), NaN, 'base5')); */
 
-		let pic =document.getElementById('dimage');
+		let pic = document.getElementById('dimage');
 		// rotation
 		let b6 = this.addNode(new Node(new Position(2, 3.5), NaN, 'fulcrum', undefined, undefined, 1, 1000));
 		let f6 = this.addGravityNode(new Node(new Position(3, 2), 10, 'bar 1', 0, 0, 0.99, 200));
@@ -106,24 +114,13 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(b6, f6, 900));
 		this.addTensor(new Spring(f6, f7, springconstant));
 
-		this.addTensor(new Spring(f7, leftpic, springconstant*10));
-		this.addTensor(new Spring(leftpic, bottompic, springconstant/10));
+		this.addTensor(new Spring(f7, leftpic, springconstant * 10));
+		this.addTensor(new Spring(leftpic, bottompic, springconstant / 10));
 		this.addTensor(new Spring(bottompic, rightpic, springconstant));
-		this.addTensor(new Spring(leftpic, rightpic, springconstant/10));
+		this.addTensor(new Spring(leftpic, rightpic, springconstant / 10));
 		this.addTensor(new Spring(rightpic, f7, springconstant));
 
-		let elem =document.getElementById('configarea');
-		let nail = this.addNode(new HTMLNode(elem, mainNode.truss,
-			new Position(7.5, 1),
-			new Position(5, 2),
-			new Position(10, 2),
-			new Position(6, 5),
-			new Position(11, 5)));
-
-
-		let editarea =document.getElementById('configview');
-
-		let hammer = this.addNode(new HTMLEditNode(undefined, editarea));
+		makeEdit();
 
 		/*
 		// let startTensor =
@@ -265,7 +262,7 @@ class ProtagonistNode extends Node {
 	 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='ProtagonistNode';
+		representationObject.classname = 'ProtagonistNode';
 		return representationObject;
 	}
 	/**
@@ -287,4 +284,3 @@ class ProtagonistNode extends Node {
 		}
 	}
 }
-

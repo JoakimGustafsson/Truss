@@ -48,7 +48,10 @@ class Truss {
 
 		let nodeList=[];
 		for (let node of this.nodes) {
-			nodeList.push(node.serialize(this.nodes, this.tensors));
+			let nodeSerilization = node.serialize(this.nodes, this.tensors);
+			if (nodeSerilization) {
+				nodeList.push();
+			}
 		}
 		representationObject.nodes=nodeList;
 
@@ -140,6 +143,14 @@ class Truss {
 			this.addSensor(node);
 		}
 		return node;
+	};
+
+	/**
+	 * Remove a node to the truss so it will not anylonger be updated at ticks and displayed
+	 * @param  {Node} node
+	 */
+	removeNode(node) {
+		removeIfPresent(node, this.nodes);
 	};
 
 	/**
@@ -275,7 +286,7 @@ class Truss {
 		this.calculatePositionBasedVelocities(deltaTime);
 		this.calculateVelocityBasedForces(deltaTime);
 		this.calculateFinalVelocityAndRotation(deltaTime);
-		
+
 		if (!this.paused) {
 			this.updatePositions(trussTime, deltaTime);
 		}

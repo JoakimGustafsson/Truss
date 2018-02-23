@@ -537,6 +537,7 @@ class Selector extends SensorNode {
 					detail: {
 						'selectedObject': selectedObject,
 						'previousSelectedObject': previousSelectedObject,
+						'truss': truss,
 					},
 					bubbles: true,
 					cancelable: true,
@@ -545,6 +546,7 @@ class Selector extends SensorNode {
 			}
 		} else if (mouseSet) { // Mouse is continually pressed
 			if (selectedObject && selectedObject.isNode) {
+				selectedObject.resetVelocity();
 				selectedObject.copyPosition(this.cursorPosition);
 			}
 		}
@@ -586,75 +588,3 @@ class Selector extends SensorNode {
 	 */
 }
 
-
-/**
- *
- *
- * @class
- * @augments SensorNode
- */
-class HTMLEditNode extends SensorNode {
-	/**
-	 * @constructor
-	 * @param {Node} obj - The node that this node should influence, often the protagonist node
-	 * @param {Element} element - The HTML element that should display the edit area
-	 * @param {string} name - The name of the node.
-	 */
-	constructor(obj, element, name = 'HTMLEditNode') {
-		super(new Position(0, 0), NaN, name);
-		this.element=element;
-		let _this = this;
-
-		document.addEventListener('selectionEvent',
-			function(e) {
-				_this.select.call(_this, e);
-			}, false);
-	}
-
-	/**
-	 * @param  {Event} selectionEvent
-	 */
-	select(selectionEvent) {
-		this.iO = selectionEvent.detail.selectedObject;
-		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-
-		this.element.innerHTML='';
-		if (this.iO) {
-			this.iO.properties.populateProperties(this.element);
-		}
-	}
-
-	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Object}
-	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='HTMLEditNode';
-		return representationObject;
-	}
-
-	/**
-	 * @param  {Object} restoreObject
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {HTMLEditNode}
-	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		return this;
-	}
-
-	/**
-	 * Use sense in order to make pause work
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
-	 */
-	sense(deltaTime, truss) {
-		// super.updatePosition(time, deltaTime);
-		if (this.iO) {
-			this.iO.properties.showPropertyValues(this.iO);
-		}
-	}
-}
