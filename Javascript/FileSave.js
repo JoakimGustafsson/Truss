@@ -60,9 +60,10 @@ function httpGetAsync(theUrl, callback) {
  * @param  {string} fileName
  */
 function saveFile(fileName) {
+	mainNode.truss.hideEdit();
 	httpPostAsync('/save', function(x) {
 		console.log('Server reported: ' + x);
-	}, mainNode.serialize(), fileName + '.tnd');
+	}, mainNode.serialize(), fileName + '.json');
 }
 
 /**
@@ -78,6 +79,7 @@ function directory(folderName) {
 /** @param  {string} fileName
 */
 function loadFile(fileName) {
+	mainNode.truss.hideEdit();
 	httpGetAsync('/load/' + fileName, function(x) {
 		console.log('Server reported: ' + x);
 		newMainNode=new TrussNode();
@@ -117,7 +119,7 @@ function displaySaves(text) {
 	// XXclearDropDown();
 	for (let i = 0; i < fileList.length; i++) {
 		fileName = fileList[i];
-		if (getFileExtension(fileName) == 'tnd') {
+		if (getFileExtension(fileName) == 'json') {
 			fullPath = '../Saves/' + fileName;
 			element = document.createElement('span');
 			element.className = 'filename';

@@ -491,12 +491,22 @@ class Selector extends SensorNode {
 	 * @param  {TrussNode} trussNode
 	 */
 	constructor() {
-		super();
+		super(undefined, undefined, 'SelectorNode');
 		this.lastPointedOn;
 		this.wasPressed=false;
 		this.cursorPosition = new Position(0, 0);
 	}
 
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname = 'Selector';
+		return representationObject;
+	}
 
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or

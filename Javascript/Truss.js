@@ -30,7 +30,15 @@ class Truss {
 		this.fps = 60,
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
+		this.editWindow = new EditPropertyWindow(mainNode, new Position(100, 100), 500, 500);
 	}
+
+	/**
+ 	*/
+	hideEdit() {
+		this.editWindow.removeBanner(this);
+	}
+
 
 	/**
 	 * @param  {Array} superNodeList
@@ -50,7 +58,7 @@ class Truss {
 		for (let node of this.nodes) {
 			let nodeSerilization = node.serialize(this.nodes, this.tensors);
 			if (nodeSerilization) {
-				nodeList.push();
+				nodeList.push(nodeSerilization);
 			}
 		}
 		representationObject.nodes=nodeList;
@@ -151,6 +159,9 @@ class Truss {
 	 */
 	removeNode(node) {
 		removeIfPresent(node, this.nodes);
+		if (node.sensor) {
+			this.removeSensor(node);
+		}
 	};
 
 	/**

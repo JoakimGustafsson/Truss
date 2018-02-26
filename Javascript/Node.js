@@ -139,6 +139,9 @@ class Node {
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
 		this.mass = restoreObject.mass;
+		if (!this.mass) {
+			this.mass=NaN;
+		}
 		this.massRadius = restoreObject.massRadius;
 		this.angle = restoreObject.angle;
 		this.turnrate = restoreObject.turnrate;
@@ -146,11 +149,16 @@ class Node {
 		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
 		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
 		this.velocityLoss = restoreObject.velocityLoss;
-		if (restoreObject.positionFunction) {
-			this.positionFunction = eval('('+restoreObject.positionFunction+')');
-		}
-		if (restoreObject.showFunction) {
-			this.showFunction = eval('('+restoreObject.showFunction+')');
+		try {
+			if (restoreObject.positionFunction) {
+				this.positionFunction = eval('('+restoreObject.positionFunction+')');
+			}
+			if (restoreObject.showFunction) {
+				this.showFunction = eval('('+restoreObject.showFunction+')');
+			}
+		} catch (err) {
+			alert(err);
+			alert(this);
 		}
 
 		if (restoreObject.breakList) {
@@ -521,7 +529,7 @@ class TrussNode extends Node {
 	 */
 	deserialize(restoreObject, superNodes, superTensors) {
 		super.deserialize(restoreObject);
-		this.truss = new Truss().deserialize(restoreObject.truss);
+		this.truss = objectFactory(restoreObject.truss, superNodes, superTensors).deserialize(restoreObject.truss);
 		this.handleCanvas();
 		this.setView();
 	}
@@ -604,6 +612,7 @@ class HTMLNode extends Node {
 	 */
 	create(truss, topScreenPos) {
 		this.element.style.display='block';
+		this.truss=truss;
 		let screenWidth=this.element.offsetWidth;
 		let screenHeight=this.element.offsetHeight;
 
@@ -613,11 +622,14 @@ class HTMLNode extends Node {
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y), 1, 'leftTop', 0, 0, 0.99));
 		this.rightTopNode = truss.addNode(new Node(
 			truss.view.worldPosition(topScreenPos.x+screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
-		this.leftBottomNode = truss.addGravityNode(new Node(
+		let {node, gravity} = truss.addGravityNodeAndTensor(new Node(
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y+screenHeight), 1, 'leftBottom', 0, 0, 0.99));
-		this.rightBottomNode = truss.addGravityNode(new Node(
+		this.leftBottomNode=node;
+		this.leftBottomField=gravity;
+		let {'node' : x, 'gravity': y} = truss.addGravityNodeAndTensor(new Node(
 			truss.view.worldPosition(topScreenPos.x+screenWidth, topScreenPos.y+screenHeight), 1, 'rightBottom', 0, 0, 0.99));
-
+		this.rightBottomNode=x;
+		this.rightBottomField=y;
 		this.leftBand = truss.addTensor(new Spring(this.leftTopNode, this.nail, 20));
 		this.rightBand = truss.addTensor(new Spring(this.nail, this.rightTopNode, 20));
 		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 30));
@@ -628,19 +640,21 @@ class HTMLNode extends Node {
 	/**
 	 * @param  {Truss} truss
 	 */
-	hide(truss) {
+	hide() {
 		this.element.style.display='none';
-		truss.removeTensor(this.leftBand);
-		truss.removeTensor(this.rightBand);
-		truss.removeTensor(this.topBand);
-		truss.removeTensor(this.leftSpring);
-		truss.removeTensor(this.rightSpring);
+		this.truss.removeTensor(this.leftBand);
+		this.truss.removeTensor(this.rightBand);
+		this.truss.removeTensor(this.topBand);
+		this.truss.removeTensor(this.leftSpring);
+		this.truss.removeTensor(this.rightSpring);
+		this.truss.removeTensor(this.leftBottomField);
+		this.truss.removeTensor(this.rightBottomField);
 
-		truss.removeNode(this.nail);
-		truss.removeNode(this.leftTopNode);
-		truss.removeNode(this.rightTopNode);
-		truss.removeNode(this.leftBottomNode);
-		truss.removeNode(this.rightBottomNode);
+		this.truss.removeNode(this.nail);
+		this.truss.removeNode(this.leftTopNode);
+		this.truss.removeNode(this.rightTopNode);
+		this.truss.removeNode(this.leftBottomNode);
+		this.truss.removeNode(this.rightBottomNode);
 	}
 
 

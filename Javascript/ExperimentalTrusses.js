@@ -5,6 +5,13 @@ let Localview = undefined;
 let EarthCenter = new Position(0, 6371e3);
 let Earth = new Node(EarthCenter, 5.97219e24, 'Earth', undefined, undefined, 0);
 
+
+var rightpic;
+var leftpic;
+var bottompic;
+var f7;
+var pic;
+
 let f2;
 /**
  * Create a Field 'Tensor' between the input node and the Earth node
@@ -17,27 +24,10 @@ function gravityField(node) {
 
 
 /**
- */
-function makeEdit() {
-	let a = new EditPropertyWindow(mainNode, new Position(100, 100), 500, 500);
-}
-
-/**
  * @class
  * @extends Truss
  */
 class WalkTruss extends Truss {
-	/**
-	 * Creates a new node and ensures that it if connected to the 'gravity' Field
-	 * @param  {other} args
-	 * @return {Node}
-	 */
-	addGravityNode(...args) {
-		let temp = this.addNode(...args);
-		this.addTensor(gravityField(temp));
-		return temp;
-	}
-
 	/**
 	 * @constructor
 	 * @param  {View} view
@@ -45,7 +35,45 @@ class WalkTruss extends Truss {
 	 */
 	constructor(view, updatefrequency) {
 		super(view, updatefrequency);
+		this.blur=true;
 	}
+
+	/**
+	 * Creates a new node and ensures that it if connected to the 'gravity' Field
+	 * @param  {other} args
+	 * @return {Node}
+	 */
+	addGravityNode(...args) {
+		return this.addGravityNodeAndTensor(...args).node;
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname = 'WalkTruss';
+		return representationObject;
+	}
+
+	/**
+	* @param  {other} args
+	* @return {Object} Node, Field
+	*/
+	addGravityNodeAndTensor(...args) {
+		let node = this.addNode(...args);
+		let gravity=this.addTensor(gravityField(node));
+		return {node, gravity};
+	}
+
+	/**
+ 	*/
+	hideEdit() {
+		this.editWindow.removeBanner(this);
+	}
+
 
 	/**
 	 *
@@ -89,23 +117,54 @@ class WalkTruss extends Truss {
 		let b4 = this.addNode(new Node(new Position(10, 6), NaN, 'base4'));
 		let b5 = this.addNode(new Node(new Position(12, 6), NaN, 'base5')); */
 
-		let pic = document.getElementById('dimage');
 		// rotation
+
 		let b6 = this.addNode(new Node(new Position(2, 3.5), NaN, 'fulcrum', undefined, undefined, 1, 1000));
 		let f6 = this.addGravityNode(new Node(new Position(3, 2), 10, 'bar 1', 0, 0, 0.99, 200));
-		let f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0, 0, 0.99, 0));
 
-		let leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0, 0, 0.99));
+		leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0,
+			function() {
+					leftpic=this;
+			}, 0.99));
+		bottompic = this.addGravityNode(new Node(new Position(4, 3), 70, 'bottom', 0,
+			function() {
+					bottompic=this;
+			}, 1));
+		rightpic = this.addGravityNode(new Node(new Position(5, 2), 10, 'right', 0,
+			function() {
+					rightpic=this;
+			}, 1));
+
+		f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0,
+			function() {
+				if (!pic) {
+					pic = document.getElementById('dimage');
+				}
+				if (pic && mainNode && rightpic && f7 && bottompic && leftpic) {
+				  warpMatrix(mainNode.truss, pic,
+						rightpic.getPosition(),
+						this.getPosition(),
+						bottompic.getPosition(),
+						leftpic.getPosition());
+				}
+			}
+		));
+
+
+		/* let leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0, 0, 0.99));
 		let bottompic = this.addGravityNode(new Node(new Position(4, 3), 70, 'bottom', 0, 0, 1));
 		let rightpic = this.addGravityNode(new Node(new Position(5, 2), 10, 'right', 0,
 			function() {
+				if (!pic) {
+					var pic = document.getElementById('dimage');
+				}
 				warpMatrix(mainNode.truss, pic,
 					rightpic.getPosition(),
 					f7.getPosition(),
 					bottompic.getPosition(),
 					leftpic.getPosition());
 			}
-		));
+		));*/
 
 
 		let springconstant = 5000;
@@ -120,7 +179,6 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(leftpic, rightpic, springconstant / 10));
 		this.addTensor(new Spring(rightpic, f7, springconstant));
 
-		makeEdit();
 
 		/*
 		// let startTensor =

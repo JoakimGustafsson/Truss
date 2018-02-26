@@ -417,8 +417,8 @@ class EditPropertyWindow {
 		let elem = document.getElementById('configarea');
 		let editarea = document.getElementById('configview');
 		// this.truss=truss;
-		this.nail = new HTMLNode(elem);
-		this.hammer = new HTMLEditNode(undefined, editarea);
+		this.banner = new HTMLNode(elem);
+		this.valueToGUI = new HTMLEditNode(undefined, editarea);
 		let _this = this;
 
 		document.addEventListener('selectionEvent',
@@ -435,15 +435,29 @@ class EditPropertyWindow {
 		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
 		let truss = selectionEvent.detail.truss;
 		if (!previousSelectedObject && selectedObject) {
-			this.nail.create(truss, new Position(600, 100));
-			truss.addNode(this.nail);
-			truss.addNode(this.hammer);
+			this.createBanner(truss);
 		} else if (previousSelectedObject && !selectedObject) {
-			this.nail.hide(truss);
-			// this.hammer.hide(truss);
-			truss.removeNode(this.nail);
-			truss.removeNode(this.hammer);
+			this.removeBanner(truss);
 		}
+	}
+
+	/**
+	 * @param  {Truss} truss
+	 */
+	createBanner(truss) {
+		this.banner.create(truss, new Position(600, 100));
+		truss.addNode(this.banner);
+		truss.addNode(this.valueToGUI);
+	}
+
+	/**
+	 * @param  {Truss} truss
+	 */
+	removeBanner(truss) {
+		this.banner.hide();
+		// this.hammer.hide(truss);
+		truss.removeNode(this.banner);
+		truss.removeNode(this.valueToGUI);
 	}
 }
 
