@@ -308,28 +308,6 @@ class Property {
 	};
 }
 
-// Generic field changes **********************************************
-// This is called when the screen has been updated and the selected object should update its internal value
-/**
- * @param  {string} elementName
- * @param  {unction} callfunction
- */
-function XXXUpdatePropertyValue(elementName, callfunction) {
-	if (!selectedObject) {
-		alert('No object selected (' + elementName + ')');
-		return;
-	}
-	let element = document.getElementById(elementName);
-	let value = element.value;
-	// console.log("Value:"+value+".");
-	if (!value) {
-		// selectedObject=undefined; //This is needed to prevent the entire object from being deleted
-		// return 1;
-		value = '';
-	}
-	eval('selectedObject.' + callfunction + '("' + textify(value) + '")');
-}
-
 /**
  *
  *

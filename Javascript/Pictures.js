@@ -46,8 +46,6 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	let r = h * (d.y - c.y);
 	let s = w * (b.y - d.y);
 
-
-
 	m[24] = (s * xdiff - p * ydiff) / (p * r - s * q);
 	if (p) {
 		m[14] = (m[24] * q + xdiff) / p;

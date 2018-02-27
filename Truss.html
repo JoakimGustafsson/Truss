@@ -37,10 +37,10 @@
 
 			<div class="tab">
 				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
-				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'connectionDiv')">CONNECTIONS</button>
+				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'connectionDiv'); populateConnections();">CONNECTIONS</button>
 				<button class="tablinks tabsectionheader" id="addButton" onclick="openBottomPanel(event, 'addDiv')">ADD</button>
 				<!-- <button class="tablinks tabsectionheader" onclick="openBottomPanel(event, 'generalDiv'); ">GENERAL</button> -->
-				<button class="tablinks tabsectionheader advanced" onclick="openBottomPanel(event, 'fileDiv')">FILE</button>
+				<button class="tablinks tabsectionheader advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
 			</div>
 
 			<div id="propertiesDiv" class="footerbackgroundarea tabcontent">
@@ -60,18 +60,28 @@
 			</div>
 
 			<div id="generalDiv" class="footerbackgroundarea tabcontent">
-				general stuff
+				< general stuff>
 			</div>
 
 			<div id="connectionDiv" class="footerbackgroundarea tabcontent">
+				<div>
+
+					<button class="simpleButton" type="button">Tensor1</button>
+					<button class="simpleButton" type="button">Node</button>
+				</div>
+				<div>
+
+					<button class="simpleButton" type="button">Tensor2</button>
+					<button class="simpleButton" type="button">Node</button>
+				</div>
 				list of tensors and their other node
 			</div>
 
 			<div id="fileDiv" class="footerbackgroundarea tabcontent">
 
 				<div class="sectionbase" id="configview">
-					
-				<div class="fileList" id="fileList">X</div>
+
+					<div class="fileList" id="fileList">X</div>
 
 					<div class="valuepair">
 						<div title="Filename" class="lname">Filename</div>
@@ -83,7 +93,7 @@
 
 
 				<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
-				<button class="simpleButton" type="button" onclick="directory('Saves');">Load</button>
+
 			</div>
 
 
@@ -218,7 +228,26 @@
 			}
 
 
+			function populateConnections() {
+				let connectionDiv = document.getElementById('connectionDiv');
 
+				document.addEventListener('selectionEvent',
+					function (e) {
+						select.call(this, e);
+					}, false);
+			}
+
+
+			/**
+			 * @param  {Event} selectionEvent
+			 */
+			function select(selectionEvent) {
+				let select = selectionEvent.detail.selectedObject;
+				let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
+
+				connectionDiv.innerHTML = select.generateconnectionHTML();
+
+			}
 
 
 			init();

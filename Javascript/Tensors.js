@@ -579,6 +579,13 @@ class Spring extends Tensor {
 	}
 
 	/**
+	 * @return {string}
+	 */
+	generateconnectionHTML() {
+		return 'tensor';
+	}
+
+	/**
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}

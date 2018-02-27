@@ -63,6 +63,13 @@ class Node {
 			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).'));
 	}
 
+	/**
+	 * @return {string}
+	 */
+	generateconnectionHTML() {
+		return 'Node';
+	}
+	
 	/** Handling properties
 	 * @param  {Property} property
 	 * @return {Property}
@@ -626,7 +633,7 @@ class HTMLNode extends Node {
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y+screenHeight), 1, 'leftBottom', 0, 0, 0.99));
 		this.leftBottomNode=node;
 		this.leftBottomField=gravity;
-		let {'node' : x, 'gravity': y} = truss.addGravityNodeAndTensor(new Node(
+		let {'node': x, 'gravity': y} = truss.addGravityNodeAndTensor(new Node(
 			truss.view.worldPosition(topScreenPos.x+screenWidth, topScreenPos.y+screenHeight), 1, 'rightBottom', 0, 0, 0.99));
 		this.rightBottomNode=x;
 		this.rightBottomField=y;

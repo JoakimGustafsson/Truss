@@ -35,7 +35,7 @@ class WalkTruss extends Truss {
 	 */
 	constructor(view, updatefrequency) {
 		super(view, updatefrequency);
-		this.blur=true;
+		this.blur = true;
 	}
 
 	/**
@@ -59,17 +59,20 @@ class WalkTruss extends Truss {
 	}
 
 	/**
-	* @param  {other} args
-	* @return {Object} Node, Field
-	*/
+	 * @param  {other} args
+	 * @return {Object} Node, Field
+	 */
 	addGravityNodeAndTensor(...args) {
 		let node = this.addNode(...args);
-		let gravity=this.addTensor(gravityField(node));
-		return {node, gravity};
+		let gravity = this.addTensor(gravityField(node));
+		return {
+			node,
+			gravity
+		};
 	}
 
 	/**
- 	*/
+	 */
 	hideEdit() {
 		this.editWindow.removeBanner(this);
 	}
@@ -124,15 +127,15 @@ class WalkTruss extends Truss {
 
 		leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0,
 			function() {
-					leftpic=this;
+				leftpic = this;
 			}, 0.99));
 		bottompic = this.addGravityNode(new Node(new Position(4, 3), 70, 'bottom', 0,
 			function() {
-					bottompic=this;
+				bottompic = this;
 			}, 1));
 		rightpic = this.addGravityNode(new Node(new Position(5, 2), 10, 'right', 0,
 			function() {
-					rightpic=this;
+				rightpic = this;
 			}, 1));
 
 		f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0,
@@ -141,7 +144,7 @@ class WalkTruss extends Truss {
 					pic = document.getElementById('dimage');
 				}
 				if (pic && mainNode && rightpic && f7 && bottompic && leftpic) {
-				  warpMatrix(mainNode.truss, pic,
+					warpMatrix(mainNode.truss, pic,
 						rightpic.getPosition(),
 						this.getPosition(),
 						bottompic.getPosition(),
