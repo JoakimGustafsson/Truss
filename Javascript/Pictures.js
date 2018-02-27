@@ -18,6 +18,23 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 
 	let m = [];
 
+	let bcv= (((b.y-d.y)*(a.x-d.x)) - ((b.x-d.x)*(a.y-d.y))) / (((c.x-b.x)*(a.y-d.y)) - ((c.y-b.y)*(a.x-d.x)));
+	let dav= (bcv*(c.x-b.x)+(b.x-d.x))/(a.x-d.x);
+
+	if (bcv<0) {
+		b.x= b.x+bcv*(c.x- b.x);
+		b.y= b.y+bcv*(c.y- b.y);
+	} else if (bcv>1) {
+		c.x= b.x+bcv*(c.x- b.x);
+		c.y= b.y+bcv*(c.y- b.y);
+	} else if (dav<0) {
+		d.x=d.x+dav*(a.x- d.x);
+		d.y=d.y+dav*(a.y- d.y);
+	} else if (dav>1) {
+		a.x=d.x+dav*(a.x- d.x);
+		a.y=d.y+dav*(a.y- d.y);
+	}
+
 	m[41] = a.x;
 	m[42] = a.y;
 
@@ -28,6 +45,8 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	let q = h * (d.x - c.x);
 	let r = h * (d.y - c.y);
 	let s = w * (b.y - d.y);
+
+
 
 	m[24] = (s * xdiff - p * ydiff) / (p * r - s * q);
 	if (p) {
