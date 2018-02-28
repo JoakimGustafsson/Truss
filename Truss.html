@@ -243,10 +243,13 @@
 			 */
 			function select(selectionEvent) {
 				let select = selectionEvent.detail.selectedObject;
+				if (!select) {
+					connectionDiv.innerHTML='';
+					return;
+				}
 				let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-
-				connectionDiv.innerHTML = select.generateconnectionHTML();
-
+				connectionDiv.innerHTML='';
+				connectionDiv.appendChild(select.generateconnectionHTML());
 			}
 
 

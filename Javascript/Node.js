@@ -67,9 +67,49 @@ class Node {
 	 * @return {string}
 	 */
 	generateconnectionHTML() {
-		return 'Node';
+		let div = document.createElement('div'); // Create the element in memory
+
+		for (let tensor of [...this.velocityBasedTensors, ...this.positionBasedTensors]) {
+			let subDiv = document.createElement('div'); 
+			div.appendChild(subDiv);
+			let button1 = document.createElement('button'); // Create the element in memory
+			button1.innerHTML=tensor.getName();
+			button1.classList.add('simpleButton'); // Configure the CSS
+			subDiv.appendChild(button1);
+
+			let otherNode=tensor.getOppositeNode(this);
+			let button2 = document.createElement('button'); // Create the element in memory
+			button2.innerHTML=otherNode.name;
+			button2.classList.add('simpleButton'); // Configure the CSS
+			subDiv.appendChild(button2);
+
+			this.registerOnClick(button1, tensor);
+			this.registerOnClick(button2, otherNode);
+		}
+		return div;
 	}
-	
+
+	/**
+	 * @param  {buttonObject} but
+	 * @param  {Node} node1
+	 */
+	registerOnClick(but, node1) {
+		but.addEventListener('click', function() {
+			let previousSelectedObject = selectedObject;
+			selectedObject = node1;
+			let event = new CustomEvent('selectionEvent', {
+				detail: {
+					'selectedObject': selectedObject,
+					'previousSelectedObject': previousSelectedObject,
+					'truss': undefined,
+				},
+				bubbles: true,
+				cancelable: true,
+			});
+			document.dispatchEvent(event);
+		});
+	}
+
 	/** Handling properties
 	 * @param  {Property} property
 	 * @return {Property}

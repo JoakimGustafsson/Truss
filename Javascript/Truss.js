@@ -292,13 +292,13 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculate(trussTime, deltaTime) {
-		this.calculateTorques(deltaTime);
-		this.calculatePositionBasedForces(deltaTime);
-		this.calculatePositionBasedVelocities(deltaTime);
-		this.calculateVelocityBasedForces(deltaTime);
-		this.calculateFinalVelocityAndRotation(deltaTime);
-
 		if (!this.paused) {
+			this.calculateTorques(deltaTime);
+			this.calculatePositionBasedForces(deltaTime);
+			this.calculatePositionBasedVelocities(deltaTime);
+			this.calculateVelocityBasedForces(deltaTime);
+			this.calculateFinalVelocityAndRotation(deltaTime);
+
 			this.updatePositions(trussTime, deltaTime);
 		}
 		this.sense(deltaTime);

@@ -37,6 +37,51 @@ class Tensor {
 			'The links type number.'));
 	}
 
+	/**
+	 * @return {string}
+	 */
+	generateconnectionHTML() {
+		let node1=this.node1;
+		let node2=this.node2;
+		let div = document.createElement('div'); // Create the element in memory
+
+		let button1 = document.createElement('button'); // Create the element in memory
+		button1.innerHTML=node1.name;
+		button1.classList.add('simpleButton'); // Configure the CSS
+		div.appendChild(button1);
+
+		let button2 = document.createElement('button'); // Create the element in memory
+		button2.innerHTML=node2.name;
+		button2.classList.add('simpleButton'); // Configure the CSS
+		div.appendChild(button2);
+
+		this.registerOnClick(button1, node1);
+		this.registerOnClick(button2, node2);
+
+		return div;
+	}
+
+	/**
+	 * @param  {buttonObject} but
+	 * @param  {Node} node1
+	 */
+	registerOnClick(but, node1) {
+		but.addEventListener('click', function() {
+			let previousSelectedObject = selectedObject;
+			selectedObject = node1;
+			let event = new CustomEvent('selectionEvent', {
+				detail: {
+					'selectedObject': selectedObject,
+					'previousSelectedObject': previousSelectedObject,
+					'truss': undefined,
+				},
+				bubbles: true,
+				cancelable: true,
+			});
+			document.dispatchEvent(event);
+		});
+	}
+
 	/** Handling properties
 	 * @param  {Property} property
 	 * @return {Property}
@@ -133,15 +178,15 @@ class Tensor {
 	 * @return {string} The name of the tensor
 	 */
 	getName() {
-		let name = '';
-		if (this.node1) {
+		return this.constructor.name;
+		/* if (this.node1) {
 			name += this.node1.name;
 		}
 		name += '-';
 		if (this.node2) {
 			name += this.node2.name;
 		}
-		return name;
+		return name;*/
 	}
 
 	/**
@@ -576,13 +621,6 @@ class Spring extends Tensor {
 		this.addProperty(new Property(this,
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How long should the relaxed spring be.'));
-	}
-
-	/**
-	 * @return {string}
-	 */
-	generateconnectionHTML() {
-		return 'tensor';
 	}
 
 	/**
