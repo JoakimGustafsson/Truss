@@ -538,9 +538,9 @@ class Selector extends SensorNode {
 				if (selectedObject) {
 					selectedObject.setHighlight(0);
 				}
-				if (closest) {
-					closest.setHighlight(2);
-				}
+				// if (closest) {
+				//	closest.setHighlight(2);
+				// }
 				let previousSelectedObject=selectedObject;
 				selectedObject = closest;
 				let event = new CustomEvent('selectionEvent', {

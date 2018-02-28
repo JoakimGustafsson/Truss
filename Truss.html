@@ -37,7 +37,7 @@
 
 			<div class="tab">
 				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
-				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'connectionDiv'); populateConnections();">CONNECTIONS</button>
+				<!-- <button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'connectionDiv');">CONNECTIONS</button> -->
 				<button class="tablinks tabsectionheader" id="addButton" onclick="openBottomPanel(event, 'addDiv')">ADD</button>
 				<!-- <button class="tablinks tabsectionheader" onclick="openBottomPanel(event, 'generalDiv'); ">GENERAL</button> -->
 				<button class="tablinks tabsectionheader advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
@@ -46,6 +46,21 @@
 			<div id="propertiesDiv" class="footerbackgroundarea tabcontent">
 				<!--- div class="sectionheader">Configuration</div> -->
 				<div class="sectionbase" id="configview"></div>
+
+				<div id="connectionDiv" class="sectionbase">
+				</div>
+
+
+				<div id="addDiv" class="sectionbase">
+						<!-- div class="sectionheader">Configuration</div> -->
+						<div>
+							<button class="simpleButton" type="button">New Node</button>
+						</div>
+						<div>
+							<button class="simpleButton" type="button">New Tensor</button>
+						</div>
+					</div>
+		
 				<div>
 					<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
 					<button class="simpleButton" type="button" onclick="mainNode.toggleMove()">Lock</button>
@@ -53,29 +68,19 @@
 			</div>
 
 			<div id="addDiv" class="footerbackgroundarea tabcontent">
-				<!--- div class="sectionheader">Configuration</div> -->
-				<button class="simpleButton" type="button">New Node</button>
-				<button class="simpleButton" type="button">New Gravity Node</button>
-				<button class="simpleButton" type="button">New Tensor</button>
+				<!-- div class="sectionheader">Configuration</div> -->
+				<div>
+					<button class="simpleButton" type="button">New Node</button>
+				</div>
+				<div>
+					<button class="simpleButton" type="button">New Tensor</button>
+				</div>
 			</div>
 
 			<div id="generalDiv" class="footerbackgroundarea tabcontent">
 				< general stuff>
 			</div>
 
-			<div id="connectionDiv" class="footerbackgroundarea tabcontent">
-				<div>
-
-					<button class="simpleButton" type="button">Tensor1</button>
-					<button class="simpleButton" type="button">Node</button>
-				</div>
-				<div>
-
-					<button class="simpleButton" type="button">Tensor2</button>
-					<button class="simpleButton" type="button">Node</button>
-				</div>
-				list of tensors and their other node
-			</div>
 
 			<div id="fileDiv" class="footerbackgroundarea tabcontent">
 
@@ -167,6 +172,20 @@
 				mainView.context.canvas.onmousemove = myMove;
 				mainView.context.canvas.onmousedown = downMouse;
 				mainView.context.canvas.onmouseup = upMouse;
+
+				let configarea = document.getElementById('configarea');
+				let connectionDiv = document.getElementById('connectionDiv');
+				
+
+				document.addEventListener('selectionEvent',
+					function (e) {
+						select.call(this, e);
+					}, false);
+
+				
+				openBottomPanel(event, 'propertiesDiv');
+				configarea.style.display = "none";
+
 			}
 
 
@@ -228,27 +247,21 @@
 			}
 
 
-			function populateConnections() {
-				let connectionDiv = document.getElementById('connectionDiv');
-
-				document.addEventListener('selectionEvent',
-					function (e) {
-						select.call(this, e);
-					}, false);
-			}
-
-
 			/**
 			 * @param  {Event} selectionEvent
 			 */
 			function select(selectionEvent) {
 				let select = selectionEvent.detail.selectedObject;
 				if (!select) {
-					connectionDiv.innerHTML='';
+					connectionDiv.innerHTML = '';
 					return;
 				}
 				let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-				connectionDiv.innerHTML='';
+				select.setHighlight(2);
+				if (previousSelectedObject) {
+					previousSelectedObject.setHighlight(0);
+				}
+				connectionDiv.innerHTML = '';
 				connectionDiv.appendChild(select.generateconnectionHTML());
 			}
 

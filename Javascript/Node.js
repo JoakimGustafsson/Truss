@@ -67,20 +67,21 @@ class Node {
 	 * @return {string}
 	 */
 	generateconnectionHTML() {
-		let div = document.createElement('div'); // Create the element in memory
+		let div = document.createElement('div');
 
 		for (let tensor of [...this.velocityBasedTensors, ...this.positionBasedTensors]) {
 			let subDiv = document.createElement('div'); 
 			div.appendChild(subDiv);
-			let button1 = document.createElement('button'); // Create the element in memory
+			let button1 = document.createElement('button');
 			button1.innerHTML=tensor.getName();
-			button1.classList.add('simpleButton'); // Configure the CSS
+			button1.classList.add('simpleButton');
+			button1.style.width='200px';
 			subDiv.appendChild(button1);
 
 			let otherNode=tensor.getOppositeNode(this);
-			let button2 = document.createElement('button'); // Create the element in memory
+			let button2 = document.createElement('button');
 			button2.innerHTML=otherNode.name;
-			button2.classList.add('simpleButton'); // Configure the CSS
+			button2.classList.add('simpleButton');
 			subDiv.appendChild(button2);
 
 			this.registerOnClick(button1, tensor);
