@@ -17,7 +17,7 @@ class Node {
 		this.name = name;
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
-		this.mass = mass;
+		this._mass = mass;
 		if (mass) {
 			this.massRadius = Math.sqrt(mass);
 		} else {
@@ -31,16 +31,28 @@ class Node {
 		this.velocityLoss = velocityLoss;
 		this.positionFunction = positionFunction;
 		this.showFunction = showFunction;
-		this.isNode=true;
+		this.isNode = true;
+
+		Object.defineProperty(this, 'mass', {
+			get: function() {
+				return this._mass;
+			},
+			set: function(value) {
+				if (value == 'NaN' || value == 0) {
+					this._mass = 0;
+				} else {
+					this._mass = value;
+					this.massRadius = Math.sqrt(value);
+				}
+			},
+		});
 
 		Object.defineProperty(this, 'degree', {
 			get: function() {
-				return Math.round(this.angle*180/(Math.PI))
-				;
+				return Math.round(this.angle * 180 / (Math.PI));
 			},
 			set: function(value) {
-				this.angle = value*Math.PI/180
-				;
+				this.angle = value * Math.PI / 180;
 			},
 		});
 
@@ -59,6 +71,9 @@ class Node {
 			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle of the node.'));
 		this.addProperty(new Property(this,
+			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'How stiff the node is with respect to attempts angle differences.'));
+		this.addProperty(new Property(this,
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).'));
 	}
@@ -70,17 +85,17 @@ class Node {
 		let div = document.createElement('div');
 
 		for (let tensor of [...this.velocityBasedTensors, ...this.positionBasedTensors]) {
-			let subDiv = document.createElement('div'); 
+			let subDiv = document.createElement('div');
 			div.appendChild(subDiv);
 			let button1 = document.createElement('button');
-			button1.innerHTML=tensor.getName();
+			button1.innerHTML = tensor.getName();
 			button1.classList.add('simpleButton');
-			button1.style.width='200px';
+			button1.style.width = '200px';
 			subDiv.appendChild(button1);
 
-			let otherNode=tensor.getOppositeNode(this);
+			let otherNode = tensor.getOppositeNode(this);
 			let button2 = document.createElement('button');
-			button2.innerHTML=otherNode.name;
+			button2.innerHTML = otherNode.name;
 			button2.classList.add('simpleButton');
 			subDiv.appendChild(button2);
 
@@ -95,7 +110,7 @@ class Node {
 	 * @param  {Node} node1
 	 */
 	registerOnClick(but, node1) {
-		but.addEventListener('click', function() {
+		but.addEventListener('click', function () {
 			let previousSelectedObject = selectedObject;
 			selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
@@ -141,26 +156,28 @@ class Node {
 	 * @return {Object}
 	 */
 	serialize(nodeList, tensorList) {
-		let representation={'classname': 'Node'};
-		representation.name=this.name;
-		representation.localPosition=this.localPosition.serialize();
-		representation.velocity=this.velocity.serialize();
-		representation.mass=this.mass;
-		representation.massRadius=this.massRadius;
-		representation.angle=this.angle;
-		representation.turnrate=this.turnrate;
-		representation.torqueConstant=this.torqueConstant;
+		let representation = {
+			'classname': 'Node'
+		};
+		representation.name = this.name;
+		representation.localPosition = this.localPosition.serialize();
+		representation.velocity = this.velocity.serialize();
+		representation.mass = this.mass;
+		representation.massRadius = this.massRadius;
+		representation.angle = this.angle;
+		representation.turnrate = this.turnrate;
+		representation.torqueConstant = this.torqueConstant;
 		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
 		representation.positionBasedTensors = serializeList(this.positionBasedTensors, tensorList);
-		representation.velocityLoss=this.velocityLoss;
+		representation.velocityLoss = this.velocityLoss;
 		if (this.positionFunction) {
-			representation.positionFunction=this.positionFunction.toString();
+			representation.positionFunction = this.positionFunction.toString();
 		}
 		if (this.showFunction) {
-			representation.showFunction=this.showFunction.toString();
+			representation.showFunction = this.showFunction.toString();
 		}
 
-		let storeBreakList=[];
+		let storeBreakList = [];
 		if (this.breakList) {
 			for (let lineBreaker of this.breakList) {
 				storeBreakList.push({
@@ -172,7 +189,7 @@ class Node {
 				});
 			}
 		}
-		representation.breakList=storeBreakList;
+		representation.breakList = storeBreakList;
 
 		return representation;
 	}
@@ -188,7 +205,7 @@ class Node {
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
 		this.mass = restoreObject.mass;
 		if (!this.mass) {
-			this.mass=NaN;
+			this.mass = NaN;
 		}
 		this.massRadius = restoreObject.massRadius;
 		this.angle = restoreObject.angle;
@@ -199,10 +216,10 @@ class Node {
 		this.velocityLoss = restoreObject.velocityLoss;
 		try {
 			if (restoreObject.positionFunction) {
-				this.positionFunction = eval('('+restoreObject.positionFunction+')');
+				this.positionFunction = eval('(' + restoreObject.positionFunction + ')');
 			}
 			if (restoreObject.showFunction) {
-				this.showFunction = eval('('+restoreObject.showFunction+')');
+				this.showFunction = eval('(' + restoreObject.showFunction + ')');
 			}
 		} catch (err) {
 			alert(err);
@@ -210,7 +227,7 @@ class Node {
 		}
 
 		if (restoreObject.breakList) {
-			this.breakList=[];
+			this.breakList = [];
 			for (let lineBreaker of restoreObject.breakList) {
 				this.breakList.push({
 					'original': tensorList[lineBreaker.original],
@@ -230,8 +247,8 @@ class Node {
 	/**
 	 */
 	resetVelocity() {
-		this.velocity.x=0;
-		this.velocity.y=0;
+		this.velocity.x = 0;
+		this.velocity.y = 0;
 	}
 	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
 	 * @param  {Position} position
@@ -297,8 +314,8 @@ class Node {
 		 * @param {list} l
 		 */
 		function supportRemove(o, l) {
-			let a = l.findIndex((z) => z==o);
-			if (a<0) {
+			let a = l.findIndex((z) => z == o);
+			if (a < 0) {
 				return;
 			}
 			l.splice(a, 1);
@@ -354,7 +371,7 @@ class Node {
 	 * @return {number} timeFactor
 	 */
 	turnable() {
-		return (this.torqueConstant && this.torqueConstant!=0);
+		return (this.torqueConstant && this.torqueConstant != 0);
 	}
 
 	/** Loop through all springs connected to this node and sum them p
@@ -374,18 +391,18 @@ class Node {
 	}
 
 	/**
-		 * Calculate the final rotation speed
-		 * @param {Array} forceAppliers
-		 * @param {number} timeFactor
-		 */
+	 * Calculate the final rotation speed
+	 * @param {Array} forceAppliers
+	 * @param {number} timeFactor
+	 */
 	updateRotation(forceAppliers, timeFactor) {
 		if (this.mass) {
-			this.turnrate+=this.sumTorque/(this.mass*1000);
+			this.turnrate += this.sumTorque / (this.mass * 1000);
 		} else {
-			this.turnrate=0; // weightless cannot turn
+			this.turnrate = 0; // weightless cannot turn
 		}
-		this.turnrate=this.turnrate*0.8;
-		this.angle+=this.turnrate;
+		this.turnrate = this.turnrate * 0.8;
+		this.angle += this.turnrate;
 	}
 
 	/**
@@ -436,7 +453,7 @@ class Node {
 	 * @param  {number} type Where 0 is unselect, 1 means its pointed on and 2 is selected
 	 */
 	setHighlight(type) {
-		this.highlighted=type;
+		this.highlighted = type;
 	}
 
 
@@ -452,14 +469,21 @@ class Node {
 		if (view.inside(this.getPosition())) {
 			this.highLight(cxt);
 			cxt.beginPath();
-			view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+			if (this.mass) {
+				view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+			} else {
+				view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
+					Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
+				view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
+					Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
+			}
 			cxt.stroke();
 
 
 			if (graphicDebugLevel > 5) {
 				cxt.beginPath();
 				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-					new Vector(0.2*Math.cos(this.getAngle()), 0.2*Math.sin(this.getAngle()))));
+					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
 				cxt.stroke();
 
 				cxt.strokeStyle = 'lightblue';
@@ -519,7 +543,7 @@ class TrussNode extends Node {
 	 * @param  {number} velocityLoss
 	 */
 	constructor(startPosition = new Vector(0, 0), view, timestep = 0.016,
-		mass = 1, name = 'trussNode', TrussClass='Truss', positionFunction, showFunction, velocityLoss = 1) {
+		mass = 1, name = 'trussNode', TrussClass = 'Truss', positionFunction, showFunction, velocityLoss = 1) {
 		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 
 
@@ -563,7 +587,7 @@ class TrussNode extends Node {
 	 */
 	serialize(superNodeList, superTensorList) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
-		representationObject.classname= 'TrussNode';
+		representationObject.classname = 'TrussNode';
 		representationObject.truss = this.truss.serialize();
 
 		// save the canvas properties
@@ -621,22 +645,22 @@ class TrussNode extends Node {
  * @class
  * @extends Node
  */
-class HTMLNode extends Node {
-	/** This class displays a HTML element as a dynamic square between the four input nodes.
+class BannerNode extends Node {
+	/** This class displays a banner containing a HTML element. (Probably only used for property editing)
 	 * @param  {HTMLElement} element
 	 */
 	constructor(element) {
 		super();
-		this.element=element;
+		this.element = element;
 
 		Object.defineProperty(this, 'idString', {
-			get: function() {
+			get: function () {
 				if (this.element) {
 					return this.element.id;
 				}
 			},
-			set: function(value) {
-				let oldElement =this.element;
+			set: function (value) {
+				let oldElement = this.element;
 				if (oldElement) {
 					restoreMatrix(oldElement);
 				}
@@ -644,7 +668,7 @@ class HTMLNode extends Node {
 				if (newElement) {
 					this.element = newElement;
 				} else {
-					this.element= undefined;
+					this.element = undefined;
 				}
 			},
 		});
@@ -659,25 +683,31 @@ class HTMLNode extends Node {
 	 * @param  {Position} topScreenPos
 	 */
 	create(truss, topScreenPos) {
-		this.element.style.display='block';
-		this.truss=truss;
-		let screenWidth=this.element.offsetWidth;
-		let screenHeight=this.element.offsetHeight;
+		this.element.style.display = 'block';
+		this.truss = truss;
+		let screenWidth = this.element.offsetWidth;
+		let screenHeight = this.element.offsetHeight;
 
 		this.nail = truss.addNode(new Node(
-			truss.view.worldPosition(topScreenPos.x+screenWidth/2, topScreenPos.y/2), NaN, 'nayl', 0, 0, 0.99));
+			truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2), NaN, 'nayl', 0, 0, 0.99));
 		this.leftTopNode = truss.addNode(new Node(
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y), 1, 'leftTop', 0, 0, 0.99));
 		this.rightTopNode = truss.addNode(new Node(
-			truss.view.worldPosition(topScreenPos.x+screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
-		let {node, gravity} = truss.addGravityNodeAndTensor(new Node(
-			truss.view.worldPosition(topScreenPos.x, topScreenPos.y+screenHeight), 1, 'leftBottom', 0, 0, 0.99));
-		this.leftBottomNode=node;
-		this.leftBottomField=gravity;
-		let {'node': x, 'gravity': y} = truss.addGravityNodeAndTensor(new Node(
-			truss.view.worldPosition(topScreenPos.x+screenWidth, topScreenPos.y+screenHeight), 1, 'rightBottom', 0, 0, 0.99));
-		this.rightBottomNode=x;
-		this.rightBottomField=y;
+			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
+		let {
+			node,
+			gravity
+		} = truss.addGravityNodeAndTensor(new Node(
+			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 1, 'leftBottom', 0, 0, 0.99));
+		this.leftBottomNode = node;
+		this.leftBottomField = gravity;
+		let {
+			'node': x,
+			'gravity': y
+		} = truss.addGravityNodeAndTensor(new Node(
+			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 1, 'rightBottom', 0, 0, 0.99));
+		this.rightBottomNode = x;
+		this.rightBottomField = y;
 		this.leftBand = truss.addTensor(new Spring(this.leftTopNode, this.nail, 20));
 		this.rightBand = truss.addTensor(new Spring(this.nail, this.rightTopNode, 20));
 		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 30));
@@ -689,7 +719,7 @@ class HTMLNode extends Node {
 	 * @param  {Truss} truss
 	 */
 	hide() {
-		this.element.style.display='none';
+		this.element.style.display = 'none';
 		this.truss.removeTensor(this.leftBand);
 		this.truss.removeTensor(this.rightBand);
 		this.truss.removeTensor(this.topBand);

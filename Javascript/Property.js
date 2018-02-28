@@ -315,7 +315,8 @@ class Property {
  * @augments SensorNode
  */
 class HTMLEditNode extends SensorNode {
-	/**
+	/** This node is used to ensure that the property editing window 'element' is updated with the selected
+	 * objects real time property values.
 	 * @constructor
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Element} element - The HTML element that should display the edit area
@@ -395,7 +396,7 @@ class EditPropertyWindow {
 		let elem = document.getElementById('configarea');
 		let editarea = document.getElementById('configview');
 		// this.truss=truss;
-		this.banner = new HTMLNode(elem);
+		this.banner = new BannerNode(elem);
 		this.valueToGUI = new HTMLEditNode(undefined, editarea);
 		let _this = this;
 

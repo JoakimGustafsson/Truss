@@ -35,6 +35,12 @@ class Tensor {
 		this.addProperty(new Property(this,
 			'tensorType', 'tensorType', 'Type', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links type number.'));
+		this.addProperty(new Property(this,
+			'angle1', 'angle1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The angle the node connects to the start node.'));
+		this.addProperty(new Property(this,
+			'angle2', 'angle2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The angle the node connects to the end node.'));
 	}
 
 	/**

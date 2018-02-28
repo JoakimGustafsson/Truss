@@ -22,15 +22,19 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	let dav= (bcv*(c.x-b.x)+(b.x-d.x))/(a.x-d.x);
 
 	if (bcv<0) {
+		bcv-=0.01;
 		b.x= b.x+bcv*(c.x- b.x);
 		b.y= b.y+bcv*(c.y- b.y);
 	} else if (bcv>1) {
+		bcv+=0.01;
 		c.x= b.x+bcv*(c.x- b.x);
 		c.y= b.y+bcv*(c.y- b.y);
-	} else if (dav<0) {
+	} if (dav<0) {
+		dav-=0.01;
 		d.x=d.x+dav*(a.x- d.x);
 		d.y=d.y+dav*(a.y- d.y);
 	} else if (dav>1) {
+		dav+=0.01;
 		a.x=d.x+dav*(a.x- d.x);
 		a.y=d.y+dav*(a.y- d.y);
 	}

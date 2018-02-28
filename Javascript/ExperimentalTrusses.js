@@ -12,6 +12,8 @@ var bottompic;
 var f7;
 var pic;
 
+var sensor;
+
 let f2;
 /**
  * Create a Field 'Tensor' between the input node and the Earth node
@@ -83,7 +85,7 @@ class WalkTruss extends Truss {
 	 */
 	initiate() {
 		this.addNode(Earth);
-		let sensor = this.addNode(new Selector());
+		sensor = this.addNode(new Selector());
 
 		/*
 		// Create a protagonist (yellow circle) and connect it to gravity
