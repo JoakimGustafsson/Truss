@@ -284,8 +284,17 @@
 				let value = selector.value;
 				if (value == 'Spring') {
 					connectionTensor=mainNode.truss.addTensor(new Spring(selectedObject, sensor, 100));
-					
-				document.addEventListener('selectionEvent',
+				}
+				else if (value == 'PullSpring') {
+					connectionTensor=mainNode.truss.addTensor(new PullSpring(selectedObject, sensor, 100));
+				}
+				else if (value == 'Absorber') {
+					connectionTensor=mainNode.truss.addTensor(new Absorber(selectedObject, sensor, 100));
+				}
+				else if (value == 'Field') {
+					connectionTensor=mainNode.truss.addTensor(new Field(selectedObject, sensor, 100));
+				}
+			document.addEventListener('selectionEvent',
 					function (e) {
 						if (connectionTensor) {
 							attach(connectionTensor);
@@ -293,7 +302,7 @@
 						}
 						
 					}, false);
-				}
+				
 			}
 
 			function attach(tensor) {
