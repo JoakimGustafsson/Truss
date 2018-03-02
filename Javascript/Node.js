@@ -39,7 +39,7 @@ class Node {
 			},
 			set: function(value) {
 				if (value == 'NaN' || value == 0) {
-					this._mass = 0;
+					this._mass = NaN;
 				} else {
 					this._mass = value;
 					this.massRadius = Math.sqrt(value);

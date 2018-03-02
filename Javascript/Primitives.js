@@ -132,6 +132,15 @@ class Vector {
 	static length(v) {
 		return Math.sqrt(length2(v));
 	}
+
+	/**
+	 * @param  {Vector} v1
+	 * @param  {Vector} v2
+	 * @return {number}
+	 */
+	static dotProduct(v1, v2) {
+		return v1.x * v2.x + v1.y * v2.y;
+	}
 }
 
 /**

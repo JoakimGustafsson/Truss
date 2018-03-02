@@ -572,6 +572,7 @@ class Selector extends SensorNode {
 	 */
 	updatePosition(trussTime, timeFactor) {
 		this.setPosition(this.cursorPosition);
+		this.velocity=new Vector(0, 0);
 	}
 
 	/**

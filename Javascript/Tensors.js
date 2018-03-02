@@ -804,9 +804,9 @@ class Absorber extends Tensor {
 		let actualVector = this.getActual();
 		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
 		let parallellVelocity = Vector.multiplyVector(
-			dotProduct(actualVector, internalSpeed),
-			divideVector(actualVector, this.getLengthSquare()));
-		this.force = Vector.multiplyVector(-this.constant, parallellVelocity);
+			Vector.dotProduct(actualVector, internalSpeed),
+			Vector.divideVector(actualVector, this.getLengthSquare()));
+		this.force = Vector.multiplyVector(this.constant, parallellVelocity);
 	}
 
 	/**
