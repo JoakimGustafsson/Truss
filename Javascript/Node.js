@@ -110,7 +110,7 @@ class Node {
 	 * @param  {Node} node1
 	 */
 	registerOnClick(but, node1) {
-		but.addEventListener('click', function () {
+		but.addEventListener('click', function() {
 			let previousSelectedObject = selectedObject;
 			selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
@@ -157,7 +157,7 @@ class Node {
 	 */
 	serialize(nodeList, tensorList) {
 		let representation = {
-			'classname': 'Node'
+			'classname': 'Node',
 		};
 		representation.name = this.name;
 		representation.localPosition = this.localPosition.serialize();
@@ -415,6 +415,7 @@ class Node {
 		let acceleration;
 		if (forceAppliers.length > 0) {
 			acceleration = this.getAcceleration(forceAppliers);
+			this.acceleration=acceleration; // For debug display purpose
 		} else {
 			acceleration = new Vector(0, 0);
 		}
@@ -428,7 +429,6 @@ class Node {
 	 * @return {Vector}
 	 */
 	getAcceleration(forceAppliers) {
-		//		this.acceleration=this.sumAllForces(forceAppliers).divide(this.mass)
 		return Vector.divideVector(this.sumAllForces(forceAppliers), this.mass);
 	}
 
@@ -466,21 +466,23 @@ class Node {
 	show(truss, time, graphicDebugLevel = 0) {
 		let view = truss.view;
 		let cxt = view.context;
-		if (view.inside(this.getPosition())) {
-			this.highLight(cxt);
-			cxt.beginPath();
-			if (this.mass) {
-				view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
-			} else {
-				view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
-					Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
-				view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
-					Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
+
+		if (graphicDebugLevel >= 3) {
+			if (view.inside(this.getPosition())) {
+				this.highLight(cxt);
+				cxt.beginPath();
+				if (this.mass) {
+					view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+				} else {
+					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
+						Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
+					view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
+						Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
+				}
+				cxt.stroke();
 			}
-			cxt.stroke();
 
-
-			if (graphicDebugLevel > 5) {
+			if (graphicDebugLevel >= 6) {
 				cxt.beginPath();
 				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
 					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
@@ -488,17 +490,30 @@ class Node {
 
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.1)));
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
 				cxt.stroke();
 
-				cxt.strokeStyle = 'red';
-				cxt.beginPath();
-				if (this.acceleration) {
-					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 0.5)));
+				if (graphicDebugLevel >= 7) {
+					cxt.strokeStyle = 'red';
+					cxt.beginPath();
+					if (this.acceleration) {
+						view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
+					}
+					cxt.stroke();
 				}
-				cxt.stroke();
 			}
 
+			if (graphicDebugLevel >= 10) {
+				cxt.beginPath();
+				cxt.fillStyle = 'lightgreen';
+				cxt.font = '10px Arial';
+				cxt.textAlign = 'left';
+				let textPos = this.getPosition();
+				view.drawText(textPos, '('+Math.trunc(this.getPosition().x*100)/100+', '+
+					Math.trunc(this.getPosition().x*100)/100+')');
+			}
+		}
+		if (graphicDebugLevel >= 1) {
 			if (this.showFunction) this.showFunction(this, time);
 		}
 	}
@@ -654,12 +669,12 @@ class BannerNode extends Node {
 		this.element = element;
 
 		Object.defineProperty(this, 'idString', {
-			get: function () {
+			get: function() {
 				if (this.element) {
 					return this.element.id;
 				}
 			},
-			set: function (value) {
+			set: function(value) {
 				let oldElement = this.element;
 				if (oldElement) {
 					restoreMatrix(oldElement);
@@ -696,14 +711,14 @@ class BannerNode extends Node {
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
 		let {
 			node,
-			gravity
+			gravity,
 		} = truss.addGravityNodeAndTensor(new Node(
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 1, 'leftBottom', 0, 0, 0.99));
 		this.leftBottomNode = node;
 		this.leftBottomField = gravity;
 		let {
 			'node': x,
-			'gravity': y
+			'gravity': y,
 		} = truss.addGravityNodeAndTensor(new Node(
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 1, 'rightBottom', 0, 0, 0.99));
 		this.rightBottomNode = x;
@@ -764,12 +779,15 @@ class BannerNode extends Node {
 	show(truss, time, graphicDebugLevel = 0) {
 		super.show(truss, time, graphicDebugLevel);
 		this.highLight(truss.view.context);
-		if (this.element) {
-			warpMatrix(truss, this.element,
-				this.leftTopNode.getPosition(),
-				this.rightTopNode.getPosition(),
-				this.leftBottomNode.getPosition(),
-				this.rightBottomNode.getPosition());
+
+		if (graphicDebugLevel > 0) {
+			if (this.element) {
+				warpMatrix(truss, this.element,
+					this.leftTopNode.getPosition(),
+					this.rightTopNode.getPosition(),
+					this.leftBottomNode.getPosition(),
+					this.rightBottomNode.getPosition());
+			}
 		}
 	};
 }

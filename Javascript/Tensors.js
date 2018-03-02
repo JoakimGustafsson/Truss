@@ -269,7 +269,7 @@ class Tensor {
 		let theNodeShouldHaveAngle = tensorAngle-idealAngle;
 
 		let nodeAngle = anglify(node.getAngle());
-		let correctionAngle = nodeAngle - theNodeShouldHaveAngle;
+		let correctionAngle = anglify(theNodeShouldHaveAngle - nodeAngle);
 
 
 		// let wantedAbsoluteAngle = relativeIdealAngle + nodeAngle;
@@ -278,9 +278,9 @@ class Tensor {
 		// let angleToCorrect = wantedAbsoluteAngle - absoluteTensorAngle;
 		let torque= node.getTorqueConstant() * correctionAngle;
 		if (node==this.node1) {
-			this.torque1=torque;
+			this.torque1=-torque;
 		} else {
-			this.torque2=torque;
+			this.torque2=-torque;
 		}
 		return torque;
 	};
@@ -566,17 +566,18 @@ class Tensor {
 		let ctx = view.context;
 		let node1 = this.node1;
 		let node2 = this.node2;
-		if (!(this.isGhost()) && (!(this instanceof Field) || (graphicDebugLevel > 7))) {
+		if ( ((graphicDebugLevel >= 4) || (graphicDebugLevel==2)) &&
+			!(this.isGhost())) {
 			this.highLight(ctx);
 			ctx.beginPath();
 			view.drawLine(node1.getPosition(), node2.getPosition());
 			ctx.stroke();
-			if (graphicDebugLevel > 7) {
+			if (graphicDebugLevel >= 10) {
 				ctx.beginPath();
-				ctx.fillStyle = 'black';
+				ctx.fillStyle = 'cyan';
 				ctx.font = '20px Arial';
 				ctx.textAlign = 'left';
-				let textPos = Vector.subtractVectors(node1, divideVector(this.getActual(), 2));
+				let textPos = Vector.addVectors(node1.getPosition(), Vector.divideVector(this.getActual(), 2));
 				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
 			}
 		}
@@ -712,7 +713,7 @@ class PullSpring extends Spring {
 		 */
 	calculateForce() {
 		let actualVector = this.getActual();
-		if ((this.equilibriumLength > 0) && (length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
+		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
 			this.force = new Force(0, 0);
 		} else {
 			Spring.prototype.calculateForce.call(this);

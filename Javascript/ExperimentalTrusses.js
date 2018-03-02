@@ -69,7 +69,7 @@ class WalkTruss extends Truss {
 		let gravity = this.addTensor(gravityField(node));
 		return {
 			node,
-			gravity
+			gravity,
 		};
 	}
 
@@ -124,8 +124,8 @@ class WalkTruss extends Truss {
 
 		// rotation
 
-		let b6 = this.addNode(new Node(new Position(2, 3.5), NaN, 'fulcrum', undefined, undefined, 1, 1000));
-		let f6 = this.addGravityNode(new Node(new Position(3, 2), 10, 'bar 1', 0, 0, 0.99, 200));
+		let b6 = this.addNode(new Node(new Position(0.2, 2.24), NaN, 'fulcrum', undefined, undefined, 1, 5000));
+		let f6 = this.addGravityNode(new Node(new Position(2, 1), 10, 'bar 1', 0, 0, 0.99, 2000));
 
 		leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0,
 			function() {

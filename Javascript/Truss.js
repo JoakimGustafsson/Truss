@@ -30,6 +30,7 @@ class Truss {
 		this.fps = 60,
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
+		this.debugLevel = 5;
 		this.editWindow = new EditPropertyWindow(mainNode, new Position(100, 100), 500, 500);
 	}
 
@@ -161,6 +162,9 @@ class Truss {
 		removeIfPresent(node, this.nodes);
 		if (node.sensor) {
 			this.removeSensor(node);
+		}
+		for (let tensor of [...node.velocityBasedTensors, ...node.positionBasedTensors]) {
+			this.removeTensor(tensor);
 		}
 	};
 
@@ -350,10 +354,8 @@ class Truss {
 			this.tensors[i].show(this, graphicDebugLevel);
 		}
 
-		if (graphicDebugLevel > 3) {
-			for (let i = 0; i < this.nodes.length; i++) {
-				this.nodes[i].show(this, time, graphicDebugLevel);
-			}
+		for (let i = 0; i < this.nodes.length; i++) {
+			this.nodes[i].show(this, time, graphicDebugLevel);
 		}
 	}
 
@@ -390,7 +392,7 @@ class Truss {
 		}
 		// this.calculate(timestamp, this.delta);
 		this.clear();
-		this.show(timestamp, 5 );
+		this.show(timestamp, this.debugLevel );
 
 		if (timestamp > this.lastFpsUpdate + 1) { // update every second
 			this.fps = 0.25 * this.framesThisSecond + (1 - 0.25) * this.fps; // compute the new FPS

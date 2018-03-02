@@ -76,12 +76,24 @@
 							<button class="simpleButton" type="button" onclick="makeTensor()">Create</button>
 						</div>
 					</div>
-		
+
 				<div>
 					<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
 					<button class="simpleButton" type="button" onclick="mainNode.toggleMove()">Lock</button>
 					<button id="gravityButton" class="simpleButton" type="button" onclick="addGravityCheat();">Gravity</button>
-					<button class="simpleButton" type="button" onclick="">Delete</button>
+					<button class="simpleButton" type="button" onclick="deleteSelected()">Delete</button>
+
+					<select id='debugLevel' onchange='changeDebugLevel();'>
+						<option value='1'>Debug level</option>
+						<option value='0'>0 - Nothing</option>
+						<option value='1'>1 - Only web parts</option>
+						<option value='2'>2 - Only lines</option>
+						<option value='3'>3 - Only nodes</option>
+					<option value='5'>5 - Lines and Nodes</option>
+					<option value='6'>6 - Add speeds</option>
+					<option value='7'>7 - Add acceleration</option>
+					<option value='10'>10 - Add numbers</option>
+					</select>
 				</div>
 			</div>
 
@@ -125,7 +137,6 @@
 
 		<div id="FPSdisplay" style="position: absolute; left:10px; top:10px; color: white;">
 		</div>
-	
 
 		<div id="TrussBackground" align="left">
 
@@ -181,14 +192,13 @@
 				let connectionDiv = document.getElementById('connectionDiv');
 				let gravitybutton = document.getElementById('gravitybutton');
 				let tensorAdder = document.getElementById('tensorAdder');
-				
+				let debugLevel = document.getElementById('debugLevel');
 
 				document.addEventListener('selectionEvent',
 					function (e) {
 						select.call(this, e);
 					}, false);
 
-				
 				openBottomPanel(event, 'propertiesDiv');
 				configarea.style.display = "none";
 
@@ -303,7 +313,7 @@
 					connectionTensor=mainNode.truss.addTensor(new Absorber(selectedObject, sensor, 1));
 				}
 				else if (value == 'Field') {
-					connectionTensor=mainNode.truss.addTensor(new Field(selectedObject, sensor, 100));
+					connectionTensor=mainNode.truss.addTensor(new Field(selectedObject, sensor, 0.0001));
 				}
 			document.addEventListener('selectionEvent',
 					function (e) {
@@ -311,9 +321,12 @@
 							attach(connectionTensor);
 							connectionTensor=undefined;
 						}
-						
+
 					}, false);
-				
+			}
+
+			function changeDebugLevel() {
+				mainNode.truss.debugLevel=debugLevel.value;
 			}
 
 			function attach(tensor) {
@@ -321,12 +334,20 @@
 					tensor.addNode1(selectedObject);
 				} else if (tensor.node2==sensor) {
 					tensor.addNode2(selectedObject);
-				} 
+				}
 			}
 
 			function addGravityCheat() {
 				mainNode.truss.addTensor(gravityField(selectedObject));
 			}
+
+ 			function deleteSelected() {
+				 if (selectedObject.isTensor) {
+					 mainNode.truss.removeTensor(selectedObject);
+					} else if (selectedObject.isNode) {
+						mainNode.truss.removeNode(selectedObject);
+					}
+				}
 
 			init();
 		</script>
