@@ -734,6 +734,9 @@ class BannerNode extends Node {
 	 * @param  {Truss} truss
 	 */
 	hide() {
+		if (!this.truss) {
+			return;
+		}
 		this.element.style.display = 'none';
 		this.truss.removeTensor(this.leftBand);
 		this.truss.removeTensor(this.rightBand);

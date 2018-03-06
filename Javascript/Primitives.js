@@ -62,6 +62,30 @@ class Vector {
 		return this;
 	};
 
+	/** scale this vector so that the length becomes l
+ 	* @param  {number} l The length of the resulting vector
+ 	* @return {Vector}
+	 */
+	normalizeVector(l) {
+		let length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+		return Vector.multiplyVector(l / length, this);
+	}
+
+	/**
+ 	* @param  {Vector} v1
+ 	* @param  {Vector} v2
+ 	* @return {number}
+ 	*/
+	static dotProduct(v1, v2) {
+		return v1.x * v2.x + v1.y * v2.y;
+	}
+	/**
+ 	* @param  {number} updown 1 for up -1 for down
+ 	* @return {Vector}
+ 	*/
+	perpendicular(updown=1) {
+		return new Vector(updown*this.y, updown*-this.x);
+	}
 	/**
 	 * Add a vector v to this vector
 	 * @param  {Vector} v
@@ -141,6 +165,15 @@ class Vector {
 	static dotProduct(v1, v2) {
 		return v1.x * v2.x + v1.y * v2.y;
 	}
+
+	/** returns the distance between two positions
+	 * @param  {Node} p1
+	 * @param  {Node} p2
+	 * @return {number}
+	 */
+	static distance(p1, p2) {
+		return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
+	}
 }
 
 /**
@@ -167,16 +200,6 @@ class Position extends Vector {
 		this.y += v.y;
 		return this;
 	};
-
-
-	/** returns the distance between two positions
-	 * @param  {Node} p1
-	 * @param  {Node} p2
-	 * @return {number}
-	 */
-	static distance(p1, p2) {
-		return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-	}
 }
 
 /**
@@ -218,21 +241,6 @@ class Velocity extends Vector {
 	};
 }
 
-/**
- * @param  {Vector} v1
- * @param  {Vector} v2
- * @return {number}
- */
-function dotProduct(v1, v2) {
-	return v1.x * v2.x + v1.y * v2.y;
-}
-/**
- * @param  {Vector} v
- * @return {Vector}
- */
-function perpendicular(v) {
-	return new Vector(v.y, -v.x);
-}
 
 /** returns the angle given a x and y. The angle range is +PI to -PI
 
@@ -298,16 +306,6 @@ function nodeDistance(n1, n2) {
 	let p1 = n1.getPosition();
 	let p2 = n2.getPosition();
 	return positionDistance(p1, p2);
-}
-
-/** given a vector v, scale it so that the length becomes l
- * @param  {number} l The length of the resulting vector
- * @param  {Vector} v The original vector
- * @return {Vector}
- */
-function normalizeVector(l, v) {
-	let length = Math.sqrt(Math.pow(v.x, 2) + Math.pow(v.y, 2));
-	return Vector.multiplyVector(l / length, v);
 }
 
 

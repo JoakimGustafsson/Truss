@@ -26,11 +26,15 @@
 	<title>Truss</title>
 
 </head>
-
 <body style="background-color: #343f48; margin:0px;">
 	<img id="dimage" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; "
 	    alt="Mountain View">
+	<!-- <div style="border:2px solid red; width:300px; height:300px;">
+		<img id="dimage2" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; clip: rect(0px,100px,300px,0px);"
+		    alt="Mountain View">
+	</div> -->
 
+	
 	<section>
 
 		<div class="" id="configarea" style="position: absolute; z-index:1000; color: pink; width:500px; height:300px;">
@@ -72,6 +76,7 @@
 										<option value='PullSpring'>PullSpring</option>
 									<option value='Absorber'>Absorber</option>
 									<option value='Field'>Field</option>
+									<option value='PictureSpring'>PictureSpring</option>
 									</select>
 							<button class="simpleButton" type="button" onclick="makeTensor()">Create</button>
 						</div>
@@ -314,6 +319,9 @@
 				}
 				else if (value == 'Field') {
 					connectionTensor=mainNode.truss.addTensor(new Field(selectedObject, sensor, 0.0001));
+				}
+				else if (value == 'PictureSpring') {
+					connectionTensor=mainNode.truss.addTensor(new PictureSpring(selectedObject, sensor, 100, 'facade.jpg', 1));
 				}
 			document.addEventListener('selectionEvent',
 					function (e) {

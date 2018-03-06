@@ -312,8 +312,8 @@ class Tensor {
 		}
 		let forceLenth = torque * this.getLength();
 		let actual = this.getActual();
-		let perp = perpendicular(actual);
-		let force = normalizeVector(forceLenth, perp);
+		let perp = actual.perpendicular();
+		let force = perp.normalizeVector(forceLenth);
 		return force.opposite();
 	};
 
@@ -661,7 +661,7 @@ class Spring extends Tensor {
 		// if (!this.node1 || !this.node2)
 		//	return this.force=new Force(0,0);
 		let actualVector = this.getActual();
-		let normalized = normalizeVector(this.equilibriumLength, actualVector);
+		let normalized = actualVector.normalizeVector(this.equilibriumLength);
 		let diffVector = Vector.subtractVectors(actualVector, normalized);
 		this.force = Vector.multiplyVector(-this.constant, diffVector);
 	}
@@ -755,7 +755,7 @@ class Field extends Tensor {
 		 */
 	calculateForce() {
 		let actualVector = this.getActual();
-		let normalized = normalizeVector(1, actualVector);
+		let normalized = actualVector.normalizeVector(1);
 		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
 		this.force = Vector.multiplyVector(-forceSize, normalized);
 	}
@@ -776,22 +776,22 @@ class Field extends Tensor {
  * @augments Tensor
  */
 class Absorber extends Tensor {
-/**
- * @constructor
- * @param  {Node} node1
- * @param  {Node} node2
- * @param  {number} constant
- * @param  {TensorType} type
- */
+	/**
+	 * @constructor
+	 * @param  {Node} node1
+	 * @param  {Node} node2
+	 * @param  {number} constant
+	 * @param  {TensorType} type
+	 */
 	constructor(node1, node2, constant = 1, type = TensorType.ABSORBER) {
 		super(node1, node2, constant, type);
 	}
 
 	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Object}
-	 */
+		 * @param  {Array} nodeList
+		 * @param  {Array} tensorList
+		 * @return {Object}
+		 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='Absorber';
@@ -799,8 +799,8 @@ class Absorber extends Tensor {
 	}
 
 	/**
-	 * Calculate the force in the Field based on the relative velocity between the nodes
-	*/
+		 * Calculate the force in the Field based on the relative velocity between the nodes
+		*/
 	calculateForce() {
 		let actualVector = this.getActual();
 		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
@@ -811,9 +811,92 @@ class Absorber extends Tensor {
 	}
 
 	/**
-	 * @return {string} the HTML color of the tensor
-	 */
+		 * @return {string} the HTML color of the tensor
+		 */
 	getColour() {
 		return 'green';
 	}
 }
+
+/**
+ * A PictureSpring works like a spring but has an attached picture
+ *
+ *  * @class
+ * @augments Spring
+ */
+class PictureSpring extends Spring {
+	/**
+	 * @constructor
+	 * @param  {Node} node1
+	 * @param  {Node} node2
+	 * @param  {number} constant
+	 * @param  {String} pictureReference
+	 * @param  {number} width
+	 */
+	constructor(node1, node2, constant = 1, pictureReference, width) {
+		super(node1, node2, constant, TensorType.SPRING);
+		this.pictureReference=pictureReference;
+		this.width=width;
+		this.addProperty(new Property(this,
+			'pictureReference', 'pictureReference', 'Picure 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The picture filename.'));
+		this.addProperty(new Property(this,
+			'width', 'width', 'Width', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The picture width'));
+
+		// this.element=document.getElementById('dimage');
+
+		this.element = document.createElement('img');
+		this.element.src='Resources/'+pictureReference;
+		document.body.appendChild(this.element);
+	}
+
+	/**
+		 * @param  {Array} nodeList
+		 * @param  {Array} tensorList
+		 * @return {Object}
+		 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='PictureSpring';
+		return representationObject;
+	}
+
+	/**
+	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
+	 * @param  {truss} truss
+	 * @param  {number} graphicDebugLevel=0
+	 */
+	show(truss, graphicDebugLevel = 0) {
+		super.show(truss, graphicDebugLevel);
+		/*
+		this.a=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width/2));
+		this.c=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width/2));
+
+		this.b=Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular().normalizeVector(this.width/2));
+		this.d=Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width/2)); */
+
+		this.a=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width/2));
+		this.c=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width/2));
+
+		let normVector= this.getActual().normalizeVector(this.equilibriumLength);
+		let newnormal=Vector.addVectors(this.node1.getPosition(), normVector);
+
+		this.b=Vector.addVectors(newnormal, this.getActual().perpendicular().normalizeVector(this.width/2));
+		this.d=Vector.addVectors(newnormal, this.getActual().perpendicular(-1).normalizeVector(this.width/2));
+		// let a='rect(0px,50px,50px,0px)';
+		let a='rect(0px, '+Math.round(this.element.offsetWidth*this.getLength()/this.equilibriumLength)+'px, 1000px, 0px)';
+		console.log(a);
+		// this.element.width=200;
+		// this.element.height=200;
+		this.element.style.position="absolute";
+		this.element.style.clip=a;
+
+		warpMatrix(truss, this.element,
+			this.a,
+			this.b,
+			this.c,
+			this.d); 
+	};
+}
+
