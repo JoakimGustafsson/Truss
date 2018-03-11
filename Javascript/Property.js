@@ -17,6 +17,7 @@ let ParameteType = {
 	SELECTION: 3,
 	PICTURE: 4,
 	POSITION: 5,
+	NODELIST: 6,
 };
 
 
@@ -153,32 +154,46 @@ class Property {
 	 */
 	populateProperty(element) {
 		let display = '';
-		/* if ((hideDetails) && (this.getImportance() < 6)) {
-			display = ' style="display:none" ';
 
-		if (this.type == ParameteType.LONGSTRING) {
-			element.innerHTML = element.innerHTML +
-                '<div  class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
-                '<div class="valuepair">' +
-                '<div title="' + this.help + '" class="lname">' + this.title + '</div>' +
-                '<div class="rvalue">' +
-                '<textarea class="text" id="' + this.identity + '" cols=20 rows=1' +
-                ' onclick="showTextEditWindow(' + this.identity + ')"' +
-                ' onblur=""' +
-                ' style="width: 140px; text-align: left;"' +
-                ' oninput="(function (e,x){selectedObject['+this.propertyName+']=x.value;})(event,this)">' +
-                '</textarea>' +
-                '</div>' +
-                '</div>' +
-                '</div>';
-		}}*/
+		if (this.type == ParameteType.NODELIST) {
+			// OK. try to get it right this time. Not using text.
+			let outerDiv = document.createElement('div');
+			outerDiv.id=this.identity+ 'Container';
+			// outerDiv.style.position='absolute';
+			outerDiv.classList.add('parameterEditArea');
+
+			let valuePair = document.createElement('div');
+			valuePair.classList.add('valuepair');
+			let parameterName = document.createElement('div');
+			parameterName.classList.add('lname');
+			parameterName.title=this.help;
+			parameterName.innerHTML=this.title;
+			let parameterValue = document.createElement('div');
+			parameterValue.classList.add('rvalue');
+			parameterValue.id=this.identity;
+
+			for (let node of this.worldObject) {
+				let nodeButton = document.createElement('button'); // Create the element in memory
+				nodeButton.innerHTML=node.name;
+				nodeButton.classList.add('simpleButton'); // Configure the CSS
+				nodeButton.style.display='block';
+				parameterValue.appendChild(nodeButton);
+				this.registerOnClick(nodeButton, node);
+			}
+
+
+			valuePair.appendChild(parameterName);
+			valuePair.appendChild(parameterValue);
+			outerDiv.appendChild(valuePair);
+			element.appendChild(outerDiv);
+		}
 		if (this.type == ParameteType.NUMBER) {
 			element.innerHTML = element.innerHTML +
 				'<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
 				'<div class="valuepair">' +
 				'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
 				'<div class="rvalue">' +
-				'<input class="text" type="text" id="' + this.identity + '" value="30"' +
+				'<input class="text inputcss" type="text" id="' + this.identity + '" value="30"' +
 				' onblur=""' +
 				' style="width: 140px"' +
 				' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
@@ -193,7 +208,7 @@ class Property {
 				'<div class="valuepair">' +
 				'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
 				'<div class="rvalue">' +
-				'<input class="text" type="text" id="' + this.identity + '"' +
+				'<input class="text inputcss" type="text" id="' + this.identity + '"' +
 				' onblur="" style="width: 140px"' +
 				' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
 				'</div>' +
@@ -223,7 +238,7 @@ class Property {
 				'<div class="valuepair" style="float:left; width:33%">' +
 				'<div class="lname">X</div>' +
 				'<div class="rvalue" >' +
-				'<input class="text" type="text" id="' + this.identity + 'X" value="30"' +
+				'<input class="text inputcss" type="text" id="' + this.identity + 'X" value="30"' +
 				' onblur="" style="width: 60px"' +
 				' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].x=parseInt(z.value,0);})(event,this)">' +
 				'</div>' +
@@ -231,7 +246,7 @@ class Property {
 				'<div class="valuepair" style="float:right;width:33%">' +
 				'<div class="lname">Y</div>' +
 				'<div class="rvalue">' +
-				'<input class="text" type="text" id="' + this.identity + 'Y" value="30"' +
+				'<input class="text inputcss" type="text" id="' + this.identity + 'Y" value="30"' +
 				' onblur="" style="width: 60px"' +
 				' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].y=parseInt(z.value,0);})(event,this)">' +
 				'</div>' +
@@ -267,6 +282,27 @@ class Property {
                 '</div>';
 		}*/
 	};
+
+	/**
+	 * @param  {buttonObject} but
+	 * @param  {Node} node1
+	 */
+	registerOnClick(but, node1) {
+		but.addEventListener('click', function() {
+			let previousSelectedObject = selectedObject;
+			selectedObject = node1;
+			let event = new CustomEvent('selectionEvent', {
+				detail: {
+					'selectedObject': selectedObject,
+					'previousSelectedObject': previousSelectedObject,
+					'truss': undefined,
+				},
+				bubbles: true,
+				cancelable: true,
+			});
+			document.dispatchEvent(event);
+		});
+	}
 
 	/**
 	 * @param {Array} list
@@ -318,12 +354,13 @@ class HTMLEditNode extends SensorNode {
 	/** This node is used to ensure that the property editing window 'element' is updated with the selected
 	 * objects real time property values.
 	 * @constructor
+	 * @param {Truss} truss
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Element} element - The HTML element that should display the edit area
 	 * @param {string} name - The name of the node.
 	 */
-	constructor(obj, element, name = 'HTMLEditNode') {
-		super(new Position(0, 0), NaN, name);
+	constructor(truss, obj, element, name = 'HTMLEditNode') {
+		super(truss, new Position(0, 0), NaN, name);
 		this.element=element;
 		let _this = this;
 
@@ -386,18 +423,18 @@ class HTMLEditNode extends SensorNode {
  */
 class EditPropertyWindow {
 	/**
-	 * @param  {TrussNode} trussNode
+	 * @param  {Truss} truss
 	 * @param  {Position} topScreenPos
 	 * @param  {number} screenWidth
 	 * @param  {number} screenHeight
 	 */
-	constructor(trussNode, topScreenPos, screenWidth, screenHeight) {
+	constructor(truss, topScreenPos, screenWidth, screenHeight) {
 		// let truss = trussNode.truss;
 		let elem = document.getElementById('configarea');
 		let editarea = document.getElementById('configview');
 		// this.truss=truss;
-		this.banner = new BannerNode(elem);
-		this.valueToGUI = new HTMLEditNode(undefined, editarea);
+		this.banner = new BannerNode(truss, elem);
+		this.valueToGUI = new HTMLEditNode(truss, undefined, editarea);
 		let _this = this;
 
 		document.addEventListener('selectionEvent',

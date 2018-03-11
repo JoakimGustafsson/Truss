@@ -11,12 +11,17 @@ class Truss {
 	 *
 	 * Trusses can be recursive via the TrussNode, node type.
 	 *
+	 * @param  {TrussNode} parentNode
 	 * @param  {View} view
 	 * @param  {number} timestep
+	 * @param  {string} displayDivName
 	 */
-	constructor(view, timestep = 1/60) {
+	constructor(parentNode, view, timestep = 1/60, displayDivName) {
 		this.time = 0;
 		this.view = view;
+		this.parentNode=parentNode;
+		this.displayDivName = displayDivName;
+		this.element=document.getElementById(displayDivName);
 		this.sensorNodes = [];
 		this.nodes = [];
 
@@ -31,7 +36,6 @@ class Truss {
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
 		this.debugLevel = 5;
-		this.editWindow = new EditPropertyWindow(mainNode, new Position(100, 100), 500, 500);
 	}
 
 	/**
@@ -57,7 +61,7 @@ class Truss {
 
 		let nodeList=[];
 		for (let node of this.nodes) {
-			let nodeSerilization = node.serialize(this.nodes, this.tensors);
+			let nodeSerilization = node.serialize(this, this.nodes, this.tensors);
 			if (nodeSerilization) {
 				nodeList.push(nodeSerilization);
 			}
@@ -76,6 +80,7 @@ class Truss {
 		representationObject.velocityBasedTensors=serializeList(this.velocityBasedTensors, this.tensors);
 
 		representationObject.view = this.view.serialize();
+		representationObject.displayDivName = this.displayDivName;
 		return representationObject;
 	}
 
@@ -86,23 +91,26 @@ class Truss {
 	 * @return {Truss}
 	 */
 	deserialize(restoreObject, superNodeList, superTensorList) {
+		this.displayDivName = restoreObject.displayDivName;
+		this.element=document.getElementById(this.displayDivName);
+
 		// Create empty nodes and tensors
 		let nodeList=[];
 		for (let nodeRestoreObject of restoreObject.nodes) {
-			let node = objectFactory(nodeRestoreObject);
+			let node = objectFactory(this, nodeRestoreObject);
 			nodeList.push(node);
 		}
 
 		let tensorList=[];
 		for (let tensorRestoreObject of restoreObject.tensors) {
-			let tensor = objectFactory(tensorRestoreObject);
+			let tensor = objectFactory(this, tensorRestoreObject);
 			tensorList.push(tensor);
 		}
 
 		// deserialize them
 		let index=0;
 		for (let node of nodeList) {
-			node.deserialize(restoreObject.nodes[index], nodeList, tensorList);
+			node.deserialize(this, restoreObject.nodes[index], nodeList, tensorList);
 			index++;
 		}
 		index=0;

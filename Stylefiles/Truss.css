@@ -2,34 +2,36 @@ div {
 	font-family: "Arial";
 	/*"Stencil Regular"; */
 	/* 	font-weight: bold; */
+	
 }
-positionEditArea {
-	overflow: auto;
-}
+.inputcss {
+	background-color: black;
+	color: yellow;
+	}
 
 .parameterEditArea {
-	background-color: #f6f6f6;
+	background-color: black;
 	position: relative;
 }
 
 .valuepair {
 	overflow: auto;
-	background-color: #f6f6f6;
 	position: relative;
 	font-family: Arial;
 }
 
 .lname {
 	float: left;
-	background-color: #f6f6f6;
-	color: black;
+	background-color: black;
+	color: yellow;
 	position: relative;
 	font-family: Arial;
 }
 
 .rvalue {
 	float: right;
-	background-color: #f6f6f6;
+	background-color:black;
+	color: yellow;
 	position: relative;
 	font-family: Arial;
 }
@@ -58,9 +60,8 @@ positionEditArea {
 }
 
 .sectionheader {
-	color: white;
+	color: yellow;
 	border-radius: 4px 4px 0px 0px;
-	background-color: #505E6B;
 	padding: 10px 0px 10px 15px;
 	margin: 10px 10px 0px 10px;
 	position: relative;
@@ -68,13 +69,52 @@ positionEditArea {
 	font-size: 15px;
 }
 
+.tabsectionbuttons {
+	color: white;
+	opacity: 1;
+	background-color: #323F48;
+	border-radius: 4px 4px 0px 0px;
+	padding: 10px 0px 0px 15px;
+	margin: 10px 10px 0px 10px;
+}
+
+.footerbackgroundarea {
+	margin: 0px;
+	padding: 0px 0px 10px 0px;
+	display: none;
+	overflow: hidden;
+  }
+
+  .configareaouter {
+	position: absolute;
+	z-index:1000;
+	width:500px;
+	height:300px;
+}
+.configareainner {
+	background-color: white;
+	opacity: 0.9;
+	color: pink;
+	border-radius: 14px;
+}
+
+
 .sectionbase {
 	border-radius: 0px 0px 4px 4px;
-	background-color: #f6f6f6;
-	padding: 10px 10px 10px 15px;
+	background-color: black;
+	padding: 5px 10px 5px 15px;
 	margin: 0px 10px 10px 10px;
 	position: relative;
 	font-family: Arial;
+}
+
+.sectionmiddle {
+	padding: 5px 0px;
+	border-bottom: grey solid 2px;
+}
+
+.sectionlast {
+	padding: 5px 0px 0px 0px;
 }
 
 
@@ -210,18 +250,11 @@ positionEditArea {
 	font-size: 16px;
 }
 
-.tabsectionheader {
-	color: white;
-	border-radius: 4px 4px 0px 0px;
-	background-color: #505E6B;
-	padding: 10px 0px 0px 15px;
-	margin: 10px 10px 0px 10px;
-}
 
   .footerbackgroundarea {
-  margin: 0px 10px;
-  padding: 0px 0px 10px 0px; 
-  display: none; 
+  margin: 0px;
+  padding: 0px 0px 10px 0px;
+  display: none;
   overflow: hidden;
 }
 
@@ -229,12 +262,11 @@ positionEditArea {
 div.tab {
     overflow: hidden;
     /* border: 1px solid #ccc; */
-    background-color:rgba(52, 63, 72, 0.0);
 }
 
 /* Style the buttons inside the tab */
 div.tab button {
-    
+	background-color: #323F48;
     float: left;
     border: none;
     outline: none;
@@ -258,7 +290,6 @@ div.tab button.active {
    display: none;
  /*     border: 1px solid #ccc; */
     border-top: none;
-    background-color: black;
   color:white;
 }
 
@@ -266,7 +297,7 @@ div.tab button.active {
 .tabresourcecontent {
     display: none;
    /*  border: 1px solid #ccc; */
-    border-top: none; 
+    border-top: none;
 }
 
 .simpleButton{

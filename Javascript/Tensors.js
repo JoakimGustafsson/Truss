@@ -566,8 +566,11 @@ class Tensor {
 		let ctx = view.context;
 		let node1 = this.node1;
 		let node2 = this.node2;
-		if ( ((graphicDebugLevel >= 4) || (graphicDebugLevel==2)) &&
-			!(this.isGhost())) {
+		if (this.isGhost()) {
+			return;
+		}
+		if ( (((graphicDebugLevel >= 4) || (graphicDebugLevel==2)) && (this.tensorType != TensorType.FIELD)) ||
+			(graphicDebugLevel >= 6)) {
 			this.highLight(ctx);
 			ctx.beginPath();
 			view.drawLine(node1.getPosition(), node2.getPosition());
@@ -837,17 +840,37 @@ class PictureSpring extends Spring {
 		super(node1, node2, constant, TensorType.SPRING);
 		this.pictureReference=pictureReference;
 		this.width=width;
+		this.stretch=1;
+		this.length=this.equilibriumLength;
 		this.addProperty(new Property(this,
-			'pictureReference', 'pictureReference', 'Picure 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The picture filename.'));
 		this.addProperty(new Property(this,
 			'width', 'width', 'Width', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The picture width'));
+			'The picture width out from the tensor'));
 
-		// this.element=document.getElementById('dimage');
+		this.addProperty(new Property(this,
+			'length', 'length', 'Picture length', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'How long should the picture be along the tensor length'));
+
+		this.addProperty(new Property(this,
+			'stretch', 'stretch', 'stretch or clip', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'0 = clip, 1 = stretch'));
+
+		/* TODO
+		add option for swap picture direction. just modify call order to warp
+		add option for putting picture above lineWidth
+		add binary switch in settings
+		add option for node picture.
+		add an add&remove pic to all tensors. maybe a tensor modifier class.
+		(add option for adjusting width)
+		*/
+
 
 		this.element = document.createElement('img');
+		this.element.style.position='absolute';
 		this.element.src='Resources/'+pictureReference;
+		this.element.style.zIndex=-1;
 		document.body.appendChild(this.element);
 	}
 
@@ -859,6 +882,7 @@ class PictureSpring extends Spring {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='PictureSpring';
+		alert('Picturespring not serialized');
 		return representationObject;
 	}
 
@@ -869,34 +893,29 @@ class PictureSpring extends Spring {
 	 */
 	show(truss, graphicDebugLevel = 0) {
 		super.show(truss, graphicDebugLevel);
-		/*
-		this.a=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width/2));
-		this.c=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width/2));
 
-		this.b=Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular().normalizeVector(this.width/2));
-		this.d=Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width/2)); */
+		this.a = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
+		this.c = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
 
-		this.a=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width/2));
-		this.c=Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width/2));
+		if (this.stretch && this.stretch!='0') {
+			this.b = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
+			this.d = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
+		} else {
+			let normVector = this.getActual().normalizeVector(this.length);
+			let newnormal = Vector.addVectors(this.node1.getPosition(), normVector);
 
-		let normVector= this.getActual().normalizeVector(this.equilibriumLength);
-		let newnormal=Vector.addVectors(this.node1.getPosition(), normVector);
+			this.b = Vector.addVectors(newnormal, this.getActual().perpendicular().normalizeVector(this.width / 2));
+			this.d = Vector.addVectors(newnormal, this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
 
-		this.b=Vector.addVectors(newnormal, this.getActual().perpendicular().normalizeVector(this.width/2));
-		this.d=Vector.addVectors(newnormal, this.getActual().perpendicular(-1).normalizeVector(this.width/2));
-		// let a='rect(0px,50px,50px,0px)';
-		let a='rect(0px, '+Math.round(this.element.offsetWidth*this.getLength()/this.equilibriumLength)+'px, 1000px, 0px)';
-		console.log(a);
-		// this.element.width=200;
-		// this.element.height=200;
-		this.element.style.position="absolute";
-		this.element.style.clip=a;
+			this.element.style.clip = 'rect(0px, ' +
+				Math.round(this.element.offsetWidth * this.getLength() / this.length) + 'px, 1000px, 0px)';
+		}
 
 		warpMatrix(truss, this.element,
 			this.a,
 			this.b,
 			this.c,
-			this.d); 
+			this.d);
 	};
 }
 

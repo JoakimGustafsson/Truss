@@ -82,8 +82,9 @@ function loadFile(fileName) {
 	mainNode.truss.hideEdit();
 	httpGetAsync('/load/' + fileName, function(x) {
 		console.log('Server reported: ' + x);
+		mainNode.clean();
 		newMainNode=new TrussNode();
-		newMainNode.deserialize(JSON.parse(x));
+		newMainNode.deserialize(undefined, JSON.parse(x));
 	});
 }
 
@@ -110,7 +111,7 @@ function displaySaves(text) {
 
 	let fileListElement = document.getElementById('fileList');
 	if (!fileListElement) {
-		alert('Could not file file list window.');
+		alert('Could not find file list window.');
 		return;
 	}
 	fileListElement.innerHTML='';
@@ -132,5 +133,4 @@ function displaySaves(text) {
 			element.setAttribute('onmouseout', 'unhighLightFile(this);');
 		}
 	}
-	// XXaddToDropDown('LOAD', '', true);
 }

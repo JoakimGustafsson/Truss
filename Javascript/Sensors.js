@@ -10,6 +10,7 @@ let keyState = {};
  */
 class SensorNode extends Node {
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -17,8 +18,8 @@ class SensorNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(startPosition, mass = 0.001, name, positionFunction, showFunction, velocityLoss) {
-		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(truss, startPosition, mass = 0.001, name, positionFunction, showFunction, velocityLoss) {
+		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 		this.sensor = true;
 	}
 }
@@ -36,6 +37,7 @@ class SensorNode extends Node {
  */
 class KeySensorNode extends SensorNode {
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -43,8 +45,8 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(startPosition, mass = 0.001, name = 'keysensornode', positionFunction, showFunction, velocityLoss = 1) {
-		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(truss, startPosition, mass = 0.001, name = 'keysensornode', positionFunction, showFunction, velocityLoss = 1) {
+		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 		this.startPosition = startPosition;
 		this.keyList = [];
 
@@ -128,6 +130,7 @@ class KeySensorNode extends SensorNode {
  */
 class ProximitySensorNode extends SensorNode {
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -135,8 +138,8 @@ class ProximitySensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(startPosition, mass = 0.001, name = 'proximitysensornode', triggerFunction, showFunction, velocityLoss = 1) {
-		super(startPosition, mass, name, undefined, showFunction, velocityLoss);
+	constructor(truss, startPosition, mass = 0.001, name = 'proximitysensornode', triggerFunction, showFunction, velocityLoss = 1) {
+		super(truss, startPosition, mass, name, undefined, showFunction, velocityLoss);
 		this.startPosition = startPosition;
 		this.triggerFunction = triggerFunction;
 		this.proximityList = [];
@@ -240,6 +243,7 @@ class CollisionSensorNode extends SensorNode {
 	 * This class detects collisions between an object and tensors.
 	 * First use registerTrussObjectAndActuator() to connect and object
 	 * to the actuator that should be triggered inside a truss.
+	 * @param  {Truss} truss
 	 * @param  {Position} position
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -249,8 +253,8 @@ class CollisionSensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(position, mass = 0.01, name = 'collisionSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
-		super(position, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(truss, position, mass = 0.01, name = 'collisionSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
+		super(truss, position, mass, name, positionFunction, showFunction, velocityLoss);
 		this.localActuator = actuator;
 		this.localObject = obj;
 		let _this = this;
@@ -333,6 +337,7 @@ class CollisionSensorNode extends SensorNode {
 class BounceSensorNode extends SensorNode {
 	/**
 	 * This class detects when an object bounces of a tensor or leaves it at the end.
+	 * @param  {Truss} truss
 	 * @param  {Position} position
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -342,8 +347,8 @@ class BounceSensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(position, mass = 0.01, name = 'BounceSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
-		super(position, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(truss, position, mass = 0.01, name = 'BounceSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
+		super(truss, position, mass, name, positionFunction, showFunction, velocityLoss);
 		this.localActuator = actuator;
 		this.localObject = obj;
 	}
@@ -488,10 +493,10 @@ class BounceSensorNode extends SensorNode {
 class Selector extends SensorNode {
 	/**
 	 * This class detects when an object bounces of a tensor or leaves it at the end.
-	 * @param  {TrussNode} trussNode
+	 * @param {Truss} truss
 	 */
-	constructor() {
-		super(undefined, undefined, 'SelectorNode');
+	constructor(truss) {
+		super(truss, undefined, 'SelectorNode');
 		this.lastPointedOn;
 		this.wasPressed=false;
 		this.cursorPosition = new Position(0, 0);

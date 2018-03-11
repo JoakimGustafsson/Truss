@@ -3,6 +3,7 @@
  */
 class Node {
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -11,8 +12,9 @@ class Node {
 	 * @param  {number} velocityLoss
 	 * @param  {number} torqueConstant
 	 */
-	constructor(startPosition = new Position(0, 0), mass = 1, name = 'node',
+	constructor(truss, startPosition = new Position(0, 0), mass = 1, name = 'node',
 		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
+		this.truss=truss;
 		this.properties = new PropertyList();
 		this.name = name;
 		this.localPosition = startPosition;
@@ -151,11 +153,12 @@ class Node {
 
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
+	serialize(truss, nodeList, tensorList) {
 		let representation = {
 			'classname': 'Node',
 		};
@@ -195,12 +198,14 @@ class Node {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Object} restoreObject
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
+	deserialize(truss, restoreObject, nodeList, tensorList) {
 		this.name = restoreObject.name;
+		this.truss = truss;
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
 		this.mass = restoreObject.mass;
@@ -514,7 +519,9 @@ class Node {
 			}
 		}
 		if (graphicDebugLevel >= 1) {
-			if (this.showFunction) this.showFunction(this, time);
+			if (this.showFunction) {
+				this.showFunction(this, time);
+			}
 		}
 	}
 
@@ -547,26 +554,29 @@ class Node {
  */
 class TrussNode extends Node {
 	/** Create a node that can contain a Truss within itself.
+	 * @param  {Truss} parentTruss
 	 * @param  {Position} startPosition
 	 * @param  {View} view
 	 * @param  {number} timestep
 	 * @param  {number} mass
 	 * @param  {string} name
 	 * @param  {Object} TrussClass
+	 * @param  {Element} displayDivName
 	 * @param  {Function} positionFunction
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(startPosition = new Vector(0, 0), view, timestep = 0.016,
-		mass = 1, name = 'trussNode', TrussClass = 'Truss', positionFunction, showFunction, velocityLoss = 1) {
-		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
-
+	constructor(parentTruss, startPosition = new Vector(0, 0), view, timestep = 0.016,
+		mass = 1, name = 'trussNode', TrussClass = 'Truss', displayDivName, ...args) {
+		super(parentTruss, startPosition, mass, name, ...args);
+		this.displayDivName=displayDivName;
 
 		this.canvas = document.createElement('canvas');
 		this.handleCanvas();
 
 		if (view) {
-			this.truss = new TrussClass(view, timestep);
+			this.truss = new TrussClass(this, view, timestep, displayDivName);
+			this.truss.editWindow = new EditPropertyWindow(this.truss, new Position(100, 100), 500, 500);
 			this.setView();
 		}
 	}
@@ -580,8 +590,19 @@ class TrussNode extends Node {
 		this.canvas.style.left = this.localPosition.x + 'px';
 		this.canvas.style.position = 'absolute';
 		this.canvas.style.border = '1px solid red';
-		let bg = document.getElementById('TrussBackground');
-		bg.appendChild(this.canvas);
+		if (this.displayDivName) {
+			this.element = document.getElementById(this.displayDivName);
+			this.element.appendChild(this.canvas);
+		}
+	}
+
+	/**
+	 *
+	 */
+	clean() {
+		if (this.element) {
+			this.element.innerHTML='';
+		}
 	}
 
 	/**
@@ -596,27 +617,31 @@ class TrussNode extends Node {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} superNodeList
 	 * @param  {Array} superTensorList
 	 * @return {Object}
 	 */
-	serialize(superNodeList, superTensorList) {
-		let representationObject = super.serialize(superNodeList, superTensorList);
+	serialize(truss, superNodeList, superTensorList) {
+		let representationObject = super.serialize(truss, superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
 		representationObject.truss = this.truss.serialize();
+		representationObject.displayDivName=this.displayDivName;
 
 		// save the canvas properties
 		return representationObject;
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Object} restoreObject
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
 	 */
-	deserialize(restoreObject, superNodes, superTensors) {
-		super.deserialize(restoreObject);
-		this.truss = objectFactory(restoreObject.truss, superNodes, superTensors).deserialize(restoreObject.truss);
+	deserialize(truss, restoreObject, superNodes, superTensors) {
+		super.deserialize(truss, restoreObject, superNodes, superTensors);
+		this.displayDivName=restoreObject.displayDivName;
+		this.truss = objectFactory(truss, restoreObject.truss, superNodes, superTensors).deserialize(restoreObject.truss);
 		this.handleCanvas();
 		this.setView();
 	}
@@ -662,9 +687,10 @@ class TrussNode extends Node {
  */
 class BannerNode extends Node {
 	/** This class displays a banner containing a HTML element. (Probably only used for property editing)
+	 * @param  {Truss} truss
 	 * @param  {HTMLElement} element
 	 */
-	constructor(element) {
+	constructor(truss, element) {
 		super();
 		this.element = element;
 
@@ -703,31 +729,31 @@ class BannerNode extends Node {
 		let screenWidth = this.element.offsetWidth;
 		let screenHeight = this.element.offsetHeight;
 
-		this.nail = truss.addNode(new Node(
+		this.nail = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2), NaN, 'nayl', 0, 0, 0.99));
-		this.leftTopNode = truss.addNode(new Node(
+		this.leftTopNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y), 1, 'leftTop', 0, 0, 0.99));
-		this.rightTopNode = truss.addNode(new Node(
+		this.rightTopNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
 		let {
 			node,
 			gravity,
-		} = truss.addGravityNodeAndTensor(new Node(
-			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 1, 'leftBottom', 0, 0, 0.99));
+		} = truss.addGravityNodeAndTensor(new Node(truss,
+			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 10, 'leftBottom', 0, 0, 0.99));
 		this.leftBottomNode = node;
 		this.leftBottomField = gravity;
 		let {
 			'node': x,
 			'gravity': y,
-		} = truss.addGravityNodeAndTensor(new Node(
-			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 1, 'rightBottom', 0, 0, 0.99));
+		} = truss.addGravityNodeAndTensor(new Node(truss,
+			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 10, 'rightBottom', 0, 0, 0.99));
 		this.rightBottomNode = x;
 		this.rightBottomField = y;
-		this.leftBand = truss.addTensor(new Spring(this.leftTopNode, this.nail, 20));
-		this.rightBand = truss.addTensor(new Spring(this.nail, this.rightTopNode, 20));
-		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 30));
-		this.leftSpring = truss.addTensor(new Spring(this.leftTopNode, this.leftBottomNode, 10));
-		this.rightSpring = truss.addTensor(new Spring(this.rightTopNode, this.rightBottomNode, 10));
+		this.leftBand = truss.addTensor(new Spring(this.leftTopNode, this.nail, 200));
+		this.rightBand = truss.addTensor(new Spring(this.nail, this.rightTopNode, 200));
+		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 300));
+		this.leftSpring = truss.addTensor(new Spring(this.leftTopNode, this.leftBottomNode, 100));
+		this.rightSpring = truss.addTensor(new Spring(this.rightTopNode, this.rightBottomNode, 100));
 	}
 
 	/**
@@ -791,6 +817,211 @@ class BannerNode extends Node {
 					this.leftBottomNode.getPosition(),
 					this.rightBottomNode.getPosition());
 			}
+		}
+	};
+}
+
+/**
+ * @class
+ * @extends Node
+ */
+class CollectionNode extends Node {
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Position} startPosition
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {array} nodeCollection
+	 * @param  {Function} positionFunction
+	 * @param  {Function} showFunction
+	 * @param  {number} velocityLoss
+	 * @param  {number} torqueConstant
+	 */
+	constructor(truss, startPosition = new Position(0, 0), mass = 1, name = 'collectionNode', nodeCollection,
+		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
+		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss, torqueConstant);
+		this.nodeCollection=nodeCollection;
+
+		this.addProperty(new Property(nodeCollection, 'nodeCollection', 'nodeCollection', 'Nodes', ParameteType.NODELIST,
+			ParameterCategory.CONTENT, 'A list of nodes grouped together by this node.'));
+	}
+
+	/**
+	 * @param  {array} nodeCollection
+	 */
+	setup(nodeCollection) {
+		this.nodeCollection=nodeCollection;
+	}
+
+
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Array} superNodeList
+	 * @param  {Array} superTensorList
+	 * @return {Object}
+	 */
+	serialize(truss, superNodeList, superTensorList) {
+		let representationObject = super.serialize(truss, superNodeList, superTensorList);
+		representationObject.classname = 'CollectionNode';
+
+		representationObject.nodeCollection=serializeList(this.nodeCollection, superNodeList);
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 */
+	deserialize(truss, restoreObject, superNodes, superTensors) {
+		super.deserialize(truss, restoreObject, superNodes, superTensors);
+		this.nodeCollection= deserializeList(restoreObject.nodeCollection, superNodes);
+		return;
+	}
+
+	/** Displays the Truss's canvas at the correct position
+	 * @param  {Truss} truss
+	 * @param  {number} time
+	 * @param  {number} graphicDebugLevel=0
+	 */
+	show(truss, time, graphicDebugLevel = 0) {
+		super.show(truss, time, graphicDebugLevel);
+		this.highLight(truss.view.context);
+
+		let view = truss.view;
+		let ctx = view.context;
+		if ((this.highlighted) && (graphicDebugLevel >= 5)) {
+			for (let node of this.nodeCollection) {
+				ctx.strokeStyle='green';
+				ctx.beginPath();
+				view.drawLine(this.localPosition, node.getPosition());
+				ctx.stroke();
+			}
+		}
+	};
+}
+
+/**
+ * @class
+ * @extends CollectionNode
+ */
+class PictureNode extends CollectionNode {
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Position} startPosition
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {array} nodeCollection
+	 * @param  {string} pictureFileName
+	 * @param  {Function} positionFunction
+	 * @param  {Function} showFunction
+	 * @param  {number} velocityLoss
+	 * @param  {number} torqueConstant
+	 */
+	constructor(truss, startPosition, mass = 1, name = 'PictureNode', nodeCollection, pictureFileName='default.jpg',
+		...args) {
+		super(truss, startPosition, mass, name, nodeCollection, ...args);
+
+		this.addProperty(new Property(pictureFileName, 'pictureFileName', 'pictureFileName', 'Picture filename', ParameteType.STRING,
+			ParameterCategory.CONTENT, 'The filename of the picture.'));
+
+		Object.defineProperty(this, 'pictureFileName', {
+			get: function() {
+				return this._pictureFileName;
+			},
+			set: function(value) {
+				this._pictureFileName = value;
+				this.createPicture(value);
+			},
+		});
+
+		this.pictureFileName=pictureFileName;
+	}
+
+	/**
+	 * @param {String} pictureReference
+	 */
+	createPicture(pictureReference) {
+		if (!this.truss || !pictureReference) {
+			return;
+		}
+		let oldElement=this.element;
+		let oldPath;
+		if (oldElement) {
+			oldPath=oldElement.src;
+		} else {
+			oldPath='Resources/default.jpg';
+		}
+		this.element = document.createElement('img');
+		this.element.style.position = 'absolute';
+		this.element.style.zIndex = -1;
+		this.element.onerror = function() {
+			this.src=oldPath;
+			return;
+		};
+		this.element.src = 'Resources/' + pictureReference;
+		if (oldElement) {
+			this.truss.element.removeChild(oldElement);
+		}
+		if (oldPath!=this.element.src) {
+			this.truss.element.appendChild(this.element);
+		}
+	}
+
+	/**
+	 * @param  {array} nodeCollection
+	 */
+	setup(nodeCollection) {
+		this.nodeCollection=nodeCollection;
+	}
+
+
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Array} superNodeList
+	 * @param  {Array} superTensorList
+	 * @return {Object}
+	 */
+	serialize(truss, superNodeList, superTensorList) {
+		let representationObject = super.serialize(truss, superNodeList, superTensorList);
+		representationObject.classname = 'PictureNode';
+
+		representationObject.pictureFileName=this.pictureFileName;
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Truss} truss
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 */
+	deserialize(truss, restoreObject, superNodes, superTensors) {
+		super.deserialize(truss, restoreObject, superNodes, superTensors);
+		this.pictureFileName= restoreObject.pictureFileName;
+		this.createPicture(this.pictureReference);
+		return;
+	}
+
+	/** Displays the Truss's canvas at the correct position
+	 * @param  {Truss} truss
+	 * @param  {number} time
+	 * @param  {number} graphicDebugLevel=0
+	 */
+	show(truss, time, graphicDebugLevel = 0) {
+		super.show(truss, time, graphicDebugLevel);
+		this.highLight(truss.view.context);
+
+		let view = truss.view;
+		let ctx = view.context;
+
+		if (this.element && this.nodeCollection.length>=3) {
+			warpMatrix(truss, this.element,
+				this.localPosition,
+				this.nodeCollection[0].getPosition(),
+				this.nodeCollection[2].getPosition(),
+				this.nodeCollection[1].getPosition());
 		}
 	};
 }

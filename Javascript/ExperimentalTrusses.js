@@ -3,16 +3,8 @@
  */
 let Localview = undefined;
 let EarthCenter = new Position(0, 6371e3);
-let Earth = new Node(EarthCenter, 5.97219e24, 'Earth', undefined, undefined, 0);
+let Earth = new Node(undefined, EarthCenter, 5.97219e24, 'Earth');
 
-
-var rightpic;
-var leftpic;
-var bottompic;
-var f7;
-var pic;
-
-var sensor;
 
 let f2;
 /**
@@ -35,13 +27,14 @@ class WalkTruss extends Truss {
 	 * @param  {View} view
 	 * @param  {number} updatefrequency
 	 */
-	constructor(view, updatefrequency) {
-		super(view, updatefrequency);
+	constructor(...args) {
+		super(...args);
 		this.blur = true;
 	}
 
 	/**
 	 * Creates a new node and ensures that it if connected to the 'gravity' Field
+	 * @param {Truss} truss
 	 * @param  {other} args
 	 * @return {Node}
 	 */
@@ -50,17 +43,19 @@ class WalkTruss extends Truss {
 	}
 
 	/**
+ * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'WalkTruss';
 		return representationObject;
 	}
 
 	/**
+ 	* @param  {Truss} truss
 	 * @param  {other} args
 	 * @return {Object} Node, Field
 	 */
@@ -85,7 +80,7 @@ class WalkTruss extends Truss {
 	 */
 	initiate() {
 		this.addNode(Earth);
-		sensor = this.addNode(new Selector());
+		sensor = this.addNode(new Selector(this));
 
 		/*
 		// Create a protagonist (yellow circle) and connect it to gravity
@@ -124,23 +119,14 @@ class WalkTruss extends Truss {
 
 		// rotation
 
-		let b6 = this.addNode(new Node(new Position(0.2, 2.24), NaN, 'fulcrum', undefined, undefined, 1, 5000));
-		let f6 = this.addGravityNode(new Node(new Position(2, 1), 10, 'bar 1', 0, 0, 0.99, 2000));
+		let b6 = this.addNode(new Node(this, new Position(0.2, 2.24), NaN, 'fulcrum', undefined, undefined, 1, 5000));
+		let f6 = this.addGravityNode(new Node(this, new Position(2, 1), 10, 'bar 1', 0, 0, 0.99, 2000));
 
-		leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0,
-			function() {
-				leftpic = this;
-			}, 0.99));
-		bottompic = this.addGravityNode(new Node(new Position(4, 3), 70, 'bottom', 0,
-			function() {
-				bottompic = this;
-			}, 1));
-		rightpic = this.addGravityNode(new Node(new Position(5, 2), 10, 'right', 0,
-			function() {
-				rightpic = this;
-			}, 1));
+		let leftpic = this.addGravityNode(new Node(this, new Position(3, 2), 10, 'left', 0, 0, 0.99));
+		let bottompic = this.addGravityNode(new Node(this, new Position(4, 3), 70, 'bottom', 0, 0, 1));
+		let rightpic = this.addGravityNode(new Node(this, new Position(5, 2), 10, 'right', 0, 0, 1));
 
-		f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0,
+		/* f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0,
 			function() {
 				if (!pic) {
 					pic = document.getElementById('dimage');
@@ -153,8 +139,9 @@ class WalkTruss extends Truss {
 						leftpic.getPosition());
 				}
 			}
-		));
+		));*/
 
+		let f7 = this.addGravityNode(new PictureNode(this, new Position(4, 1), 70, 'top', [rightpic, bottompic, leftpic], 'facade.jpg'));
 
 		/* let leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0, 0, 0.99));
 		let bottompic = this.addGravityNode(new Node(new Position(4, 3), 70, 'bottom', 0, 0, 1));

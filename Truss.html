@@ -26,39 +26,42 @@
 	<title>Truss</title>
 
 </head>
+
 <body style="background-color: #343f48; margin:0px;">
-	<img id="dimage" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; "
+	<!--<img id="dimage" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; "
 	    alt="Mountain View">
-	<!-- <div style="border:2px solid red; width:300px; height:300px;">
+	 <div style="border:2px solid red; width:300px; height:300px;">
 		<img id="dimage2" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; clip: rect(0px,100px,300px,0px);"
 		    alt="Mountain View">
 	</div> -->
 
-	
+
 	<section>
 
-		<div class="" id="configarea" style="position: absolute; z-index:1000; color: pink; width:500px; height:300px;">
+		<div class="configareaouter" id="configarea">
+			<div class="configareainner">
 
 			<div class="tab">
-				<button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
+				<button class="tabsectionbuttons" id="propertiesButton" onclick="openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
 				<!-- <button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'connectionDiv');">CONNECTIONS</button>
 				<button class="tablinks tabsectionheader" id="addButton" onclick="openBottomPanel(event, 'addDiv')">ADD</button>
 				<!-- <button class="tablinks tabsectionheader" onclick="openBottomPanel(event, 'generalDiv'); ">GENERAL</button> -->
-				<button class="tablinks tabsectionheader advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
+				<button class="tabsectionbuttons advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
 			</div>
 
 			<div id="propertiesDiv" class="footerbackgroundarea tabcontent">
 				<!--- div class="sectionheader">Configuration</div> -->
-				<div class="sectionbase" id="configview"></div>
+				<div class="sectionbase">
+					<div id="configview" class="sectionmiddle"></div>
 
-				<div id="connectionDiv" class="sectionbase">
-				</div>
+					<div id="connectionDiv" class="sectionmiddle">
+					</div>
 
 
-				<div id="addDiv" class="sectionbase">
+					<div id="addDiv" class="sectionlast">
 						<!-- div class="sectionheader">Configuration</div> -->
 						<div>
-							<select id='nodeType' oninput=''>
+							<select id='nodeType' oninput='' class ="inputcss">
 								<option value='Node'>Node</option>
 								<option value=''>--Sensors--</option>
 								<option value='KeySensorNode'>KeySensor</option>
@@ -67,20 +70,21 @@
 								<option value='jumpNode'>JumpNodeActuator</option>
 								<option value='LeftRightNode'>LeftRightActuator</option>
 								<option value='Linebreakernode'>LinebreakerActuator</option>
-								</select>
+							</select>
 							<button class="simpleButton" type="button" onclick="makeNode()">Create</button>
 						</div>
 						<div id="tensorAdder">
-								<select id='tensorType' oninput=''>
-										<option value='Spring'>Spring</option>
-										<option value='PullSpring'>PullSpring</option>
-									<option value='Absorber'>Absorber</option>
-									<option value='Field'>Field</option>
-									<option value='PictureSpring'>PictureSpring</option>
-									</select>
+							<select id='tensorType' oninput='' class ="inputcss">
+								<option value='Spring'>Spring</option>
+								<option value='PullSpring'>PullSpring</option>
+								<option value='Absorber'>Absorber</option>
+								<option value='Field'>Field</option>
+								<option value='PictureSpring'>PictureSpring</option>
+							</select>
 							<button class="simpleButton" type="button" onclick="makeTensor()">Create</button>
 						</div>
 					</div>
+				</div>
 
 				<div>
 					<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
@@ -94,10 +98,10 @@
 						<option value='1'>1 - Only web parts</option>
 						<option value='2'>2 - Only lines</option>
 						<option value='3'>3 - Only nodes</option>
-					<option value='5'>5 - Lines and Nodes</option>
-					<option value='6'>6 - Add speeds</option>
-					<option value='7'>7 - Add acceleration</option>
-					<option value='10'>10 - Add numbers</option>
+						<option value='5'>5 - Lines and Nodes</option>
+						<option value='6'>6 - Add speeds</option>
+						<option value='7'>7 - Add acceleration</option>
+						<option value='10'>10 - Add numbers</option>
 					</select>
 				</div>
 			</div>
@@ -136,6 +140,8 @@
 
 			</div>
 
+		</div>
+
 
 		</div>
 
@@ -153,8 +159,9 @@
 			var newMainNode;
 			var savedState = 0;
 
-			var tensors, nodes;
-			var selectedObject
+			// var tensors, nodes;
+			var selectedObject;
+			var sensor;
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
@@ -179,11 +186,11 @@
 				FPSdisplay = document.getElementById("FPSdisplay");
 
 				let mainView = new View(new Vector(WIDTH, HEIGHT), new Vector(18, 9));
-				mainNode = new TrussNode(new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss);
+				mainNode = new TrussNode(undefined, new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss, 'TrussBackground');
 				mainNode.truss.initiate();
 
 
-				// selectedObject = mainNode;
+				// selectedObject = mainNode;  ||||||||||||||||||||||||
 
 				window.requestAnimationFrame(mainLoop);
 
@@ -252,19 +259,18 @@
 				}
 
 				// Get all elements with class="tablinks" and remove the class "active"
-				tablinks = document.getElementsByClassName("tablinks");
+				tablinks = document.getElementsByClassName("tabsectionbuttons");
 				for (i = 0; i < tablinks.length; i++) {
-					tablinks[i].className = tablinks[i].className.replace(
-						" active", "");
+				 	tablinks[i].classList.remove("active");
 				}
 
 				// Show the current tab, and add an "active" class to the button that opened the tab
 				document.getElementById(divName).style.display = "block";
 
 				if (evt)
-					evt.currentTarget.className += " active";
+					evt.currentTarget.classList.add("active");
 				else
-					document.getElementById("propertiesButton").className += " active";
+					document.getElementById("propertiesButton").classList.add("active");
 			}
 
 
@@ -286,11 +292,11 @@
 				connectionDiv.appendChild(select.generateconnectionHTML());
 
 				if (select.isNode) {
-					gravityButton.style.display='inline';
-					tensorAdder.style.display='inline';
+					gravityButton.style.display = 'inline';
+					tensorAdder.style.display = 'inline';
 				} else {
-					gravityButton.style.display='none';
-					tensorAdder.style.display='none';
+					gravityButton.style.display = 'none';
+					tensorAdder.style.display = 'none';
 
 				}
 			}
@@ -309,38 +315,34 @@
 				let selector = document.getElementById('tensorType');
 				let value = selector.value;
 				if (value == 'Spring') {
-					connectionTensor=mainNode.truss.addTensor(new Spring(selectedObject, sensor, 100));
+					connectionTensor = mainNode.truss.addTensor(new Spring(selectedObject, sensor, 100));
+				} else if (value == 'PullSpring') {
+					connectionTensor = mainNode.truss.addTensor(new PullSpring(selectedObject, sensor, 100));
+				} else if (value == 'Absorber') {
+					connectionTensor = mainNode.truss.addTensor(new Absorber(selectedObject, sensor, 1));
+				} else if (value == 'Field') {
+					connectionTensor = mainNode.truss.addTensor(new Field(selectedObject, sensor, 0.0001));
+				} else if (value == 'PictureSpring') {
+					connectionTensor = mainNode.truss.addTensor(new PictureSpring(selectedObject, sensor, 100, 'facade.jpg', 1));
 				}
-				else if (value == 'PullSpring') {
-					connectionTensor=mainNode.truss.addTensor(new PullSpring(selectedObject, sensor, 100));
-				}
-				else if (value == 'Absorber') {
-					connectionTensor=mainNode.truss.addTensor(new Absorber(selectedObject, sensor, 1));
-				}
-				else if (value == 'Field') {
-					connectionTensor=mainNode.truss.addTensor(new Field(selectedObject, sensor, 0.0001));
-				}
-				else if (value == 'PictureSpring') {
-					connectionTensor=mainNode.truss.addTensor(new PictureSpring(selectedObject, sensor, 100, 'facade.jpg', 1));
-				}
-			document.addEventListener('selectionEvent',
+				document.addEventListener('selectionEvent',
 					function (e) {
 						if (connectionTensor && selectedObject.isNode) {
 							attach(connectionTensor);
-							connectionTensor=undefined;
+							connectionTensor = undefined;
 						}
 
 					}, false);
 			}
 
 			function changeDebugLevel() {
-				mainNode.truss.debugLevel=debugLevel.value;
+				mainNode.truss.debugLevel = debugLevel.value;
 			}
 
 			function attach(tensor) {
-				if (tensor.node1==sensor) {
+				if (tensor.node1 == sensor) {
 					tensor.addNode1(selectedObject);
-				} else if (tensor.node2==sensor) {
+				} else if (tensor.node2 == sensor) {
 					tensor.addNode2(selectedObject);
 				}
 			}
@@ -349,13 +351,13 @@
 				mainNode.truss.addTensor(gravityField(selectedObject));
 			}
 
- 			function deleteSelected() {
-				 if (selectedObject.isTensor) {
-					 mainNode.truss.removeTensor(selectedObject);
-					} else if (selectedObject.isNode) {
-						mainNode.truss.removeNode(selectedObject);
-					}
+			function deleteSelected() {
+				if (selectedObject.isTensor) {
+					mainNode.truss.removeTensor(selectedObject);
+				} else if (selectedObject.isNode) {
+					mainNode.truss.removeNode(selectedObject);
 				}
+			}
 
 			init();
 		</script>
