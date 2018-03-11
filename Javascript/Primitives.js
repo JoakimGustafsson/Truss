@@ -416,5 +416,3 @@ function objectFactory(truss, representationObject, nodeList, tensorList) {
 	// newNode.deserialize(representationObject, nodeList, tensorList);
 	return (Function('return new ' + representationObject.classname))();
 }
-
-// 	return (Function('return new ' + representationObject.classname))();
