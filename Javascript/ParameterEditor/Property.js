@@ -55,33 +55,6 @@ class PropertyList {
 	}
 
 
-	/**
-	 */
-	XXcleanUpEmpty() {
-		/**
-		 * @param  {Element} element
-		 * @return {Number}
-		 */
-		function isVisible(element) {
-			let display;
-			for (let j = 0; j < element.children.length; j++) {
-				display = element.children[j].style.display;
-				if (display != 'none') {
-					return true;
-				}
-			}
-			return false;
-		}
-
-		for (let i = 0; i < parameterDivs.length; i++) {
-			if (isVisible(parameterDivs[i])) {
-				parameterDivs[i].parentElement.style.display = 'block';
-			} else {
-				parameterDivs[i].parentElement.style.display = 'none';
-			}
-		}
-	}
-
 	/** Loop through all properties and display the values from the inputObject
 	 * @param  {Object} inputObject
 	 */
@@ -234,8 +207,9 @@ class Property {
 		if (this.type == ParameteType.POSITION) {
 			element.innerHTML = element.innerHTML +
 				'<div class="parameterEditArea"' + display +
-				'style="overflow: auto;" id="' + this.identity + 'Container">' +
-				'<div class="valuepair" style="float:left; width:33%">' +
+				'id="' + this.identity + 'Container">' +
+				'<div style="width:32%; ">'+this.propertyName+'</div>' +
+				'<div class="valuepair" style="width:33%">' +
 				'<div class="lname">X</div>' +
 				'<div class="rvalue" >' +
 				'<input class="text inputcss" type="text" id="' + this.identity + 'X" value="30"' +
@@ -243,7 +217,7 @@ class Property {
 				' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].x=parseInt(z.value,0);})(event,this)">' +
 				'</div>' +
 				'</div>' +
-				'<div class="valuepair" style="float:right;width:33%">' +
+				'<div class="valuepair" style="width:33%">' +
 				'<div class="lname">Y</div>' +
 				'<div class="rvalue">' +
 				'<input class="text inputcss" type="text" id="' + this.identity + 'Y" value="30"' +
@@ -461,7 +435,7 @@ class EditPropertyWindow {
 	 * @param  {Truss} truss
 	 */
 	createBanner(truss) {
-		this.banner.create(truss, new Position(600, 100));
+		this.banner.create(truss, new Position(300, 100));
 		truss.addNode(this.banner);
 		truss.addNode(this.valueToGUI);
 	}

@@ -81,28 +81,31 @@ class Node {
 	}
 
 	/**
-	 * @return {string}
+	 * @param {Tensor} tensor
+	 * @return {Element}
 	 */
+	generateHTML(tensor) {
+		let leftButton=document.createElement('button');
+		leftButton.classList.add('trussButton');
+		leftButton.classList.add('nodeButton');
+		leftButton.innerHTML = this.name;
+		this.registerOnClick(leftButton, this);
+
+		return leftButton;
+	}
+
+	/**
+	*  @return {string}
+	*/
 	generateconnectionHTML() {
 		let div = document.createElement('div');
 
 		for (let tensor of [...this.velocityBasedTensors, ...this.positionBasedTensors]) {
-			let subDiv = document.createElement('div');
-			div.appendChild(subDiv);
-			let button1 = document.createElement('button');
-			button1.innerHTML = tensor.getName();
-			button1.classList.add('simpleButton');
-			button1.style.width = '200px';
-			subDiv.appendChild(button1);
+			let tensorButton = tensor.generateconnectionHTML(this);
+			div.appendChild(tensorButton);
 
-			let otherNode = tensor.getOppositeNode(this);
-			let button2 = document.createElement('button');
-			button2.innerHTML = otherNode.name;
-			button2.classList.add('simpleButton');
-			subDiv.appendChild(button2);
-
-			this.registerOnClick(button1, tensor);
-			this.registerOnClick(button2, otherNode);
+			// let nodeButton = tensor.getOppositeNode(this).generateHTML(tensor);
+			// subDiv.appendChild(nodeButton);
 		}
 		return div;
 	}

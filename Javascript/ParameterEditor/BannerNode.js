@@ -48,7 +48,7 @@ class BannerNode extends Node {
 		let screenHeight = this.element.offsetHeight;
 
 		this.nail = truss.addNode(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2), NaN, 'nayl', 0, 0, 0.99));
+			truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2), NaN, 'nail', 0, 0, 0.99));
 		this.leftTopNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y), 1, 'leftTop', 0, 0, 0.99));
 		this.rightTopNode = truss.addNode(new Node(truss,

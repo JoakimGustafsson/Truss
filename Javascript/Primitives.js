@@ -188,18 +188,38 @@ class Position extends Vector {
 	constructor(x, y) {
 		super(x, y);
 	}
+}
 
-
-	/**
-	 * Add a vector v to this vector
-	 * @param  {Vector} v
-	 * @return {Position}
+/**
+ * @class
+ */
+class AlertVector {
+	/** Create a two dimensional position
+	 * @param  {Vector} v The horizontal position
+	 * @param  {Function} f The vertical position
 	 */
-	add(v) {
-		this.x += v.x;
-		this.y += v.y;
-		return this;
-	};
+	constructor(v, f) {
+		this.v = v;
+
+		Object.defineProperty(this, 'x', {
+			get: function() {
+				return this.v.x;
+			},
+			set: function(value) {
+				this.v.x = value;
+				f(this.v);
+			},
+		});
+		Object.defineProperty(this, 'y', {
+			get: function() {
+				return this.v.y;
+			},
+			set: function(value) {
+				this.v.y = value;
+				f(this.v);
+			},
+		});
+	}
 }
 
 /**

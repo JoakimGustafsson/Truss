@@ -44,25 +44,109 @@ class Tensor {
 	}
 
 	/**
+	 * @param {Node} leftNode
+	 * @return {Element}
+	 */
+	generateHTML(leftNode) {
+		let sign;
+		if (this.node1==leftNode) {
+			sign='>';
+		} else {
+			sign='<';
+		}
+		let div = document.createElement('div');
+		div.classList.add('trussButtonDiv');
+		let leftButton=document.createElement('button');
+		leftButton.classList.add('trussButton');
+		leftButton.classList.add('tensorButtonLeft');
+		leftButton.innerHTML = sign;
+		div.appendChild(leftButton);
+
+		let middleButton=document.createElement('button');
+		middleButton.classList.add('trussButton');
+		middleButton.classList.add('tensorButtonMiddle');
+		middleButton.innerHTML = this.getName();
+		this.registerOnClick(middleButton, this);
+		div.appendChild(middleButton);
+
+		let rightButton=document.createElement('button');
+		rightButton.classList.add('trussButton');
+		rightButton.classList.add('tensorButtonRight');
+		rightButton.innerHTML = sign;
+		rightButton.onclick= function(x) {
+			if (_this.node1==leftNode) {
+				_this.addNode2(sensor);
+			} else {
+				_this.addNode1(sensor);
+			}
+		};
+		div.appendChild(rightButton);
+
+		let _this = this;
+		if (_this.node1 == leftNode) {
+			leftButton.onclick = function(x) {
+				_this.addNode1(sensor);
+			};
+			rightButton.onclick = function(x) {
+				_this.addNode2(sensor);
+			};
+		} else {
+			leftButton.onclick = function(x) {
+				_this.addNode2(sensor);
+			};
+			rightButton.onclick = function(x) {
+				_this.addNode1(sensor);
+			};
+		}
+
+		_this=this;
+		document.addEventListener('selectionEvent',
+			function(e) {
+				if (_this &&
+					sensor &&
+					selectedObject &&
+					selectedObject.isNode) {
+					_this.sensorAttach();
+					_this = undefined;
+				}
+			}, false);
+
+		return div;
+	}
+
+
+	/**
+	 * @param {Tensor} tensor
+	 */
+	sensorAttach() {
+		if (this.node1 == sensor) {
+			this.addNode1(selectedObject);
+		} else if (this.node2 == sensor) {
+			this.addNode2(selectedObject);
+		}
+	}
+
+	/**
+	 * @param {Node} left
 	 * @return {string}
 	 */
-	generateconnectionHTML() {
-		let node1=this.node1;
-		let node2=this.node2;
+	generateconnectionHTML(left) {
+		let leftNode=left;
+		if (!leftNode) {
+			leftNode=this.node1;
+		}
+		let rightNode= this.getOppositeNode(leftNode);
+
 		let div = document.createElement('div'); // Create the element in memory
 
-		let button1 = document.createElement('button'); // Create the element in memory
-		button1.innerHTML=node1.name;
-		button1.classList.add('simpleButton'); // Configure the CSS
+		let button0 = leftNode.generateHTML(this);
+		div.appendChild(button0);
+
+		let button1 = this.generateHTML(leftNode);
 		div.appendChild(button1);
 
-		let button2 = document.createElement('button'); // Create the element in memory
-		button2.innerHTML=node2.name;
-		button2.classList.add('simpleButton'); // Configure the CSS
+		let button2 = rightNode.generateHTML(this);
 		div.appendChild(button2);
-
-		this.registerOnClick(button1, node1);
-		this.registerOnClick(button2, node2);
 
 		return div;
 	}

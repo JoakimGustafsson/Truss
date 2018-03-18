@@ -68,12 +68,6 @@ class WalkTruss extends Truss {
 		};
 	}
 
-	/**
-	 */
-	hideEdit() {
-		this.editWindow.removeBanner(this);
-	}
-
 
 	/**
 	 *
@@ -122,9 +116,9 @@ class WalkTruss extends Truss {
 		let b6 = this.addNode(new Node(this, new Position(0.2, 2.24), NaN, 'fulcrum', undefined, undefined, 1, 5000));
 		let f6 = this.addGravityNode(new Node(this, new Position(2, 1), 10, 'bar 1', 0, 0, 0.99, 2000));
 
-		let leftpic = this.addGravityNode(new Node(this, new Position(3, 2), 10, 'left', 0, 0, 0.99));
-		let bottompic = this.addGravityNode(new Node(this, new Position(4, 3), 70, 'bottom', 0, 0, 1));
-		let rightpic = this.addGravityNode(new Node(this, new Position(5, 2), 10, 'right', 0, 0, 1));
+		let leftpic = this.addGravityNode(new Node(this, new Position(3, 2), 10, 'left', 0, 0, 0.999));
+		let bottompic = this.addGravityNode(new Node(this, new Position(4, 3), 70, 'bottom', 0, 0, 0.999));
+		let rightpic = this.addGravityNode(new Node(this, new Position(5, 2), 10, 'right', 0, 0, 0.999));
 
 		/* f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0,
 			function() {

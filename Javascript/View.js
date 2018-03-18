@@ -1,3 +1,5 @@
+
+
 /**
  * @class
  */
@@ -8,16 +10,46 @@ class View {
 	 *
 	 * Currently also used to draw a few simple forms and display text.
 	 *
-	 * @param  {Vector} screenSize The size in pixels of the screen
 	 * @param  {Vector} worldViewSize The size of the world to fit onto the screenSize
+	 * @param  {Element} element The HTML element displaying the world view
 	 */
-	constructor(screenSize, worldViewSize) {
-		this.screenSize = screenSize;
-		this.worldViewSize = worldViewSize;
-		this.recalculate();
+	constructor(worldViewSize, element) {
+		let _this=this;
+		this.element=element;
+		this.screenSize = new AlertVector(new Vector(element.offsetWidth, element.offsetHeight), function(v) {
+			element.offsetWidth=v.x;
+			element.offsetHeight=v.y;
+			_this.recalculate();
+		});
+		this.worldViewSize = new AlertVector(worldViewSize, function(x) {
+			_this.recalculate();
+		});
 
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
+		this.resize();
+	}
+
+	/** Set where in the world you want to look
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	setWorldOffset(x, y) {
+		this.offset.x=x;
+		this.offset.y=y;
+	}
+
+	/** Multiply this number with a screen distance in pixels to get the world distance
+	 * @return {number}
+	 */
+	getDistanceMultiplier() {
+		return this.distanceMultiplier;
+	}
+	/**
+	 */
+	resize() {
+		this.screenSize.v = new Vector(this.element.offsetWidth, this.element.offsetHeight);
+		this.recalculate();
 	}
 
 	/**
@@ -83,6 +115,19 @@ class View {
 	};
 
 	/**
+	 * Given a x and y position on screen display, return the world position, taking the HTML elements position into account
+	 * @param  {number} x
+	 * @param  {number} y
+	 * @return {Position}
+	 */
+	worldPositionWithOffset(x, y) {
+		let bodyRect= document.body.getBoundingClientRect();
+		let elemRect = this.element.getBoundingClientRect();
+		return new Position((x-elemRect.top+bodyRect.top) * this.xScale - this.offset.x,
+			(y-elemRect.left+bodyRect.left) * this.yScale - this.offset.y);
+	};
+
+	/**
 	 * Given a x and y position in the world, return the screen position
 	 * @param  {Position} node
 	 * @return {Position}
@@ -127,6 +172,8 @@ class View {
 		}
 		this.xScale = this.worldViewSize.x / this.screenSize.x;
 		this.yScale = this.worldViewSize.y / this.screenSize.y;
+
+		this.distanceMultiplier=Math.max(this.xScale, this.yScale);
 	};
 
 	/**

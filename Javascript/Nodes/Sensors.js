@@ -520,8 +520,8 @@ class Selector extends SensorNode {
 	 * @param {Truss} truss
 	 */
 	sense(deltaTime, truss) {
-		this.cursorPosition = truss.view.worldPosition(myX, myY);
-		let closest = truss.getClosestObject(this.cursorPosition, 0.5, this);
+		this.cursorPosition = truss.view.worldPositionWithOffset(myX, myY);
+		let closest = truss.getClosestObject(this.cursorPosition, 20*truss.view.getDistanceMultiplier(), this);
 
 		if (!mouseSet) {
 			if (!closest) {
@@ -585,7 +585,7 @@ class Selector extends SensorNode {
 	 * @param {Truss} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
-
+	 */
 	show(truss, time, graphicDebugLevel = 0) {
 		let view=truss.view;
 		this.highLight(view.context);
@@ -601,6 +601,5 @@ class Selector extends SensorNode {
 			view.context.stroke();
 		}
 	}
-	 */
 }
 

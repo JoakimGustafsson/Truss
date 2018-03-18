@@ -22,14 +22,84 @@ class TrussNode extends Node {
 		super(parentTruss, startPosition, mass, name, ...args);
 		this.displayDivName=displayDivName;
 
+		this.addProperty(new Property(displayDivName, 'displayDivName', 'displayDivName', 'HTML container id', ParameteType.STRING,
+			ParameterCategory.CONTENT, 'The identity of the HTML elemet containing the truss graphics.'));
+
+
 		this.canvas = document.createElement('canvas');
 		this.handleCanvas();
 
 		if (view) {
 			this.truss = new TrussClass(this, view, timestep, displayDivName);
-			this.truss.editWindow = new EditPropertyWindow(this.truss, new Position(100, 100), 500, 500);
 			this.setView();
 		}
+
+		Object.defineProperty(this, 'fps', {
+			get: function() {
+				return this.truss.fps;
+			},
+			set: function(value) {
+				this.truss.fps = parseInt(value);
+			},
+		}
+		);
+
+		Object.defineProperty(this, 'fpsTarget', {
+			get: function() {
+				return 1/this.truss.timestep;
+			},
+			set: function(value) {
+				this.truss.timestep = 1/parseInt(value);
+			},
+		}
+		);
+
+		Object.defineProperty(this, 'worldSize', {
+			get: function() {
+				return this.truss.view.worldViewSize;
+			},
+		}
+		);
+		Object.defineProperty(this, 'screenSize', {
+			get: function() {
+				return this.truss.view.screenSize;
+			},
+		}
+		);
+		Object.defineProperty(this, 'setWorldOffset', {
+			get: function() {
+				return this.truss.view.offset;
+			},
+		}
+		);
+
+		this.addProperty(new Property(undefined,
+			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The size of the displayed screen in pixels.'));
+
+		this.addProperty(new Property(undefined,
+			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The size of the displayed worldview in that worlds measurement.'));
+
+		this.addProperty(new Property(undefined,
+			'setWorldOffset', 'setWorldOffset', 'The position you are looking at', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The world coordinates of the upper left corner.'));
+
+		this.addProperty(new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.'));
+
+		this.addProperty(new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.'));
+
+		/*
+		this.addProperty(new Property(nodes, 'nodes', 'nodes', 'All Nodes', ParameteType.STRING,
+			ParameterCategory.CONTENT, 'All nodes in the Truss.'));
+
+		this.addProperty(new Property(tensors, 'tensors', 'tensors', 'All Tensors', ParameteType.STRING,
+			ParameterCategory.CONTENT, 'All tensors in the Truss.'));*/
+
+		this.addProperty(new Property(debugLevel, 'debugLevel', 'debugLevel', 'Debug level', ParameteType.STRING,
+			ParameterCategory.CONTENT, 'Debug level.'));
 	}
 
 	/**
@@ -39,8 +109,8 @@ class TrussNode extends Node {
 		this.canvas.name = this.name;
 		this.canvas.style.top = this.localPosition.y + 'px';
 		this.canvas.style.left = this.localPosition.x + 'px';
-		this.canvas.style.position = 'absolute';
-		this.canvas.style.border = '1px solid red';
+		this.canvas.style.position = 'relative';
+		this.canvas.style.border = '2px solid red';
 		if (this.displayDivName) {
 			this.element = document.getElementById(this.displayDivName);
 			this.element.appendChild(this.canvas);
@@ -63,8 +133,17 @@ class TrussNode extends Node {
 		this.truss.view.context = this.canvas.getContext('2d');
 		this.canvas.width = this.truss.view.screenSize.x;
 		this.canvas.height = this.truss.view.screenSize.y;
-		this.canvas.style.width = this.truss.view.screenSize.x + 'px';
-		this.canvas.style.height = this.truss.view.screenSize.y + 'px';
+		this.canvas.style.width = '100%'; // this.truss.view.screenSize.x + 'px';
+		this.canvas.style.height = '100%'; // this.truss.view.screenSize.y + 'px';
+
+		this.truss.editWindow = new EditPropertyWindow(this.truss, new Position(100, 100), 500, 500);
+	}
+	/**
+ */
+	resize() {
+		this.truss.view.resize();
+		this.canvas.width = this.truss.view.screenSize.x;
+		this.canvas.height = this.truss.view.screenSize.y;
 	}
 
 	/**

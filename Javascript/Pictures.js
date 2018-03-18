@@ -8,6 +8,8 @@
  * @param  {Position} dr
  */
 function warpMatrix(truss, element, ar, br, cr, dr) {
+	// restoreMatrix(element);
+	// return;
 	let a = truss.view.screenPosition(ar);
 	let b = truss.view.screenPosition(br);
 	let c = truss.view.screenPosition(cr);
