@@ -46,6 +46,9 @@ class BannerNode extends Node {
 		this.truss = truss;
 		let screenWidth = this.element.offsetWidth;
 		let screenHeight = this.element.offsetHeight;
+		if (!topScreenPos) {
+			topScreenPos=new Position(truss.view.screenSize.x-screenWidth, 0)
+		}
 
 		this.nail = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2), NaN, 'nail', 0, 0, 0.99));
@@ -67,11 +70,11 @@ class BannerNode extends Node {
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 10, 'rightBottom', 0, 0, 0.99));
 		this.rightBottomNode = x;
 		this.rightBottomField = y;
-		this.leftBand = truss.addTensor(new Spring(this.leftTopNode, this.nail, 200));
-		this.rightBand = truss.addTensor(new Spring(this.nail, this.rightTopNode, 200));
-		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 300));
-		this.leftSpring = truss.addTensor(new Spring(this.leftTopNode, this.leftBottomNode, 100));
-		this.rightSpring = truss.addTensor(new Spring(this.rightTopNode, this.rightBottomNode, 100));
+		this.leftBand = truss.addTensor(new PullSpring(this.leftTopNode, this.nail, 2000));
+		this.rightBand = truss.addTensor(new PullSpring(this.nail, this.rightTopNode, 2000));
+		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 3000));
+		this.leftSpring = truss.addTensor(new PullSpring(this.leftTopNode, this.leftBottomNode, 100));
+		this.rightSpring = truss.addTensor(new PullSpring(this.rightTopNode, this.rightBottomNode, 100));
 	}
 
 	/**

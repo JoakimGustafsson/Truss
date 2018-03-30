@@ -39,119 +39,118 @@
 
 
 	<section>
-		
-			<div id="TrussBackground" class="trussBackgroundDiv" align="left">
-		<div class="configareaouter" id="configarea">
-			<div class="configareainner">
+		<div id="TrussBackground" class="trussBackgroundDiv" align="left">
+			<div class="configareaouter" id="configarea">
+				<div class="configareainner">
 
-				<div class="tab">
-					<button class="tabsectionbuttons" id="propertiesButton" onclick="openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
-					<!-- <button class="tablinks tabsectionheader" id="propertiesButton" onclick="openBottomPanel(event, 'connectionDiv');">CONNECTIONS</button>
-				<button class="tablinks tabsectionheader" id="addButton" onclick="openBottomPanel(event, 'addDiv')">ADD</button> -->
-					<button class="tabsectionbuttons" onclick="openBottomPanel(event, 'trussDiv'); ">TRUSS</button>
-					<button class="tabsectionbuttons advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
-				</div>
+					<div class="tab">
+						<button class="tabsectionbuttons" id="propertiesButton" onclick="MovePropertyEdit('propertyConfigArea'); openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
+						<button class="tabsectionbuttons" onclick="MovePropertyEdit('trussConfigArea'); openBottomPanel(event, 'trussDiv'); ">TRUSS</button>
+						<button class="tabsectionbuttons advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
+					</div>
 
-				<div id="propertiesDiv" class="footerbackgroundarea tabcontent">
-					<!--- div class="sectionheader">Configuration</div> -->
-					<div class="sectionbase">
-						<div id="configview" class="sectionmiddle"></div>
+					<div id="propertiesDiv" class="footerbackgroundarea tabcontent">
+						<!--- div class="sectionheader">Configuration</div> -->
+						<div class="sectionbase">
+							<div id="propertyConfigArea">
+								<div id="configview" class="sectionmiddle"></div>
+							</div>
 
-						<div id="connectionDiv" class="sectionmiddle">
+							<div id="connectionDiv" class="sectionmiddle"></div>
+
+
+							<div id="addDiv" class="sectionlast">
+								<!-- div class="sectionheader">Configuration</div> -->
+								<div>
+									<select id='nodeType' oninput='' class="inputcss">
+										<option value='Node'>Node</option>
+										<option value=''>--Sensors--</option>
+										<option value='KeySensorNode'>KeySensor</option>
+										<option value='ProximitySensornODE'>ProximitySensor</option>
+										<option value=''>--Actuators--</option>
+										<option value='jumpNode'>JumpNodeActuator</option>
+										<option value='LeftRightNode'>LeftRightActuator</option>
+										<option value='Linebreakernode'>LinebreakerActuator</option>
+									</select>
+									<button class="simpleButton" type="button" onclick="makeNode()">Create</button>
+								</div>
+								<div id="tensorAdder">
+									<select id='tensorType' oninput='' class="inputcss">
+										<option value='Spring'>Spring</option>
+										<option value='PullSpring'>PullSpring</option>
+										<option value='Absorber'>Absorber</option>
+										<option value='Field'>Field</option>
+										<option value='PictureSpring'>PictureSpring</option>
+									</select>
+									<button class="simpleButton" type="button" onclick="makeTensor()">Create</button>
+								</div>
+							</div>
 						</div>
 
+						<div class="sectionlast">
+							<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
+							<!-- <button class="simpleButton" type="button" onclick="mainNode.toggleMove()">Lock</button> -->
+							<button id="gravityButton" class="simpleButton" type="button" onclick="addGravityCheat();">Gravity</button>
+							<button class="simpleButton" type="button" onclick="deleteSelected()">Delete</button>
 
-						<div id="addDiv" class="sectionlast">
-							<!-- div class="sectionheader">Configuration</div> -->
-							<div>
-								<select id='nodeType' oninput='' class="inputcss">
-									<option value='Node'>Node</option>
-									<option value=''>--Sensors--</option>
-									<option value='KeySensorNode'>KeySensor</option>
-									<option value='ProximitySensornODE'>ProximitySensor</option>
-									<option value=''>--Actuators--</option>
-									<option value='jumpNode'>JumpNodeActuator</option>
-									<option value='LeftRightNode'>LeftRightActuator</option>
-									<option value='Linebreakernode'>LinebreakerActuator</option>
-								</select>
-								<button class="simpleButton" type="button" onclick="makeNode()">Create</button>
-							</div>
-							<div id="tensorAdder">
-								<select id='tensorType' oninput='' class="inputcss">
-									<option value='Spring'>Spring</option>
-									<option value='PullSpring'>PullSpring</option>
-									<option value='Absorber'>Absorber</option>
-									<option value='Field'>Field</option>
-									<option value='PictureSpring'>PictureSpring</option>
-								</select>
-								<button class="simpleButton" type="button" onclick="makeTensor()">Create</button>
-							</div>
+							<select id='debugLevel'class ="inputcss" onchange='changeDebugLevel();'>
+								<option value='1'>Debug level</option>
+								<option value='0'>0 - Nothing</option>
+								<option value='1'>1 - Only web parts</option>
+								<option value='2'>2 - Only lines</option>
+								<option value='3'>3 - Only nodes</option>
+								<option value='5'>5 - Lines and Nodes</option>
+								<option value='6'>6 - Add speeds</option>
+								<option value='7'>7 - Add acceleration</option>
+								<option value='10'>10 - Add numbers</option>
+							</select>
 						</div>
 					</div>
 
-					<div>
-						<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
-						<button class="simpleButton" type="button" onclick="mainNode.toggleMove()">Lock</button>
-						<button id="gravityButton" class="simpleButton" type="button" onclick="addGravityCheat();">Gravity</button>
-						<button class="simpleButton" type="button" onclick="deleteSelected()">Delete</button>
-
-						<select id='debugLevel' onchange='changeDebugLevel();'>
-							<option value='1'>Debug level</option>
-							<option value='0'>0 - Nothing</option>
-							<option value='1'>1 - Only web parts</option>
-							<option value='2'>2 - Only lines</option>
-							<option value='3'>3 - Only nodes</option>
-							<option value='5'>5 - Lines and Nodes</option>
-							<option value='6'>6 - Add speeds</option>
-							<option value='7'>7 - Add acceleration</option>
-							<option value='10'>10 - Add numbers</option>
-						</select>
+					<div id="addDiv" class="footerbackgroundarea tabcontent">
+						<!-- div class="sectionheader">Configuration</div> -->
+						<div>
+							<button class="simpleButton" type="button">New Node</button>
+						</div>
+						<div>
+							<button class="simpleButton" type="button">New Tensor</button>
+						</div>
 					</div>
-				</div>
+					<div id="trussDiv" class="footerbackgroundarea tabcontent">
 
-				<div id="addDiv" class="footerbackgroundarea tabcontent">
-					<!-- div class="sectionheader">Configuration</div> -->
-					<div>
-						<button class="simpleButton" type="button">New Node</button>
-					</div>
-					<div>
-						<button class="simpleButton" type="button">New Tensor</button>
-					</div>
-				</div>
+						<div class="sectionbase">
 
-				<div id="trussDiv" class="footerbackgroundarea tabcontent">
-					<div class="sectionbase">
-						connectedToDiv
-						<br> screenSize
-						<br> worldViewSize
-						<br> gravity
-						<br> absoluteOrRelativePositioningofDiv
-						<button class="simpleButton" type="button" onclick="selectMainNode()">Select mainNode</button>
-						<button class="simpleButton" type="button">New TrussNode</button>
-						<button class="simpleButton" type="button">Add gravityNode</button>
-						<button class="simpleButton" type="button">Add selectorNode</button>
-					</div>
-				</div>
-
-
-				<div id="fileDiv" class="footerbackgroundarea tabcontent">
-
-					<div class="sectionbase" id="configview">
-
-						<div class="fileList" id="fileList">X</div>
-
-						<div class="valuepair">
-							<div title="Filename" class="lname">Filename</div>
-							<div class="rvalue">
-								<input class="text" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px;">
-							</div>
+							<div id="trussConfigArea"></div>
+						</div>
+						<div class="sectionlast">
+							<button class="simpleButton" type="button">TrussNode</button>
+							<button class="simpleButton" type="button">gravityNode</button>
+							<button class="simpleButton" type="button">selectorNode</button>
 						</div>
 					</div>
 
 
-					<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
+					<div id="fileDiv" class="footerbackgroundarea tabcontent">
+
+						<div class="sectionbase">
+
+							<div class="fileList" id="fileList">X</div>
+
+							<div class="valuepair">
+								<div title="Filename" class="lname">Filename</div>
+								<div class="rvalue">
+									<input class="text" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px;">
+								</div>
+							</div>
+						</div>
+
+
+						<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
+
+					</div>
 
 				</div>
+
 
 			</div>
 
@@ -159,12 +158,9 @@
 		</div>
 
 
+		<div id="FPSdisplay" style="position: absolute; left:10px; bottom:10px; color: white;">
 		</div>
 
-
-		<div id="FPSdisplay" style="position: absolute; left:10px; top:10px; color: white;">
-			</div>
-	
 		<script type="text/javascript">
 			var mainNode;
 			var newMainNode;
@@ -194,17 +190,11 @@
 			function init() {
 				FPSdisplay = document.getElementById("FPSdisplay");
 				trussBackground = document.getElementById("TrussBackground");
-				document.onresize = function () {
-					alert("hello");
-				};
 
-				let mainView = new View(new Vector(18, 9), trussBackground);
+				let mainView = new View(new Vector(20, 20), trussBackground);
 				mainNode = new TrussNode(undefined, new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss,
 					'TrussBackground');
 				mainNode.truss.initiate();
-
-
-				// selectedObject = mainNode;  ||||||||||||||||||||||||
 
 				window.requestAnimationFrame(mainLoop);
 
@@ -225,7 +215,10 @@
 						select.call(this, e);
 					}, false);
 
+
 				openBottomPanel(event, 'propertiesDiv');
+
+				// configarea.style.left = "200px";
 				configarea.style.display = "none";
 
 			}
@@ -308,8 +301,12 @@
 				} else {
 					gravityButton.style.display = 'none';
 					tensorAdder.style.display = 'none';
-
 				}
+
+				// if (select!=mainNode) {
+				//	MovePropertyEdit('propertyConfigArea');
+				//	openBottomPanel(undefined, 'propertiesDiv');
+				// }
 			}
 
 			function makeNode() {
@@ -321,6 +318,7 @@
 			}
 
 			var connectionTensor;
+			var connectionEventListener;
 
 			function makeTensor() {
 				let selector = document.getElementById('tensorType');
@@ -336,14 +334,14 @@
 				} else if (value == 'PictureSpring') {
 					connectionTensor = mainNode.truss.addTensor(new PictureSpring(selectedObject, sensor, 100, 'facade.jpg', 1));
 				}
-				document.addEventListener('selectionEvent',
-					function (e) {
+				if (!connectionEventListener) {
+					connectionEventListener = document.addEventListener('selectionEvent', function (e) {
 						if (connectionTensor && selectedObject.isNode) {
 							connectionTensor.sensorAttach();
 							connectionTensor = undefined;
 						}
-
 					}, false);
+				}
 			}
 
 			function changeDebugLevel() {
@@ -379,6 +377,15 @@
 
 			function updateResize() {
 				mainNode.resize();
+			}
+
+			function MovePropertyEdit(configAreaName) {
+				if (configAreaName == 'trussConfigArea') {
+					selectMainNode();
+				}
+				let view = document.getElementById('configview');
+				let container = document.getElementById(configAreaName);
+				container.appendChild(view);
 			}
 
 			init();

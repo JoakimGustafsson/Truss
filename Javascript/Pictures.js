@@ -19,9 +19,15 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	let w = element.offsetWidth;
 
 	let m = [];
-
+	// Handle when some angle > 180
 	let bcv= (((b.y-d.y)*(a.x-d.x)) - ((b.x-d.x)*(a.y-d.y))) / (((c.x-b.x)*(a.y-d.y)) - ((c.y-b.y)*(a.x-d.x)));
 	let dav= (bcv*(c.x-b.x)+(b.x-d.x))/(a.x-d.x);
+
+	if (((bcv<0) ||(bcv>1)) && ((dav<0) ||(dav>1))) {
+		element.style.display='none';
+	} else {
+		element.style.display='block';
+	}
 
 	if (bcv<0) {
 		bcv-=0.01;
@@ -40,6 +46,7 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 		a.x=d.x+dav*(a.x- d.x);
 		a.y=d.y+dav*(a.y- d.y);
 	}
+	// End of 180 handling
 
 	m[41] = a.x;
 	m[42] = a.y;

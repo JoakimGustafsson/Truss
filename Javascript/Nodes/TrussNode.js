@@ -110,7 +110,7 @@ class TrussNode extends Node {
 		this.canvas.style.top = this.localPosition.y + 'px';
 		this.canvas.style.left = this.localPosition.x + 'px';
 		this.canvas.style.position = 'relative';
-		this.canvas.style.border = '2px solid red';
+		// this.canvas.style.border = '2px solid red';
 		if (this.displayDivName) {
 			this.element = document.getElementById(this.displayDivName);
 			this.element.appendChild(this.canvas);

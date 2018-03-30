@@ -30,15 +30,6 @@ class View {
 		this.resize();
 	}
 
-	/** Set where in the world you want to look
-	 * @param {number} x
-	 * @param {number} y
-	 */
-	setWorldOffset(x, y) {
-		this.offset.x=x;
-		this.offset.y=y;
-	}
-
 	/** Multiply this number with a screen distance in pixels to get the world distance
 	 * @return {number}
 	 */
@@ -93,7 +84,7 @@ class View {
 	 * @return {number} The vertical position on this views display
 	 */
 	x(p) {
-		return (p.x + this.offset.x) / this.xScale;
+		return (p.x - this.offset.x) / this.xScale;
 	};
 
 	/** Given a position p in the world, return the position on this views display
@@ -101,7 +92,7 @@ class View {
 	 * @return {number} The horizontal position on this views display
 	 */
 	y(p) {
-		return (p.y + this.offset.y) / this.yScale;
+		return (p.y - this.offset.y) / this.yScale;
 	};
 
 	/**
@@ -111,7 +102,7 @@ class View {
 	 * @return {Position}
 	 */
 	worldPosition(x, y) {
-		return new Position(x * this.xScale - this.offset.x, y * this.yScale - this.offset.y);
+		return new Position(x * this.xScale + this.offset.x, y * this.yScale + this.offset.y);
 	};
 
 	/**
@@ -123,8 +114,8 @@ class View {
 	worldPositionWithOffset(x, y) {
 		let bodyRect= document.body.getBoundingClientRect();
 		let elemRect = this.element.getBoundingClientRect();
-		return new Position((x-elemRect.top+bodyRect.top) * this.xScale - this.offset.x,
-			(y-elemRect.left+bodyRect.left) * this.yScale - this.offset.y);
+		return new Position((x-elemRect.top+bodyRect.top) * this.xScale + this.offset.x,
+			(y-elemRect.left+bodyRect.left) * this.yScale + this.offset.y);
 	};
 
 	/**

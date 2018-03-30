@@ -28,6 +28,7 @@ class Tensor {
 		this.force = 0;
 		this.ghost = false;
 		this.isTensor=true;
+		this.color='grey';
 
 		this.addProperty(new Property(this,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
@@ -41,6 +42,9 @@ class Tensor {
 		this.addProperty(new Property(this,
 			'angle2', 'angle2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle the node connects to the end node.'));
+		this.addProperty(new Property(this,
+			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
+			'The colour of the tensor.'));
 	}
 
 	/**
@@ -73,13 +77,13 @@ class Tensor {
 		rightButton.classList.add('trussButton');
 		rightButton.classList.add('tensorButtonRight');
 		rightButton.innerHTML = sign;
-		rightButton.onclick= function(x) {
+		/* rightButton.onclick= function(x) {
 			if (_this.node1==leftNode) {
 				_this.addNode2(sensor);
 			} else {
 				_this.addNode1(sensor);
 			}
-		};
+		};*/
 		div.appendChild(rightButton);
 
 		let _this = this;
@@ -99,13 +103,9 @@ class Tensor {
 			};
 		}
 
-		_this=this;
-		document.addEventListener('selectionEvent',
+		this.selectionEventListener=document.addEventListener('selectionEvent',
 			function(e) {
-				if (_this &&
-					sensor &&
-					selectedObject &&
-					selectedObject.isNode) {
+				if (_this && sensor && selectedObject && selectedObject.isNode) {
 					_this.sensorAttach();
 					_this = undefined;
 				}
@@ -123,6 +123,9 @@ class Tensor {
 			this.addNode1(selectedObject);
 		} else if (this.node2 == sensor) {
 			this.addNode2(selectedObject);
+		}
+		if (this.selectionEventListener) {
+			document.removeEventListener('selectionEvent', this.selectionEventListener);
 		}
 	}
 
@@ -592,7 +595,7 @@ class Tensor {
 	 * @return {string} the HTML color of the tensor
 	 */
 	getColour() {
-		return 'grey';
+		return this.color;
 	};
 	/**
 	 * clear a specific node from the list of nodes that have collided with the tensor.
@@ -824,6 +827,7 @@ class Field extends Tensor {
  */
 	constructor(node1, node2, constant = 1, type = TensorType.FIELD) {
 		super(node1, node2, constant, type);
+		this.color='blue';
 	}
 
 	/**
@@ -846,13 +850,6 @@ class Field extends Tensor {
 		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
 		this.force = Vector.multiplyVector(-forceSize, normalized);
 	}
-
-	/**
-	 * @return {string} the HTML color of the tensor
-	 */
-	getColour() {
-		return 'blue';
-	}
 }
 
 /**
@@ -872,6 +869,7 @@ class Absorber extends Tensor {
 	 */
 	constructor(node1, node2, constant = 1, type = TensorType.ABSORBER) {
 		super(node1, node2, constant, type);
+		this.color='green';
 	}
 
 	/**
@@ -895,13 +893,6 @@ class Absorber extends Tensor {
 			Vector.dotProduct(actualVector, internalSpeed),
 			Vector.divideVector(actualVector, this.getLengthSquare()));
 		this.force = Vector.multiplyVector(this.constant, parallellVelocity);
-	}
-
-	/**
-		 * @return {string} the HTML color of the tensor
-		 */
-	getColour() {
-		return 'green';
 	}
 }
 

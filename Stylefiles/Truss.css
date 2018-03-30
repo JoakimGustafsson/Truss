@@ -3,44 +3,85 @@ div {
 	/*"Stencil Regular"; */
 	/* 	font-weight: bold; */
 }
+
+
+/* parameter background color */
+.parameterEditArea, .sectionbase  {
+	background-color:#f0fff0;
+	color:black;
+}
+
 .inputcss {
-	background-color: black;
-	color: yellow;
+	background-color: #ffdab9;
+	border: 1px solid grey;
+	border-radius: 2px;
 	}
 
+option {
+	padding:0px;
+}
+
 .parameterEditArea {
-	background-color: black;
 	position: relative;
+	padding: 0px 0px 0px 0px;
+}
+
+/* button color */
+.ogbutton, .tabsectionbuttons, div.tab button, .trussButton, .simpleButton {
+	background-color: #cdaf95;
+	color: black;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.trussButton:hover, div.tab button:hover, .simpleButton:hover {
+	background-color: #eecbad;
+}
+
+.trussButton:active, div.tab button:active, .simpleButton:active, div.tab button.active {
+	background-color: #ffdab9;
+}
+
+.configareainner {
+	background-color: #8b7765;
+	border: 2px solid black;
 }
 
 .trussBackgroundDiv  {
-	height:500px;
 	border: 1px solid yellow;
 	position:absolute;
 	left: 50px;
 	right: 50px;
 	top: 50px;
+	bottom: 50px;
 	cursor: crosshair;
+	overflow:hidden;
 	}
 
 .valuepair {
-	overflow: auto;
-	position: relative;
-	font-family: Arial;
-}
+		overflow: auto;
+		position: relative;
+		font-family: Arial;
+		margin: 0px 0px;
+	}
+	
+.xyvaluepair {
+	display:inline-block;
+	width:70px;
+	margin-bottom: -4px;
+	}
+
 
 .lname {
 	float: left;
-	background-color: black;
-	color: yellow;
 	position: relative;
 	font-family: Arial;
 }
 
 .rvalue {
 	float: right;
-	background-color:black;
-	color: yellow;
 	position: relative;
 	font-family: Arial;
 }
@@ -68,6 +109,10 @@ div {
 	top: 150px;
 }
 
+#debugLevel {
+	width:130px;
+}
+
 .sectionheader {
 	color: yellow;
 	border-radius: 4px 4px 0px 0px;
@@ -81,7 +126,6 @@ div {
 .tabsectionbuttons {
 	color: white;
 	opacity: 1;
-	background-color: #323F48;
 	border-radius: 4px 4px 0px 0px;
 	padding: 10px 0px 0px 15px;
 	margin: 10px 10px 0px 10px;
@@ -97,20 +141,18 @@ div {
   .configareaouter {
 	position: absolute;
 	z-index:1000;
-	width:500px;
+	width:350px;
 	height:300px;
 }
 .configareainner {
-	background-color: white;
 	opacity: 0.9;
-	color: pink;
 	border-radius: 14px;
 }
 
 
 .sectionbase {
 	border-radius: 0px 0px 4px 4px;
-	background-color: black;
+	/* background-color: #99C68E; */
 	padding: 5px 10px 5px 15px;
 	margin: 0px 10px 10px 10px;
 	position: relative;
@@ -123,33 +165,13 @@ div {
 }
 
 .sectionlast {
-	padding: 5px 0px 0px 0px;
-}
-
-
-.dot {
-	position: absolute;
-	left: 400px;
-	top: 350px;
-	width: 10px;
-	height: 10px;
-	margin-top: -5px;
-	margin-left: 30px;
-	border-radius: 50%;
-	background: #ccc;
-	z-index: -1;
-	box-shadow: 30px 0 0 #ccc, 60px 0 0 #ccc, 90px 0 0 #ccc, 120px 0 0 #ccc, 150px 0 0 #ccc;
-	-webkit-animation: r-to-l 0.4s infinite;
-	-moz-animation: r-to-l 0.4s infinite;
-	-o-animation: r-to-l 0.4s infinite;
-	animation: r-to-l 0.4s infinite;
+	margin: 0px 10px 10px 10px;
 }
 
 .ogbutton {
 	border-radius: 10px;
 	border: 0px;
 	padding: 5px;
-	background-color: #505E6B;
 	font-family: Arial;
 	font-size: 30px;
 	color: white;
@@ -275,24 +297,18 @@ div.tab {
 
 /* Style the buttons inside the tab */
 div.tab button {
-	background-color: #323F48;
-    float: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
     padding: 14px 16px;
-    transition: 0.3s;
 }
 
-/* Change background color of buttons on hover */
+/* Change background color of buttons on hover
 div.tab button:hover {
     background-color: #ddd;
 }
 
-/* Create an active/current tablink class */
+/* Create an active/current tablink class
 div.tab button.active {
     background-color: #ccc;
-}
+}*/
 
 /* Style the tab content */
 .tabcontent {
@@ -309,17 +325,14 @@ div.tab button.active {
     border-top: none;
 }
 
-.simpleButton{
+.simpleButton {
 	border: none;
-	border-radius: 5px; 
-	padding:5px 10px 5px 10px; 
-	margin:1px 10px 1px 10px; 
-	background-color: #505E6B;
+	border-radius: 5px;
+	padding:5px 5px 5px 5px;
+	margin:1px 5px 1px 5px;
 	font-family: Arial;
-	color: white;
     outline: none;
 }
-
 
 .trussButtonDiv {
 	display: inline;
@@ -328,22 +341,15 @@ div.tab button.active {
 
 .trussButton {
 	border: none;
-	background-color: #505E6B;
-	font-family: Arial;
-	color: white;
+/* 	background-color: #505E6B;
+	color: white; */
+	color: black;
 	outline: none;
 	display:inline;
     cursor: pointer;
     transition: 0.3s;
 }
 
-.trussButton:hover {
-	background-color: #bbb;
-}
-
-.trussButton:active {
-	background-color: white;
-}
 
 .nodeButton {
 	border-radius: 5px 5px 5px 5px;

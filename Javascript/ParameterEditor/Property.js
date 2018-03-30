@@ -65,30 +65,6 @@ class PropertyList {
 	}
 }
 
-/*
-// This handles the large text editing window used for script editing or large texts
-var globalTextEditorSource;
-showTextEditWindow = function(textIdentity) {
-	globalTextEditorSource = textIdentity;
-	let textEditDiv = document.getElementById('textEditDiv');
-	let textEditArea = document.getElementById('textEditArea');
-	let backgroundFilter = document.getElementById('backgroundFilter');
-	backgroundFilter.style.display = 'block';
-	textEditDiv.style.display = 'block';
-	textEditArea.value = textIdentity.value;
-};
-
-editComplete = function() {
-	let textEditDiv = document.getElementById('textEditDiv');
-	let textEditArea = document.getElementById('textEditArea');
-	let backgroundFilter = document.getElementById('backgroundFilter');
-	globalTextEditorSource.value = textEditArea.value;
-	globalTextEditorSource.oninput();
-	backgroundFilter.style.display = 'none';
-	textEditDiv.style.display = 'none';
-};
-*/
-
 
 /**
  * @class Property
@@ -127,135 +103,219 @@ class Property {
 	 */
 	populateProperty(element) {
 		let display = '';
+		let addNodeButton;
 
 		if (this.type == ParameteType.NODELIST) {
 			// OK. try to get it right this time. Not using text.
-			let outerDiv = document.createElement('div');
-			outerDiv.id=this.identity+ 'Container';
-			// outerDiv.style.position='absolute';
-			outerDiv.classList.add('parameterEditArea');
-
-			let valuePair = document.createElement('div');
-			valuePair.classList.add('valuepair');
-			let parameterName = document.createElement('div');
-			parameterName.classList.add('lname');
-			parameterName.title=this.help;
-			parameterName.innerHTML=this.title;
-			let parameterValue = document.createElement('div');
-			parameterValue.classList.add('rvalue');
-			parameterValue.id=this.identity;
-
-			for (let node of this.worldObject) {
-				let nodeButton = document.createElement('button'); // Create the element in memory
-				nodeButton.innerHTML=node.name;
-				nodeButton.classList.add('simpleButton'); // Configure the CSS
-				nodeButton.style.display='block';
-				parameterValue.appendChild(nodeButton);
-				this.registerOnClick(nodeButton, node);
-			}
-
-
-			valuePair.appendChild(parameterName);
-			valuePair.appendChild(parameterValue);
-			outerDiv.appendChild(valuePair);
-			element.appendChild(outerDiv);
+			this.makeNodeButtons(element, this.identity);
 		}
+
+
 		if (this.type == ParameteType.NUMBER) {
-			element.innerHTML = element.innerHTML +
-				'<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
-				'<div class="valuepair">' +
-				'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
-				'<div class="rvalue">' +
-				'<input class="text inputcss" type="text" id="' + this.identity + '" value="30"' +
-				' onblur=""' +
-				' style="width: 140px"' +
-				' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
-				'</div>' +
-				'</div>' +
-				'</div>';
+			this.makeNumber(element, this.identity);
 		}
+
+
 		if (this.type == ParameteType.STRING) {
-			element.myDummy = this;
-			element.innerHTML = element.innerHTML +
-				'<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
-				'<div class="valuepair">' +
-				'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
-				'<div class="rvalue">' +
-				'<input class="text inputcss" type="text" id="' + this.identity + '"' +
-				' onblur="" style="width: 140px"' +
-				' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
-				'</div>' +
-				'</div>' +
-				'</div>';
+			this.makeString(element, this.identity);
 		}
-		/* if (this.type == ParameteType.SELECTION) {
-			let makeSmall = '';
-			if (this.selections.length > 5) makeSmall = ' style="font-size: 16px;" ';
-			element.innerHTML = element.innerHTML +
-                '<div class="parameterEditArea"' + display + ' id="' + this.identity + 'Container">' +
-                '<div class="valuepair">' +
-                '<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
-                '<div class="rvalue">' +
-                '<select id="' + this.identity + '" oninput="' + this.getOnChange() + '"' +
-                ' onblur="' + this.getOnChange() + '" ' + makeSmall + '>' +
-                this.generateOptions(this.selections) +
-                '</select>' +
-                '</div>' +
-                '</div>' +
-                '</div>';
-		}*/
+
 		if (this.type == ParameteType.POSITION) {
-			element.innerHTML = element.innerHTML +
-				'<div class="parameterEditArea"' + display +
-				'id="' + this.identity + 'Container">' +
-				'<div style="width:32%; ">'+this.propertyName+'</div>' +
-				'<div class="valuepair" style="width:33%">' +
-				'<div class="lname">X</div>' +
-				'<div class="rvalue" >' +
-				'<input class="text inputcss" type="text" id="' + this.identity + 'X" value="30"' +
-				' onblur="" style="width: 60px"' +
-				' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].x=parseInt(z.value,0);})(event,this)">' +
-				'</div>' +
-				'</div>' +
-				'<div class="valuepair" style="width:33%">' +
-				'<div class="lname">Y</div>' +
-				'<div class="rvalue">' +
-				'<input class="text inputcss" type="text" id="' + this.identity + 'Y" value="30"' +
-				' onblur="" style="width: 60px"' +
-				' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].y=parseInt(z.value,0);})(event,this)">' +
-				'</div>' +
-				'</div>' +
-				'</div>';
+			this.makePosition(element, this.identity, display);
 		}
-
-		// this.HTMLElement=document.getElementById(this.identity);
-
-		/*
-		if (this.type == 'Audio' || this.type == 'Video') {
-			let selectionType;
-			if (this.type == 'Video') {
-				selectionType = 'videoselect';
-			} else {
-				selectionType = 'audioselect';
-			}
-			elem.innerHTML = elem.innerHTML +
-                '<divclass="parameterEditArea"' + display + ' id="' + this.getIdentity() + 'Container">' +
-                '<div class="valuepair">' +
-                '<div title="' + this.help + '" class="lname">' + this.title + '</div>' +
-                '<div class="rvalue">' +
-                '<input class="text" type="text" id="' + this.getIdentity() + '" value=""' +
-                ' style="text-align: right; width:140px;"' +
-                ' onclick="setupFileSelectionPanel(\'' + selectionType + '\',' +
-                'function(type, filename ){ ' +
-                'var x=document.getElementById(\'' + this.getIdentity() + '\'); ' +
-                'x.value=simplifyPath(filename);' +
-                'x.oninput();})"' +
-                ' oninput="' + this.getOnChange() + '">' +
-                '</div>' +
-                '</div>' +
-                '</div>';
-		}*/
 	};
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 * @param  {String} display
+	 */
+	makePosition(element, id, display) {
+		let parameterValue = this.createNameValuePair(element);
+
+		let xValuePair = document.createElement('div');
+		xValuePair.classList.add('valuepair');
+		xValuePair.classList.add('xyvaluepair');
+		parameterValue.appendChild(xValuePair);
+		let parameterName = document.createElement('div');
+		parameterName.classList.add('lname');
+		parameterName.innerHTML = 'X';
+		xValuePair.appendChild(parameterName);
+		let xparameterValue = document.createElement('div');
+		xparameterValue.classList.add('rvalue');
+		xValuePair.appendChild(xparameterValue);
+
+		let xinputField = this.makeInputField(id+'X', parameterValue);
+		xinputField.style.width='50px';
+		xparameterValue.appendChild(xinputField);
+
+		let yValuePair = document.createElement('div');
+		yValuePair.classList.add('valuepair');
+		yValuePair.classList.add('xyvaluepair');
+		parameterValue.appendChild(yValuePair);
+		let yparameterName = document.createElement('div');
+		yparameterName.classList.add('lname');
+		yparameterName.innerHTML = 'Y';
+		yValuePair.appendChild(yparameterName);
+		let yparameterValue = document.createElement('div');
+		yparameterValue.classList.add('rvalue');
+		yValuePair.appendChild(yparameterValue);
+
+		let yinputField = this.makeInputField(id+'Y', parameterValue);
+		yinputField.style.width='50px';
+		yparameterValue.appendChild(yinputField);
+
+		return;
+		/*
+		element.innerHTML = element.innerHTML +
+			'<div class="parameterEditArea"' + display +
+			'id="' + this.identity + 'Container">' +
+			'<div class="valuepair">' +
+			'<div class="lname">' + this.propertyName + '</div>' +
+			'<div class="rvalue" >' +
+			'<div class="valuepair" style="display:inline-block; width:70px; margin-bottom: -4px;">' +
+			'<div class="lname">X</div>' +
+			'<div class="rvalue" >' +
+			'<input class="text inputcss" type="text" id="' + this.identity + 'X" value="30"' +
+			' onblur="" style="width: 50px; "' +
+			' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].x=parseInt(z.value,0);})(event,this)">' +
+			'</div>' +
+			'</div>' +
+			'<div class="valuepair" style="width:70px; display:inline-block; margin-bottom: -4px;">' +
+			'<div class="lname">Y</div>' +
+			'<div class="rvalue">' +
+			'<input class="text inputcss" type="text" id="' + this.identity + 'Y" value="30"' +
+			' onblur="" style="width: 50px;"' +
+			' oninput="(function (e,z){selectedObject[\'' + this.propertyName + '\'].y=parseInt(z.value,0);})(event,this)">' +
+			'</div>' +
+			'</div>' +
+			'</div>' +
+			'</div>'; */
+	}
+
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 */
+	makeString(element, id) {
+		let parameterValue = this.createNameValuePair(element);
+
+		let inputField = this.makeInputField(id, parameterValue);
+		parameterValue.appendChild(inputField);
+
+		/* element.innerHTML = element.innerHTML +
+			'<div class="parameterEditArea" id="' + this.identity + 'Container">' +
+			'<div class="valuepair">' +
+			'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
+			'<div class="rvalue">' +
+			 '<input class="text inputcss" type="text" id="' + this.identity + '" value="30"' +
+			' style="width: 140px"' +
+			' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
+			'</div>' +
+			'</div>' +
+			'</div>';*/
+	}
+
+	/**
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
+	makeInputField(id, parameterValue) {
+		let inputField = document.createElement('input');
+		inputField.type = 'text';
+		inputField.value = 'Default';
+		inputField.classList.add('text');
+		inputField.classList.add('inputcss');
+		inputField.id = id;
+		inputField.style.width='140px';
+		parameterValue.appendChild(inputField);
+		let _this = this;
+		inputField.addEventListener('input', function(e) {
+			selectedObject[_this.propertyName] = inputField.value;
+		}, false);
+		return inputField;
+	}
+
+	/**
+	 * @param  {Element} element
+	 * @return {Element} The right hand side that should be filled with value container(s)
+	 */
+	createNameValuePair(element) {
+		let outerDiv = document.createElement('div');
+		outerDiv.id = this.identity + 'Container';
+		// outerDiv.style.position='absolute';
+		outerDiv.classList.add('parameterEditArea');
+		element.appendChild(outerDiv);
+		let valuePair = document.createElement('div');
+		valuePair.classList.add('valuepair');
+		outerDiv.appendChild(valuePair);
+		let parameterName = document.createElement('div');
+		parameterName.classList.add('lname');
+		parameterName.title = this.help;
+		parameterName.innerHTML = this.title;
+		valuePair.appendChild(parameterName);
+		let parameterValue = document.createElement('div');
+		parameterValue.classList.add('rvalue');
+		valuePair.appendChild(parameterValue);
+		return parameterValue;
+	}
+
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 */
+	makeNumber(element, id) {
+		let parameterValue = this.createNameValuePair(element);
+		let inputField = this.makeInputField(id, parameterValue);
+		parameterValue.appendChild(inputField);
+
+		return;
+		element.innerHTML = element.innerHTML +
+			'<div class="parameterEditArea" id="' + this.identity + 'Container">' +
+			'<div class="valuepair">' +
+			'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
+			'<div class="rvalue">' +
+			'<input class="text inputcss" type="text" id="' + this.identity + '" value="30"' +
+			' style="width: 140px"' +
+			' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
+			'</div>' +
+			'</div>' +
+			'</div>';
+	}
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 */
+	makeNodeButtons(element, id) {
+		let parameterValue = this.createNameValuePair(element);
+
+		let addNodeButton = document.createElement('button');
+		addNodeButton.innerHTML = 'Add node';
+		addNodeButton.id = id;
+		addNodeButton.classList.add('trussButton');
+		addNodeButton.classList.add('tensorButtonMiddle');
+		addNodeButton.addEventListener('click', function() {
+			alert('RIGHT Add');
+		}, false);
+		parameterValue.appendChild(addNodeButton);
+
+		let removeNodeButton = document.createElement('button');
+		removeNodeButton.innerHTML = 'Remove node';
+		removeNodeButton.classList.add('simpleButton');
+		removeNodeButton.style.display = 'inline';
+		removeNodeButton.addEventListener('click', function() {
+			alert('RIGHT Remove');
+		}, false);
+		parameterValue.appendChild(removeNodeButton);
+		for (let node of this.worldObject) {
+			let nodeButton = document.createElement('button');
+			nodeButton.innerHTML = node.name;
+			nodeButton.classList.add('simpleButton');
+			nodeButton.style.display = 'inline';
+			parameterValue.appendChild(nodeButton);
+			this.registerOnClick(nodeButton, node);
+		}
+	}
 
 	/**
 	 * @param  {buttonObject} but
@@ -340,14 +400,24 @@ class HTMLEditNode extends SensorNode {
 
 		document.addEventListener('selectionEvent',
 			function(e) {
-				_this.select.call(_this, e);
+				_this.select(e, _this);
 			}, false);
+
+		 /* document.addEventListener('selectionEvent',
+			function(e) {
+				_this.select.call(_this, e);
+
+				document.getElementById('defg').addEventListener('click', function() {
+					alert('Xxxx');
+				}, false);
+			}, false);*/
 	}
 
 	/**
 	 * @param  {Event} selectionEvent
+	 * @param  {Object} th
 	 */
-	select(selectionEvent) {
+	select(selectionEvent, th) {
 		this.iO = selectionEvent.detail.selectedObject;
 		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
 
@@ -435,7 +505,7 @@ class EditPropertyWindow {
 	 * @param  {Truss} truss
 	 */
 	createBanner(truss) {
-		this.banner.create(truss, new Position(300, 100));
+		this.banner.create(truss);
 		truss.addNode(this.banner);
 		truss.addNode(this.valueToGUI);
 	}

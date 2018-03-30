@@ -77,5 +77,29 @@ class CollectionNode extends Node {
 				ctx.stroke();
 			}
 		}
-	};
+	}
+
+	/**
+	 */
+	bottonPressedToSelectNew() {
+		let _this = this;
+		this.selectionEventListener=document.addEventListener('selectionEvent',
+			function(e) {
+				if (_this && sensor && selectedObject && selectedObject.isNode) {
+					_this.sensorSelect();
+					_this = undefined;
+				}
+			}, false);
+	}
+
+
+	/**
+	 *
+	 */
+	sensorSelect() {
+		this.nodeCollection.push(selectedObject);
+		if (this.selectionEventListener) {
+			document.removeEventListener('selectionEvent', this.selectionEventListener);
+		}
+	}
 }
