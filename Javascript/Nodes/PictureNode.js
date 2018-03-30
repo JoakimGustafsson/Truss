@@ -23,7 +23,7 @@ class PictureNode extends CollectionNode {
 		this.addProperty(new Property(pictureFileName, 'pictureFileName', 'pictureFileName', 'Picture filename', ParameteType.STRING,
 			ParameterCategory.CONTENT, 'The filename of the picture.'));
 
-		Object.defineProperty(this, 'picName', {
+		Object.defineProperty(this, 'pictureFileName', {
 			get: function() {
 				return this._pictureFileName;
 			},

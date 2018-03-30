@@ -82,7 +82,7 @@ class TrussNode extends Node {
 			'The size of the displayed worldview in that worlds measurement.'));
 
 		this.addProperty(new Property(undefined,
-			'setWorldOffset', 'setWorldOffset', 'The position you are looking at', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The world coordinates of the upper left corner.'));
 
 		this.addProperty(new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
@@ -98,8 +98,8 @@ class TrussNode extends Node {
 		this.addProperty(new Property(tensors, 'tensors', 'tensors', 'All Tensors', ParameteType.STRING,
 			ParameterCategory.CONTENT, 'All tensors in the Truss.'));*/
 
-		this.addProperty(new Property(debugLevel, 'debugLevel', 'debugLevel', 'Debug level', ParameteType.STRING,
-			ParameterCategory.CONTENT, 'Debug level.'));
+		// this.addProperty(new Property(debugLevel, 'debugLevel', 'debugLevel', 'Debug level', ParameteType.STRING,
+		//	ParameterCategory.CONTENT, 'Debug level.'));
 	}
 
 	/**

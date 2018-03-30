@@ -122,11 +122,11 @@ function displaySaves(text) {
 		fileName = fileList[i];
 		if (getFileExtension(fileName) == 'json') {
 			fullPath = '../Saves/' + fileName;
-			element = document.createElement('span');
+			element = document.createElement('div');
 			element.className = 'filename';
 			element.innerHTML = fileName;
 			fileListElement.appendChild(element);
-			fileListElement.appendChild(document.createElement('br'));
+			// fileListElement.appendChild(document.createElement('br'));
 			element.title = fileName;
 			element.setAttribute('onclick', 'loadFile(\'' + fileName + '\');');
 			element.setAttribute('onmouseover', 'highLightFile(this);');

@@ -144,7 +144,7 @@ class Property {
 		xparameterValue.classList.add('rvalue');
 		xValuePair.appendChild(xparameterValue);
 
-		let xinputField = this.makeInputField(id+'X', parameterValue);
+		let xinputField = this.makeViewOfInputField(id+'X', parameterValue);
 		xinputField.style.width='50px';
 		xparameterValue.appendChild(xinputField);
 
@@ -160,9 +160,19 @@ class Property {
 		yparameterValue.classList.add('rvalue');
 		yValuePair.appendChild(yparameterValue);
 
-		let yinputField = this.makeInputField(id+'Y', parameterValue);
+		let yinputField = this.makeViewOfInputField(id+'Y', parameterValue);
 		yinputField.style.width='50px';
 		yparameterValue.appendChild(yinputField);
+
+		let _this = this;
+
+		xinputField.addEventListener('input', function(e) {
+			selectedObject[_this.propertyName].x = parseInt(xinputField.value);
+		}, false);
+
+		yinputField.addEventListener('input', function(e) {
+			selectedObject[_this.propertyName].y = parseInt(yinputField.value);
+		}, false);
 
 		return;
 		/*
@@ -221,6 +231,20 @@ class Property {
 	 * @return {Element}
 	 */
 	makeInputField(id, parameterValue) {
+		let inputField = this.makeViewOfInputField(id, parameterValue);
+		let _this = this;
+		inputField.addEventListener('input', function(e) {
+			selectedObject[_this.propertyName] = inputField.value;
+		}, false);
+		return inputField;
+	}
+
+	/**
+		 * @param  {String} id
+		 * @param  {Element} parameterValue
+		 * @return {Element}
+		 */
+	makeViewOfInputField(id, parameterValue) {
 		let inputField = document.createElement('input');
 		inputField.type = 'text';
 		inputField.value = 'Default';
@@ -229,10 +253,6 @@ class Property {
 		inputField.id = id;
 		inputField.style.width='140px';
 		parameterValue.appendChild(inputField);
-		let _this = this;
-		inputField.addEventListener('input', function(e) {
-			selectedObject[_this.propertyName] = inputField.value;
-		}, false);
 		return inputField;
 	}
 

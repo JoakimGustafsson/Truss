@@ -56,10 +56,10 @@
 								<div id="configview" class="sectionmiddle"></div>
 							</div>
 
-							<div id="connectionDiv" class="sectionmiddle"></div>
+							<div id="connectionDiv" class="sectionmiddle" align="right"></div>
 
 
-							<div id="addDiv" class="sectionlast">
+							<div id="addDiv" class="sectionlast"  align="right">
 								<!-- div class="sectionheader">Configuration</div> -->
 								<div>
 									<select id='nodeType' oninput='' class="inputcss">
@@ -107,15 +107,16 @@
 						</div>
 					</div>
 
-					<div id="addDiv" class="footerbackgroundarea tabcontent">
-						<!-- div class="sectionheader">Configuration</div> -->
+					<!--<div id="addDiv" class="footerbackgroundarea tabcontent" >
+						 div class="sectionheader">Configuration</div> 
 						<div>
 							<button class="simpleButton" type="button">New Node</button>
 						</div>
 						<div>
 							<button class="simpleButton" type="button">New Tensor</button>
 						</div>
-					</div>
+					</div>-->
+
 					<div id="trussDiv" class="footerbackgroundarea tabcontent">
 
 						<div class="sectionbase">
@@ -132,20 +133,18 @@
 
 					<div id="fileDiv" class="footerbackgroundarea tabcontent">
 
-						<div class="sectionbase">
+						<div class="sectionbase" align="right">
 
-							<div class="fileList" id="fileList">X</div>
+							<div class="fileList" id="fileList" align="left">X</div>
 
-							<div class="valuepair">
-								<div title="Filename" class="lname">Filename</div>
-								<div class="rvalue">
-									<input class="text" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px;">
-								</div>
-							</div>
+									<input class="inputcss" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px; margin: 5px 0px;">
+								
+
+								<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
+							
 						</div>
 
 
-						<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
 
 					</div>
 
