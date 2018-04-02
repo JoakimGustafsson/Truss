@@ -30,13 +30,6 @@
 </head>
 
 <body style="background-color: #343f48; margin:0px;" onresize="updateResize()">
-	<!--<img id="dimage" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; "
-	    alt="Mountain View">
-	 <div style="border:2px solid red; width:300px; height:300px;">
-		<img id="dimage2" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; clip: rect(0px,100px,300px,0px);"
-		    alt="Mountain View">
-	</div> -->
-
 
 	<section>
 		<div id="TrussBackground" class="trussBackgroundDiv" align="left">
@@ -50,7 +43,6 @@
 					</div>
 
 					<div id="propertiesDiv" class="footerbackgroundarea tabcontent">
-						<!--- div class="sectionheader">Configuration</div> -->
 						<div class="sectionbase">
 							<div id="propertyConfigArea">
 								<div id="configview" class="sectionmiddle"></div>
@@ -60,7 +52,6 @@
 
 
 							<div id="addDiv" class="sectionlast"  align="right">
-								<!-- div class="sectionheader">Configuration</div> -->
 								<div>
 									<select id='nodeType' oninput='' class="inputcss">
 										<option value='Node'>Node</option>
@@ -89,7 +80,6 @@
 
 						<div class="sectionlast">
 							<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
-							<!-- <button class="simpleButton" type="button" onclick="mainNode.toggleMove()">Lock</button> -->
 							<button id="gravityButton" class="simpleButton" type="button" onclick="addGravityCheat();">Gravity</button>
 							<button class="simpleButton" type="button" onclick="deleteSelected()">Delete</button>
 
@@ -106,16 +96,6 @@
 							</select>
 						</div>
 					</div>
-
-					<!--<div id="addDiv" class="footerbackgroundarea tabcontent" >
-						 div class="sectionheader">Configuration</div> 
-						<div>
-							<button class="simpleButton" type="button">New Node</button>
-						</div>
-						<div>
-							<button class="simpleButton" type="button">New Tensor</button>
-						</div>
-					</div>-->
 
 					<div id="trussDiv" class="footerbackgroundarea tabcontent">
 
@@ -138,10 +118,9 @@
 							<div class="fileList" id="fileList" align="left">X</div>
 
 									<input class="inputcss" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px; margin: 5px 0px;">
-								
 
 								<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
-							
+
 						</div>
 
 

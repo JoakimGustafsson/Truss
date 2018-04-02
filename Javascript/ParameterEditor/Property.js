@@ -422,15 +422,6 @@ class HTMLEditNode extends SensorNode {
 			function(e) {
 				_this.select(e, _this);
 			}, false);
-
-		 /* document.addEventListener('selectionEvent',
-			function(e) {
-				_this.select.call(_this, e);
-
-				document.getElementById('defg').addEventListener('click', function() {
-					alert('Xxxx');
-				}, false);
-			}, false);*/
 	}
 
 	/**

@@ -14,20 +14,37 @@ class View {
 	 * @param  {Element} element The HTML element displaying the world view
 	 */
 	constructor(worldViewSize, element) {
-		let _this=this;
 		this.element=element;
-		this.screenSize = new AlertVector(new Vector(element.offsetWidth, element.offsetHeight), function(v) {
-			element.offsetWidth=v.x;
-			element.offsetHeight=v.y;
-			_this.recalculate();
-		});
-		this.worldViewSize = new AlertVector(worldViewSize, function(x) {
-			_this.recalculate();
-		});
+		this.setupAlertVectors(element, worldViewSize);
 
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
 		this.resize();
+	}
+	/**
+	 * @param  {Element} element
+	 * @param  {Position} worldViewSize
+	 */
+	setupAlertVectors(element, worldViewSize) {
+		let x=0;
+		let y=0;
+		let _this=this;
+		if (element) {
+			x = element.offsetWidth;
+			y = element.offsetHeight;
+		}
+		this.screenSize = new AlertVector(new Vector(x, y), function(v) {
+			element.offsetWidth = v.x;
+			element.offsetHeight = v.y;
+			_this.recalculate();
+		});
+		if (worldViewSize) {
+			x = worldViewSize.x;
+			y = worldViewSize.y;
+		}
+		this.worldViewSize = new AlertVector(new Vector(x, y), function(x) {
+			_this.recalculate();
+		});
 	}
 
 	/** Multiply this number with a screen distance in pixels to get the world distance
@@ -60,8 +77,10 @@ class View {
 	 * @return {View}
 	 */
 	deserialize(restoreObject) {
-		this.screenSize = new Vector().deserialize(restoreObject.screenSize);
-		this.worldViewSize = new Vector().deserialize(restoreObject.worldViewSize);
+		let screenSize = new Vector().deserialize(restoreObject.screenSize);
+		this.element.style.width=screenSize.x+"px";
+		this.element.style.height=screenSize.y+"px";
+		this.setupAlertVectors(this.element, new Vector().deserialize(restoreObject.worldViewSize));
 		this.offset = new Vector().deserialize(restoreObject.offset);
 		this.recalculate();
 		return this;

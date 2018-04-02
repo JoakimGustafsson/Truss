@@ -220,6 +220,25 @@ class AlertVector {
 			},
 		});
 	}
+
+	/**
+	 * Returns the vector pointing in exactly the opposite direction
+	 * @return {Vector} The vector pointing in exactly the oposite direction
+	 */
+	serialize() {
+		return this.v.serialize();
+	};
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @return {Vector}
+	 */
+	deserialize(restoreObject) {
+		if (!this.v) {
+			this.v=new Position(restoreObject.x, restoreObject.y);
+		}
+		return this;
+	};
 }
 
 /**

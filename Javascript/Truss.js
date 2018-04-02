@@ -93,6 +93,10 @@ class Truss {
 	deserialize(restoreObject, superNodeList, superTensorList) {
 		this.displayDivName = restoreObject.displayDivName;
 		this.element=document.getElementById(this.displayDivName);
+		if (!this.element) {
+			this.element=document.createElement('div');
+			this.element.id=this.displayDivName;
+		}
 
 		// Create empty nodes and tensors
 		let nodeList=[];
@@ -130,7 +134,8 @@ class Truss {
 		this.framesThisSecond= restoreObject.framesThisSecond;
 		this.lastFpsUpdate= restoreObject.lastFpsUpdate;
 
-		this.view = new View().deserialize(restoreObject.view);
+		let tempView= new View(restoreObject.view.worldViewSize, this.element);
+		this.view = tempView.deserialize(restoreObject.view);
 
 		return this;
 	}
