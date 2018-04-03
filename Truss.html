@@ -16,6 +16,7 @@
 	<script src="Javascript/Nodes/Sensors.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/Property.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/BannerNode.js" type="text/javascript"></script>
+	<script src="Javascript/ParameterEditor/ConfigurationArea.js" type="text/javascript"></script>
 	<script src="Javascript/Pictures.js" type="text/javascript"></script>
 	<script src="Javascript/ExperimentalTrusses.js" type="text/javascript"></script>
 
@@ -33,12 +34,12 @@
 
 	<section>
 		<div id="TrussBackground" class="trussBackgroundDiv" align="left">
-			<div class="configareaouter" id="configarea">
+		<!-- 	<div class="configareaouter" id="configarea">
 				<div class="configareainner">
 
 					<div class="tab">
-						<button class="tabsectionbuttons" id="propertiesButton" onclick="MovePropertyEdit('propertyConfigArea'); openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
-						<button class="tabsectionbuttons" onclick="MovePropertyEdit('trussConfigArea'); openBottomPanel(event, 'trussDiv'); ">TRUSS</button>
+						<button class="tabsectionbuttons" id="propertiesButton" onclick="movePropertyEdit('propertyConfigArea'); openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
+						<button class="tabsectionbuttons" onclick="movePropertyEdit('trussConfigArea'); openBottomPanel(event, 'trussDiv'); ">TRUSS</button>
 						<button class="tabsectionbuttons advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
 					</div>
 
@@ -117,7 +118,7 @@
 
 							<div class="fileList" id="fileList" align="left">X</div>
 
-									<input class="inputcss" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px; margin: 5px 0px;">
+									<input class="inputcss filenameInput" type="text" id="fileNameInput" value="myFile">
 
 								<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
 
@@ -130,7 +131,7 @@
 				</div>
 
 
-			</div>
+			</div> -->
 
 
 		</div>
@@ -169,6 +170,12 @@
 				FPSdisplay = document.getElementById("FPSdisplay");
 				trussBackground = document.getElementById("TrussBackground");
 
+				// let configarea = document.getElementById('configarea');
+				//  trussBackground.removeChild(configarea);
+
+				let configarea=createConfigurationArea("configarea");
+				trussBackground.appendChild(configarea);
+
 				let mainView = new View(new Vector(20, 20), trussBackground);
 				mainNode = new TrussNode(undefined, new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss,
 					'TrussBackground');
@@ -176,13 +183,11 @@
 
 				window.requestAnimationFrame(mainLoop);
 
-
-
 				mainView.context.canvas.onmousemove = myMove;
 				mainView.context.canvas.onmousedown = downMouse;
 				mainView.context.canvas.onmouseup = upMouse;
 
-				let configarea = document.getElementById('configarea');
+
 				let connectionDiv = document.getElementById('connectionDiv');
 				let gravitybutton = document.getElementById('gravitybutton');
 				let tensorAdder = document.getElementById('tensorAdder');
@@ -357,7 +362,7 @@
 				mainNode.resize();
 			}
 
-			function MovePropertyEdit(configAreaName) {
+			function movePropertyEdit(configAreaName) {
 				if (configAreaName == 'trussConfigArea') {
 					selectMainNode();
 				}

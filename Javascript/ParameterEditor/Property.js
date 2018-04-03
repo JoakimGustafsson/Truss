@@ -288,19 +288,7 @@ class Property {
 		let parameterValue = this.createNameValuePair(element);
 		let inputField = this.makeInputField(id, parameterValue);
 		parameterValue.appendChild(inputField);
-
 		return;
-		element.innerHTML = element.innerHTML +
-			'<div class="parameterEditArea" id="' + this.identity + 'Container">' +
-			'<div class="valuepair">' +
-			'<div title="' + this.help + '"  class="lname">' + this.title + '</div>' +
-			'<div class="rvalue">' +
-			'<input class="text inputcss" type="text" id="' + this.identity + '" value="30"' +
-			' style="width: 140px"' +
-			' oninput="(function (e,x){selectedObject[\'' + this.propertyName + '\']=x.value;})(event,this)">' +
-			'</div>' +
-			'</div>' +
-			'</div>';
 	}
 	/**
 	 * @param  {Element} element
@@ -377,6 +365,7 @@ class Property {
 	 * @param  {Object} selectedObject
 	 */
 	showPropertyValue(selectedObject) {
+
 		if (this.type == ParameteType.POSITION) {
 			let elementX = document.getElementById(this.identity + 'X');
 			let elementY = document.getElementById(this.identity + 'Y');

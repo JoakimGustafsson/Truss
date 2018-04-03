@@ -165,7 +165,7 @@ option {
 }
 
 .sectionlast {
-	margin: 0px 10px 10px 10px;
+	padding: 5px 0px;
 }
 
 .ogbutton {
@@ -269,7 +269,11 @@ option {
 	border: 0px;
     cursor: pointer;
 }
-
+.filenameInput {
+	text-align: right;
+	width:140px;
+	margin: 5px 0px;
+}
 .selectedfilename {
     cursor: pointer;
 }
