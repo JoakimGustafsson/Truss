@@ -78,8 +78,8 @@ class View {
 	 */
 	deserialize(restoreObject) {
 		let screenSize = new Vector().deserialize(restoreObject.screenSize);
-		this.element.style.width=screenSize.x+"px";
-		this.element.style.height=screenSize.y+"px";
+		this.element.style.width=screenSize.x+'px';
+		this.element.style.height=screenSize.y+'px';
 		this.setupAlertVectors(this.element, new Vector().deserialize(restoreObject.worldViewSize));
 		this.offset = new Vector().deserialize(restoreObject.offset);
 		this.recalculate();

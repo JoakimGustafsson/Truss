@@ -329,7 +329,7 @@ function createConfigurationArea(id) {
 		let nodeSelect = document.createElement('select');
 		nodeSelect.id = 'tensorType';
 		nodeSelect.classList.add('inputcss');
-        surroundingDiv.appendChild(nodeSelect);
+		surroundingDiv.appendChild(nodeSelect);
 		let optionDebug1 = document.createElement('option');
 		optionDebug1.value = 'Spring';
 		optionDebug1.innerHTML = 'Spring';

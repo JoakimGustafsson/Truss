@@ -365,7 +365,6 @@ class Property {
 	 * @param  {Object} selectedObject
 	 */
 	showPropertyValue(selectedObject) {
-
 		if (this.type == ParameteType.POSITION) {
 			let elementX = document.getElementById(this.identity + 'X');
 			let elementY = document.getElementById(this.identity + 'Y');
