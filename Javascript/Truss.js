@@ -14,14 +14,14 @@ class Truss {
 	 * @param  {TrussNode} parentNode
 	 * @param  {View} view
 	 * @param  {number} timestep
-	 * @param  {string} displayDivName
+	 * @param  {Element} element
 	 */
-	constructor(parentNode, view, timestep = 1/60, displayDivName) {
+	constructor(parentNode, view, timestep = 1/60, element) {
 		this.time = 0;
 		this.view = view;
 		this.parentNode=parentNode;
-		this.displayDivName = displayDivName;
-		this.element=document.getElementById(displayDivName);
+		this.entryPoint= new Position(0, 0);
+		this.element=element;
 		this.sensorNodes = [];
 		this.nodes = [];
 
@@ -81,6 +81,7 @@ class Truss {
 
 		representationObject.view = this.view.serialize();
 		representationObject.displayDivName = this.displayDivName;
+		representationObject.entryPoint = this.entryPoint.serialize(this.sensorNodes, this.nodes);
 		return representationObject;
 	}
 
@@ -133,6 +134,7 @@ class Truss {
 		this.fps= restoreObject.fps;
 		this.framesThisSecond= restoreObject.framesThisSecond;
 		this.lastFpsUpdate= restoreObject.lastFpsUpdate;
+		this.entryPoint= new Position().deserialize(restoreObject.entryPoint);
 
 		let tempView= new View(restoreObject.view.worldViewSize, this.element);
 		this.view = tempView.deserialize(restoreObject.view);

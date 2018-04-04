@@ -7,7 +7,7 @@ class TrussNode extends Node {
 	/** Create a node that can contain a Truss within itself.
 	 * @param  {Truss} parentTruss
 	 * @param  {Position} startPosition
-	 * @param  {View} view
+	 * @param  {Position} viewSize
 	 * @param  {number} timestep
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -17,22 +17,20 @@ class TrussNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(parentTruss, startPosition = new Vector(0, 0), view, timestep = 0.016,
-		mass = 1, name = 'trussNode', TrussClass = 'Truss', displayDivName, ...args) {
+	constructor(parentTruss, startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
+		mass = 1, name = 'trussNode', TrussClass = 'Truss', ...args) {
 		super(parentTruss, startPosition, mass, name, ...args);
-		this.displayDivName=displayDivName;
 
-		this.addProperty(new Property(displayDivName, 'displayDivName', 'displayDivName', 'HTML container id', ParameteType.STRING,
-			ParameterCategory.CONTENT, 'The identity of the HTML elemet containing the truss graphics.'));
+		// this.addProperty(new Property(displayDivName, 'displayDivName', 'displayDivName', 'HTML container id', ParameteType.STRING,
+		//	ParameterCategory.CONTENT, 'The identity of the HTML elemet containing the truss graphics.'));
 
-
+		this.element = document.createElement('div');
+		this.view= new View(viewSize, this.element);
 		this.canvas = document.createElement('canvas');
 		this.handleCanvas();
 
-		if (view) {
-			this.truss = new TrussClass(this, view, timestep, displayDivName);
-			this.setView();
-		}
+		this.truss = new TrussClass(this, this.view, timestep, this.element);
+		this.setView();
 
 		Object.defineProperty(this, 'fps', {
 			get: function() {
@@ -100,7 +98,19 @@ class TrussNode extends Node {
 
 		// this.addProperty(new Property(debugLevel, 'debugLevel', 'debugLevel', 'Debug level', ParameteType.STRING,
 		//	ParameterCategory.CONTENT, 'Debug level.'));
+
+		this.propertyDiv = this.element.querySelectorAll('#configview')[0];
+		this.debugLevel = this.element.querySelectorAll('#debugLevel')[0];
 	}
+
+	/**
+	 * @param  {ElementSelector} elementSelector
+	 * @return {Element}
+	 */
+	getElement(elementSelector) {
+		return this.element.querySelectorAll(elementSelector)[0];
+	}
+
 
 	/**
 	 *
@@ -111,10 +121,11 @@ class TrussNode extends Node {
 		this.canvas.style.left = this.localPosition.x + 'px';
 		this.canvas.style.position = 'relative';
 		// this.canvas.style.border = '2px solid red';
-		if (this.displayDivName) {
-			this.element = document.getElementById(this.displayDivName);
-			this.element.appendChild(this.canvas);
-		}
+
+
+		// this.element.align='right';
+
+		this.element.appendChild(this.canvas);
 	}
 
 	/**
@@ -170,7 +181,6 @@ class TrussNode extends Node {
 	 */
 	deserialize(truss, restoreObject, superNodes, superTensors) {
 		super.deserialize(truss, restoreObject, superNodes, superTensors);
-		this.displayDivName=restoreObject.displayDivName;
 		this.truss = objectFactory(truss, restoreObject.truss, superNodes, superTensors).deserialize(restoreObject.truss);
 		this.handleCanvas();
 		this.setView();

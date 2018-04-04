@@ -60,6 +60,37 @@ option {
 	overflow:hidden;
 	}
 
+	.mainTruss  {
+		border: 1px solid yellow;
+		position:absolute;
+		left: 100px;
+		right: 100px;
+		top: 50px;
+		bottom: 50px;
+		cursor: crosshair;
+		overflow:hidden;
+		}
+
+	.govenorTruss {
+			border: 1px solid green;
+			position:absolute;
+			right: 10px;
+			height : 80px;
+			width : 80px;
+			cursor: crosshair;
+			overflow:hidden;
+			}
+
+	.stackTruss {
+				border: 1px solid red;
+				position:absolute;
+				left: 10px;
+				height : 800px;
+				width : 800px;
+				cursor: crosshair;
+				overflow:hidden;
+				}
+
 .valuepair {
 		overflow: auto;
 		position: relative;
@@ -140,6 +171,7 @@ option {
 
   .configareaouter {
 	position: absolute;
+	top:0px;
 	z-index:1000;
 	width:350px;
 	height:300px;

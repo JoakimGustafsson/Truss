@@ -133,8 +133,8 @@ class View {
 	worldPositionWithOffset(x, y) {
 		let bodyRect= document.body.getBoundingClientRect();
 		let elemRect = this.element.getBoundingClientRect();
-		return new Position((x-elemRect.top+bodyRect.top) * this.xScale + this.offset.x,
-			(y-elemRect.left+bodyRect.left) * this.yScale + this.offset.y);
+		return new Position((x-elemRect.left+bodyRect.left) * this.xScale + this.offset.x,
+			(y-elemRect.top+bodyRect.top) * this.yScale + this.offset.y);
 	};
 
 	/**

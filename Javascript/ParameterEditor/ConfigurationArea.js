@@ -6,6 +6,7 @@ function createConfigurationArea(id) {
 	// The area that will be influenced by the Matrix warping
 	let configArea = document.createElement('div');
 	configArea.id = id;
+	configArea.style.display = 'none';
 	configArea.classList.add('configareaouter');
 
 	// The actual whole configuration area
