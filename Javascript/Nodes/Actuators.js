@@ -90,7 +90,7 @@ class BinaryActuatorNode extends ActuatorNode {
 		this.position1 = position1;
 		if (position2) {
 			this.position2 = position2;
-			this.vector = subtractVectors(this.position2, this.position1);
+			this.vector = Vector.subtractVectors(this.position2, this.position1);
 		}
 	}
 

@@ -76,9 +76,10 @@ class WalkTruss extends Truss {
 		this.addNode(Earth);
 		sensor = this.addNode(new Selector(this));
 
-		/*
+
 		// Create a protagonist (yellow circle) and connect it to gravity
-		let protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
+		protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
+		/*
 		// let protagonist = new ProtagonistNode(new Position(0.1, 1), 70, 'Ego1');
 		this.addNode(protagonist);
 
@@ -278,6 +279,78 @@ class WalkTruss extends Truss {
 		));
 		loadTrigger.registerProximity(selectorNode, 1, new Vector(0.5, 0));
 		*/
+	}
+}
+
+/**
+ * @class
+ * @extends Truss
+ */
+class GovenorTruss extends Truss {
+	/**
+	 * @constructor
+	 * @param  {View} view
+	 * @param  {number} updatefrequency
+	 */
+	constructor(...args) {
+		super(...args);
+		this.blur = true;
+	}
+
+
+	/**
+ * @param  {Truss} truss
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
+		representationObject.classname = 'GovenorTruss';
+		return representationObject;
+	}
+
+
+	/**
+	 * @param {Node} protagonist
+	 */
+	initiate(protagonist) {
+		// Set up a keysensornode and make it sensitive to q, e and space
+		let sensorNode = this.addNode(new KeySensorNode(this, new Position(2, 1), 0.01, 'myKeySensorNode'));
+		sensorNode.registerKey(37, new Vector(-1, 0));
+		sensorNode.registerKey(65, new Vector(-1, 0));
+		sensorNode.registerKey(39, new Vector(1, 0));
+		sensorNode.registerKey(68, new Vector(1, 0));
+		sensorNode.registerKey(32, new Vector(0, 1));
+
+
+		let fulcrum = this.addNode(new Node(this, new Position(2, 5), NaN, 'fulcrum', undefined, undefined, 1, 5000));
+
+		this.addTensor(new Spring(fulcrum, sensorNode, 900));
+
+/*
+		// Create two gravitywells and two fields towards them that can be used
+		// by the actuator to pull the protagonist left or right
+		let leftEarth = this.addNode(new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
+		let rightEarth =this.addNode( new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
+		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11)); // 6.67e-11));
+		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
+		let egoGravityField = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
+
+		// Add one actuator that takes care of left - right movement
+		let leftRightActuatorNode = this.addNode(
+			new LeftRightNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
+				leftField1, rightField1, 0.05, 'myLeftRightNode', 0, 0, 0.99));
+
+		// Connect it via a spring to the keysensor node
+		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
+
+
+		let jumpActuator = this.addNode(
+			new JumpNode(protagonist, new Position(0.5, 1), new Position(0.5, 2),
+				egoGravityField, 0.05, 'myJumpNode'));
+
+		this.addTensor(new Spring(sensorNode, jumpActuator, 500, 0.1)); */
 	}
 }
 

@@ -26,7 +26,7 @@ function warpMatrix(truss, element, ar, br, cr, dr) {
 	if (((bcv<0) ||(bcv>1)) && ((dav<0) ||(dav>1))) {
 		element.style.display='none';
 	} else {
-		element.style.display='block';
+// element.style.display='block';
 	}
 
 	if (bcv<0) {

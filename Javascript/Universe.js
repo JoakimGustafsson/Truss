@@ -78,10 +78,10 @@ class Universe {
 	* @param {number} timestamp
 	 */
 	tick(timestamp) {
-		if (!this.universeStack || this.universeStack.getLength()>0 || !this.current) {
+		if (!this.universeStack || this.universeStack.getLength()==0 || !this.current) {
 			console.log('Error in Universe. No current truss.');
 		}
-		this.current.tick();
+		this.current.tick(timestamp);
 		for (let governor of this.governors) {
 			governor.tick(timestamp);
 		}
@@ -100,6 +100,7 @@ class Universe {
 			govDiv.style.top=topPosition+'px';
 			topPosition=topPosition+110;
 			background.appendChild(govDiv);
+			governor.resize();
 		}
 
 		topPosition=10;

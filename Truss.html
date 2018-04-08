@@ -34,28 +34,30 @@
 <body style="background-color: #343f48; margin:0px;" onresize="updateResize()">
 
 	<section>
-		<div id="temp"></div>
+		<div id="mainArea"></div>
 
 		<div id="FPSdisplay" style="position: absolute; left:10px; bottom:10px; color: white;"></div>
 
 		<script type="text/javascript">
-			var mainNode;
 			var mainNode2;
 			var newMainNode;
 			var savedState = 0;
 
 			var selectedObject;
 			var sensor;
+			var protagonist;
 			var universe = new Universe();
+
+			var aa=0,bb=0;
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
 				if (newMainNode) {
-					mainNode.truss.clear();
+					universe.current.truss.clear();
 					universe.pop();
 					universe.current=newMainNode;
 
-					mainNode = newMainNode;
+					universe.current = newMainNode;
 
 					universe.current.canvas.onmousemove = myMove;
 					universe.current.canvas.onmousedown = downMouse;
@@ -63,8 +65,15 @@
 
 					newMainNode = undefined;
 				}
-				universe.current.tick(timestamp / 1000);
-				mainNode2.tick(timestamp / 1000);
+
+				universe.tick(timestamp / 1000);
+
+				if (aa<10) {
+					mainNode2.tick(timestamp / 1000);
+					mainNode3.tick(timestamp / 1000);
+					aa++;
+				}
+				// mainNode3.tick(timestamp / 1000);
 				requestAnimationFrame(mainLoop);
 			}
 
@@ -74,23 +83,35 @@
 
 				trussBackground = document.getElementById("temp");
 
-				mainNode = new TrussNode(undefined, new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
-				mainNode.truss.initiate();
-
 				mainNode2 = new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
 				universe.current=mainNode2;
 				universe.current.truss.initiate();
 				universe.current.resize();
 
-				universe.current=mainNode;
+				mainNode3 = new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode2", WalkTruss);
+				universe.current=mainNode3;
+				universe.current.truss.initiate();
+				universe.current.resize();
 
+				let mainNode = new TrussNode(undefined, new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
+				universe.current=mainNode;
+				universe.current.truss.initiate();
 				universe.current.resize();
 
 
-				//universe.governors.push(new TrussNode(undefined, new Position(0, 0), undefined, 1 / 60, 1, "alphaNode", WalkTruss));
+				let govenorTruss =new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
+				govenorTruss.truss.initiate(protagonist);
+				govenorTruss.resize();
+				universe.governors.push(govenorTruss);
 				//universe.governors.push(new TrussNode(undefined, new Position(0, 0), undefined, 1 / 60, 1, "betaNode", WalkTruss));
 
-				universe.showUniverse1(document.getElementById('temp'));
+				universe.showUniverse1(document.getElementById('mainArea'));
+
+				//mainNode2.tick(0.01);
+				//mainNode2.tick(0.02);
+				//mainNode2.tick(0.03);
+
+				//mainNode3.tick(0.01);
 
 				window.requestAnimationFrame(mainLoop);
 

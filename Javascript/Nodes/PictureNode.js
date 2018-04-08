@@ -52,6 +52,7 @@ class PictureNode extends CollectionNode {
 		}
 		this.element = document.createElement('img');
 		this.element.style.position = 'absolute';
+		this.element.style.display = 'none';
 		this.element.style.left = 0;
 		this.element.style.top = 0;
 		this.element.style.zIndex = -1;

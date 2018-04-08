@@ -405,7 +405,7 @@ class Truss {
 			this.calculate(timestamp-this.delta, this.timestep/2);
 			this.delta -= this.timestep;
 		}
-		// this.calculate(timestamp, this.delta);
+
 		this.clear();
 		this.show(timestamp, this.debugLevel );
 
