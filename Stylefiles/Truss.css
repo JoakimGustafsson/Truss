@@ -85,8 +85,8 @@ option {
 				border: 1px solid red;
 				position:absolute;
 				left: 10px;
-				height : 800px;
-				width : 800px;
+				height : 80px;
+				width : 80px;
 				cursor: crosshair;
 				overflow:hidden;
 				}

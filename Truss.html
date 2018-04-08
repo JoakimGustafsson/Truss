@@ -40,6 +40,7 @@
 
 		<script type="text/javascript">
 			var mainNode;
+			var mainNode2;
 			var newMainNode;
 			var savedState = 0;
 
@@ -63,6 +64,7 @@
 					newMainNode = undefined;
 				}
 				universe.current.tick(timestamp / 1000);
+				mainNode2.tick(timestamp / 1000);
 				requestAnimationFrame(mainLoop);
 			}
 
@@ -74,10 +76,17 @@
 
 				mainNode = new TrussNode(undefined, new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				mainNode.truss.initiate();
-				
-				universe.current=new TrussNode(undefined, new Position(0, 0), undefined, 1 / 60, 1, "StackNode", WalkTruss);
+
+				mainNode2 = new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
+				universe.current=mainNode2;
+				universe.current.truss.initiate();
+				universe.current.resize();
+
 				universe.current=mainNode;
-				
+
+				universe.current.resize();
+
+
 				//universe.governors.push(new TrussNode(undefined, new Position(0, 0), undefined, 1 / 60, 1, "alphaNode", WalkTruss));
 				//universe.governors.push(new TrussNode(undefined, new Position(0, 0), undefined, 1 / 60, 1, "betaNode", WalkTruss));
 
@@ -164,6 +173,8 @@
 			 */
 			function select(selectionEvent) {
 				let select = selectionEvent.detail.selectedObject;
+				let connectionDiv= universe.current.getElement("#connectionDiv");
+
 				if (!select) {
 					connectionDiv.innerHTML = '';
 					return;
@@ -175,7 +186,6 @@
 				}
 
 
-				let connectionDiv= universe.current.getElement("#connectionDiv");
 				connectionDiv.innerHTML = '';
 				connectionDiv.appendChild(select.generateconnectionHTML());
 
@@ -189,11 +199,6 @@
 					gravityButton.style.display = 'none';
 					tensorAdder.style.display = 'none';
 				}
-
-				// if (select!=mainNode) {
-				//	MovePropertyEdit('propertyConfigArea');
-				//	openBottomPanel(undefined, 'propertiesDiv');
-				// }
 			}
 
 			function makeNode() {
@@ -232,29 +237,29 @@
 			}
 
 			function changeDebugLevel() {
-				mainNode.truss.debugLevel = debugLevel.value;
+				universe.current.truss.debugLevel = universe.current.getElement("#debugLevel").value;
 			}
 
 			function addGravityCheat() {
-				mainNode.truss.addTensor(gravityField(selectedObject));
+				universe.current.truss.addTensor(gravityField(selectedObject));
 			}
 
 			function deleteSelected() {
 				if (selectedObject.isTensor) {
-					mainNode.truss.removeTensor(selectedObject);
+					universe.current.truss.removeTensor(selectedObject);
 				} else if (selectedObject.isNode) {
-					mainNode.truss.removeNode(selectedObject);
+					universe.current.truss.removeNode(selectedObject);
 				}
 			}
 
 			function selectMainNode() {
 				let previousSelectedObject = selectedObject;
-				selectedObject = mainNode;
+				selectedObject = universe.current;
 				let event = new CustomEvent('selectionEvent', {
 					detail: {
 						'selectedObject': selectedObject,
 						'previousSelectedObject': previousSelectedObject,
-						'truss': undefined,
+						'truss': selectedObject.truss,
 					},
 					bubbles: true,
 					cancelable: true,
@@ -270,8 +275,8 @@
 				if (configAreaName == 'trussConfigArea') {
 					selectMainNode();
 				}
-				let view = document.getElementById('configview');
-				let container = document.getElementById(configAreaName);
+				let view = universe.current.getElement("#configview");
+				let container =universe.current.getElement("#"+configAreaName);
 				container.appendChild(view);
 			}
 

@@ -110,6 +110,7 @@ class Universe {
 			stackDiv.style.top=topPosition+'px';
 			topPosition=topPosition+110;
 			background.appendChild(stackDiv);
+			stackTruss.resize();
 		}
 
 		let mainDiv = this.current.element;

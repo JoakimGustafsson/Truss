@@ -98,21 +98,12 @@ class Property {
 		let addNodeButton;
 
 		if (this.type == ParameteType.NODELIST) {
-			// OK. try to get it right this time. Not using text.
 			this.makeNodeButtons(element, this.identity);
-		}
-
-
-		if (this.type == ParameteType.NUMBER) {
+		} else if (this.type == ParameteType.NUMBER) {
 			this.makeNumber(element, this.identity);
-		}
-
-
-		if (this.type == ParameteType.STRING) {
+		} else if (this.type == ParameteType.STRING) {
 			this.makeString(element, this.identity);
-		}
-
-		if (this.type == ParameteType.POSITION) {
+		} else if (this.type == ParameteType.POSITION) {
 			this.makePosition(element, this.identity, display);
 		}
 	};
@@ -368,7 +359,9 @@ class HTMLEditNode extends SensorNode {
 
 		document.addEventListener('selectionEvent',
 			function(e) {
-				_this.select(e, _this);
+				if (universe.current.truss==_this.truss) {
+					_this.select(e, _this);
+				}
 			}, false);
 	}
 
@@ -432,7 +425,7 @@ class EditPropertyWindow {
 	 * @param  {number} screenHeight
 	 */
 	constructor(truss, topScreenPos, screenWidth, screenHeight) {
-		// let truss = trussNode.truss;
+		this.truss=truss;
 		// let elem = document.getElementById('configarea');
 		let outerElement = createConfigurationArea('test');
 		truss.element.appendChild(outerElement);
@@ -444,7 +437,9 @@ class EditPropertyWindow {
 
 		document.addEventListener('selectionEvent',
 			function(e) {
-				_this.select.call(_this, e);
+				if (universe.current.truss==_this.truss) {
+					_this.select.call(_this, e);
+				}
 			}, false);
 	}
 
@@ -452,9 +447,15 @@ class EditPropertyWindow {
 	 * @param  {Event} selectionEvent
 	 */
 	select(selectionEvent) {
+		let truss = selectionEvent.detail.truss;
+		if (truss!=this.truss) {
+			return;
+		}
 		let selectedObject = selectionEvent.detail.selectedObject;
 		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-		let truss = selectionEvent.detail.truss;
+		if (this.truss!=truss) {
+			return;
+		}
 		if (!previousSelectedObject && selectedObject) {
 			this.createBanner(truss);
 		} else if (previousSelectedObject && !selectedObject) {

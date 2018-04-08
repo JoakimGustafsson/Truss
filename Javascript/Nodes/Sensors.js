@@ -520,6 +520,9 @@ class Selector extends SensorNode {
 	 * @param {Truss} truss
 	 */
 	sense(deltaTime, truss) {
+		if (truss!=universe.current.truss) {
+			return;
+		}
 		this.cursorPosition = truss.view.worldPositionWithOffset(myX, myY);
 		let closest = truss.getClosestObject(this.cursorPosition, 20*truss.view.getDistanceMultiplier(), this);
 

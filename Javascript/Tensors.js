@@ -25,7 +25,7 @@ class Tensor {
 		this.tensorType = type;
 		this.properties = new PropertyList();
 		this.collideDistanceMapping = {};
-		this.force = 0;
+		this.force = new Force(0, 0);
 		this.ghost = false;
 		this.isTensor=true;
 		this.color='grey';

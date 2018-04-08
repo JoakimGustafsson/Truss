@@ -265,7 +265,7 @@ function createConfigurationArea(id) {
 		debugLevelSelect.appendChild(optionDebug5);
 		let optionDebug6 = document.createElement('option');
 		optionDebug6.value = '5';
-		optionDebug6.innerHTML = 'Lines and Nodess';
+		optionDebug6.innerHTML = 'Lines and Nodes';
 		debugLevelSelect.appendChild(optionDebug6);
 		let optionDebug7 = document.createElement('option');
 		optionDebug7.value = '6';
