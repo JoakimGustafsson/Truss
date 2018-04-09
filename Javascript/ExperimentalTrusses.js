@@ -78,7 +78,7 @@ class WalkTruss extends Truss {
 
 
 		// Create a protagonist (yellow circle) and connect it to gravity
-		protagonist = new ProtagonistNode(new Position(3, 2.9), 70, 'Ego1');
+		protagonist = this.addNode(new ProtagonistNode(this, new Position(5, 5), 70, 'Ego1'));
 		/*
 		// let protagonist = new ProtagonistNode(new Position(0.1, 1), 70, 'Ego1');
 		this.addNode(protagonist);
@@ -326,26 +326,26 @@ class GovenorTruss extends Truss {
 
 		let fulcrum = this.addNode(new Node(this, new Position(2, 5), NaN, 'fulcrum', undefined, undefined, 1, 5000));
 
-		this.addTensor(new Spring(fulcrum, sensorNode, 900));
+		// this.addTensor(new Spring(fulcrum, sensorNode, 900));
 
-/*
+
 		// Create two gravitywells and two fields towards them that can be used
 		// by the actuator to pull the protagonist left or right
-		let leftEarth = this.addNode(new Node(new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
-		let rightEarth =this.addNode( new Node(new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
-		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11)); // 6.67e-11));
+		let leftEarth = this.addNode(new Node(this, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
+		let rightEarth =this.addNode( new Node(this, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
+		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
-		let egoGravityField = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
+		// let egoGravityField = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 
 		// Add one actuator that takes care of left - right movement
 		let leftRightActuatorNode = this.addNode(
-			new LeftRightNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
+			new LeftRightNode(this, protagonist, new Position(1, 5), new Position(3, 5),
 				leftField1, rightField1, 0.05, 'myLeftRightNode', 0, 0, 0.99));
 
 		// Connect it via a spring to the keysensor node
 		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
 
-
+		/*
 		let jumpActuator = this.addNode(
 			new JumpNode(protagonist, new Position(0.5, 1), new Position(0.5, 2),
 				egoGravityField, 0.05, 'myJumpNode'));
@@ -361,6 +361,7 @@ class GovenorTruss extends Truss {
  */
 class ProtagonistNode extends Node {
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -368,8 +369,8 @@ class ProtagonistNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(startPosition, mass = 70, name = 'ProtagonistNode', positionFunction, showFunction, velocityLoss = 1) {
-		super(startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(truss, startPosition, mass = 70, name = 'ProtagonistNode', positionFunction, showFunction, velocityLoss = 1) {
+		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 	}
 
 	/**
@@ -382,22 +383,25 @@ class ProtagonistNode extends Node {
 		representationObject.classname = 'ProtagonistNode';
 		return representationObject;
 	}
+
 	/**
-	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
-	 * @param  {Canvas} canvas
-	 * @param  {number} time
-	 * @param  {number} graphicDebugLevel
+	 * Draw the circle representing the node
+	 * @param {Truss} truss
+	 * @param {number} time
+	 * @param {number} graphicDebugLevel
 	 */
-	show(canvas, time, graphicDebugLevel = 0) {
-		if (canvas.inside(this.getPosition())) {
-			canvas.context.strokeStyle = 'yellow';
-			canvas.context.beginPath();
-			canvas.drawCircle(this.getPosition(), 0.5);
-			canvas.context.stroke();
-			canvas.context.strokeStyle = 'red';
-			canvas.context.beginPath();
-			canvas.drawCircle(this.getPosition(), 0.01);
-			canvas.context.stroke();
+	show(truss, time, graphicDebugLevel = 0) {
+		let view = truss.view;
+		let cxt = view.context;
+		if (view.inside(this.getPosition())) {
+			cxt.strokeStyle = 'yellow';
+			cxt.beginPath();
+			view.drawCircle(this.getPosition(), 0.5);
+			cxt.stroke();
+			cxt.strokeStyle = 'red';
+			cxt.beginPath();
+			view.drawCircle(this.getPosition(), 0.01);
+			cxt.stroke();
 		}
 	}
 }

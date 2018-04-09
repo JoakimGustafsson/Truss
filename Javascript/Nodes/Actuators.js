@@ -9,6 +9,7 @@ class ActuatorNode extends Node {
 	 * An ActuatorNode represents a node that is used to influence the behaviour of another node.
 	 * The position of this node applies a force or sets a velocity of the obj node.
 	 * @constructor
+	 * @param {Truss} truss - The truss that contains the node
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Position} startPosition - The startposition of the node.
 	 * @param {number} mass - The mass of the actuator node.
@@ -17,8 +18,8 @@ class ActuatorNode extends Node {
 	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
 	 * @param {number} velocityLoss - A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
 	 */
-	constructor(obj, startPosition, mass = 0.001, name = 'actuatornode', positionFunction, showFunction, velocityLoss = 0.99) {
-		super(startPosition, mass, name, positionFunction,
+	constructor(truss, obj, startPosition, mass = 0.001, name = 'actuatornode', positionFunction, showFunction, velocityLoss = 0.99) {
+		super(truss, startPosition, mass, name, positionFunction,
 			showFunction, velocityLoss);
 		this.iO = obj; // the influenced object
 	}
@@ -70,6 +71,7 @@ class BinaryActuatorNode extends ActuatorNode {
 	 * if this node is close to position1, the getState() will return 1. If it is close to position2, getState will return 2.
 	 * Otherwise getState() returns 0;
 	 * @constructor
+	 * @param {Truss} truss - The truss that contains the node
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
 	 * @param {Position} position2 - Sets the state to 2.
@@ -79,14 +81,14 @@ class BinaryActuatorNode extends ActuatorNode {
 	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
 	 * @param {number} velocityLoss - A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
 	 */
-	constructor(obj, position1, position2, mass = 0.001, name = 'binarynode', positionFunction, showFunction, velocityLoss = 0.99) {
+	constructor(truss, obj, position1, position2, mass = 0.001, name = 'binarynode', positionFunction, showFunction, velocityLoss = 0.99) {
 		let startPos;
 		if (position1) {
 			startPos=new Position(position1.x, position1.y);
 		} else {
 			startPos= new Position(0, 0);
 		}
-		super(obj, startPos, mass, name, positionFunction, showFunction, velocityLoss);
+		super(truss, obj, startPos, mass, name, positionFunction, showFunction, velocityLoss);
 		this.position1 = position1;
 		if (position2) {
 			this.position2 = position2;
@@ -145,7 +147,8 @@ class BinaryActuatorNode extends ActuatorNode {
 	getAcceleration(forceAppliers) {
 		// Call parent in order to update this nodes normal acceleration
 		let tempAcceleration = super.getAcceleration(forceAppliers);
-		let acceleration = multiplyVector(dotProduct(this.vector, tempAcceleration), divideVector(this.vector, length2(this.vector)));
+		let acceleration = Vector.multiplyVector(Vector.dotProduct(this.vector, tempAcceleration),
+			Vector.divideVector(this.vector, Vector.length2(this.vector)));
 		return acceleration;
 	};
 
@@ -179,6 +182,7 @@ class JumpNode extends BinaryActuatorNode {
 	 * Create a JumpNode. If this nodes position is close to position 2, then
 	 * the gravityField will be 4 times stronger
 	 * @constructor
+	 * @param {Truss} truss - The truss that contains the node
 	 * @param  {Node} obj - The protagonist node that is influenced by this actuator
 	 * @param  {Position} position1 Start position
 	 * @param  {Position} position2 If this nodes position is close to position 2, then the gravityField will be 4 times stronger
@@ -189,8 +193,9 @@ class JumpNode extends BinaryActuatorNode {
 	 * @param  {function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(obj, position1, position2, gravityField, mass = 0.01, name = 'jumpnode', positionFunction, showFunction, velocityLoss) {
-		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(truss, obj, position1, position2, gravityField, mass = 0.01, name = 'jumpnode',
+		positionFunction, showFunction, velocityLoss) {
+		super(truss, obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
 		if (gravityField) {
 			this.gravityField = gravityField;
 			this.originalGravityConstant = gravityField.constant;
@@ -250,6 +255,7 @@ class JumpNode extends BinaryActuatorNode {
 class LeftRightNode extends BinaryActuatorNode {
 	/**
 	 * @constructor
+	 * @param {Truss} truss - The truss that contains the node
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
 	 * @param {Position} position2 - Sets the state to 2.
@@ -261,11 +267,11 @@ class LeftRightNode extends BinaryActuatorNode {
 	 * @param {function} showFunction - A function that, if present, governs how the actuator node is drawn on screen.
 	 * @param {number} velocityLoss -A value between 0 and 1 that represent the amount of energy that is lost by moving the node.
 	 */
-	constructor(obj, position1, position2,
+	constructor(truss, obj, position1, position2,
 		rightMovementTensor, leftMovementTensor,
 		mass = 0.01, name = 'leftrightnode', positionFunction,
 		showFunction, velocityLoss = 0.99) {
-		super(obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
+		super(truss, obj, position1, position2, mass, name, positionFunction, showFunction, velocityLoss);
 		// this.lineBreakers = [];
 		// this.truss;
 		this.moveFieldConstant = 6.67e-11;

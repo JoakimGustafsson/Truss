@@ -357,9 +357,9 @@ function nodeDistance(n1, n2) {
  * @return {number} This number tells the minimum distance between the P1 P2 line and p3. The sign tells if on right or left side
  */
 function getS(p1, p2, p3) {
-	let a = subtractVectors(p2, p1);
-	let b = subtractVectors(p3, p1);
-	let s = dotProduct(a, perpendicular(b)) / length2(a);
+	let a = Vector.subtractVectors(p2, p1);
+	let b = Vector.subtractVectors(p3, p1);
+	let s = Vector.dotProduct(a, Vector.perpendicular(b)) / Vector.length2(a);
 	return s;
 }
 
@@ -373,9 +373,9 @@ function getS(p1, p2, p3) {
  * @return {number} This represent where on the p1p2 line P3 is closest
  */
 function getT(p1, p2, p3) {
-	let a = subtractVectors(p2, p1);
-	let b = subtractVectors(p3, p1);
-	let t = dotProduct(a, b) / length2(a);
+	let a = Vector.subtractVectors(p2, p1);
+	let b = Vector.subtractVectors(p3, p1);
+	let t = Vector.dotProduct(a, b) / Vector.length2(a);
 	return t;
 }
 
