@@ -51,20 +51,22 @@ class Universe {
 	 * This class is used to represent a stack of Trusses representing the sequence of trusses
 	 * used to get to the currentTruss.
 	 * There is also a collection of governor trusses that will be active all the time.
-	 *
+	 * @param {Element} background
 	 */
-	constructor() {
+	constructor(background) {
 		this.universeStack = new Stack();
 		this.governors = [];
+		this.current = {};
+		this.background=background;
 
-		Object.defineProperty(this, 'current', {
+		/* Object.defineProperty(this, 'current', {
 			get: function() {
 				return this.universeStack.peek();
 			},
 			set: function(value) {
 				this.universeStack.push(value);
 			},
-		});
+		});*/
 	}
 
 	/**
@@ -72,6 +74,15 @@ class Universe {
 	 */
 	pop() {
 		return this.universeStack.pop();
+	}
+
+	/**
+	 * @param {TrussNode} trussNode
+	 * @return {TrussNode}
+	 */
+	push(trussNode) {
+		this.current=trussNode;
+		return this.universeStack.push(trussNode);
 	}
 
 	/**
@@ -88,37 +99,96 @@ class Universe {
 	}
 
 	/**
-	 * @param {Element} background
+	* @param {number} timestamp
 	 */
-	showUniverse1(background) {
-		// mainDiv.align='left';
+	tickAll(timestamp) {
+		if (!this.universeStack || this.universeStack.getLength()==0 || !this.current) {
+			console.log('Error in Universe. No current truss (tickAll).');
+		}
+		for (let stackTruss of this.universeStack.items) {
+			if (this.current!=stackTruss) {
+				stackTruss.tick(timestamp);
+			}
+		}
+	}
+
+	/**
+	 */
+	showUniverse() {
+		this.background.innerHTML='';
 		let topPosition=10;
+		let _this=this;
+
+		let clickFunction = function(refNode) {
+			return function() {
+				_this.setCurrent(refNode);
+			};
+		};
 		for (let governor of this.governors) {
 			let govDiv = governor.element;
 			govDiv.classList.add('govenorTruss');
-			govDiv.id=governor.name+'Div';
+			govDiv.classList.add('govenorTrussFrame');
+			if (!govDiv.initiated) {
+				govDiv.id=governor.name+'Div';
+				govDiv.refNode=governor;
+			}
+			this.background.appendChild(govDiv);
+			govDiv.initiated='true';
 			govDiv.style.top=topPosition+'px';
 			topPosition=topPosition+110;
-			background.appendChild(govDiv);
 			governor.resize();
+			if (!govDiv.selectTrussListener) {
+				govDiv.selectTrussListener= clickFunction(governor);
+				govDiv.addEventListener('click', govDiv.selectTrussListener);
+			}
 		}
 
 		topPosition=10;
 		for (let stackTruss of this.universeStack.items) {
 			let stackDiv = stackTruss.element;
 			stackDiv.classList.add('stackTruss');
-			stackDiv.id=stackTruss.name+'Div';
+			stackDiv.classList.add('stackTrussFrame');
+			if (!stackDiv.initiated) {
+				stackDiv.id=stackTruss.name+'Div';
+				stackDiv.refNode=stackTruss;
+			}
+			this.background.appendChild(stackDiv);
+			stackDiv.initiated='true';
 			stackDiv.style.top=topPosition+'px';
 			topPosition=topPosition+110;
-			background.appendChild(stackDiv);
 			stackTruss.resize();
+			if (!stackDiv.selectTrussListener) {
+				stackDiv.selectTrussListener= clickFunction(stackTruss);
+				stackDiv.addEventListener('click', stackDiv.selectTrussListener);
+				topPosition++;
+			}
 		}
 
 		let mainDiv = this.current.element;
+		mainDiv.classList.remove('govenorTruss');
 		mainDiv.classList.remove('stackTruss');
+		mainDiv.removeEventListener('click', mainDiv.selectTrussListener);
+		mainDiv.selectTrussListener = undefined;
 		mainDiv.classList.add('mainTruss');
 		mainDiv.style.top='10px';
 		mainDiv.id='TrussBackground';
+	}
+
+	/**
+	 * @param  {Node} newCurrent
+	 */
+	setCurrent(newCurrent) {
+		if (this.current) {
+			this.current.element.classList.remove('mainTruss');
+			this.current.canvas.onmousedown = undefined;
+			this.current.canvas.onmouseup = undefined;
+		}
+		this.current=newCurrent;
+		this.showUniverse();
+		this.current.canvas.onmousedown = downMouse;
+		this.current.canvas.onmouseup = upMouse;
+		newCurrent.resize();
+		setupTicks=10;
 	}
 }
 

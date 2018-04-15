@@ -44,34 +44,34 @@
 			var savedState = 0;
 
 			var selectedObject;
-			var sensor;
 			var protagonist;
-			var universe = new Universe();
+			var universe = new Universe(document.getElementById('mainArea'));
 
-			var aa=0,bb=0;
+			var setupTicks=3;
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
-				if (newMainNode) {
+					/* if (newMainNode) {
 					universe.current.truss.clear();
 					universe.pop();
 					universe.current=newMainNode;
 
 					universe.current = newMainNode;
 
-					universe.current.canvas.onmousemove = myMove;
-					universe.current.canvas.onmousedown = downMouse;
-					universe.current.canvas.onmouseup = upMouse;
-
+					//universe.current.canvas.onmousemove = myMove;
+					//universe.current.canvas.onmousedown = downMouse;
+					//universe.current.canvas.onmouseup = upMouse;
+					document.getElementById('mainArea').onmousemove = myMove;
+					document.getElementById('mainArea').onmousedown = downMouse;
+					document.getElementById('mainArea').onmouseup = upMouse;
 					newMainNode = undefined;
-				}
+				}	*/
 
 				universe.tick(timestamp / 1000);
 
-				if (aa<10) {
-					mainNode2.tick(timestamp / 1000);
-					mainNode3.tick(timestamp / 1000);
-					aa++;
+				if (setupTicks>0) {
+					universe.tickAll(timestamp / 1000);
+					setupTicks--;
 				}
 				// mainNode3.tick(timestamp / 1000);
 				requestAnimationFrame(mainLoop);
@@ -84,41 +84,36 @@
 				trussBackground = document.getElementById("temp");
 
 				mainNode2 = new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
-				universe.current=mainNode2;
+				universe.push(mainNode2);
 				universe.current.truss.initiate();
 				universe.current.resize();
 
 				mainNode3 = new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode2", WalkTruss);
-				universe.current=mainNode3;
+				universe.push(mainNode3);
 				universe.current.truss.initiate();
 				universe.current.resize();
 
-				let mainNode = new TrussNode(undefined, new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
-				universe.current=mainNode;
+				let latestNode = new TrussNode(undefined, new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
+				universe.push(latestNode);
 				universe.current.truss.initiate();
 				universe.current.resize();
-
 
 				let govenorTruss =new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
 				govenorTruss.truss.initiate(protagonist);
 				govenorTruss.resize();
 				universe.governors.push(govenorTruss);
-				//universe.governors.push(new TrussNode(undefined, new Position(0, 0), undefined, 1 / 60, 1, "betaNode", WalkTruss));
 
-				universe.showUniverse1(document.getElementById('mainArea'));
+				universe.setCurrent(latestNode);
 
-				//mainNode2.tick(0.01);
-				//mainNode2.tick(0.02);
-				//mainNode2.tick(0.03);
-
-				//mainNode3.tick(0.01);
+				// universe.showUniverse(document.getElementById('mainArea'));
 
 				window.requestAnimationFrame(mainLoop);
 
-				universe.current.view.context.canvas.onmousemove = myMove;
-				universe.current.view.context.canvas.onmousedown = downMouse;
-				universe.current.view.context.canvas.onmouseup = upMouse;
 
+				document.getElementById('mainArea').onmousemove = myMove;
+
+				//	document.getElementById('mainArea').onmousedown = downMouse;
+				//	document.getElementById('mainArea').onmouseup = upMouse;
 
 
 				document.addEventListener('selectionEvent',
@@ -168,13 +163,15 @@
 				var i, tabcontent, tablinks;
 
 				// Get all elements with class="tabcontent" and hide them
-				tabcontent = document.getElementsByClassName("tabcontent");
+				tabcontent = universe.current.getElements('.tabcontent');
+				// document.getElementsByClassName("tabcontent");
 				for (i = 0; i < tabcontent.length; i++) {
 					tabcontent[i].style.display = "none";
 				}
 
 				// Get all elements with class="tablinks" and remove the class "active"
-				tablinks = document.getElementsByClassName("tabsectionbuttons");
+				tablinks = universe.current.getElements('.tabsectionbuttons');
+				//document.getElementsByClassName("tabsectionbuttons");
 				for (i = 0; i < tablinks.length; i++) {
 					tablinks[i].classList.remove("active");
 				}
@@ -226,7 +223,7 @@
 				let selector = document.getElementById('nodeType');
 				let value = selector.value;
 				if (value == 'Node') {
-					mainNode.truss.addNode(new Node(mainNode.truss, new Position(1, 1), 10, 'node'));
+					universe.current.truss.addNode(new Node(universe.current.truss, new Position(1, 1), 10, 'node'));
 				}
 			}
 
@@ -237,15 +234,15 @@
 				let selector = document.getElementById('tensorType');
 				let value = selector.value;
 				if (value == 'Spring') {
-					connectionTensor = mainNode.truss.addTensor(new Spring(selectedObject, sensor, 100));
+					connectionTensor = universe.current.truss.addTensor(new Spring(selectedObject, universe.current.selector, 100));
 				} else if (value == 'PullSpring') {
-					connectionTensor = mainNode.truss.addTensor(new PullSpring(selectedObject, sensor, 100));
+					connectionTensor = universe.current.truss.addTensor(new PullSpring(selectedObject,  universe.current.selector, 100));
 				} else if (value == 'Absorber') {
-					connectionTensor = mainNode.truss.addTensor(new Absorber(selectedObject, sensor, 1));
+					connectionTensor = universe.current.truss.addTensor(new Absorber(selectedObject,  universe.current.selector, 1));
 				} else if (value == 'Field') {
-					connectionTensor = mainNode.truss.addTensor(new Field(selectedObject, sensor, 0.0001));
+					connectionTensor = universe.current.truss.addTensor(new Field(selectedObject,  universe.current.selector, 0.0001));
 				} else if (value == 'PictureSpring') {
-					connectionTensor = mainNode.truss.addTensor(new PictureSpring(selectedObject, sensor, 100, 'facade.jpg', 1));
+					connectionTensor = universe.current.truss.addTensor(new PictureSpring(selectedObject,  universe.current.selector, 100, 'facade.jpg', 1));
 				}
 				if (!connectionEventListener) {
 					connectionEventListener = document.addEventListener('selectionEvent', function (e) {

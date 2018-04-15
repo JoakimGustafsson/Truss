@@ -34,6 +34,7 @@ class Node {
 		this.positionFunction = positionFunction;
 		this.showFunction = showFunction;
 		this.isNode = true;
+		this.color = 'lightgrey';
 
 		Object.defineProperty(this, 'mass', {
 			get: function() {
@@ -78,6 +79,9 @@ class Node {
 		this.addProperty(new Property(this,
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).'));
+		this.addProperty(new Property(this,
+			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
+			'The colour of the node.'));
 	}
 
 	/**
@@ -171,6 +175,7 @@ class Node {
 		representation.mass = this.mass;
 		representation.massRadius = this.massRadius;
 		representation.angle = this.angle;
+		representation.color = this.color;
 		representation.turnrate = this.turnrate;
 		representation.torqueConstant = this.torqueConstant;
 		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
@@ -216,6 +221,7 @@ class Node {
 			this.mass = NaN;
 		}
 		this.massRadius = restoreObject.massRadius;
+		this.color=representation.color;
 		this.angle = restoreObject.angle;
 		this.turnrate = restoreObject.turnrate;
 		this.torqueConstant = restoreObject.torqueConstant;
@@ -513,7 +519,7 @@ class Node {
 
 			if (graphicDebugLevel >= 10) {
 				cxt.beginPath();
-				cxt.fillStyle = 'lightgreen';
+				cxt.fillStyle = this.color;
 				cxt.font = '10px Arial';
 				cxt.textAlign = 'left';
 				let textPos = this.getPosition();
@@ -533,7 +539,7 @@ class Node {
 	 */
 	highLight(ctx) {
 		if (!this.highlighted) {
-			ctx.strokeStyle = 'lightgrey';
+			ctx.strokeStyle = this.color;
 			ctx.shadowBlur = 0;
 			ctx.lineWidth = 2;
 			ctx.shadowColor = 'black';

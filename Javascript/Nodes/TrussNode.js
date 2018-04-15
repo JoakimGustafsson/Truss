@@ -27,6 +27,7 @@ class TrussNode extends Node {
 		this.element = document.createElement('div');
 		this.view= new View(viewSize, this.element);
 		this.canvas = document.createElement('canvas');
+		this.selector=this;
 		this.handleCanvas();
 
 		this.truss = new TrussClass(this, this.view, timestep, this.element);
@@ -109,6 +110,14 @@ class TrussNode extends Node {
 	 */
 	getElement(elementSelector) {
 		return this.element.querySelectorAll(elementSelector)[0];
+	}
+
+	/**
+	 * @param  {ElementSelector} elementSelector
+	 * @return {ElementList}
+	 */
+	getElements(elementSelector) {
+		return this.element.querySelectorAll(elementSelector);
 	}
 
 

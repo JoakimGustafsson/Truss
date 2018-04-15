@@ -77,39 +77,33 @@ class Tensor {
 		rightButton.classList.add('trussButton');
 		rightButton.classList.add('tensorButtonRight');
 		rightButton.innerHTML = sign;
-		/* rightButton.onclick= function(x) {
-			if (_this.node1==leftNode) {
-				_this.addNode2(sensor);
-			} else {
-				_this.addNode1(sensor);
-			}
-		};*/
+
 		div.appendChild(rightButton);
 
 		let _this = this;
 		if (_this.node1 == leftNode) {
 			leftButton.onclick = function(x) {
-				_this.addNode1(sensor);
+				_this.addNode1(universe.current.selector);
 			};
 			rightButton.onclick = function(x) {
-				_this.addNode2(sensor);
+				_this.addNode2(universe.current.selector);
 			};
 		} else {
 			leftButton.onclick = function(x) {
-				_this.addNode2(sensor);
+				_this.addNode2(universe.current.selector);
 			};
 			rightButton.onclick = function(x) {
-				_this.addNode1(sensor);
+				_this.addNode1(universe.current.selector);
 			};
 		}
 
-		this.selectionEventListener=document.addEventListener('selectionEvent',
+		/*this.selectionEventListener=document.addEventListener('selectionEvent',
 			function(e) {
-				if (_this && sensor && selectedObject && selectedObject.isNode) {
+				if (_this && universe.current.selector && selectedObject && selectedObject.isNode) {
 					_this.sensorAttach();
 					_this = undefined;
 				}
-			}, false);
+			}, false);*/
 
 		return div;
 	}
@@ -227,6 +221,8 @@ class Tensor {
 		representation.tensorType=this.tensorType;
 		representation.force=this.force;
 		representation.ghost=this.ghost;
+		representation.isTensor=this.isTensor;
+		representation.color=this.color;
 
 		return representation;
 	}
@@ -263,6 +259,8 @@ class Tensor {
 		this.tensorType=restoreObject.tensorType;
 		this.force=restoreObject.force;
 		this.ghost=restoreObject.ghost;
+		this.isTensor=representation.isTensor;
+		this.color=representation.color;
 
 		return this;
 	}

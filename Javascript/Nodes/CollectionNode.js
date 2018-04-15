@@ -20,7 +20,7 @@ class CollectionNode extends Node {
 		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss, torqueConstant);
 		this.nodeCollection=nodeCollection;
 
-		this.addProperty(new Property(nodeCollection, 'nodeCollection', 'nodeCollection', 'Nodes', ParameteType.NODELIST,
+		this.addProperty(new Property(nodeCollection, 'nodeCollection', 'nodeCollection', 'Linked nodes', ParameteType.NODELIST,
 			ParameterCategory.CONTENT, 'A list of nodes grouped together by this node.'));
 	}
 

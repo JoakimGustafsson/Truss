@@ -109,7 +109,8 @@ function displaySaves(text) {
 	let fullPath;
 	let element;
 
-	let fileListElement = document.getElementById('fileList');
+	let fileListElement = universe.current.getElement('#fileList');
+	// document.getElementById('fileList');
 	if (!fileListElement) {
 		alert('Could not find file list window.');
 		return;
