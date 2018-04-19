@@ -59,12 +59,13 @@ class KeySensorNode extends SensorNode {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'KeySensorNode';
 		representationObject.startPosition = this.startPosition.serialize();
 		representationObject.keyList = JSON.stringify(this.keyList);
@@ -146,12 +147,13 @@ class ProximitySensorNode extends SensorNode {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'ProximitySensorNode';
 		representationObject.startPosition = this.startPosition.serialize();
 		representationObject.triggerFunction = this.triggerFunction;
@@ -265,12 +267,13 @@ class CollisionSensorNode extends SensorNode {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'CollisionSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
 		representationObject.localObject = nodeList.indexOf(this.localObject);
@@ -354,12 +357,13 @@ class BounceSensorNode extends SensorNode {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'BounceSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
 		representationObject.localObject = nodeList.indexOf(this.localObject);
@@ -503,12 +507,13 @@ class Selector extends SensorNode {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'Selector';
 		return representationObject;
 	}
@@ -528,13 +533,13 @@ class Selector extends SensorNode {
 
 		if (!mouseSet) {
 			if (!closest) {
-				if (this.lastPointedOn && this.lastPointedOn != selectedObject) {
+				if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
 					this.lastPointedOn.setHighlight(0);
 				}
 				this.lastPointedOn = undefined;
 			} else { // There is a closest object
-				if (closest != selectedObject && this.lastPointedOn != closest) {
-					if (this.lastPointedOn && this.lastPointedOn != selectedObject) {
+				if (closest != universe.selectedObject && this.lastPointedOn != closest) {
+					if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
 						this.lastPointedOn.setHighlight(0);
 					}
 					closest.setHighlight(1);
@@ -542,18 +547,18 @@ class Selector extends SensorNode {
 				}
 			}
 		} else if (!this.wasPressed && mouseSet) { // Mouse was just pressed
-			if (selectedObject!=closest) {
-				if (selectedObject) {
-					selectedObject.setHighlight(0);
+			if (universe.selectedObject!=closest) {
+				if (universe.selectedObject) {
+					universe.selectedObject.setHighlight(0);
 				}
 				// if (closest) {
 				//	closest.setHighlight(2);
 				// }
-				let previousSelectedObject=selectedObject;
-				selectedObject = closest;
+				let previousSelectedObject=universe.selectedObject;
+				universe.selectedObject = closest;
 				let event = new CustomEvent('selectionEvent', {
 					detail: {
-						'selectedObject': selectedObject,
+						'selectedObject': universe.selectedObject,
 						'previousSelectedObject': previousSelectedObject,
 						'truss': truss,
 					},
@@ -563,9 +568,9 @@ class Selector extends SensorNode {
 				document.dispatchEvent(event);
 			}
 		} else if (mouseSet) { // Mouse is continually pressed
-			if (selectedObject && selectedObject.isNode) {
-				selectedObject.resetVelocity();
-				selectedObject.copyPosition(this.cursorPosition);
+			if (universe.selectedObject && universe.selectedObject.isNode) {
+				universe.selectedObject.resetVelocity();
+				universe.selectedObject.copyPosition(this.cursorPosition);
 			}
 		}
 

@@ -1,21 +1,7 @@
 /**
  *
  */
-let Localview = undefined;
 let EarthCenter = new Position(0, 6371e3);
-let Earth = new Node(undefined, EarthCenter, 5.97219e24, 'Earth');
-
-
-let f2;
-/**
- * Create a Field 'Tensor' between the input node and the Earth node
- * @param  {Node} node
- * @return {Field}
- */
-function gravityField(node) {
-	return new Field(Earth, node, 6.67e-11);
-}
-
 
 /**
  * @class
@@ -43,7 +29,7 @@ class WalkTruss extends Truss {
 	}
 
 	/**
- * @param  {Truss} truss
+ 	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
@@ -61,18 +47,28 @@ class WalkTruss extends Truss {
 	 */
 	addGravityNodeAndTensor(...args) {
 		let node = this.addNode(...args);
-		let gravity = this.addTensor(gravityField(node));
+		let gravity = this.addTensor(this.gravityField(node));
 		return {
 			node,
 			gravity,
 		};
 	}
 
+	/**
+	 * Create a Field 'Tensor' between the input node and the Earth node
+	 * @param  {Node} node
+	 * @return {Field}
+	 */
+	gravityField(node) {
+		return new Field(this.earth, node, 6.67e-11);
+	}
 
 	/**
 	 *
 	 */
 	initiate() {
+		let Earth = this.addNode(new Node(undefined, EarthCenter, 5.97219e24, 'Earth'));
+		this.earth=Earth;
 		this.addNode(Earth);
 		this.parentNode.selector = this.addNode(new Selector(this));
 
@@ -333,6 +329,12 @@ class GovenorTruss extends Truss {
 
 		// Create two gravitywells and two fields towards them that can be used
 		// by the actuator to pull the protagonist left or right
+
+		OK, these has to be moved to main node and a way to connect governors to a maintruss needs to be added
+	List of nodes
+	List of tensors
+	the truss
+
 		let downEarth = this.addNode(new Node(this, new Position(0, 6371e3), 5.97219e24, 'Earth', undefined, undefined, 0));
 		let leftEarth = this.addNode(new Node(this, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
 		let rightEarth =this.addNode( new Node(this, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
@@ -344,7 +346,7 @@ class GovenorTruss extends Truss {
 		// Add one actuator that takes care of left - right movement
 		let leftRightActuatorNode = this.addNode(
 			new LeftRightNode(this, protagonist, new Position(1, 5), new Position(3, 5),
-				leftField1, rightField1, 0.05, 'myLeftRightNode', 0, 0, 0.99));
+				leftField1, rightField1, 50, 'myLeftRightNode', 0, 0, 0.99));
 
 		// Connect it via a spring to the keysensor node
 		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
@@ -379,12 +381,13 @@ class ProtagonistNode extends Node {
 	}
 
 	/**
+	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'ProtagonistNode';
 		return representationObject;
 	}

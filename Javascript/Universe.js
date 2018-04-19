@@ -54,19 +54,13 @@ class Universe {
 	 * @param {Element} background
 	 */
 	constructor(background) {
+		this.name='MyUniverse';
 		this.universeStack = new Stack();
 		this.governors = [];
 		this.current = {};
 		this.background=background;
-
-		/* Object.defineProperty(this, 'current', {
-			get: function() {
-				return this.universeStack.peek();
-			},
-			set: function(value) {
-				this.universeStack.push(value);
-			},
-		});*/
+		this.selectedObject = undefined;
+		this.setupTicks=0; // Initiated in SetCurrent
 	}
 
 	/**
@@ -92,6 +86,11 @@ class Universe {
 		if (!this.universeStack || this.universeStack.getLength()==0 || !this.current) {
 			console.log('Error in Universe. No current truss.');
 		}
+		// If newly changed current, ticka all a few times to get pictures right in the small windows
+		if (this.setupTicks>0) {
+			universe.tickAll(timestamp);
+			this.setupTicks--;
+		}
 		this.current.tick(timestamp);
 		for (let governor of this.governors) {
 			governor.tick(timestamp);
@@ -102,9 +101,6 @@ class Universe {
 	* @param {number} timestamp
 	 */
 	tickAll(timestamp) {
-		if (!this.universeStack || this.universeStack.getLength()==0 || !this.current) {
-			console.log('Error in Universe. No current truss (tickAll).');
-		}
 		for (let stackTruss of this.universeStack.items) {
 			if (this.current!=stackTruss) {
 				stackTruss.tick(timestamp);
@@ -188,7 +184,7 @@ class Universe {
 		this.current.canvas.onmousedown = downMouse;
 		this.current.canvas.onmouseup = upMouse;
 		newCurrent.resize();
-		setupTicks=10;
+		this.setupTicks=3;
 	}
 }
 

@@ -81,25 +81,36 @@ class Tensor {
 		div.appendChild(rightButton);
 
 		let _this = this;
+		this.attachFunction = function() {
+			if (_this && universe.current.selector && universe.selectedObject && universe.selectedObject.isNode) {
+				_this.sensorAttach();
+				_this = undefined;
+			}
+		};
+
 		if (_this.node1 == leftNode) {
 			leftButton.onclick = function(x) {
 				_this.addNode1(universe.current.selector);
+				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 			rightButton.onclick = function(x) {
 				_this.addNode2(universe.current.selector);
+				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 		} else {
 			leftButton.onclick = function(x) {
 				_this.addNode2(universe.current.selector);
+				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 			rightButton.onclick = function(x) {
 				_this.addNode1(universe.current.selector);
+				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 		}
 
-		/*this.selectionEventListener=document.addEventListener('selectionEvent',
+		/* this.selectionEventListener=document.addEventListener('selectionEvent',
 			function(e) {
-				if (_this && universe.current.selector && selectedObject && selectedObject.isNode) {
+				if (_this && universe.current.selector && universe.selectedObject && universe.selectedObject.isNode) {
 					_this.sensorAttach();
 					_this = undefined;
 				}
@@ -113,13 +124,13 @@ class Tensor {
 	 * @param {Tensor} tensor
 	 */
 	sensorAttach() {
-		if (this.node1 == sensor) {
-			this.addNode1(selectedObject);
-		} else if (this.node2 == sensor) {
-			this.addNode2(selectedObject);
+		if (this.node1 == universe.current.selector) {
+			this.addNode1(universe.selectedObject);
+		} else if (this.node2 == universe.current.selector) {
+			this.addNode2(universe.selectedObject);
 		}
-		if (this.selectionEventListener) {
-			document.removeEventListener('selectionEvent', this.selectionEventListener);
+		if (this.attachFunction) {
+			document.removeEventListener('selectionEvent', this.attachFunction);
 		}
 	}
 
@@ -154,11 +165,11 @@ class Tensor {
 	 */
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
-			let previousSelectedObject = selectedObject;
-			selectedObject = node1;
+			let previousSelectedObject = universe.selectedObject;
+			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
-					'selectedObject': selectedObject,
+					'selectedObject': universe.selectedObject,
 					'previousSelectedObject': previousSelectedObject,
 					'truss': undefined,
 				},
@@ -259,8 +270,8 @@ class Tensor {
 		this.tensorType=restoreObject.tensorType;
 		this.force=restoreObject.force;
 		this.ghost=restoreObject.ghost;
-		this.isTensor=representation.isTensor;
-		this.color=representation.color;
+		this.isTensor=restoreObject.isTensor;
+		this.color=restoreObject.color;
 
 		return this;
 	}

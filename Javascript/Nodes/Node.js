@@ -14,9 +14,9 @@ class Node {
 	 */
 	constructor(truss, startPosition = new Position(0, 0), mass = 1, name = 'node',
 		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
+		this.name = name;
 		this.truss=truss;
 		this.properties = new PropertyList();
-		this.name = name;
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
 		this._mass = mass;
@@ -120,11 +120,11 @@ class Node {
 	 */
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
-			let previousSelectedObject = selectedObject;
-			selectedObject = node1;
+			let previousSelectedObject = universe.selectedObject;
+			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
-					'selectedObject': selectedObject,
+					'selectedObject': universe.selectedObject,
 					'previousSelectedObject': previousSelectedObject,
 					'truss': undefined,
 				},
@@ -221,7 +221,7 @@ class Node {
 			this.mass = NaN;
 		}
 		this.massRadius = restoreObject.massRadius;
-		this.color=representation.color;
+		this.color=restoreObject.color;
 		this.angle = restoreObject.angle;
 		this.turnrate = restoreObject.turnrate;
 		this.torqueConstant = restoreObject.torqueConstant;
@@ -457,8 +457,12 @@ class Node {
 		let tempForce;
 		for (let i = 0; i < forceAppliers.length; i++) {
 			applier = forceAppliers[i];
-			tempForce = applier.getForce(this);
-			result.add(tempForce);
+			try {
+				tempForce = applier.getForce(this);
+				result.add(tempForce);
+			} catch (err) {
+				console.log(err);
+			}
 		}
 		return result;
 	}

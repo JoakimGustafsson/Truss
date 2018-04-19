@@ -48,6 +48,7 @@ function createConfigurationArea(id) {
 		fileButton.addEventListener('click', function() {
 			openBottomPanel(event, 'fileDiv');
 			directory('Saves');
+			universe.current.getElement('.fileNameInput').value=universe.current.name;
 		}, false);
 		tabArea.appendChild(fileButton);
 
@@ -131,7 +132,7 @@ function createConfigurationArea(id) {
 				pauseButton.classList.add('simpleButton');
 				pauseButton.innerHTML = 'Pause';
 				pauseButton.addEventListener('click', function() {
-					mainNode.togglePause();
+					universe.current.togglePause();
 				}, false);
 				propertyButtons.appendChild(pauseButton);
 
@@ -225,7 +226,7 @@ function createConfigurationArea(id) {
 		saveButton.classList.add('simpleButton');
 		saveButton.innerHTML = 'Save';
 		saveButton.addEventListener('click', function() {
-			saveFile(document.getElementById('fileNameInput').value);
+			saveFile(universe.current.getElement('.fileNameInput').value);
 		}, false);
 		fileDiv.appendChild(saveButton);
 	}

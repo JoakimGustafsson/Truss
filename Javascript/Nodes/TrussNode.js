@@ -18,11 +18,8 @@ class TrussNode extends Node {
 	 * @param  {number} velocityLoss
 	 */
 	constructor(parentTruss, startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
-		mass = 1, name = 'trussNode', TrussClass = 'Truss', ...args) {
+		mass = 1, name = 'trussNode', TrussClass = Truss, ...args) {
 		super(parentTruss, startPosition, mass, name, ...args);
-
-		// this.addProperty(new Property(displayDivName, 'displayDivName', 'displayDivName', 'HTML container id', ParameteType.STRING,
-		//	ParameterCategory.CONTENT, 'The identity of the HTML elemet containing the truss graphics.'));
 
 		this.element = document.createElement('div');
 		this.view= new View(viewSize, this.element);
@@ -172,7 +169,7 @@ class TrussNode extends Node {
 	 * @param  {Array} superTensorList
 	 * @return {Object}
 	 */
-	serialize(truss, superNodeList, superTensorList) {
+	serialize(truss, superNodeList=[], superTensorList=[]) {
 		let representationObject = super.serialize(truss, superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
 		representationObject.truss = this.truss.serialize();

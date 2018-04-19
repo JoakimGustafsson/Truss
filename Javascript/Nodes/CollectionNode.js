@@ -85,7 +85,7 @@ class CollectionNode extends Node {
 		let _this = this;
 		this.selectionEventListener=document.addEventListener('selectionEvent',
 			function(e) {
-				if (_this && sensor && selectedObject && selectedObject.isNode) {
+				if (_this && sensor && universe.selectedObject && universe.selectedObject.isNode) {
 					_this.sensorSelect();
 					_this = undefined;
 				}
@@ -97,7 +97,7 @@ class CollectionNode extends Node {
 	 *
 	 */
 	sensorSelect() {
-		this.nodeCollection.push(selectedObject);
+		this.nodeCollection.push(universe.selectedObject);
 		if (this.selectionEventListener) {
 			document.removeEventListener('selectionEvent', this.selectionEventListener);
 		}

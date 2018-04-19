@@ -60,10 +60,10 @@ function httpGetAsync(theUrl, callback) {
  * @param  {string} fileName
  */
 function saveFile(fileName) {
-	mainNode.truss.hideEdit();
+	universe.current.truss.hideEdit();
 	httpPostAsync('/save', function(x) {
 		console.log('Server reported: ' + x);
-	}, mainNode.serialize(), fileName + '.json');
+	}, universe.current.serialize(), fileName + '.json');
 }
 
 /**
@@ -79,12 +79,15 @@ function directory(folderName) {
 /** @param  {string} fileName
 */
 function loadFile(fileName) {
-	mainNode.truss.hideEdit();
+	// mainNode.truss.hideEdit();
 	httpGetAsync('/load/' + fileName, function(x) {
 		console.log('Server reported: ' + x);
-		mainNode.clean();
-		newMainNode=new TrussNode();
+		// mainNode.clean();
+		universe.pop();
+		let newMainNode=new TrussNode();
 		newMainNode.deserialize(undefined, JSON.parse(x));
+		universe.push(newMainNode);
+		universe.current=newMainNode;
 	});
 }
 

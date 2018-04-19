@@ -96,6 +96,8 @@ class BinaryActuatorNode extends ActuatorNode {
 		}
 	}
 
+OK, this is a collection node with length 2
+
 	/**
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList

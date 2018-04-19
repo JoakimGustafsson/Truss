@@ -154,11 +154,11 @@ class Property {
 		let _this = this;
 
 		xinputField.addEventListener('input', function(e) {
-			selectedObject[_this.propertyName].x = parseInt(xinputField.value);
+			universe.selectedObject[_this.propertyName].x = parseInt(xinputField.value);
 		}, false);
 
 		yinputField.addEventListener('input', function(e) {
-			selectedObject[_this.propertyName].y = parseInt(yinputField.value);
+			universe.selectedObject[_this.propertyName].y = parseInt(yinputField.value);
 		}, false);
 
 		return;
@@ -184,7 +184,7 @@ class Property {
 		let inputField = this.makeViewOfInputField(id, parameterValue);
 		let _this = this;
 		inputField.addEventListener('input', function(e) {
-			selectedObject[_this.propertyName] = inputField.value;
+			universe.selectedObject[_this.propertyName] = inputField.value;
 		}, false);
 		return inputField;
 	}
@@ -282,11 +282,11 @@ class Property {
 	 */
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
-			let previousSelectedObject = selectedObject;
-			selectedObject = node1;
+			let previousSelectedObject = universe.selectedObject;
+			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
-					'selectedObject': selectedObject,
+					'universe.selectedObject': universe.selectedObject,
 					'previousSelectedObject': previousSelectedObject,
 					'truss': undefined,
 				},
@@ -371,7 +371,7 @@ class HTMLEditNode extends SensorNode {
 	 */
 	select(selectionEvent, th) {
 		this.iO = selectionEvent.detail.selectedObject;
-		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
+		// let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
 
 		this.element.innerHTML='';
 		if (this.iO) {
