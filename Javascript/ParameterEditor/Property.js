@@ -347,22 +347,28 @@ class HTMLEditNode extends SensorNode {
 	/** This node is used to ensure that the property editing window 'element' is updated with the selected
 	 * objects real time property values.
 	 * @constructor
-	 * @param {Truss} truss
+	 * @param {Truss} trussNode
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Element} element - The HTML element that should display the edit area
 	 * @param {string} name - The name of the node.
 	 */
-	constructor(truss, obj, element, name = 'HTMLEditNode') {
-		super(truss, new Position(0, 0), NaN, name);
+	constructor(trussNode, obj, element, name = 'HTMLEditNode') {
+		super(trussNode, new Position(0, 0), NaN, name);
 		this.element=element;
 		let _this = this;
+		this.eventListenerFunction = function(e) {
+			if (universe.currentNode==_this.parentTrussNode) {
+				_this.select(e, _this);
+			}
+		};
+		document.addEventListener('selectionEvent', this.eventListenerFunction, false);
+	}
 
-		document.addEventListener('selectionEvent',
-			function(e) {
-				if (universe.current.truss==_this.truss) {
-					_this.select(e, _this);
-				}
-			}, false);
+	/**
+	 * Call this before discarding to remove nodes and event listeners
+	 */
+	close() {
+		document.removeEventListener('selectionEvent', this.eventListenerFunction);
 	}
 
 	/**
@@ -382,23 +388,9 @@ class HTMLEditNode extends SensorNode {
 	/**
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
-	 * @return {Object}
 	 */
 	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='HTMLEditNode';
-		return representationObject;
-	}
-
-	/**
-	 * @param  {Object} restoreObject
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {HTMLEditNode}
-	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		return this;
+		alert('HTMLEditNode should never be serialized');
 	}
 
 	/**
@@ -419,28 +411,33 @@ class HTMLEditNode extends SensorNode {
  */
 class EditPropertyWindow {
 	/**
-	 * @param  {Truss} truss
+	 * @param  {Truss} parentTrussNode
 	 * @param  {Position} topScreenPos
 	 * @param  {number} screenWidth
 	 * @param  {number} screenHeight
 	 */
-	constructor(truss, topScreenPos, screenWidth, screenHeight) {
-		this.truss=truss;
-		// let elem = document.getElementById('configarea');
+	constructor(parentTrussNode, topScreenPos, screenWidth, screenHeight) {
+		this.parentTrussNode=parentTrussNode;
 		let outerElement = createConfigurationArea('test');
-		truss.element.appendChild(outerElement);
-		// this.truss=truss;
-		this.banner = new BannerNode(truss, outerElement);
+		this.parentTrussNode.truss.element.appendChild(outerElement);
+		this.banner = new BannerNode(this.parentTrussNode, outerElement);
 		let propertyArea = outerElement.querySelectorAll('#configview')[0];
-		this.valueToGUI = new HTMLEditNode(truss, undefined, propertyArea);
+		this.HTMLEditNode = new HTMLEditNode(this.parentTrussNode, undefined, propertyArea);
 		let _this = this;
+		this.eventListenerFunction = function(e) {
+			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.truss==_this.parentTrussNode.truss)) {
+				_this.select.call(_this, e);
+			}
+		};
+	}
 
-		document.addEventListener('selectionEvent',
-			function(e) {
-				if (universe.current.truss==_this.truss) {
-					_this.select.call(_this, e);
-				}
-			}, false);
+
+	/**
+	 * remove event listener
+	 */
+	close() {
+		this.removeBanner();
+		document.removeEventListener('selectionEvent', this.eventListenerFunction);
 	}
 
 	/**
@@ -448,12 +445,9 @@ class EditPropertyWindow {
 	 */
 	select(selectionEvent) {
 		let truss = selectionEvent.detail.truss;
-		if (truss!=this.truss) {
-			return;
-		}
 		let selectedObject = selectionEvent.detail.selectedObject;
 		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-		if (this.truss!=truss) {
+		if (this.parentTrussNode.truss!=truss) {
 			return;
 		}
 		if (!previousSelectedObject && selectedObject) {
@@ -463,23 +457,27 @@ class EditPropertyWindow {
 		}
 	}
 
+Rundgång. nu finns inget som skapar eventlistenern i första hand
+
 	/**
-	 * @param  {Truss} truss
 	 */
-	createBanner(truss) {
+	createBanner() {
+		let truss = this.parentTrussNode.truss;
 		this.banner.create(truss);
 		truss.addNode(this.banner);
-		truss.addNode(this.valueToGUI);
+		truss.addNode(this.HTMLEditNode);
+		document.addEventListener('selectionEvent', this.eventListenerFunction, false);
 	}
 
 	/**
-	 * @param  {Truss} truss
 	 */
-	removeBanner(truss) {
+	removeBanner() {
+		let truss = this.parentTrussNode.truss;
 		this.banner.hide();
 		// this.hammer.hide(truss);
 		truss.removeNode(this.banner);
-		truss.removeNode(this.valueToGUI);
+		this.HTMLEditNode.close(); // Remove the event listener
+		truss.removeNode(this.HTMLEditNode);
 	}
 }
 

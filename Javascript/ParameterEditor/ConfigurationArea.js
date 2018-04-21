@@ -48,7 +48,7 @@ function createConfigurationArea(id) {
 		fileButton.addEventListener('click', function() {
 			openBottomPanel(event, 'fileDiv');
 			directory('Saves');
-			universe.current.getElement('.fileNameInput').value=universe.current.name;
+			universe.currentNode.getElement('.fileNameInput').value=universe.currentNode.name;
 		}, false);
 		tabArea.appendChild(fileButton);
 
@@ -79,7 +79,7 @@ function createConfigurationArea(id) {
 				let connectionTempDiv = document.createElement('div');
 				connectionTempDiv.id = 'connectionDiv';
 				connectionTempDiv.classList.add('sectionmiddle');
-				connectionTempDiv.align = 'right';
+				connectionTempDiv.align = 'left';
 				propertyContainer.appendChild(connectionTempDiv);
 
 				let addDiv = document.createElement('div');
@@ -97,7 +97,7 @@ function createConfigurationArea(id) {
 
 					let nodeButton = document.createElement('button');
 					nodeButton.classList.add('simpleButton');
-					nodeButton.innerHTML = 'create';
+					nodeButton.innerHTML = 'Create';
 					nodeAdder.appendChild(nodeButton);
 
 					nodeButton.addEventListener('click', function() {
@@ -115,7 +115,7 @@ function createConfigurationArea(id) {
 
 					let tensorButton = document.createElement('button');
 					tensorButton.classList.add('simpleButton');
-					tensorButton.innerHTML = 'create';
+					tensorButton.innerHTML = 'Create';
 					tensorAdder.appendChild(tensorButton);
 					tensorButton.addEventListener('click', function() {
 						makeTensor();
@@ -226,7 +226,7 @@ function createConfigurationArea(id) {
 		saveButton.classList.add('simpleButton');
 		saveButton.innerHTML = 'Save';
 		saveButton.addEventListener('click', function() {
-			saveFile(universe.current.getElement('.fileNameInput').value);
+			saveFile(universe.currentNode.getElement('.fileNameInput').value);
 		}, false);
 		fileDiv.appendChild(saveButton);
 	}
@@ -332,6 +332,10 @@ function createConfigurationArea(id) {
 		nodeSelect.id = 'tensorType';
 		nodeSelect.classList.add('inputcss');
 		surroundingDiv.appendChild(nodeSelect);
+		let optionDebug0 = document.createElement('option');
+		optionDebug0.value = 'DampenedSpring';
+		optionDebug0.innerHTML = 'DampenedSpring';
+		nodeSelect.appendChild(optionDebug0);
 		let optionDebug1 = document.createElement('option');
 		optionDebug1.value = 'Spring';
 		optionDebug1.innerHTML = 'Spring';

@@ -67,14 +67,15 @@ class WalkTruss extends Truss {
 	 *
 	 */
 	initiate() {
-		let Earth = this.addNode(new Node(undefined, EarthCenter, 5.97219e24, 'Earth'));
+		let parent=this.parentTrussNode;
+		let Earth = this.addNode(new Node(parent, EarthCenter, 5.97219e24, 'Earth'));
 		this.earth=Earth;
-		this.addNode(Earth);
-		this.parentNode.selector = this.addNode(new Selector(this));
+		// this.addNode(Earth);
+		parent.selector = this.addNode(new Selector(this));
 
 
 		// Create a protagonist (yellow circle) and connect it to gravity
-		protagonist = this.addNode(new ProtagonistNode(this, new Position(5, 5), 70, 'Ego1'));
+		this.protagonist = this.addNode(new ProtagonistNode(parent, new Position(5, 5), 70, 'Ego1'));
 		/*
 		// let protagonist = new ProtagonistNode(new Position(0.1, 1), 70, 'Ego1');
 		this.addNode(protagonist);
@@ -110,12 +111,12 @@ class WalkTruss extends Truss {
 
 		// rotation
 
-		let b6 = this.addNode(new Node(this, new Position(0.2, 2.24), NaN, 'fulcrum', undefined, undefined, 1, 5000));
-		let f6 = this.addGravityNode(new Node(this, new Position(2, 1), 10, 'bar 1', 0, 0, 0.9, 2000));
+		let b6 = this.addNode(new Node(parent, new Position(0.2, 2.24), NaN, 'fulcrum', undefined, undefined, 1, 5000));
+		let f6 = this.addGravityNode(new Node(parent, new Position(2, 1), 10, 'bar 1', 0, 0, 0.9, 2000));
 
-		let leftpic = this.addGravityNode(new Node(this, new Position(3, 2), 10, 'left', 0, 0, 0.99));
-		let bottompic = this.addGravityNode(new Node(this, new Position(4, 3), 70, 'bottom', 0, 0, 0.999));
-		let rightpic = this.addGravityNode(new Node(this, new Position(5, 2), 10, 'right', 0, 0, 0.99));
+		let leftpic = this.addGravityNode(new Node(parent, new Position(3, 2), 10, 'left', 0, 0, 0.99));
+		let bottompic = this.addGravityNode(new Node(parent, new Position(4, 3), 70, 'bottom', 0, 0, 0.999));
+		let rightpic = this.addGravityNode(new Node(parent, new Position(5, 2), 10, 'right', 0, 0, 0.99));
 
 		/* f7 = this.addGravityNode(new Node(new Position(4, 1), 70, 'top', 0,
 			function() {
@@ -132,7 +133,7 @@ class WalkTruss extends Truss {
 			}
 		));*/
 
-		let f7 = this.addGravityNode(new PictureNode(this, new Position(4, 1), 70, 'top', [rightpic, bottompic, leftpic], 'facade.jpg'));
+		let f7 = this.addGravityNode(new PictureNode(parent, new Position(4, 1), 70, 'top', [rightpic, bottompic, leftpic], 'facade.jpg'));
 
 		/* let leftpic = this.addGravityNode(new Node(new Position(3, 2), 10, 'left', 0, 0, 0.99));
 		let bottompic = this.addGravityNode(new Node(new Position(4, 3), 70, 'bottom', 0, 0, 1));
@@ -163,7 +164,7 @@ class WalkTruss extends Truss {
 		this.addTensor(new Spring(rightpic, f7, springconstant));
 
 
-		this.addTensor(new Spring(protagonist, bottompic, springconstant));
+		this.addTensor(new Spring(this.protagonist, bottompic, springconstant));
 		/*
 		// let startTensor =
 		this.addTensor(new Spring(f1, f2, 9000));
@@ -289,20 +290,20 @@ class GovenorTruss extends Truss {
 	 * @param  {View} view
 	 * @param  {number} updatefrequency
 	 */
-	constructor(...args) {
+	constructor( ...args) {
 		super(...args);
 		this.blur = true;
+		// this.governedTruss = governedTruss;
 	}
 
 
 	/**
- * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(truss, nodeList, tensorList) {
-		let representationObject = super.serialize(truss, nodeList, tensorList);
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname = 'GovenorTruss';
 		return representationObject;
 	}
@@ -311,8 +312,12 @@ class GovenorTruss extends Truss {
 	/**
 	 * @param {Node} protagonist
 	 */
-	initiate(protagonist) {
-		this.parentNode.selector = this.addNode(new Selector(this));
+	initiate() {
+		let governedNode=this.parentTrussNode.parentTrussNode;
+		let governedTruss=governedNode.truss;
+
+		protagonist = governedTruss.protagonist;
+		governedNode.selector = this.addNode(new Selector(this));
 		// Set up a keysensornode and make it sensitive to q, e and space
 		let sensorNode = this.addNode(new KeySensorNode(this, new Position(2, 1), 0.01, 'myKeySensorNode'));
 		sensorNode.registerKey(37, new Vector(-2, 0));
@@ -330,14 +335,12 @@ class GovenorTruss extends Truss {
 		// Create two gravitywells and two fields towards them that can be used
 		// by the actuator to pull the protagonist left or right
 
-		OK, these has to be moved to main node and a way to connect governors to a maintruss needs to be added
-	List of nodes
-	List of tensors
-	the truss
 
-		let downEarth = this.addNode(new Node(this, new Position(0, 6371e3), 5.97219e24, 'Earth', undefined, undefined, 0));
-		let leftEarth = this.addNode(new Node(this, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
-		let rightEarth =this.addNode( new Node(this, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
+		let downEarth = this.addNode(new Node(this, new Position(0, 6371e3), 5.97219e24, 'EarthForJump', undefined, undefined, 0));
+		let leftEarth = this.addNode(
+			new Node(this, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
+		let rightEarth =this.addNode(
+			new Node(this, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
 		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 		let gravity = this.addTensor(new Field(downEarth, protagonist, 6.67e-11));

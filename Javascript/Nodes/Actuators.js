@@ -96,7 +96,7 @@ class BinaryActuatorNode extends ActuatorNode {
 		}
 	}
 
-OK, this is a collection node with length 2
+	// OK, this is a collection node with length 2
 
 	/**
 	 * @param  {Array} nodeList
@@ -122,7 +122,7 @@ OK, this is a collection node with length 2
 		super.deserialize(restoreObject, nodeList, tensorList);
 		this.position1 = new Position().deserialize(restoreObject.position1);
 		this.position2 = new Position().deserialize(restoreObject.position2);
-		this.vector = subtractVectors(this.position2, this.position1);
+		this.vector = Vector.subtractVectors(this.position2, this.position1);
 		return this;
 	}
 

@@ -60,10 +60,10 @@ function httpGetAsync(theUrl, callback) {
  * @param  {string} fileName
  */
 function saveFile(fileName) {
-	universe.current.truss.hideEdit();
+	universe.currentWorld.mapAll((trussNode) => trussNode.truss.hideEdit());
 	httpPostAsync('/save', function(x) {
 		console.log('Server reported: ' + x);
-	}, universe.current.serialize(), fileName + '.json');
+	}, universe.currentWorld.serialize(), fileName + '.json');
 }
 
 /**
@@ -83,11 +83,11 @@ function loadFile(fileName) {
 	httpGetAsync('/load/' + fileName, function(x) {
 		console.log('Server reported: ' + x);
 		// mainNode.clean();
-		universe.pop();
-		let newMainNode=new TrussNode();
-		newMainNode.deserialize(undefined, JSON.parse(x));
-		universe.push(newMainNode);
-		universe.current=newMainNode;
+		universe.pop().close();
+		let newWorld= new World();
+		newWorld.deserialize(JSON.parse(x));
+		universe.push(newWorld);
+		universe.setCurrentWorld(newWorld);
 	});
 }
 
@@ -112,7 +112,7 @@ function displaySaves(text) {
 	let fullPath;
 	let element;
 
-	let fileListElement = universe.current.getElement('#fileList');
+	let fileListElement = universe.currentNode.getElement('#fileList');
 	// document.getElementById('fileList');
 	if (!fileListElement) {
 		alert('Could not find file list window.');

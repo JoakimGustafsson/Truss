@@ -45,7 +45,7 @@ class BannerNode extends Node {
 		this.element.style.display = 'block';
 		this.truss = truss;
 		let screenWidth = this.element.offsetWidth;
-		let screenHeight = this.element.offsetHeight;
+		let screenHeight = this.element.offsetHeight+500;
 		if (!topScreenPos) {
 			topScreenPos=new Position(truss.view.screenSize.x-screenWidth, 0);
 		}
@@ -56,25 +56,30 @@ class BannerNode extends Node {
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y), 1, 'leftTop', 0, 0, 0.99));
 		this.rightTopNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
-		let {
-			node,
-			gravity,
-		} = truss.addGravityNodeAndTensor(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 10, 'leftBottom', 0, 0, 0.99));
-		this.leftBottomNode = node;
-		this.leftBottomField = gravity;
-		let {
-			'node': x,
-			'gravity': y,
-		} = truss.addGravityNodeAndTensor(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 10, 'rightBottom', 0, 0, 0.99));
-		this.rightBottomNode = x;
-		this.rightBottomField = y;
-		this.leftBand = truss.addTensor(new PullSpring(this.leftTopNode, this.nail, 2000));
-		this.rightBand = truss.addTensor(new PullSpring(this.nail, this.rightTopNode, 2000));
+		this.bannerGravityWell = truss.addNode(new Node(truss,
+			truss.view.worldPosition(screenWidth / 2, screenHeight*1000), NaN, 'bannerGravityWell', 0, 0, 0.99));
+
+		this.leftBottomNode = truss.addNode(new Node(truss,
+			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 3, 'leftBottom', 0, 0, 0.99));
+
+		this.rightBottomNode = truss.addNode(new Node(truss,
+			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 3, 'rightBottom', 0, 0, 0.99));
+
+		this.leftBottomField = truss.addTensor(new PullSpring(this.leftBottomNode, this.bannerGravityWell, 0.1));
+		this.leftBottomField.equilibriumLength=0;
+		this.leftBottomField.color='transparent';
+		this.rightBottomField = truss.addTensor(new PullSpring(this.rightBottomNode, this.bannerGravityWell, 0.1));
+		this.rightBottomField.equilibriumLength=0;
+		this.rightBottomField.color='transparent';
+
+		this.leftBand = truss.addTensor(new DampenedSpring(this.leftTopNode, this.nail, 500, 5));
+		this.rightBand = truss.addTensor(new DampenedSpring(this.nail, this.rightTopNode, 500, 5));
 		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 3000));
-		this.leftSpring = truss.addTensor(new PullSpring(this.leftTopNode, this.leftBottomNode, 100));
-		this.rightSpring = truss.addTensor(new PullSpring(this.rightTopNode, this.rightBottomNode, 100));
+		this.topBand.color='transparent';
+		this.leftSpring = truss.addTensor(new DampenedSpring(this.leftTopNode, this.leftBottomNode, 200, 10));
+		this.leftSpring.color='transparent';
+		this.rightSpring = truss.addTensor(new DampenedSpring(this.rightTopNode, this.rightBottomNode, 200, 10));
+		this.rightSpring.color='transparent';
 	}
 
 	/**
@@ -98,6 +103,7 @@ class BannerNode extends Node {
 		this.truss.removeNode(this.rightTopNode);
 		this.truss.removeNode(this.leftBottomNode);
 		this.truss.removeNode(this.rightBottomNode);
+		this.truss.removeNode(this.bannerGravityWell);
 	}
 
 
@@ -106,10 +112,8 @@ class BannerNode extends Node {
 	 * @param  {Array} superTensorList
 	 */
 	serialize(superNodeList, superTensorList) {
+		alert('The BannerNode should never be stored.');
 		return;
-		// let representationObject = super.serialize(superNodeList, superTensorList);
-		// representationObject.classname = 'HTMLNode';
-		// return representationObject;
 	}
 
 	/**

@@ -3,7 +3,7 @@
  */
 class Node {
 	/**
-	 * @param  {Truss} truss
+	 * @param  {Truss} parentTrussNode
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -12,10 +12,12 @@ class Node {
 	 * @param  {number} velocityLoss
 	 * @param  {number} torqueConstant
 	 */
-	constructor(truss, startPosition = new Position(0, 0), mass = 1, name = 'node',
+	constructor(parentTrussNode, startPosition = new Position(0, 0), mass = 1, name = 'node',
 		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
 		this.name = name;
-		this.truss=truss;
+		if (parentTrussNode) {
+			this.parentTrussNode= parentTrussNode;
+		}
 		this.properties = new PropertyList();
 		this.localPosition = startPosition;
 		this.velocity = new Velocity(0, 0);
@@ -160,16 +162,16 @@ class Node {
 
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(truss, nodeList, tensorList) {
+	serialize(nodeList, tensorList) {
 		let representation = {
 			'classname': 'Node',
 		};
 		representation.name = this.name;
+		representation.parentTrussNode = nodeList.indexOf(this.parentTrussNode);
 		representation.localPosition = this.localPosition.serialize();
 		representation.velocity = this.velocity.serialize();
 		representation.mass = this.mass;
@@ -206,14 +208,14 @@ class Node {
 	}
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Object} restoreObject
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 */
-	deserialize(truss, restoreObject, nodeList, tensorList) {
+	deserialize(restoreObject, nodeList, tensorList) {
 		this.name = restoreObject.name;
-		this.truss = truss;
+		this.parentTrussNode = nodeList[restoreObject.parentTrussNode];
+
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
 		this.mass = restoreObject.mass;

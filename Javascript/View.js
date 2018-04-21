@@ -11,15 +11,23 @@ class View {
 	 * Currently also used to draw a few simple forms and display text.
 	 *
 	 * @param  {Vector} worldViewSize The size of the world to fit onto the screenSize
-	 * @param  {Element} element The HTML element displaying the world view
+	 * @param  {TrussNode} parentNode The HTML element displaying the world view
 	 */
-	constructor(worldViewSize, element) {
-		this.element=element;
-		this.setupAlertVectors(element, worldViewSize);
+	constructor(worldViewSize, parentNode) {
+		// this.element=element;
+		this.parentNode=parentNode;
+		Object.defineProperty(this, 'element', {
+			get: function() {
+				return this.parentNode.element;
+			},
+		});
 
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
-		this.resize();
+		if (this.element) {
+			this.setupAlertVectors(this.element, worldViewSize);
+			this.resize();
+		}
 	}
 	/**
 	 * @param  {Element} element

@@ -33,13 +33,12 @@ class CollectionNode extends Node {
 
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Array} superNodeList
 	 * @param  {Array} superTensorList
 	 * @return {Object}
 	 */
-	serialize(truss, superNodeList, superTensorList) {
-		let representationObject = super.serialize(truss, superNodeList, superTensorList);
+	serialize(superNodeList, superTensorList) {
+		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'CollectionNode';
 
 		representationObject.nodeCollection=serializeList(this.nodeCollection, superNodeList);
@@ -47,13 +46,12 @@ class CollectionNode extends Node {
 	}
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Object} restoreObject
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
 	 */
-	deserialize(truss, restoreObject, superNodes, superTensors) {
-		super.deserialize(truss, restoreObject, superNodes, superTensors);
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
 		this.nodeCollection= deserializeList(restoreObject.nodeCollection, superNodes);
 		return;
 	}
@@ -83,13 +81,13 @@ class CollectionNode extends Node {
 	 */
 	bottonPressedToSelectNew() {
 		let _this = this;
-		this.selectionEventListener=document.addEventListener('selectionEvent',
-			function(e) {
-				if (_this && sensor && universe.selectedObject && universe.selectedObject.isNode) {
-					_this.sensorSelect();
-					_this = undefined;
-				}
-			}, false);
+		this.selectionEventListener = function(e) {
+			if (_this && sensor && universe.selectedObject && universe.selectedObject.isNode) {
+				_this.sensorSelect();
+				_this = undefined;
+			}
+		};
+		document.addEventListener('selectionEvent', this.selectionEventListener, false);
 	}
 
 

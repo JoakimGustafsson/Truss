@@ -5,7 +5,7 @@
  */
 class TrussNode extends Node {
 	/** Create a node that can contain a Truss within itself.
-	 * @param  {Truss} parentTruss
+	 * @param  {Truss} parentTrussNode
 	 * @param  {Position} startPosition
 	 * @param  {Position} viewSize
 	 * @param  {number} timestep
@@ -17,17 +17,17 @@ class TrussNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(parentTruss, startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
+	constructor(parentTrussNode, startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
 		mass = 1, name = 'trussNode', TrussClass = Truss, ...args) {
-		super(parentTruss, startPosition, mass, name, ...args);
+		super(parentTrussNode, startPosition, mass, name, ...args);
 
 		this.element = document.createElement('div');
-		this.view= new View(viewSize, this.element);
+		this.view= new View(viewSize, this);
 		this.canvas = document.createElement('canvas');
 		this.selector=this;
 		this.handleCanvas();
 
-		this.truss = new TrussClass(this, this.view, timestep, this.element);
+		this.truss = new TrussClass(this, this.view, timestep);
 		this.setView();
 
 		Object.defineProperty(this, 'fps', {
@@ -87,16 +87,6 @@ class TrussNode extends Node {
 		this.addProperty(new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.'));
 
-		/*
-		this.addProperty(new Property(nodes, 'nodes', 'nodes', 'All Nodes', ParameteType.STRING,
-			ParameterCategory.CONTENT, 'All nodes in the Truss.'));
-
-		this.addProperty(new Property(tensors, 'tensors', 'tensors', 'All Tensors', ParameteType.STRING,
-			ParameterCategory.CONTENT, 'All tensors in the Truss.'));*/
-
-		// this.addProperty(new Property(debugLevel, 'debugLevel', 'debugLevel', 'Debug level', ParameteType.STRING,
-		//	ParameterCategory.CONTENT, 'Debug level.'));
-
 		this.propertyDiv = this.element.querySelectorAll('#configview')[0];
 		this.debugLevel = this.element.querySelectorAll('#debugLevel')[0];
 	}
@@ -117,7 +107,6 @@ class TrussNode extends Node {
 		return this.element.querySelectorAll(elementSelector);
 	}
 
-
 	/**
 	 *
 	 */
@@ -126,11 +115,6 @@ class TrussNode extends Node {
 		this.canvas.style.top = this.localPosition.y + 'px';
 		this.canvas.style.left = this.localPosition.x + 'px';
 		this.canvas.style.position = 'relative';
-		// this.canvas.style.border = '2px solid red';
-
-
-		// this.element.align='right';
-
 		this.element.appendChild(this.canvas);
 	}
 
@@ -144,6 +128,14 @@ class TrussNode extends Node {
 	}
 
 	/**
+	 * Call this before discarding to remove nodes and event listeners
+	 */
+	close() {
+		this.truss.close();
+		this.truss.editWindow.close();
+	}
+
+	/**
 	 * @param  {View} view
 	 */
 	setView() {
@@ -153,7 +145,7 @@ class TrussNode extends Node {
 		this.canvas.style.width = '100%'; // this.truss.view.screenSize.x + 'px';
 		this.canvas.style.height = '100%'; // this.truss.view.screenSize.y + 'px';
 
-		this.truss.editWindow = new EditPropertyWindow(this.truss, new Position(100, 100), 500, 500);
+		this.truss.editWindow = new EditPropertyWindow(this, new Position(100, 100), 500, 500);
 	}
 	/**
  */
@@ -164,30 +156,27 @@ class TrussNode extends Node {
 	}
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Array} superNodeList
 	 * @param  {Array} superTensorList
 	 * @return {Object}
 	 */
-	serialize(truss, superNodeList=[], superTensorList=[]) {
-		let representationObject = super.serialize(truss, superNodeList, superTensorList);
+	serialize(superNodeList=[], superTensorList=[]) {
+		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
-		representationObject.truss = this.truss.serialize();
-		representationObject.displayDivName=this.displayDivName;
+		representationObject.truss = this.truss.serialize(superNodeList, superTensorList);
 
 		// save the canvas properties
 		return representationObject;
 	}
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Object} restoreObject
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
 	 */
-	deserialize(truss, restoreObject, superNodes, superTensors) {
-		super.deserialize(truss, restoreObject, superNodes, superTensors);
-		this.truss = objectFactory(truss, restoreObject.truss, superNodes, superTensors).deserialize(restoreObject.truss);
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
+		this.truss = objectFactory(undefined, restoreObject.truss).deserialize(restoreObject.truss, superNodes, superTensors, this);
 		this.handleCanvas();
 		this.setView();
 	}

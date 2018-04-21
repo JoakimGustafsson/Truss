@@ -15,24 +15,19 @@ class Tensor {
 	/**
 	 * @param  {Node} node1
 	 * @param  {Node} node2
-	 * @param  {number} constant=1
 	 * @param  {TensorType} type=TensorType.UNDEFINED
 	 */
-	constructor(node1, node2, constant = 1, type = TensorType.UNDEFINED) {
+	constructor(node1, node2, type = TensorType.UNDEFINED) {
 		this.node1 = node1;
 		this.node2 = node2;
-		this.constant = constant;
 		this.tensorType = type;
 		this.properties = new PropertyList();
 		this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
 		this.ghost = false;
 		this.isTensor=true;
-		this.color='grey';
+		this.color='white';
 
-		this.addProperty(new Property(this,
-			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The links constant.'));
 		this.addProperty(new Property(this,
 			'tensorType', 'tensorType', 'Type', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links type number.'));
@@ -69,6 +64,7 @@ class Tensor {
 		let middleButton=document.createElement('button');
 		middleButton.classList.add('trussButton');
 		middleButton.classList.add('tensorButtonMiddle');
+		middleButton.style.color=this.color;
 		middleButton.innerHTML = this.getName();
 		this.registerOnClick(middleButton, this);
 		div.appendChild(middleButton);
@@ -124,9 +120,9 @@ class Tensor {
 	 * @param {Tensor} tensor
 	 */
 	sensorAttach() {
-		if (this.node1 == universe.current.selector) {
+		if (this.node1 == universe.currentNode.selector) {
 			this.addNode1(universe.selectedObject);
-		} else if (this.node2 == universe.current.selector) {
+		} else if (this.node2 == universe.currentNode.selector) {
 			this.addNode2(universe.selectedObject);
 		}
 		if (this.attachFunction) {
@@ -228,7 +224,6 @@ class Tensor {
 
 		representation.angle1=this.angle1;
 		representation.angle2=this.angle2;
-		representation.constant=this.constant;
 		representation.tensorType=this.tensorType;
 		representation.force=this.force;
 		representation.ghost=this.ghost;
@@ -265,7 +260,6 @@ class Tensor {
 			this.breakEndTensor=tensorList[restoreObject.breakEndTensor];
 		}
 
-		this.constant=restoreObject.constant;
 
 		this.tensorType=restoreObject.tensorType;
 		this.force=restoreObject.force;
@@ -719,11 +713,15 @@ class Spring extends Tensor {
 	 * @param  {TensorType} type
 	 */
 	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
-		super(node1, node2, constant, type);
+		super(node1, node2, type);
 		this.equilibriumLength = equilibriumLength;
+		this.constant = constant;
 		if (this.equilibriumLength <= 0 && node1 && node2) {
 			this.equilibriumLength = this.getLength();
 		}
+		this.addProperty(new Property(this,
+			'constant', 'constant', 'Spring constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The links constant.'));
 		this.addProperty(new Property(this,
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How long should the relaxed spring be.'));
@@ -737,6 +735,7 @@ class Spring extends Tensor {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='Spring';
+		representationObject.constant=this.constant;
 		representationObject.equilibriumLength=this.equilibriumLength;
 		return representationObject;
 	}
@@ -750,6 +749,7 @@ class Spring extends Tensor {
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
 		this.equilibriumLength=restoreObject.equilibriumLength;
+		this.constant=restoreObject.constant;
 		return this;
 	}
 
@@ -757,8 +757,6 @@ class Spring extends Tensor {
 		 * Calculate the force in the Spring based on current length
 		 */
 	calculateForce() {
-		// if (!this.node1 || !this.node2)
-		//	return this.force=new Force(0,0);
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(this.equilibriumLength);
 		let diffVector = Vector.subtractVectors(actualVector, normalized);
@@ -781,6 +779,9 @@ class PullSpring extends Spring {
 	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
 		super(node1, node2, constant, equilibriumLength, type);
 		this.originalParent = undefined; // To remember that this can be set by linebreakers
+		this.addProperty(new Property(this,
+			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The links constant.'));
 	}
 
 	/**
@@ -835,8 +836,12 @@ class Field extends Tensor {
  * @param  {TensorType} type
  */
 	constructor(node1, node2, constant = 1, type = TensorType.FIELD) {
-		super(node1, node2, constant, type);
+		super(node1, node2, type);
 		this.color='blue';
+		this.constant = constant;
+		this.addProperty(new Property(this,
+			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The links constant.'));
 	}
 
 	/**
@@ -847,11 +852,26 @@ class Field extends Tensor {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='Field';
+		representationObject.constant=this.constant;
 		return representationObject;
 	}
 
 	/**
-		 * Calculate the force in the Field based on distance between the nodes
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Spring}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.originalParent = tensorList[restoreObject.originalParent];
+		this.constant=restoreObject.constant;
+		return this;
+	}
+
+
+	/**
+		 * Calculate the force in the Field based on distance and mass of the nodes
 		 */
 	calculateForce() {
 		let actualVector = this.getActual();
@@ -877,8 +897,12 @@ class Absorber extends Tensor {
 	 * @param  {TensorType} type
 	 */
 	constructor(node1, node2, constant = 1, type = TensorType.ABSORBER) {
-		super(node1, node2, constant, type);
+		super(node1, node2, type);
 		this.color='green';
+		this.dampeningConstant = constant;
+		this.addProperty(new Property(this,
+			'dampeningConstant', 'dampeningConstant', 'Dampening constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The links dampening constant.'));
 	}
 
 	/**
@@ -889,7 +913,82 @@ class Absorber extends Tensor {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='Absorber';
+		representationObject.dampeningConstant=this.dampeningConstant;
 		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Spring}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.originalParent = tensorList[restoreObject.originalParent];
+		this.dampeningConstant=restoreObject.dampeningConstant;
+		return this;
+	}
+
+	/**
+		 * Calculate the force in the Absorber based on the relative speed between the nodes
+		*/
+	calculateForce() {
+		let actualVector = this.getActual();
+		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
+		let parallellVelocity = Vector.multiplyVector(
+			Vector.dotProduct(actualVector, internalSpeed),
+			Vector.divideVector(actualVector, this.getLengthSquare()));
+		this.force = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
+	}
+}
+
+/**
+ * An DampenedSpring is a combination of a Spring and an Absorber
+ * @class
+ * @augments Tensor
+ */
+class DampenedSpring extends Spring {
+	/**
+	 * @constructor
+	 * @param  {Node} node1
+	 * @param  {Node} node2
+	 * @param  {number} constant
+	 * @param  {number} dampeningConstant
+	 * @param  {TensorType} type
+	 */
+	constructor(node1, node2, constant = 100, dampeningConstant = 100, type = TensorType.SPRING) {
+		super(node1, node2, constant, type);
+		this.color='green';
+		this.dampeningConstant = dampeningConstant;
+		this.addProperty(new Property(this,
+			'dampeningConstant', 'dampeningConstant', 'Dampening constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The links dampening constant.'));
+	}
+
+	/**
+		 * @param  {Array} nodeList
+		 * @param  {Array} tensorList
+		 * @return {Object}
+		 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='DampenedSpring';
+		representationObject.dampeningConstant=this.dampeningConstant;
+		return representationObject;
+	}
+
+	/**
+		 * @param  {Object} restoreObject
+		 * @param  {Array} nodeList
+		 * @param  {Array} tensorList
+		 * @return {Spring}
+		 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.originalParent = tensorList[restoreObject.originalParent];
+		this.dampeningConstant=restoreObject.dampeningConstant;
+		return this;
 	}
 
 	/**
@@ -901,9 +1000,14 @@ class Absorber extends Tensor {
 		let parallellVelocity = Vector.multiplyVector(
 			Vector.dotProduct(actualVector, internalSpeed),
 			Vector.divideVector(actualVector, this.getLengthSquare()));
-		this.force = Vector.multiplyVector(this.constant, parallellVelocity);
+		let dampeningForce = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
+
+		let normalized = actualVector.normalizeVector(this.equilibriumLength);
+		let diffVector = Vector.subtractVectors(actualVector, normalized);
+		this.force = Vector.addVectors(dampeningForce, Vector.multiplyVector(-this.constant, diffVector));
 	}
 }
+
 
 /**
  * A PictureSpring works like a spring but has an attached picture
@@ -926,6 +1030,7 @@ class PictureSpring extends Spring {
 		this.width=width;
 		this.stretch=1;
 		this.length=this.equilibriumLength;
+
 		this.addProperty(new Property(this,
 			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The picture filename.'));
@@ -966,8 +1071,27 @@ class PictureSpring extends Spring {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='PictureSpring';
-		alert('Picturespring not serialized');
+		representationObject.pictureReference=this.pictureReference;
+		representationObject.width=this.width;
+		representationObject.stretch=this.stretch;
+		representationObject.length=this.length;
 		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Spring}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		this.originalParent = tensorList[restoreObject.originalParent];
+		this.pictureReference=restoreObject.pictureReference;
+		this.width=restoreObject.width;
+		this.stretch=restoreObject.stretch;
+		this.length=restoreObject.length;
+		return this;
 	}
 
 	/**

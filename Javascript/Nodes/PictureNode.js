@@ -5,7 +5,7 @@
  */
 class PictureNode extends CollectionNode {
 	/**
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} trussNode
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -16,9 +16,9 @@ class PictureNode extends CollectionNode {
 	 * @param  {number} velocityLoss
 	 * @param  {number} torqueConstant
 	 */
-	constructor(truss, startPosition, mass = 1, name = 'PictureNode', nodeCollection, pictureFileName='default.jpg',
+	constructor(trussNode, startPosition, mass = 1, name = 'PictureNode', nodeCollection, pictureFileName='default.jpg',
 		...args) {
-		super(truss, startPosition, mass, name, nodeCollection, ...args);
+		super(trussNode, startPosition, mass, name, nodeCollection, ...args);
 
 		this.addProperty(new Property(pictureFileName, 'pictureFileName', 'pictureFileName', 'Picture filename', ParameteType.STRING,
 			ParameterCategory.CONTENT, 'The filename of the picture.'));
@@ -40,7 +40,7 @@ class PictureNode extends CollectionNode {
 	 * @param {String} pictureReference
 	 */
 	createPicture(pictureReference) {
-		if (!this.truss || !pictureReference) {
+		if (!this.parentTrussNode || !this.parentTrussNode.truss || !pictureReference) {
 			return;
 		}
 		let oldElement=this.element;
@@ -62,10 +62,10 @@ class PictureNode extends CollectionNode {
 		};
 		this.element.src = 'Resources/' + pictureReference;
 		if (oldElement) {
-			this.truss.element.removeChild(oldElement);
+			this.parentTrussNode.truss.element.removeChild(oldElement);
 		}
 		if (oldPath!=this.element.src) {
-			this.truss.element.appendChild(this.element);
+			this.parentTrussNode.truss.element.appendChild(this.element);
 		}
 	}
 
@@ -78,13 +78,12 @@ class PictureNode extends CollectionNode {
 
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Array} superNodeList
 	 * @param  {Array} superTensorList
 	 * @return {Object}
 	 */
-	serialize(truss, superNodeList, superTensorList) {
-		let representationObject = super.serialize(truss, superNodeList, superTensorList);
+	serialize(superNodeList, superTensorList) {
+		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'PictureNode';
 
 		representationObject.pictureFileName=this.pictureFileName;
@@ -92,13 +91,12 @@ class PictureNode extends CollectionNode {
 	}
 
 	/**
-	 * @param  {Truss} truss
 	 * @param  {Object} restoreObject
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
 	 */
-	deserialize(truss, restoreObject, superNodes, superTensors) {
-		super.deserialize(truss, restoreObject, superNodes, superTensors);
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
 		this.pictureFileName= restoreObject.pictureFileName;
 		this.createPicture(this.pictureReference);
 		return;

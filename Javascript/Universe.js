@@ -17,11 +17,13 @@ class Stack {
 	}
 
 	/**
-	 * @param  {TrussNode} item
+	 * @param  {World} item
+	 * @return {World}
 	 */
 	push(item) {
 		this.items.push(item);
 		this.count = this.count + 1;
+		return item;
 	}
 
 	/**
@@ -46,6 +48,173 @@ class Stack {
 /**
  * @class
  */
+class World {
+	/**
+	 * This class is used to represent a truss(node) world and the supporting governor truss(node)s
+	 * @param {TrussNode} trussNode
+	 * @param {List} governors
+	 */
+	constructor(trussNode, governors =[]) {
+		this.trussNode = trussNode;
+		this.governors = governors;
+	}
+
+	/**
+	 * @param {number} timestamp
+	 */
+	tick(timestamp) {
+		this.trussNode.tick(timestamp);
+		if (this.governors) {
+			for (let governor of this.governors) {
+				governor.tick(timestamp);
+			}
+		}
+	}
+
+	/**
+	 * Clean up everything and make sure no event-listeners or similar are left dnagling
+	 */
+	close() {
+		this.trussNode.close();
+		if (this.governors) {
+			for (let governor of this.governors) {
+				governor.close();
+			}
+		}
+	}
+
+	/**
+	 * @param {Function} f
+	 */
+	mapAll(f) {
+		f(this.trussNode);
+		if (this.governors) {
+			for (let governor of this.governors) {
+				f(governor);
+			}
+		}
+	}
+
+	/**
+	 * @return {Object} serialized Json object
+	 */
+	serialize() {
+		let representationObject = {
+			'classname': 'World',
+		};
+
+		let {nodes, tensors} = this.listAllNodesAndTensors();
+		nodes = [this.trussNode, ...this.governors, ...nodes];
+
+		this.serializeAllNodes(nodes, tensors, representationObject);
+
+		this.serializeAllTensors(tensors, nodes, representationObject);
+
+		representationObject.trussNode = nodes.indexOf(this.trussNode);
+
+		representationObject.governors = [];
+		if (this.governors) {
+			for (let governor of this.governors) {
+				representationObject.governors = [...representationObject.governors, nodes.indexOf(governor)];
+			}
+		}
+
+		return representationObject;
+	}
+
+	/**
+	 * @param  {List} tensors
+	 * @param  {List} nodes
+	 * @param  {Object} representationObject
+	 */
+	serializeAllTensors(tensors, nodes, representationObject) {
+		let tensorList = [];
+		for (let tensor of tensors) {
+			tensorList.push(tensor.serialize(nodes, tensors));
+		}
+		representationObject.tensors = tensorList;
+	}
+
+	/**
+	 * @param  {List} nodes
+	 * @param  {List} tensors
+	 * @param  {Object} representationObject
+	 */
+	serializeAllNodes(nodes, tensors, representationObject) {
+		let nodeList = [];
+		for (let node of nodes) {
+			let nodeSerilization = node.serialize(nodes, tensors);
+			if (nodeSerilization) {
+				nodeList.push(nodeSerilization);
+			}
+		}
+		representationObject.nodes = nodeList;
+	}
+
+	/**
+	 * @return {Object}
+	 */
+	listAllNodesAndTensors() {
+		let nodes = this.trussNode.truss.nodes;
+		let tensors = this.trussNode.truss.tensors;
+		if (this.governors) {
+			for (let governor of this.governors) {
+				nodes = [...nodes, ...governor.truss.nodes];
+				tensors = [...tensors, ...governor.truss.tensors];
+			}
+		}
+		return {nodes, tensors};
+	}
+
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @return {Object}
+	 */
+	deserialize(restoreObject) {
+		let nodeList=[];
+		for (let nodeRestoreObject of restoreObject.nodes) {
+			let node = objectFactory(undefined, nodeRestoreObject);
+			nodeList.push(node);
+		}
+
+		let tensorList=[];
+		for (let tensorRestoreObject of restoreObject.tensors) {
+			let tensor = objectFactory(undefined, tensorRestoreObject);
+			tensorList.push(tensor);
+		}
+
+
+		// deserialize them
+		let index=0;
+		for (let node of nodeList) {
+			node.deserialize(restoreObject.nodes[index], nodeList, tensorList);
+			index++;
+		}
+
+		index=0;
+		for (let tensor of tensorList) {
+			tensor.deserialize(restoreObject.tensors[index], nodeList, tensorList);
+			index++;
+		}
+
+		this.trussNode = nodeList[restoreObject.trussNode];
+
+		this.governors=[];
+		if (restoreObject.governors) {
+			for (let governor of restoreObject.governors) {
+				this.governors = [...this.governors, nodeList[governor]];
+			}
+		}
+
+		return this;
+	}
+}
+
+
+/**
+ * @class
+ */
 class Universe {
 	/**
 	 * This class is used to represent a stack of Trusses representing the sequence of trusses
@@ -54,55 +223,51 @@ class Universe {
 	 * @param {Element} background
 	 */
 	constructor(background) {
-		this.name='MyUniverse';
+		this.name = 'MyUniverse';
 		this.universeStack = new Stack();
-		this.governors = [];
-		this.current = {};
-		this.background=background;
+		this.currentWorld = undefined;	// This is the current world, including trussNode and Governors
+		this.currentNode = undefined; // This is the currently displayed trussNode (either the worlds trussNode or a governor Node)
+		this.background = background;
 		this.selectedObject = undefined;
-		this.setupTicks=0; // Initiated in SetCurrent
+		this.setupTicks = 0; // Initiated in SetCurrent
 	}
 
 	/**
-	 * @return {TrussNode}
+	 * @return {World}
 	 */
 	pop() {
 		return this.universeStack.pop();
 	}
 
 	/**
-	 * @param {TrussNode} trussNode
-	 * @return {TrussNode}
+	 * @param {World} world
+	 * @return {World}
 	 */
-	push(trussNode) {
-		this.current=trussNode;
-		return this.universeStack.push(trussNode);
+	push(world) {
+		return this.universeStack.push(world);
 	}
 
 	/**
-	* @param {number} timestamp
+	 * @param {number} timestamp
 	 */
 	tick(timestamp) {
-		if (!this.universeStack || this.universeStack.getLength()==0 || !this.current) {
+		if (!this.universeStack || this.universeStack.getLength() == 0 || !this.currentWorld) {
 			console.log('Error in Universe. No current truss.');
 		}
 		// If newly changed current, ticka all a few times to get pictures right in the small windows
-		if (this.setupTicks>0) {
-			universe.tickAll(timestamp);
+		if (this.setupTicks > 0) {
+			this.tickAll(timestamp);
 			this.setupTicks--;
 		}
-		this.current.tick(timestamp);
-		for (let governor of this.governors) {
-			governor.tick(timestamp);
-		}
+		this.currentWorld.tick(timestamp);
 	}
 
 	/**
-	* @param {number} timestamp
+	 * @param {number} timestamp
 	 */
 	tickAll(timestamp) {
 		for (let stackTruss of this.universeStack.items) {
-			if (this.current!=stackTruss) {
+			if (this.currentWorld != stackTruss) {
 				stackTruss.tick(timestamp);
 			}
 		}
@@ -110,81 +275,96 @@ class Universe {
 
 	/**
 	 */
-	showUniverse() {
-		this.background.innerHTML='';
-		let topPosition=10;
-		let _this=this;
+	show() {
+		this.background.innerHTML = '';
+		let topPosition = 10;
+		let _this = this;
 
-		let clickFunction = function(refNode) {
+		let clickSetWorld = function(refNode) {
 			return function() {
-				_this.setCurrent(refNode);
+				_this.setCurrentWorld(refNode);
 			};
 		};
-		for (let governor of this.governors) {
+		let clickSetView = function(refWorld) {
+			return function() {
+				_this.setCurrentView(refWorld);
+			};
+		};
+		for (let governor of this.currentWorld.governors) {
 			let govDiv = governor.element;
+			govDiv.style={};
 			govDiv.classList.add('govenorTruss');
 			govDiv.classList.add('govenorTrussFrame');
 			if (!govDiv.initiated) {
-				govDiv.id=governor.name+'Div';
-				govDiv.refNode=governor;
+				govDiv.id = governor.name + 'Div';
+				govDiv.refNode = governor;
 			}
 			this.background.appendChild(govDiv);
-			govDiv.initiated='true';
-			govDiv.style.top=topPosition+'px';
-			topPosition=topPosition+110;
+			govDiv.initiated = 'true';
+			govDiv.style.top = topPosition + 'px';
+			topPosition = topPosition + 110;
 			governor.resize();
 			if (!govDiv.selectTrussListener) {
-				govDiv.selectTrussListener= clickFunction(governor);
+				govDiv.selectTrussListener = clickSetView(governor);
 				govDiv.addEventListener('click', govDiv.selectTrussListener);
 			}
 		}
 
-		topPosition=10;
-		for (let stackTruss of this.universeStack.items) {
+		topPosition = 10;
+		for (let world of this.universeStack.items) {
+			let stackTruss = world.trussNode;
 			let stackDiv = stackTruss.element;
+			stackDiv.style={};
 			stackDiv.classList.add('stackTruss');
 			stackDiv.classList.add('stackTrussFrame');
 			if (!stackDiv.initiated) {
-				stackDiv.id=stackTruss.name+'Div';
-				stackDiv.refNode=stackTruss;
+				stackDiv.id = stackTruss.name + 'Div';
+				stackDiv.refNode = stackTruss;
 			}
 			this.background.appendChild(stackDiv);
-			stackDiv.initiated='true';
-			stackDiv.style.top=topPosition+'px';
-			topPosition=topPosition+110;
+			stackDiv.initiated = 'true';
+			stackDiv.style.top = topPosition + 'px';
+			topPosition = topPosition + 110;
 			stackTruss.resize();
 			if (!stackDiv.selectTrussListener) {
-				stackDiv.selectTrussListener= clickFunction(stackTruss);
+				stackDiv.selectTrussListener = clickSetWorld(world);
 				stackDiv.addEventListener('click', stackDiv.selectTrussListener);
 				topPosition++;
 			}
 		}
 
-		let mainDiv = this.current.element;
+		let mainDiv = this.currentNode.element;
 		mainDiv.classList.remove('govenorTruss');
 		mainDiv.classList.remove('stackTruss');
 		mainDiv.removeEventListener('click', mainDiv.selectTrussListener);
 		mainDiv.selectTrussListener = undefined;
 		mainDiv.classList.add('mainTruss');
-		mainDiv.style.top='10px';
-		mainDiv.id='TrussBackground';
+		mainDiv.style.top = '10px';
+		mainDiv.id = 'TrussBackground';
 	}
 
 	/**
-	 * @param  {Node} newCurrent
+	 * @param  {World} newWorld
 	 */
-	setCurrent(newCurrent) {
-		if (this.current) {
-			this.current.element.classList.remove('mainTruss');
-			this.current.canvas.onmousedown = undefined;
-			this.current.canvas.onmouseup = undefined;
+	setCurrentWorld(newWorld) {
+		if (this.currentNode) {
+			this.currentNode.element.classList.remove('mainTruss');
+			this.currentNode.canvas.onmousedown = undefined;
+			this.currentNode.canvas.onmouseup = undefined;
 		}
-		this.current=newCurrent;
-		this.showUniverse();
-		this.current.canvas.onmousedown = downMouse;
-		this.current.canvas.onmouseup = upMouse;
-		newCurrent.resize();
-		this.setupTicks=3;
+
+		this.currentWorld = newWorld;
+		this.setCurrentView(newWorld.trussNode);
+	}
+	/**
+	 * @param  {Node} newNodeToShow
+	 */
+	setCurrentView(newNodeToShow) {
+		this.currentNode=newNodeToShow;
+		this.show();
+		this.currentNode.canvas.onmousedown = downMouse;
+		this.currentNode.canvas.onmouseup = upMouse;
+		newNodeToShow.resize();
+		this.setupTicks = 3;
 	}
 }
-
