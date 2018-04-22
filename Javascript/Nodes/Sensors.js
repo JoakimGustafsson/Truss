@@ -566,7 +566,7 @@ class Selector extends SensorNode {
 					bubbles: true,
 					cancelable: true,
 				});
-				document.dispatchEvent(event);
+				this.parentTrussNode.element.dispatchEvent(event);
 			}
 		} else if (mouseSet) { // Mouse is continually pressed
 			if (universe.selectedObject && universe.selectedObject.isNode) {

@@ -145,7 +145,7 @@ class TrussNode extends Node {
 		this.canvas.style.width = '100%'; // this.truss.view.screenSize.x + 'px';
 		this.canvas.style.height = '100%'; // this.truss.view.screenSize.y + 'px';
 
-		this.truss.editWindow = new EditPropertyWindow(this, new Position(100, 100), 500, 500);
+		this.truss.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
 	}
 	/**
  */

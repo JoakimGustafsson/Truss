@@ -58,9 +58,9 @@ class PropertyList {
 	/** Loop through all properties and display the values from the inputObject
 	 * @param  {Object} inputObject
 	 */
-	showPropertyValues(inputObject) {
+	updatePropertyValues(inputObject) {
 		for (let i = 0; i < this.list.length; i++) {
-			this.list[i].showPropertyValue(inputObject);
+			this.list[i].updatePropertyValue(inputObject);
 		}
 	}
 }
@@ -315,12 +315,12 @@ class Property {
 	/**
 	 * @param  {Object} selectedObject
 	 */
-	showPropertyValue(selectedObject) {
+	updatePropertyValue(selectedObject) {
 		if (this.type == ParameteType.POSITION) {
 			let elementX = this.xInput;
 			let elementY = this.yInput;
 			if ((elementX == undefined) || (elementX == null)) {
-				alert('ShowPropertyValue cannot find HTML element ' + this.identity + 'X & Y. (Title:' + this.title + ')');
+				alert('updatePropertyValue cannot find HTML element ' + this.identity + 'X & Y. (Title:' + this.title + ')');
 				return;
 			} else {
 				elementX.value = Math.round(100 * selectedObject[this.propertyName].x) / 100;
@@ -329,155 +329,10 @@ class Property {
 		} else {
 			let element = this.input;
 			if ((element == undefined) || (element == null)) {
-				alert('ShowPropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
+				alert('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
 				return;
 			}
 			element.value = selectedObject[this.propertyName];
 		}
 	};
 }
-
-/**
- *
- *
- * @class
- * @augments SensorNode
- */
-class HTMLEditNode extends SensorNode {
-	/** This node is used to ensure that the property editing window 'element' is updated with the selected
-	 * objects real time property values.
-	 * @constructor
-	 * @param {Truss} trussNode
-	 * @param {Node} obj - The node that this node should influence, often the protagonist node
-	 * @param {Element} element - The HTML element that should display the edit area
-	 * @param {string} name - The name of the node.
-	 */
-	constructor(trussNode, obj, element, name = 'HTMLEditNode') {
-		super(trussNode, new Position(0, 0), NaN, name);
-		this.element=element;
-		let _this = this;
-		this.eventListenerFunction = function(e) {
-			if (universe.currentNode==_this.parentTrussNode) {
-				_this.select(e, _this);
-			}
-		};
-		document.addEventListener('selectionEvent', this.eventListenerFunction, false);
-	}
-
-	/**
-	 * Call this before discarding to remove nodes and event listeners
-	 */
-	close() {
-		document.removeEventListener('selectionEvent', this.eventListenerFunction);
-	}
-
-	/**
-	 * @param  {Event} selectionEvent
-	 * @param  {Object} th
-	 */
-	select(selectionEvent, th) {
-		this.iO = selectionEvent.detail.selectedObject;
-		// let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-
-		this.element.innerHTML='';
-		if (this.iO) {
-			this.iO.properties.populateProperties(this.element);
-		}
-	}
-
-	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 */
-	serialize(nodeList, tensorList) {
-		alert('HTMLEditNode should never be serialized');
-	}
-
-	/**
-	 * Use sense in order to make pause work
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
-	 */
-	sense(deltaTime, truss) {
-		// super.updatePosition(time, deltaTime);
-		if (this.iO) {
-			this.iO.properties.showPropertyValues(this.iO);
-		}
-	}
-}
-
-/**
- * @class
- */
-class EditPropertyWindow {
-	/**
-	 * @param  {Truss} parentTrussNode
-	 * @param  {Position} topScreenPos
-	 * @param  {number} screenWidth
-	 * @param  {number} screenHeight
-	 */
-	constructor(parentTrussNode, topScreenPos, screenWidth, screenHeight) {
-		this.parentTrussNode=parentTrussNode;
-		let outerElement = createConfigurationArea('test');
-		this.parentTrussNode.truss.element.appendChild(outerElement);
-		this.banner = new BannerNode(this.parentTrussNode, outerElement);
-		let propertyArea = outerElement.querySelectorAll('#configview')[0];
-		this.HTMLEditNode = new HTMLEditNode(this.parentTrussNode, undefined, propertyArea);
-		let _this = this;
-		this.eventListenerFunction = function(e) {
-			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.truss==_this.parentTrussNode.truss)) {
-				_this.select.call(_this, e);
-			}
-		};
-	}
-
-
-	/**
-	 * remove event listener
-	 */
-	close() {
-		this.removeBanner();
-		document.removeEventListener('selectionEvent', this.eventListenerFunction);
-	}
-
-	/**
-	 * @param  {Event} selectionEvent
-	 */
-	select(selectionEvent) {
-		let truss = selectionEvent.detail.truss;
-		let selectedObject = selectionEvent.detail.selectedObject;
-		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-		if (this.parentTrussNode.truss!=truss) {
-			return;
-		}
-		if (!previousSelectedObject && selectedObject) {
-			this.createBanner(truss);
-		} else if (previousSelectedObject && !selectedObject) {
-			this.removeBanner(truss);
-		}
-	}
-
-Rundgång. nu finns inget som skapar eventlistenern i första hand
-
-	/**
-	 */
-	createBanner() {
-		let truss = this.parentTrussNode.truss;
-		this.banner.create(truss);
-		truss.addNode(this.banner);
-		truss.addNode(this.HTMLEditNode);
-		document.addEventListener('selectionEvent', this.eventListenerFunction, false);
-	}
-
-	/**
-	 */
-	removeBanner() {
-		let truss = this.parentTrussNode.truss;
-		this.banner.hide();
-		// this.hammer.hide(truss);
-		truss.removeNode(this.banner);
-		this.HTMLEditNode.close(); // Remove the event listener
-		truss.removeNode(this.HTMLEditNode);
-	}
-}
-

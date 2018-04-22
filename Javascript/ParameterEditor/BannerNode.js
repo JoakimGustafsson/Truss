@@ -4,7 +4,7 @@
  * @extends Node
  */
 class BannerNode extends Node {
-	/** This class displays a banner containing a HTML element. (Probably only used for property editing)
+	/** This class displays a banner containing a HTML element.
 	 * @param  {Truss} truss
 	 * @param  {HTMLElement} element
 	 */
@@ -12,6 +12,7 @@ class BannerNode extends Node {
 		super();
 		this.element = element;
 
+		/*
 		Object.defineProperty(this, 'idString', {
 			get: function() {
 				if (this.element) {
@@ -35,6 +36,7 @@ class BannerNode extends Node {
 		this.addProperty(new Property(this,
 			'idString', 'idString', 'Element id', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The HTML elements id.'));
+			*/
 	}
 
 	/**
