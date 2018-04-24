@@ -96,7 +96,7 @@ class BinaryActuatorNode extends ActuatorNode {
 		}
 	}
 
-	// OK, this is a collection node with length 2
+	// OK, this is a collection node with length 2...
 
 	/**
 	 * @param  {Array} nodeList
