@@ -92,6 +92,32 @@ class TrussNode extends Node {
 	}
 
 	/**
+	 * @param  {Array} superNodeList
+	 * @param  {Array} superTensorList
+	 * @return {Object}
+	 */
+	serialize(superNodeList=[], superTensorList=[]) {
+		let representationObject = super.serialize(superNodeList, superTensorList);
+		representationObject.classname = 'TrussNode';
+		representationObject.truss = this.truss.serialize(superNodeList, superTensorList);
+
+		// save the canvas properties
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 */
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
+		this.truss = objectFactory(undefined, restoreObject.truss).deserialize(restoreObject.truss, superNodes, superTensors, this);
+		this.handleCanvas();
+		this.setView();
+	}
+
+	/**
 	 * @param  {ElementSelector} elementSelector
 	 * @return {Element}
 	 */
@@ -153,32 +179,6 @@ class TrussNode extends Node {
 		this.truss.view.resize();
 		this.canvas.width = this.truss.view.screenSize.x;
 		this.canvas.height = this.truss.view.screenSize.y;
-	}
-
-	/**
-	 * @param  {Array} superNodeList
-	 * @param  {Array} superTensorList
-	 * @return {Object}
-	 */
-	serialize(superNodeList=[], superTensorList=[]) {
-		let representationObject = super.serialize(superNodeList, superTensorList);
-		representationObject.classname = 'TrussNode';
-		representationObject.truss = this.truss.serialize(superNodeList, superTensorList);
-
-		// save the canvas properties
-		return representationObject;
-	}
-
-	/**
-	 * @param  {Object} restoreObject
-	 * @param  {Array} superNodes
-	 * @param  {Array} superTensors
-	 */
-	deserialize(restoreObject, superNodes, superTensors) {
-		super.deserialize(restoreObject, superNodes, superTensors);
-		this.truss = objectFactory(undefined, restoreObject.truss).deserialize(restoreObject.truss, superNodes, superTensors, this);
-		this.handleCanvas();
-		this.setView();
 	}
 
 	/**

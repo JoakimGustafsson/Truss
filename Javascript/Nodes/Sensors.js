@@ -508,15 +508,24 @@ class Selector extends SensorNode {
 	}
 
 	/**
-	 * @param  {TrussNode} trussNode
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(trussNode, nodeList, tensorList) {
-		let representationObject = super.serialize(trussNode, nodeList, tensorList);
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname = 'Selector';
 		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 */
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
+		return;
 	}
 
 	/**

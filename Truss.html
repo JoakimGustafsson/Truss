@@ -115,7 +115,7 @@
 
 				document.addEventListener('selectionEvent',
 					function (e) {
-						select.call(this, e);
+						highlightAndModifyPropertyButtons.call(this, e);
 					}, false);
 
 
@@ -186,7 +186,7 @@
 			/**
 			 * @param  {Event} selectionEvent
 			 */
-			function select(selectionEvent) {
+			function highlightAndModifyPropertyButtons(selectionEvent) {
 				let select = selectionEvent.detail.selectedObject;
 				let connectionDiv= universe.currentNode.getElement("#connectionDiv");
 
@@ -258,7 +258,7 @@
 			}
 
 			function addGravityCheat() {
-				universe.current.truss.addTensor(gravityField(universe.selectedObject));
+				universe.currentNode.truss.addTensor(gravityField(universe.selectedObject));
 			}
 
 			function deleteSelected() {
@@ -271,17 +271,17 @@
 
 			function selectMainNode() {
 				let previousSelectedObject = universe.selectedObject;
-				selectedObject = universe.currentNode;
+				universe.selectedObject = universe.currentNode;
 				let event = new CustomEvent('selectionEvent', {
 					detail: {
-						'selectedObject': selectedObject,
+						'selectedObject': universe.selectedObject,
 						'previousSelectedObject': previousSelectedObject,
-						'truss': selectedObject.truss,
+						'truss': universe.selectedObject.truss,
 					},
 					bubbles: true,
 					cancelable: true,
 				});
-				document.dispatchEvent(event);
+				universe.currentNode.element.dispatchEvent(event);
 			}
 
 			function updateResize() {

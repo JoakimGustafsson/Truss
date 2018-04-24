@@ -44,6 +44,13 @@ class PropertyUpdateNode extends SensorNode {
 	}
 
 	/**
+	 *
+	 */
+	activate() {
+		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction);
+	}
+
+	/**
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 */

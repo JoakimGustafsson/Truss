@@ -42,6 +42,7 @@ class BannerNode extends Node {
 	/**
 	 * @param  {Truss} truss
 	 * @param  {Position} topScreenPos
+	 * @return {Node}
 	 */
 	create(truss, topScreenPos) {
 		this.element.style.display = 'block';
@@ -82,6 +83,7 @@ class BannerNode extends Node {
 		this.leftSpring.color='transparent';
 		this.rightSpring = truss.addTensor(new DampenedSpring(this.rightTopNode, this.rightBottomNode, 200, 10));
 		this.rightSpring.color='transparent';
+		return this.nail;
 	}
 
 	/**

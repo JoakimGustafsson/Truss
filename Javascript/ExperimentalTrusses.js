@@ -71,7 +71,7 @@ class WalkTruss extends Truss {
 		let Earth = this.addNode(new Node(parent, EarthCenter, 5.97219e24, 'Earth'));
 		this.earth=Earth;
 		// this.addNode(Earth);
-		parent.selector = this.addNode(new Selector(this));
+		parent.selector = this.addNode(new Selector(parent));
 
 
 		// Create a protagonist (yellow circle) and connect it to gravity
@@ -314,12 +314,13 @@ class GovenorTruss extends Truss {
 	 */
 	initiate() {
 		let governedNode=this.parentTrussNode.parentTrussNode;
+		let parent = this.parentTrussNode;
 		let governedTruss=governedNode.truss;
 
 		protagonist = governedTruss.protagonist;
-		governedNode.selector = this.addNode(new Selector(this));
+		governedNode.selector = this.addNode(new Selector(parent));
 		// Set up a keysensornode and make it sensitive to q, e and space
-		let sensorNode = this.addNode(new KeySensorNode(this, new Position(2, 1), 0.01, 'myKeySensorNode'));
+		let sensorNode = this.addNode(new KeySensorNode(parent, new Position(2, 1), 0.01, 'myKeySensorNode'));
 		sensorNode.registerKey(37, new Vector(-2, 0));
 		sensorNode.registerKey(65, new Vector(-2, 0));
 		sensorNode.registerKey(39, new Vector(2, 0));
@@ -336,11 +337,11 @@ class GovenorTruss extends Truss {
 		// by the actuator to pull the protagonist left or right
 
 
-		let downEarth = this.addNode(new Node(this, new Position(0, 6371e3), 5.97219e24, 'EarthForJump', undefined, undefined, 0));
+		let downEarth = this.addNode(new Node(parent, new Position(0, 6371e3), 5.97219e24, 'EarthForJump', undefined, undefined, 0));
 		let leftEarth = this.addNode(
-			new Node(this, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
+			new Node(parent, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
 		let rightEarth =this.addNode(
-			new Node(this, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
+			new Node(parent, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
 		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 		let gravity = this.addTensor(new Field(downEarth, protagonist, 6.67e-11));
@@ -348,7 +349,7 @@ class GovenorTruss extends Truss {
 
 		// Add one actuator that takes care of left - right movement
 		let leftRightActuatorNode = this.addNode(
-			new LeftRightNode(this, protagonist, new Position(1, 5), new Position(3, 5),
+			new LeftRightNode(parent, protagonist, new Position(1, 5), new Position(3, 5),
 				leftField1, rightField1, 50, 'myLeftRightNode', 0, 0, 0.99));
 
 		// Connect it via a spring to the keysensor node
@@ -356,7 +357,7 @@ class GovenorTruss extends Truss {
 
 
 		let jumpActuator = this.addNode(
-			new JumpNode(this, protagonist, new Position(0.5, 1), new Position(0.5, 2),
+			new JumpNode(parent, protagonist, new Position(0.5, 1), new Position(0.5, 2),
 				gravity, 0.05, 'myJumpNode'));
 
 		this.addTensor(new Spring(sensorNode, jumpActuator, 500, 0.1));

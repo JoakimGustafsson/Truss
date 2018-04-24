@@ -361,6 +361,7 @@ class Universe {
 	 */
 	setCurrentView(newNodeToShow) {
 		this.currentNode=newNodeToShow;
+		this.selectedObject = undefined;
 		this.show();
 		this.currentNode.canvas.onmousedown = downMouse;
 		this.currentNode.canvas.onmouseup = upMouse;

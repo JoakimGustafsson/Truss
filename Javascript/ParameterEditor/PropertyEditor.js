@@ -13,12 +13,13 @@ class PropertyEditor {
 		let propertyArea = outerElement.querySelectorAll('#configview')[0];
 		this.parentTrussNode = parentTrussNode;
 		this.parentTrussNode.truss.element.appendChild(outerElement);
-		this.banner = new BannerNode(this.parentTrussNode, outerElement);
+		this.bannerNode = new BannerNode(this.parentTrussNode, outerElement);
+		this.banner = undefined;
 		this.PropertyUpdateNode = new PropertyUpdateNode(this.parentTrussNode, propertyArea);
 		let _this = this;
 		this.eventListenerFunction = function(e) {
 			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.truss==_this.parentTrussNode.truss)) {
-				_this.select.call(_this, e);
+				_this.createOrRemoveBanner.call(_this, e);
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
@@ -36,28 +37,24 @@ class PropertyEditor {
 	/**
 	 * @param  {Event} selectionEvent
 	 */
-	select(selectionEvent) {
+	createOrRemoveBanner(selectionEvent) {
 		let truss = selectionEvent.detail.truss;
 		let selectedObject = selectionEvent.detail.selectedObject;
 		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-		if (this.parentTrussNode.truss!=truss) {
-			return;
-		}
-		if (!previousSelectedObject && selectedObject) {
+		if (!previousSelectedObject && selectedObject && !this.banner) {
 			this.createBanner(truss);
 		} else if (previousSelectedObject && !selectedObject) {
 			this.removeBanner(truss);
 		}
 	}
 
-	// Rundgång. nu finns inget som skapar eventlistenern i första hand
-
 	/**
 	 */
 	createBanner() {
 		let truss = this.parentTrussNode.truss;
-		this.banner.create(truss);
-		truss.addNode(this.banner);
+		this.banner = this.bannerNode.create(truss);
+		truss.addNode(this.bannerNode);
+		this.PropertyUpdateNode.activate();
 		truss.addNode(this.PropertyUpdateNode);
 	}
 
@@ -65,10 +62,10 @@ class PropertyEditor {
 	 */
 	removeBanner() {
 		let truss = this.parentTrussNode.truss;
-		this.banner.hide();
-		// this.hammer.hide(truss);
-		truss.removeNode(this.banner);
+		this.bannerNode.hide();
+		truss.removeNode(this.bannerNode);
 		this.PropertyUpdateNode.close(); // Remove the event listener
 		truss.removeNode(this.PropertyUpdateNode);
+		this.banner=undefined;
 	}
 }

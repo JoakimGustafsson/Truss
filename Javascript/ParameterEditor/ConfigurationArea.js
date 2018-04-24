@@ -94,15 +94,7 @@ function createConfigurationArea(id) {
 
 					createNodeDropdown(nodeAdder);
 
-
-					let nodeButton = document.createElement('button');
-					nodeButton.classList.add('simpleButton');
-					nodeButton.innerHTML = 'Create';
-					nodeAdder.appendChild(nodeButton);
-
-					nodeButton.addEventListener('click', function() {
-						makeNode();
-					}, false);
+					createSimpleButton(nodeAdder, 'Create', () => makeNode());
 				}
 
 				{
@@ -113,13 +105,7 @@ function createConfigurationArea(id) {
 					// TODO: tensorDropdown;
 					createTensorDropdown(tensorAdder);
 
-					let tensorButton = document.createElement('button');
-					tensorButton.classList.add('simpleButton');
-					tensorButton.innerHTML = 'Create';
-					tensorAdder.appendChild(tensorButton);
-					tensorButton.addEventListener('click', function() {
-						makeTensor();
-					}, false);
+					createSimpleButton(tensorAdder, 'Create', () => makeTensor());
 				}
 			}
 
@@ -128,15 +114,12 @@ function createConfigurationArea(id) {
 			propertyArea.appendChild(propertyButtons);
 
 			{
-				let pauseButton = document.createElement('button');
-				pauseButton.classList.add('simpleButton');
-				pauseButton.innerHTML = 'Pause';
-				pauseButton.addEventListener('click', function() {
-					universe.current.togglePause();
-				}, false);
-				propertyButtons.appendChild(pauseButton);
+				createSimpleButton(propertyButtons, 'Pause', () => universe.currentNode.togglePause());
+				createSimpleButton(propertyButtons, 'Gravity', () => addGravityCheat(), 'gravityButton');
+				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
 
-				let gravityButton = document.createElement('button');
+
+				/* let gravityButton = document.createElement('button');
 				gravityButton.id = 'gravityButton';
 				gravityButton.classList.add('simpleButton');
 				gravityButton.innerHTML = 'Gravity';
@@ -151,7 +134,7 @@ function createConfigurationArea(id) {
 				deleteButton.addEventListener('click', function() {
 					deleteSelected();
 				}, false);
-				propertyButtons.appendChild(deleteButton);
+				propertyButtons.appendChild(deleteButton);*/
 
 				createDebugDropdown(propertyButtons);
 			}
@@ -180,18 +163,9 @@ function createConfigurationArea(id) {
 			trussArea.appendChild(trussPropertyLast);
 
 			{
-				let newTruss = document.createElement('button');
-				newTruss.classList.add('simpleButton');
-				newTruss.innerHTML = 'TrussNode';
-				trussPropertyLast.appendChild(newTruss);
-				let newGravity = document.createElement('button');
-				newGravity.classList.add('simpleButton');
-				newGravity.innerHTML = 'GravityNode';
-				trussPropertyLast.appendChild(newGravity);
-				let newSelector = document.createElement('button');
-				newSelector.classList.add('simpleButton');
-				newSelector.innerHTML = 'SelectorNode';
-				trussPropertyLast.appendChild(newSelector);
+				createSimpleButton(trussPropertyLast, 'TrussNode');
+				createSimpleButton(trussPropertyLast, 'GravityNode');
+				createSimpleButton(trussPropertyLast, 'SelectorNode');
 			}
 		}
 
@@ -221,17 +195,45 @@ function createConfigurationArea(id) {
 		fileNameInput.value = 'myFile';
 		fileDiv.appendChild(fileNameInput);
 
-		let saveButton = document.createElement('button');
-		saveButton.id = 'saveButton';
-		saveButton.classList.add('simpleButton');
-		saveButton.innerHTML = 'Save';
-		saveButton.addEventListener('click', function() {
-			saveFile(universe.currentNode.getElement('.fileNameInput').value);
-		}, false);
-		fileDiv.appendChild(saveButton);
+
+		createSimpleButton(fileDiv, 'Save',
+			() => saveFile(universe.currentNode.getElement('.fileNameInput').value), 'saveButton,');
 	}
 
 	return configArea;
+
+	/**
+	 * @param  {Element} backgroundDiv
+	 * @param  {String} text
+	 * @param  {Function} f
+	 * @param  {String} id
+	 */
+	function createSimpleButton(backgroundDiv, text, f, id) {
+		let newButton = document.createElement('button');
+		newButton.classList.add('simpleButton');
+		if (id) {
+			newButton.id=id;
+		}
+		newButton.innerHTML = text;
+		backgroundDiv.appendChild(newButton);
+		newButton.addEventListener('click', f, false);
+	}
+
+	/**
+	 * @param  {Element} backgroundDiv
+	 * @param  {String} text
+	 * @param  {String} value
+	 */
+	function createOption(backgroundDiv, text, value) {
+		let optionDebug = document.createElement('option');
+		if (value) {
+			optionDebug.value = text;
+		} else {
+			optionDebug.value = value;
+		}
+		optionDebug.innerHTML = text;
+		backgroundDiv.appendChild(optionDebug);
+	}
 
 	/**
      * @param  {Element} propertyButtons
@@ -244,42 +246,16 @@ function createConfigurationArea(id) {
 			changeDebugLevel();
 		}, false);
 		propertyButtons.appendChild(debugLevelSelect);
-		let optionDebug1 = document.createElement('option');
-		optionDebug1.value = '1';
-		optionDebug1.innerHTML = 'Debug level';
-		debugLevelSelect.appendChild(optionDebug1);
-		let optionDebug2 = document.createElement('option');
-		optionDebug2.value = '0';
-		optionDebug2.innerHTML = 'Nothing';
-		debugLevelSelect.appendChild(optionDebug2);
-		let optionDebug3 = document.createElement('option');
-		optionDebug3.value = '1';
-		optionDebug3.innerHTML = 'Only web parts';
-		debugLevelSelect.appendChild(optionDebug3);
-		let optionDebug4 = document.createElement('option');
-		optionDebug4.value = '2';
-		optionDebug4.innerHTML = 'Only lines';
-		debugLevelSelect.appendChild(optionDebug4);
-		let optionDebug5 = document.createElement('option');
-		optionDebug5.value = '3';
-		optionDebug5.innerHTML = 'Only nodes';
-		debugLevelSelect.appendChild(optionDebug5);
-		let optionDebug6 = document.createElement('option');
-		optionDebug6.value = '5';
-		optionDebug6.innerHTML = 'Lines and Nodes';
-		debugLevelSelect.appendChild(optionDebug6);
-		let optionDebug7 = document.createElement('option');
-		optionDebug7.value = '6';
-		optionDebug7.innerHTML = 'Add speeds';
-		debugLevelSelect.appendChild(optionDebug7);
-		let optionDebug8 = document.createElement('option');
-		optionDebug8.value = '7';
-		optionDebug8.innerHTML = 'Add acceleration';
-		debugLevelSelect.appendChild(optionDebug8);
-		let optionDebug9 = document.createElement('option');
-		optionDebug9.value = '10';
-		optionDebug9.innerHTML = 'Add numbers';
-		debugLevelSelect.appendChild(optionDebug9);
+
+		createOption(debugLevelSelect, 'Debug level', '1');
+		createOption(debugLevelSelect, 'Nothing', '0');
+		createOption(debugLevelSelect, 'Only web parts', '1');
+		createOption(debugLevelSelect, 'Only lines', '2');
+		createOption(debugLevelSelect, 'Only nodes', '3');
+		createOption(debugLevelSelect, 'Lines and Nodes', '5');
+		createOption(debugLevelSelect, 'Add speeds', '6');
+		createOption(debugLevelSelect, 'Add acceleration', '7');
+		createOption(debugLevelSelect, 'Add numbers', '10');
 	}
 
 	/**
@@ -290,38 +266,16 @@ function createConfigurationArea(id) {
 		nodeSelect.id = 'nodeType';
 		nodeSelect.classList.add('inputcss');
 		surroundingDiv.appendChild(nodeSelect);
-		let optionDebug1 = document.createElement('option');
-		optionDebug1.value = 'Node';
-		optionDebug1.innerHTML = 'Node';
-		nodeSelect.appendChild(optionDebug1);
-		let optionDebug2 = document.createElement('option');
-		optionDebug2.value = '';
-		optionDebug2.innerHTML = '--Sensors--';
-		nodeSelect.appendChild(optionDebug2);
-		let optionDebug3 = document.createElement('option');
-		optionDebug3.value = 'KeySensorNode';
-		optionDebug3.innerHTML = 'KeySensorNode';
-		nodeSelect.appendChild(optionDebug3);
-		let optionDebug4 = document.createElement('option');
-		optionDebug4.value = 'ProximitySensorNode';
-		optionDebug4.innerHTML = 'ProximitySensor';
-		nodeSelect.appendChild(optionDebug4);
-		let optionDebug5 = document.createElement('option');
-		optionDebug5.value = '';
-		optionDebug5.innerHTML = '--Actuators--';
-		nodeSelect.appendChild(optionDebug5);
-		let optionDebug6 = document.createElement('option');
-		optionDebug6.value = 'jumpNode';
-		optionDebug6.innerHTML = 'JumpNodeActuator';
-		nodeSelect.appendChild(optionDebug6);
-		let optionDebug7 = document.createElement('option');
-		optionDebug7.value = 'LeftRightNode';
-		optionDebug7.innerHTML = 'LeftRightActuator';
-		nodeSelect.appendChild(optionDebug7);
-		let optionDebug8 = document.createElement('option');
-		optionDebug8.value = 'LinebreakerNode';
-		optionDebug8.innerHTML = 'LinebreakerActuator';
-		nodeSelect.appendChild(optionDebug8);
+
+
+		createOption(nodeSelect, 'Node');
+		createOption(nodeSelect, '--Sensors--');
+		createOption(nodeSelect, 'KeySensorNode');
+		createOption(nodeSelect, 'ProximitySensorNode');
+		createOption(nodeSelect, '--Actuators--');
+		createOption(nodeSelect, 'JumpNodeActuator', 'jumpNode');
+		createOption(nodeSelect, 'LeftRightActuator');
+		createOption(nodeSelect, 'LinebreakerActuator');
 	}
 
 	/**
@@ -332,29 +286,12 @@ function createConfigurationArea(id) {
 		nodeSelect.id = 'tensorType';
 		nodeSelect.classList.add('inputcss');
 		surroundingDiv.appendChild(nodeSelect);
-		let optionDebug0 = document.createElement('option');
-		optionDebug0.value = 'DampenedSpring';
-		optionDebug0.innerHTML = 'DampenedSpring';
-		nodeSelect.appendChild(optionDebug0);
-		let optionDebug1 = document.createElement('option');
-		optionDebug1.value = 'Spring';
-		optionDebug1.innerHTML = 'Spring';
-		nodeSelect.appendChild(optionDebug1);
-		let optionDebug2 = document.createElement('option');
-		optionDebug2.value = 'PullSpring';
-		optionDebug2.innerHTML = 'PullSpring';
-		nodeSelect.appendChild(optionDebug2);
-		let optionDebug3 = document.createElement('option');
-		optionDebug3.value = 'Absorber';
-		optionDebug3.innerHTML = 'Absorber';
-		nodeSelect.appendChild(optionDebug3);
-		let optionDebug4 = document.createElement('option');
-		optionDebug4.value = 'Field';
-		optionDebug4.innerHTML = 'Field';
-		nodeSelect.appendChild(optionDebug4);
-		let optionDebug5 = document.createElement('option');
-		optionDebug5.value = 'PictureSpring';
-		optionDebug5.innerHTML = 'PictureSpring';
-		nodeSelect.appendChild(optionDebug5);
+
+		createOption(nodeSelect, 'DampenedSpring');
+		createOption(nodeSelect, 'Spring');
+		createOption(nodeSelect, 'PullSpring');
+		createOption(nodeSelect, 'Absorber');
+		createOption(nodeSelect, 'Field');
+		createOption(nodeSelect, 'PictureSpring');
 	}
 }
