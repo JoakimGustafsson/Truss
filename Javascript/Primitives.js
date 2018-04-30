@@ -108,6 +108,13 @@ class Vector {
 		return this;
 	};
 
+	/** return the vectors angle in the range -PI to PI
+	 * @return {number}
+	 */
+	getAngle() {
+		return getAngle(this.x, this.y);
+	}
+
 	/** Class method that Returns a new vector that is the sum of two vectors
 	 * @param  {Vector} v1
 	 * @param  {Vector} v2
@@ -154,7 +161,7 @@ class Vector {
 	 * @return {number}
 	 */
 	static length(v) {
-		return Math.sqrt(length2(v));
+		return Math.sqrt(Vector.length2(v));
 	}
 
 	/**

@@ -43,29 +43,29 @@ class PictureNode extends CollectionNode {
 		if (!this.parentTrussNode || !this.parentTrussNode.truss || !pictureReference) {
 			return;
 		}
-		let oldElement=this.element;
+		let oldElement=this.stretchElement;
 		let oldPath;
 		if (oldElement) {
 			oldPath=oldElement.src;
 		} else {
 			oldPath='Resources/default.jpg';
 		}
-		this.element = document.createElement('img');
-		this.element.style.position = 'absolute';
-		this.element.style.display = 'none';
-		this.element.style.left = 0;
-		this.element.style.top = 0;
-		this.element.style.zIndex = -1;
-		this.element.onerror = function() {
+		this.stretchElement = document.createElement('img');
+		this.stretchElement.style.position = 'absolute';
+		this.stretchElement.style.display = 'none';
+		this.stretchElement.style.left = 0;
+		this.stretchElement.style.top = 0;
+		this.stretchElement.style.zIndex = -1;
+		this.stretchElement.onerror = function() {
 			this.src=oldPath;
 			return;
 		};
-		this.element.src = 'Resources/' + pictureReference;
+		this.stretchElement.src = 'Resources/' + pictureReference;
 		if (oldElement) {
 			this.parentTrussNode.truss.element.removeChild(oldElement);
 		}
-		if (oldPath!=this.element.src) {
-			this.parentTrussNode.truss.element.appendChild(this.element);
+		if (oldPath!=this.stretchElement.src) {
+			this.parentTrussNode.truss.element.appendChild(this.stretchElement);
 		}
 	}
 
@@ -114,8 +114,8 @@ class PictureNode extends CollectionNode {
 		let view = truss.view;
 		let ctx = view.context;
 
-		if (this.element && this.nodeCollection.length>=3) {
-			warpMatrix(truss, this.element,
+		if (this.stretchElement && this.nodeCollection.length>=3) {
+			warpMatrix(truss, this.stretchElement,
 				this.localPosition,
 				this.nodeCollection[0].getPosition(),
 				this.nodeCollection[2].getPosition(),

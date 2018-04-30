@@ -5,7 +5,7 @@
  */
 class CollectionNode extends Node {
 	/**
-	 * @param  {Truss} truss
+	 * @param  {Truss} parentTrussNode
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -15,12 +15,12 @@ class CollectionNode extends Node {
 	 * @param  {number} velocityLoss
 	 * @param  {number} torqueConstant
 	 */
-	constructor(truss, startPosition = new Position(0, 0), mass = 1, name = 'collectionNode', nodeCollection,
+	constructor(parentTrussNode, startPosition = new Position(0, 0), mass = 1, name = 'collectionNode', nodeCollection,
 		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
-		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss, torqueConstant);
+		super(parentTrussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss, torqueConstant);
 		this.nodeCollection=nodeCollection;
 
-		this.addProperty(new Property(nodeCollection, 'nodeCollection', 'nodeCollection', 'Linked nodes', ParameteType.NODELIST,
+		this.addProperty(new Property(this, 'nodeCollection', 'nodeCollection', 'Linked nodes', ParameteType.NODELIST,
 			ParameterCategory.CONTENT, 'A list of nodes grouped together by this node.'));
 	}
 

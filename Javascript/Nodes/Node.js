@@ -37,7 +37,22 @@ class Node {
 		this.showFunction = showFunction;
 		this.isNode = true;
 		this.color = 'lightgrey';
+		this._pictureReference='';
+		this.size=100;
 
+		Object.defineProperty(this, 'pictureReference', {
+			get: function() {
+				return this._pictureReference;
+			},
+			set: function(value) {
+				if (value == '' || value == 'NaN' || value == 0) {
+					this._pictureReference = '';
+				} else {
+					this._pictureReference = value;
+					this.createHTMLPicture(this._pictureReference);
+				}
+			},
+		});
 		Object.defineProperty(this, 'mass', {
 			get: function() {
 				return this._mass;
@@ -84,6 +99,16 @@ class Node {
 		this.addProperty(new Property(this,
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The colour of the node.'));
+		this.addProperty(new Property(this,
+			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
+			'The picture filename.'));
+		this.addProperty(new Property(this,
+			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The picture size'));
+
+		if (this.pictureReference) {
+			this.createHTMLPicture(this.pictureReference);
+		}
 	}
 
 	/**
@@ -133,7 +158,7 @@ class Node {
 				bubbles: true,
 				cancelable: true,
 			});
-			document.dispatchEvent(event);
+			universe.currentNode.element.dispatchEvent(event);
 		});
 	}
 
@@ -178,6 +203,8 @@ class Node {
 		representation.massRadius = this.massRadius;
 		representation.angle = this.angle;
 		representation.color = this.color;
+		representation.color = this.pictureReference;
+		representation.color = this.size;
 		representation.turnrate = this.turnrate;
 		representation.torqueConstant = this.torqueConstant;
 		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
@@ -224,6 +251,9 @@ class Node {
 		}
 		this.massRadius = restoreObject.massRadius;
 		this.color=restoreObject.color;
+		this.pictureReference = restoreObject.pictureReference;
+		this.createHTMLPicture(this.pictureReference);
+		this.size = restoreObject.size;
 		this.angle = restoreObject.angle;
 		this.turnrate = restoreObject.turnrate;
 		this.torqueConstant = restoreObject.torqueConstant;
@@ -486,56 +516,60 @@ class Node {
 	show(truss, time, graphicDebugLevel = 0) {
 		let view = truss.view;
 		let cxt = view.context;
-
-		if (graphicDebugLevel >= 3) {
-			if (view.inside(this.getPosition())) {
-				this.highLight(cxt);
-				cxt.beginPath();
-				if (this.mass) {
-					view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
-				} else {
-					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
-						Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
-					view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
-						Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
-				}
-				cxt.stroke();
-			}
-
-			if (graphicDebugLevel >= 6) {
-				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
-				cxt.stroke();
-
-				cxt.strokeStyle = 'lightblue';
-				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
-				cxt.stroke();
-
-				if (graphicDebugLevel >= 7) {
-					cxt.strokeStyle = 'red';
+		if (((graphicDebugLevel >= 3)) && (this.pictureReference)) {
+			this.pictureShow(truss);
+		} else {
+			if (graphicDebugLevel >= 3) {
+				if (view.inside(this.getPosition())) {
+					this.highLight(cxt);
 					cxt.beginPath();
-					if (this.acceleration) {
-						view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
+					if (this.mass) {
+						view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+					} else {
+						view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
+							Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
+						view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
+							Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
 					}
 					cxt.stroke();
 				}
-			}
 
-			if (graphicDebugLevel >= 10) {
-				cxt.beginPath();
-				cxt.fillStyle = this.color;
-				cxt.font = '10px Arial';
-				cxt.textAlign = 'left';
-				let textPos = this.getPosition();
-				view.drawText(textPos, '('+Math.trunc(this.getPosition().x*100)/100+', '+
+				if (graphicDebugLevel >= 6) {
+					cxt.beginPath();
+					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
+						new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
+					cxt.stroke();
+
+					cxt.strokeStyle = 'lightblue';
+					cxt.beginPath();
+					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
+					cxt.stroke();
+
+					if (graphicDebugLevel >= 7) {
+						cxt.strokeStyle = 'red';
+						cxt.beginPath();
+						if (this.acceleration) {
+							view.drawLine(this.getPosition(),
+								Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
+						}
+						cxt.stroke();
+					}
+				}
+
+				if (graphicDebugLevel >= 10) {
+					cxt.beginPath();
+					cxt.fillStyle = this.color;
+					cxt.font = '10px Arial';
+					cxt.textAlign = 'left';
+					let textPos = this.getPosition();
+					view.drawText(textPos, '('+Math.trunc(this.getPosition().x*100)/100+', '+
 					Math.trunc(this.getPosition().x*100)/100+')');
+				}
 			}
-		}
-		if (graphicDebugLevel >= 1) {
-			if (this.showFunction) {
-				this.showFunction(this, time);
+			if (graphicDebugLevel >= 1) {
+				if (this.showFunction) {
+					this.showFunction(this, time);
+				}
 			}
 		}
 	}
@@ -561,5 +595,49 @@ class Node {
 			ctx.shadowColor = 'yellow';
 		}
 	}
+
+	/**
+		 * @param  {string} pictureReference
+		 */
+	createHTMLPicture(pictureReference) {
+		this.element = document.createElement('img');
+		this.element.style.position = 'absolute';
+		this.element.src = 'Resources/' + pictureReference;
+		this.element.style.width = '100px';
+		this.element.style.height = '100px';
+		this.element.style.left = 0;
+		this.element.style.top = 0;
+		this.parentTrussNode.truss.element.appendChild(this.element);
+	}
+
+	/**
+	 * Draws a picture on a given Canvas. T
+	 * @param  {truss} truss
+	 */
+	pictureShow(truss) {
+		let cos = Math.cos(this.angle);
+		let sin = Math.sin(this.angle);
+		let size = this.size;
+		let x = new Vector(this.size*this.element.offsetHeight/2, this.size*this.element.offsetWidth/2);
+		let aAngle = x.getAngle();
+		let bAngle = Math.PI-aAngle;
+		let cAngle = - bAngle;
+		let dAngle = - aAngle;
+		let nodePosition=this.localPosition;
+		let length = Vector.length(x)/10000;
+
+
+		let a1 = new Vector(Math.cos(aAngle+this.angle)*length, Math.sin(aAngle+this.angle)*length);
+		let b1 = new Vector(Math.cos(bAngle+this.angle)*length, Math.sin(bAngle+this.angle)*length);
+		let c1 = new Vector(Math.cos(cAngle+this.angle)*length, Math.sin(cAngle+this.angle)*length);
+		let d1 = new Vector(Math.cos(dAngle+this.angle)*length, Math.sin(dAngle+this.angle)*length);
+
+		let a = Vector.addVectors(a1, nodePosition);
+		let b = Vector.addVectors(b1, nodePosition);
+		let c = Vector.addVectors(c1, nodePosition);
+		let d = Vector.addVectors(d1, nodePosition);
+
+		warpMatrix(truss, this.element, d, c, a, b);
+	};
 }
 

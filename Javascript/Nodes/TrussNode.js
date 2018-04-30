@@ -25,10 +25,11 @@ class TrussNode extends Node {
 		this.view= new View(viewSize, this);
 		this.canvas = document.createElement('canvas');
 		this.selector=this;
-		this.handleCanvas();
-
-		this.truss = new TrussClass(this, this.view, timestep);
-		this.setView();
+		if (parentTrussNode) {
+			this.handleCanvas();
+			this.truss = new TrussClass(this, this.view, timestep);
+			this.setView();
+		}
 
 		Object.defineProperty(this, 'fps', {
 			get: function() {

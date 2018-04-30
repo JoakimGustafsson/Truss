@@ -70,7 +70,6 @@ class WalkTruss extends Truss {
 		let parent=this.parentTrussNode;
 		let Earth = this.addNode(new Node(parent, EarthCenter, 5.97219e24, 'Earth'));
 		this.earth=Earth;
-		// this.addNode(Earth);
 		parent.selector = this.addNode(new Selector(parent));
 
 
@@ -113,6 +112,8 @@ class WalkTruss extends Truss {
 
 		let b6 = this.addNode(new Node(parent, new Position(0.2, 2.24), NaN, 'fulcrum', undefined, undefined, 1, 5000));
 		let f6 = this.addGravityNode(new Node(parent, new Position(2, 1), 10, 'bar 1', 0, 0, 0.9, 2000));
+
+		f6.pictureReference='facade.jpg';
 
 		let leftpic = this.addGravityNode(new Node(parent, new Position(3, 2), 10, 'left', 0, 0, 0.99));
 		let bottompic = this.addGravityNode(new Node(parent, new Position(4, 3), 70, 'bottom', 0, 0, 0.999));

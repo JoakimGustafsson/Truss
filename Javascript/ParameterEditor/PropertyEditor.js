@@ -14,7 +14,6 @@ class PropertyEditor {
 		this.parentTrussNode = parentTrussNode;
 		this.parentTrussNode.truss.element.appendChild(outerElement);
 		this.bannerNode = new BannerNode(this.parentTrussNode, outerElement);
-		this.banner = undefined;
 		this.PropertyUpdateNode = new PropertyUpdateNode(this.parentTrussNode, propertyArea);
 		let _this = this;
 		this.eventListenerFunction = function(e) {
@@ -23,6 +22,8 @@ class PropertyEditor {
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
+
+		this.removeBanner();
 	}
 
 
@@ -43,6 +44,7 @@ class PropertyEditor {
 		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
 		if (!previousSelectedObject && selectedObject && !this.banner) {
 			this.createBanner(truss);
+			this.PropertyUpdateNode.eventListenerFunction(selectionEvent);
 		} else if (previousSelectedObject && !selectedObject) {
 			this.removeBanner(truss);
 		}
@@ -52,10 +54,10 @@ class PropertyEditor {
 	 */
 	createBanner() {
 		let truss = this.parentTrussNode.truss;
-		this.banner = this.bannerNode.create(truss);
-		truss.addNode(this.bannerNode);
 		this.PropertyUpdateNode.activate();
 		truss.addNode(this.PropertyUpdateNode);
+		this.banner = this.bannerNode.create(truss);
+		truss.addNode(this.bannerNode);
 	}
 
 	/**

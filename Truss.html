@@ -77,8 +77,8 @@
 
 				trussBackground = document.getElementById("temp");
 
-
-				let mainNode2 = new TrussNode(undefined, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
+/*
+				let mainNode2 = new TrussNode("Prime", new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
 				mainNode2.truss.initiate();
 				mainNode2.resize();
 				universe.push(new World(mainNode2),[]);
@@ -86,18 +86,17 @@
 				let mainNode3 = new TrussNode(mainNode2, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode2", WalkTruss);
 				universe.push(new World(mainNode3),[]);
 				mainNode3.truss.initiate();
-				mainNode3.resize();
+				mainNode3.resize(); */
 
-				let latestNode = new TrussNode(mainNode3, new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
+				let latestNode = new TrussNode("Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				latestNode.truss.initiate();
 
 
-				let governorTruss =new TrussNode(latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
+	/*			let governorTruss =new TrussNode(latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
 				governorTruss.truss.initiate(protagonist);
 				governorTruss.resize();
-				let governorList= [governorTruss];
-
-				let latestWorld = universe.push(new World(latestNode, governorList));
+				let governorList= [governorTruss]; */
+				let latestWorld = universe.push(new World(latestNode, []));
 				latestNode.resize();
 
 				universe.setCurrentWorld(latestWorld);

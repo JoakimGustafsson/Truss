@@ -71,7 +71,7 @@ class PropertyList {
  */
 class Property {
 	/**
-	 * @param  {Object} worldObject
+	 * @param  {Object} parentNode
 	 * @param  {string} propertyName
 	 * @param  {string} idHTML
 	 * @param  {string} displayTitle
@@ -79,8 +79,8 @@ class Property {
 	 * @param  {parameterCategory} parameterCategory
 	 * @param  {string} helpText
 	 */
-	constructor(worldObject, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText) {
-		this.worldObject = worldObject;
+	constructor(parentNode, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText) {
+		this.parentNode = parentNode;
 		this.propertyName = propertyName;
 		this.identity = 'editWindowTruss' + idHTML;
 		this.title = displayTitle;
@@ -265,7 +265,7 @@ class Property {
 			alert('RIGHT Remove');
 		}, false);
 		parameterValue.appendChild(removeNodeButton);
-		for (let node of this.worldObject) {
+		for (let node of this.parentNode.nodeCollection) {
 			let nodeButton = document.createElement('button');
 			nodeButton.innerHTML = node.name;
 			nodeButton.classList.add('simpleButton');
@@ -286,14 +286,14 @@ class Property {
 			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
-					'universe.selectedObject': universe.selectedObject,
+					'selectedObject': universe.selectedObject,
 					'previousSelectedObject': previousSelectedObject,
 					'truss': undefined,
 				},
 				bubbles: true,
 				cancelable: true,
 			});
-			document.dispatchEvent(event);
+			universe.currentNode.element.dispatchEvent(event);
 		});
 	}
 
