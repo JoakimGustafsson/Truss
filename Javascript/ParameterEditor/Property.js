@@ -18,6 +18,7 @@ let ParameteType = {
 	PICTURE: 4,
 	POSITION: 5,
 	NODELIST: 6,
+	SWITCH: 7,
 };
 
 
@@ -105,6 +106,8 @@ class Property {
 			this.makeString(element, this.identity);
 		} else if (this.type == ParameteType.POSITION) {
 			this.makePosition(element, this.identity, display);
+		} else if (this.type == ParameteType.SWITCH) {
+			this.makeSwitch(element, this.identity, display);
 		}
 	};
 	/**
@@ -228,6 +231,53 @@ class Property {
 		parameterValue.classList.add('rvalue');
 		valuePair.appendChild(parameterValue);
 		return parameterValue;
+	}
+
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 */
+	makeSwitch(element, id) {
+		let parameterValue = this.createNameValuePair(element);
+
+		this.input = this.makeSwitchField(id, parameterValue);
+		parameterValue.appendChild(this.input);
+	}
+
+	/**
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
+	makeSwitchField(id, parameterValue) {
+		let inputField = this.makeViewOfSwitchField(id, parameterValue);
+		let _this = this;
+		inputField.addEventListener('input', function(e) {
+			universe.selectedObject[_this.propertyName] = inputField.checked;
+		}, false);
+		return inputField;
+	}
+
+	/**
+		 * @param  {String} id
+		 * @param  {Element} parameterValue
+		 * @return {Element}
+		 */
+	makeViewOfSwitchField(id, parameterValue) {
+		let inputLabel = document.createElement('label');
+		inputLabel.classList.add('switch');
+		let inputField = document.createElement('input');
+		inputField.type = 'checkbox';
+		inputField.id = id;
+		inputLabel.appendChild(inputField);
+
+		let inputSpan = document.createElement('span');
+		inputSpan.classList.add('slider');
+		// inputSpan.classList.add('round');
+		inputLabel.appendChild(inputSpan);
+
+		parameterValue.appendChild(inputLabel);
+		return inputLabel;
 	}
 
 	/**

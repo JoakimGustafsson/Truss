@@ -462,3 +462,20 @@ function objectFactory(truss, representationObject, nodeList, tensorList) {
 	// newNode.deserialize(representationObject, nodeList, tensorList);
 	return (Function('return new ' + representationObject.classname))();
 }
+
+
+/**
+	 * @param  {number} text
+	 * @param  {number} hidden
+	 * */
+function timelog(text, hidden) {
+	return;
+	if (!this.lastTimeTemp) {
+		this.lastTimeTemp=Date.now();
+	}
+	let t = Date.now()-this.lastTimeTemp;
+	if (!hidden && t>1) {
+		console.log(text+' '+t);
+	}
+	this.lastTimeTemp=Date.now();
+}

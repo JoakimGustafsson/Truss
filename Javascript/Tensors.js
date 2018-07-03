@@ -28,14 +28,43 @@ class Tensor {
 		this.isTensor=true;
 		this.color='white';
 
+		Object.defineProperty(this, 'degree2', {
+			get: function() {
+				return Math.round(this.angle2 * 180 / (Math.PI));
+			},
+			set: function(value) {
+				if (value=='NaN') {
+					this.angle2 = NaN;
+				} else {
+					this.angle2 = value * Math.PI / 180;
+				}
+			},
+		});
+		Object.defineProperty(this, 'degree1', {
+			get: function() {
+				return Math.round(this.angle1 * 180 / (Math.PI));
+			},
+			set: function(value) {
+				if (value=='NaN') {
+					this.angle1 = NaN;
+				} else {
+					this.angle1 = value * Math.PI / 180;
+				}
+			},
+		});
+
+		// this.addProperty(new Property(this,
+		//	'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		//	'The angle of the node.'));
+
 		this.addProperty(new Property(this,
 			'tensorType', 'tensorType', 'Type', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links type number.'));
 		this.addProperty(new Property(this,
-			'angle1', 'angle1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle the node connects to the start node.'));
 		this.addProperty(new Property(this,
-			'angle2', 'angle2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle the node connects to the end node.'));
 		this.addProperty(new Property(this,
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
@@ -222,8 +251,8 @@ class Tensor {
 			representation.previous=tensorList.indexOf(this.previous);
 		}
 
-		representation.angle1=this.angle1;
-		representation.angle2=this.angle2;
+		representation.angle1= isNaN(this.angle1) ? 'NaN' : this.angle1;
+		representation.angle2= isNaN(this.angle2) ? 'NaN' : this.angle2;
 		representation.tensorType=this.tensorType;
 		representation.force=this.force;
 		representation.ghost=this.ghost;
@@ -355,6 +384,9 @@ class Tensor {
 	 */
 	getTorque(node) {
 		let idealAngle = this.getIdealAngle(node);
+		if (isNaN(idealAngle)) {
+			return 0;
+		}
 		let tensorAngle = this.getTensorAngle(node);
 		let theNodeShouldHaveAngle = tensorAngle-idealAngle;
 
@@ -1043,11 +1075,13 @@ class PictureSpring extends Spring {
 			'How long should the picture be along the tensor length'));
 
 		this.addProperty(new Property(this,
-			'stretch', 'stretch', 'stretch or clip', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'0 = clip, 1 = stretch'));
+			'stretch', 'stretch', 'Stretch', ParameteType.SWITCH, ParameterCategory.CONTENT,
+			'If active the picture will stretchout between the nodes, otherwise it '+
+			'will keep its length and be clipped if the tensor gets too short.'));
 
-
-		this.createHTMLPicture(this.pictureReference);
+		if (this.pictureReference) {
+			this.createHTMLPicture(this.pictureReference);
+		}
 	}
 
 	/**
@@ -1058,7 +1092,13 @@ class PictureSpring extends Spring {
 		this.element.style.position = 'absolute';
 		this.element.src = 'Resources/' + pictureReference;
 		this.element.style.zIndex = -1;
-		document.body.appendChild(this.element);
+		this.element.style.width = '100%';
+		this.element.style.height = '100%';
+		this.element.style.left = 0;
+		this.element.style.top = 0;
+		this.node1.parentTrussNode.truss.element.appendChild(this.element);
+		this.height=this.element.offsetHeight;
+		this.width=this.element.offsetWidth;
 	}
 
 	/**
@@ -1096,6 +1136,12 @@ class PictureSpring extends Spring {
 	}
 
 	/**
+	* @param {number} on
+	*/
+	setVisible(on) {
+	}
+
+	/**
 	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
 	 * @param  {truss} truss
 	 * @param  {number} graphicDebugLevel=0
@@ -1105,22 +1151,24 @@ class PictureSpring extends Spring {
 
 		let a = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
 		let c = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
+		let b=0;
+		let d=0;
 
 		if (this.stretch && this.stretch!='0') {
-			let b = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
-			letd = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
+			b = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
+			d = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
 		} else {
 			let normVector = this.getActual().normalizeVector(this.length);
 			let newnormal = Vector.addVectors(this.node1.getPosition(), normVector);
 
-			let b = Vector.addVectors(newnormal, this.getActual().perpendicular().normalizeVector(this.width / 2));
-			let d = Vector.addVectors(newnormal, this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
+			b = Vector.addVectors(newnormal, this.getActual().perpendicular().normalizeVector(this.width / 2));
+			d = Vector.addVectors(newnormal, this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
 
 			this.element.style.clip = 'rect(0px, ' +
-				Math.round(this.element.offsetWidth * this.getLength() / this.length) + 'px, 1000px, 0px)';
+				Math.round(this.width * this.getLength() / this.length) + 'px, 1000px, 0px)';
 		}
 
-		warpMatrix(truss, this.element, a, b, c, d);
+		warpMatrix(truss, this, a, b, c, d, this.width, this.height);
 	};
 }
 

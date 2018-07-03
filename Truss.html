@@ -50,25 +50,11 @@
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
-					/* if (newMainNode) {
-					universe.current.truss.clear();
-					universe.pop();
-					universe.current=newMainNode;
 
-					universe.current = newMainNode;
-
-					//universe.current.canvas.onmousemove = myMove;
-					//universe.current.canvas.onmousedown = downMouse;
-					//universe.current.canvas.onmouseup = upMouse;
-					document.getElementById('mainArea').onmousemove = myMove;
-					document.getElementById('mainArea').onmousedown = downMouse;
-					document.getElementById('mainArea').onmouseup = upMouse;
-					newMainNode = undefined;
-				}	*/
-
+	//timestamp= Date.now();
 				universe.tick(timestamp / 1000);
-
 				requestAnimationFrame(mainLoop);
+
 			}
 
 			// Setting up the canvas and ensure other initialization routines are run
@@ -88,23 +74,34 @@
 				mainNode3.truss.initiate();
 				mainNode3.resize(); */
 
-				let latestNode = new TrussNode("Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
+				// let latestNode = new TrussNode("Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
+				// latestNode.truss.initiate();
+
+				let latestNode = new TrussNode("Prime", new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode", PerformanceTruss);
 				latestNode.truss.initiate();
 
+/*
+				let egoMoveGovernor =new TrussNode(latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
+				egoMoveGovernor.truss.initiate(protagonist);
+				egoMoveGovernor.resize();
 
-	/*			let governorTruss =new TrussNode(latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
-				governorTruss.truss.initiate(protagonist);
-				governorTruss.resize();
-				let governorList= [governorTruss]; */
-				let latestWorld = universe.push(new World(latestNode, []));
+				let scroller =new TrussNode(latestNode, new Position(0, 0), new Vector(50, 50), 1 / 60, 1, "ScrollerTruss", ScrollerTruss)
+				scroller.truss.initiate(protagonist);
+				scroller.resize();
+
+				let governorList= [egoMoveGovernor, scroller];
+				*/
+				let governorList= [];
+				let latestWorld = universe.push(new World(latestNode, governorList));
 				latestNode.resize();
 
 				universe.setCurrentWorld(latestWorld);
 
 				// universe.showUniverse(document.getElementById('mainArea'));
 
-				window.requestAnimationFrame(mainLoop);
+	window.requestAnimationFrame(mainLoop);
 
+	//setInterval(mainLoop, 16);
 
 				document.getElementById('mainArea').onmousemove = myMove;
 
@@ -219,7 +216,7 @@
 				let selector = document.getElementById('nodeType');
 				let value = selector.value;
 				if (value == 'Node') {
-					universe.currentNode.truss.addNode(new Node(universe.currentNode.truss, new Position(1, 1), 10, 'node'));
+					universe.currentNode.truss.addNode(new Node(universe.currentNode, new Position(1, 1), 10, 'node'));
 				}
 			}
 

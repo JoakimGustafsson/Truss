@@ -19,7 +19,7 @@ class Node {
 			this.parentTrussNode= parentTrussNode;
 		}
 		this.properties = new PropertyList();
-		this.localPosition = startPosition;
+		this.localPosition = new Position(startPosition.x, startPosition.y);
 		this.velocity = new Velocity(0, 0);
 		this._mass = mass;
 		if (mass) {
@@ -38,14 +38,14 @@ class Node {
 		this.isNode = true;
 		this.color = 'lightgrey';
 		this._pictureReference='';
-		this.size=100;
+		this._size=1;
 
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
 				return this._pictureReference;
 			},
 			set: function(value) {
-				if (value == '' || value == 'NaN' || value == 0) {
+				if (!value ||value == '' || value == 'NaN' || value == 0) {
 					this._pictureReference = '';
 				} else {
 					this._pictureReference = value;
@@ -53,6 +53,22 @@ class Node {
 				}
 			},
 		});
+
+		Object.defineProperty(this, 'size', {
+			get: function() {
+				return this._size;
+			},
+			set: function(value) {
+				if (!value ||value == '' || value == 'NaN' || value == 0) {
+					this._size = 1;
+				} else {
+					this._size = value;
+					this.pictureCornerLength=0;
+					this.setupScale();
+				}
+			},
+		});
+
 		Object.defineProperty(this, 'mass', {
 			get: function() {
 				return this._mass;
@@ -203,8 +219,8 @@ class Node {
 		representation.massRadius = this.massRadius;
 		representation.angle = this.angle;
 		representation.color = this.color;
-		representation.color = this.pictureReference;
-		representation.color = this.size;
+		representation.pictureReference = this.pictureReference;
+		representation.size = this.size;
 		representation.turnrate = this.turnrate;
 		representation.torqueConstant = this.torqueConstant;
 		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
@@ -252,7 +268,7 @@ class Node {
 		this.massRadius = restoreObject.massRadius;
 		this.color=restoreObject.color;
 		this.pictureReference = restoreObject.pictureReference;
-		this.createHTMLPicture(this.pictureReference);
+
 		this.size = restoreObject.size;
 		this.angle = restoreObject.angle;
 		this.turnrate = restoreObject.turnrate;
@@ -340,7 +356,7 @@ class Node {
 	 */
 	addTensor(tensor, angle) {
 		if (!angle && this.torqueConstant) {
-			angle = tensor.getTensorAngle(this) - this.angle;
+			angle = NaN; // tensor.getTensorAngle(this) - this.angle;
 		}
 		if (tensor.tensorType == TensorType.ABSORBER) {
 			this.velocityBasedTensors.push(tensor);
@@ -447,7 +463,7 @@ class Node {
 		} else {
 			this.turnrate = 0; // weightless cannot turn
 		}
-		this.turnrate = this.turnrate * 0.8;
+		// this.turnrate = this.turnrate * 0.8;
 		this.angle += this.turnrate;
 	}
 
@@ -516,10 +532,12 @@ class Node {
 	show(truss, time, graphicDebugLevel = 0) {
 		let view = truss.view;
 		let cxt = view.context;
-		if (((graphicDebugLevel >= 3)) && (this.pictureReference)) {
-			this.pictureShow(truss);
-		} else {
-			if (graphicDebugLevel >= 3) {
+
+		if (graphicDebugLevel >= 3) {
+			if (this.pictureReference) {
+				this.pictureShow(truss, time);
+				// } else
+				// {
 				if (view.inside(this.getPosition())) {
 					this.highLight(cxt);
 					cxt.beginPath();
@@ -562,17 +580,18 @@ class Node {
 					cxt.font = '10px Arial';
 					cxt.textAlign = 'left';
 					let textPos = this.getPosition();
-					view.drawText(textPos, '('+Math.trunc(this.getPosition().x*100)/100+', '+
-					Math.trunc(this.getPosition().x*100)/100+')');
-				}
-			}
-			if (graphicDebugLevel >= 1) {
-				if (this.showFunction) {
-					this.showFunction(this, time);
+					view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
+						Math.trunc(this.getPosition().x * 100) / 100 + ')');
 				}
 			}
 		}
+		if (graphicDebugLevel >= 1) {
+			if (this.showFunction) {
+				this.showFunction(this, time);
+			}
+		}
 	}
+
 
 	/**
 	 * @param  {Context} ctx
@@ -601,43 +620,75 @@ class Node {
 		 */
 	createHTMLPicture(pictureReference) {
 		this.element = document.createElement('img');
+		let tempElement = this.element;
+		let tempParentElement= this.parentTrussNode.element;
 		this.element.style.position = 'absolute';
+		this.element.style.zIndex = '-1000';
+		this.element.onerror = function() {
+			tempParentElement.removeChild(tempElement);
+		};
 		this.element.src = 'Resources/' + pictureReference;
-		this.element.style.width = '100px';
-		this.element.style.height = '100px';
+		// this.element.style.width = '100%';
+		// this.element.style.height = '100%';
 		this.element.style.left = 0;
 		this.element.style.top = 0;
-		this.parentTrussNode.truss.element.appendChild(this.element);
+		tempParentElement.appendChild(this.element);
+
+		this.setupScale();
+		this.visible=true;
+	}
+
+	/**
+	* @param {number} on
+	*/
+	setVisible(on) {
+		if (on && !this.visible) {
+			this.element.display='block';
+			this.visible=true;
+		} else if (!on && this.visible) {
+			this.element.display='none';
+			this.visible=true;
+		}
+	}
+
+	/**
+	 */
+	setupScale() {
+		if (this.pictureCornerLength) { // Is this really right and why does it cause performance hits
+			return;
+		}
+		this.pictureHeight=this.element.offsetHeight;
+		this.pictureWidth=this.element.offsetWidth;
+
+		let multiplier = this.size / this.pictureWidth;
+		let tempVectorToCorner = new Vector(multiplier * this.pictureHeight / 2, multiplier * this.pictureWidth / 2);
+		this.pictureCornerAngle = tempVectorToCorner.getAngle();
+
+		this.pictureCornerLength = Vector.length(tempVectorToCorner);
 	}
 
 	/**
 	 * Draws a picture on a given Canvas. T
 	 * @param  {truss} truss
+	 * @param  {number} time
 	 */
-	pictureShow(truss) {
-		let cos = Math.cos(this.angle);
-		let sin = Math.sin(this.angle);
-		let size = this.size;
-		let x = new Vector(this.size*this.element.offsetHeight/2, this.size*this.element.offsetWidth/2);
-		let aAngle = x.getAngle();
-		let bAngle = Math.PI-aAngle;
-		let cAngle = - bAngle;
-		let dAngle = - aAngle;
-		let nodePosition=this.localPosition;
-		let length = Vector.length(x)/10000;
+	pictureShow(truss, time) {
+		this.setupScale();
+		let a1 = new Vector(Math.cos(this.pictureCornerAngle+this.angle)*this.pictureCornerLength,
+			Math.sin(this.pictureCornerAngle+this.angle)*this.pictureCornerLength);
+		let b1 = new Vector(Math.cos(Math.PI-this.pictureCornerAngle+this.angle)*this.pictureCornerLength,
+			Math.sin(Math.PI-this.pictureCornerAngle+this.angle)*this.pictureCornerLength);
+		let c1 = new Vector(Math.cos(this.pictureCornerAngle-Math.PI+this.angle)*this.pictureCornerLength,
+			Math.sin(this.pictureCornerAngle-Math.PI+this.angle)*this.pictureCornerLength);
+		let d1 = new Vector(Math.cos(- this.pictureCornerAngle+this.angle)*this.pictureCornerLength,
+			Math.sin(- this.pictureCornerAngle+this.angle)*this.pictureCornerLength);
 
+		let a = Vector.addVectors(a1, this.localPosition);
+		let b = Vector.addVectors(b1, this.localPosition);
+		let c = Vector.addVectors(c1, this.localPosition);
+		let d = Vector.addVectors(d1, this.localPosition);
 
-		let a1 = new Vector(Math.cos(aAngle+this.angle)*length, Math.sin(aAngle+this.angle)*length);
-		let b1 = new Vector(Math.cos(bAngle+this.angle)*length, Math.sin(bAngle+this.angle)*length);
-		let c1 = new Vector(Math.cos(cAngle+this.angle)*length, Math.sin(cAngle+this.angle)*length);
-		let d1 = new Vector(Math.cos(dAngle+this.angle)*length, Math.sin(dAngle+this.angle)*length);
-
-		let a = Vector.addVectors(a1, nodePosition);
-		let b = Vector.addVectors(b1, nodePosition);
-		let c = Vector.addVectors(c1, nodePosition);
-		let d = Vector.addVectors(d1, nodePosition);
-
-		warpMatrix(truss, this.element, d, c, a, b);
-	};
+		warpMatrix(truss, this, d, c, a, b, this. pictureWidth, this.pictureHeight);
+	}
 }
 

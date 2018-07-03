@@ -67,6 +67,8 @@ class PictureNode extends CollectionNode {
 		if (oldPath!=this.stretchElement.src) {
 			this.parentTrussNode.truss.element.appendChild(this.stretchElement);
 		}
+		this.width=this.stretchElement.offsetWidth;
+		this.height=this.stretchElement.offsetHeight;
 	}
 
 	/**
@@ -115,11 +117,13 @@ class PictureNode extends CollectionNode {
 		let ctx = view.context;
 
 		if (this.stretchElement && this.nodeCollection.length>=3) {
-			warpMatrix(truss, this.stretchElement,
+			warpMatrix(truss, this,
 				this.localPosition,
 				this.nodeCollection[0].getPosition(),
 				this.nodeCollection[2].getPosition(),
-				this.nodeCollection[1].getPosition());
+				this.nodeCollection[1].getPosition(),
+				this.width,
+				this.height);
 		}
 	};
 }

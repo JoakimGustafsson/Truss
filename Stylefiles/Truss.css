@@ -12,10 +12,16 @@ div {
 	color: black;
 }
 
-.inputcss,
+.inputcss, input:checked + .slider,
 #fileList,
 .filename {
 	background-color: #ffdab9;
+}
+
+
+.inputcss, .slider,
+#fileList,
+.filename {
 	border: 1px solid grey;
 	border-radius: 2px;
 }
@@ -31,13 +37,22 @@ option {
 
 /* button color */
 
-.ogbutton,
+.ogbutton, .slider,
 .tabsectionbuttons,
 div.tab button,
 .trussButton,
 .simpleButton,
 .textbox {
 	background-color: #cdaf95;
+
+}
+
+.ogbutton,
+.tabsectionbuttons,
+div.tab button,
+.trussButton,
+.simpleButton,
+.textbox {
 	color: black;
 	border: none;
 	outline: none;
@@ -428,107 +443,55 @@ div.tab button.active {
 	margin: 1px;
 }
 
-/*
-@ -webkit-keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
-}
+/* Switch */
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 56px;
+	height: 22px;
+  }
 
-@ -moz-keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
-}
+  .switch input {display:none;}
 
-@ -o-keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
-}
+  .slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	-webkit-transition: .2s;
+	transition: .2s;
+  }
 
-@ keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
-}
+  .slider::before {
+	position: absolute;
+	content: "";
+	width: 20px;
+	left: 4px;
+	bottom: 2px;
+	top: 2px;
+	background-color: white;
+	-webkit-transition: .2s;
+	transition: .2s;
+  }
 
-@ -webkit-keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
+  input:focus + .slider {
+	box-shadow: 0 0 1px green;
+  }
 
-@ -moz-keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
+  input:checked + .slider:before {
+	background-color: black;
+	-webkit-transform: translateX(26px);
+	-ms-transform: translateX(26px);
+	transform: translateX(26px);
+  }
 
-@ -o-keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
+  /* Rounded sliders */
+  .slider.round {
+	border-radius: 34px;
+  }
 
-@ keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
-
-@ -webkit-keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}
-
-@ -moz-keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}
-
-@ -o-keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}
-
-@ keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}*/
+  .slider.round:before {
+	border-radius: 50%;
+  }

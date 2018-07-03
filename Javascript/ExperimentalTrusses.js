@@ -319,7 +319,7 @@ class GovenorTruss extends Truss {
 		let governedTruss=governedNode.truss;
 
 		protagonist = governedTruss.protagonist;
-		governedNode.selector = this.addNode(new Selector(parent));
+		parent.selector = this.addNode(new Selector(parent));
 		// Set up a keysensornode and make it sensitive to q, e and space
 		let sensorNode = this.addNode(new KeySensorNode(parent, new Position(2, 1), 0.01, 'myKeySensorNode'));
 		sensorNode.registerKey(37, new Vector(-2, 0));
@@ -351,7 +351,7 @@ class GovenorTruss extends Truss {
 		// Add one actuator that takes care of left - right movement
 		let leftRightActuatorNode = this.addNode(
 			new LeftRightNode(parent, protagonist, new Position(1, 5), new Position(3, 5),
-				leftField1, rightField1, 50, 'myLeftRightNode', 0, 0, 0.99));
+				leftField1, rightField1, 2, 'myLeftRightNode', 0, 0, 0.99));
 
 		// Connect it via a spring to the keysensor node
 		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
@@ -365,6 +365,110 @@ class GovenorTruss extends Truss {
 	}
 }
 
+/**
+ * @class
+ * @extends Truss
+ */
+class ScrollerTruss extends Truss {
+	/**
+	 * @constructor
+	 * @param  {View} view
+	 * @param  {number} updatefrequency
+	 */
+	constructor( ...args) {
+		super(...args);
+		this.blur = true;
+		// this.governedTruss = governedTruss;
+	}
+
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname = 'GovenorTruss';
+		return representationObject;
+	}
+
+
+	/**
+	 * @param {Node} protagonist
+	 */
+	initiate() {
+		let governedNode=this.parentTrussNode.parentTrussNode;
+		let parent = this.parentTrussNode;
+		let governedTruss=governedNode.truss;
+
+		protagonist = governedTruss.protagonist;
+		parent.selector = this.addNode(new Selector(parent));
+
+		let centrePoint = Vector.divideVector(governedNode.view.worldViewSize, 2);
+		let positionNode = this.addNode(new PositionNode(parent, protagonist));
+		let scrollNode = this.addNode(new ScrollNode(parent, governedNode, centrePoint,
+			0.2, 'ScrollNode', undefined, undefined, 0.9));
+
+		let tensor = this.addTensor(new DampenedSpring(positionNode, scrollNode, 200, 0.2));
+		tensor.equilibriumLength=0;
+	}
+}
+
+/**
+ * @class
+ * @extends Truss
+ */
+class PerformanceTruss extends Truss {
+	/**
+	 * @constructor
+	 * @param  {View} view
+	 * @param  {number} updatefrequency
+	 */
+	constructor( ...args) {
+		super(...args);
+		this.blur = true;
+		// this.governedTruss = governedTruss;
+	}
+
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname = 'GovenorTruss';
+		return representationObject;
+	}
+
+
+	/**
+	 * @param {Node} protagonist
+	 */
+	initiate() {
+		let governedNode=this.parentTrussNode.parentTrussNode;
+		let parent = this.parentTrussNode;
+		let governedTruss=governedNode.truss;
+
+		// protagonist = governedTruss.protagonist;
+		parent.selector = this.addNode(new Selector(parent));
+
+		for (let row=1; row < 10; row++) {
+			for (let column=1; column < 10; column++) {
+				let x = this.addNode(new Node(parent, new Position(row*3, column*3), 1));
+				x.pictureReference='trussicon.png';
+				x.pictureHeight=600;
+				x.pictureWidth=600;
+				// x.element.width='300px';
+				// x.pictureReference='trussIcon.png';
+				x.turnrate=0.04;
+				protagonist=x;
+			}
+		}
+	}
+}
 
 /**
  * @class

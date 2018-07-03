@@ -1,4 +1,3 @@
-
 /**
  * @class
  * @extends Node
@@ -10,6 +9,7 @@ class BannerNode extends Node {
 	 */
 	constructor(truss, element) {
 		super();
+		this.name = 'bannerNode';
 		this.element = element;
 
 		/*
@@ -47,10 +47,12 @@ class BannerNode extends Node {
 	create(truss, topScreenPos) {
 		this.element.style.display = 'block';
 		this.truss = truss;
+		this.width = this.element.offsetWidth;
+		this.height = this.element.offsetHeight;
 		let screenWidth = this.element.offsetWidth;
-		let screenHeight = this.element.offsetHeight+500;
+		let screenHeight = this.element.offsetHeight + 500;
 		if (!topScreenPos) {
-			topScreenPos=new Position(truss.view.screenSize.x-screenWidth, 0);
+			topScreenPos = new Position(truss.view.screenSize.x - screenWidth, 0);
 		}
 
 		this.nail = truss.addNode(new Node(truss,
@@ -60,7 +62,7 @@ class BannerNode extends Node {
 		this.rightTopNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
 		this.bannerGravityWell = truss.addNode(new Node(truss,
-			truss.view.worldPosition(screenWidth / 2, screenHeight*1000), NaN, 'bannerGravityWell', 0, 0, 0.99));
+			truss.view.worldPosition(screenWidth / 2, screenHeight * 1000), NaN, 'bannerGravityWell', 0, 0, 0.99));
 
 		this.leftBottomNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 3, 'leftBottom', 0, 0, 0.99));
@@ -69,20 +71,21 @@ class BannerNode extends Node {
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 3, 'rightBottom', 0, 0, 0.99));
 
 		this.leftBottomField = truss.addTensor(new PullSpring(this.leftBottomNode, this.bannerGravityWell, 0.1));
-		this.leftBottomField.equilibriumLength=0;
-		this.leftBottomField.color='transparent';
+		this.leftBottomField.equilibriumLength = 0;
+		this.leftBottomField.color = 'transparent';
 		this.rightBottomField = truss.addTensor(new PullSpring(this.rightBottomNode, this.bannerGravityWell, 0.1));
-		this.rightBottomField.equilibriumLength=0;
-		this.rightBottomField.color='transparent';
+		this.rightBottomField.equilibriumLength = 0;
+		this.rightBottomField.color = 'transparent';
 
 		this.leftBand = truss.addTensor(new DampenedSpring(this.leftTopNode, this.nail, 500, 5));
 		this.rightBand = truss.addTensor(new DampenedSpring(this.nail, this.rightTopNode, 500, 5));
 		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 3000));
-		this.topBand.color='transparent';
+		this.topBand.color = 'transparent';
 		this.leftSpring = truss.addTensor(new DampenedSpring(this.leftTopNode, this.leftBottomNode, 200, 10));
-		this.leftSpring.color='transparent';
+		this.leftSpring.color = 'transparent';
 		this.rightSpring = truss.addTensor(new DampenedSpring(this.rightTopNode, this.rightBottomNode, 200, 10));
-		this.rightSpring.color='transparent';
+		this.rightSpring.color = 'transparent';
+		this.visible = true;
 		return this.nail;
 	}
 
@@ -129,6 +132,7 @@ class BannerNode extends Node {
 		return;
 	}
 
+
 	/** Displays the Truss's canvas at the correct position
 	 * @param  {Truss} truss
 	 * @param  {number} time
@@ -140,11 +144,13 @@ class BannerNode extends Node {
 
 		if (graphicDebugLevel > 0) {
 			if (this.element) {
-				warpMatrix(truss, this.element,
+				warpMatrix(truss, this,
 					this.leftTopNode.getPosition(),
 					this.rightTopNode.getPosition(),
 					this.leftBottomNode.getPosition(),
-					this.rightBottomNode.getPosition());
+					this.rightBottomNode.getPosition(),
+					this.width,
+					this.height);
 			}
 		}
 	};

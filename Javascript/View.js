@@ -1,5 +1,3 @@
-
-
 /**
  * @class
  */
@@ -15,7 +13,7 @@ class View {
 	 */
 	constructor(worldViewSize, parentNode) {
 		// this.element=element;
-		this.parentNode=parentNode;
+		this.parentNode = parentNode;
 		Object.defineProperty(this, 'element', {
 			get: function() {
 				return this.parentNode.element;
@@ -34,9 +32,9 @@ class View {
 	 * @param  {Position} worldViewSize
 	 */
 	setupAlertVectors(element, worldViewSize) {
-		let x=0;
-		let y=0;
-		let _this=this;
+		let x = 0;
+		let y = 0;
+		let _this = this;
 		if (element) {
 			x = element.offsetWidth;
 			y = element.offsetHeight;
@@ -86,8 +84,8 @@ class View {
 	 */
 	deserialize(restoreObject) {
 		let screenSize = new Vector().deserialize(restoreObject.screenSize);
-		this.element.style.width=screenSize.x+'px';
-		this.element.style.height=screenSize.y+'px';
+		this.element.style.width = screenSize.x + 'px';
+		this.element.style.height = screenSize.y + 'px';
 		this.setupAlertVectors(this.element, new Vector().deserialize(restoreObject.worldViewSize));
 		this.offset = new Vector().deserialize(restoreObject.offset);
 		this.recalculate();
@@ -139,10 +137,8 @@ class View {
 	 * @return {Position}
 	 */
 	worldPositionWithOffset(x, y) {
-		let bodyRect= document.body.getBoundingClientRect();
-		let elemRect = this.element.getBoundingClientRect();
-		return new Position((x-elemRect.left+bodyRect.left) * this.xScale + this.offset.x,
-			(y-elemRect.top+bodyRect.top) * this.yScale + this.offset.y);
+		return new Position((x - this.elemRectleft + this.bodyRectleft) * this.xScale + this.offset.x,
+			(y - this.elemRecttop + this.bodyRecttop) * this.yScale + this.offset.y);
 	};
 
 	/**
@@ -151,7 +147,7 @@ class View {
 	 * @return {Position}
 	 */
 	screenPosition(node) {
-		return new Position(this.x(node)+1, this.y(node)+1);
+		return new Position(this.x(node) + 1, this.y(node) + 1);
 	};
 
 	/**
@@ -191,7 +187,15 @@ class View {
 		this.xScale = this.worldViewSize.x / this.screenSize.x;
 		this.yScale = this.worldViewSize.y / this.screenSize.y;
 
-		this.distanceMultiplier=Math.max(this.xScale, this.yScale);
+		this.distanceMultiplier = Math.max(this.xScale, this.yScale);
+
+		// Do the following to avoid reading element properties that slows down rendering
+		this.bodyRect = document.body.getBoundingClientRect();
+		this.elemRect = this.element.getBoundingClientRect();
+		this.bodyRectleft = this.bodyRect.left;
+		this.elemRectleft = this.elemRect.left;
+		this.bodyRecttop = this.bodyRect.top;
+		this.elemRecttop = this.elemRect.top;
 	};
 
 	/**

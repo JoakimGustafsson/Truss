@@ -621,3 +621,74 @@ class Selector extends SensorNode {
 	}
 }
 
+/**
+ * @class
+ * @extends SensorNode
+ */
+class PositionNode extends SensorNode {
+	/**
+	 * This class represents a node that reflect the position of another node, that node is likely from another truss.
+	 * @param {TrussNode} trussNode - The trussNode that "owns" this node
+	 * @param {TrussNode} trackedNode - The node that should be mirrored.
+	 */
+	constructor(trussNode, trackedNode) {
+		super(trussNode, undefined, undefined, 'PositionNode');
+		this.trackedNode = trackedNode;
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname = 'PositionNode';
+		representationObject.trackedNode=nodeList.indexOf(this.trackedNode);
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 */
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
+		this.trackedNode=superNodes[restoreObject.trackedNode];
+		return;
+	}
+
+	/**
+	 * Simply mirrors the position of the tracked node.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	sense(deltaTime, truss) {
+		let t = new Position(this.trackedNode.getPosition().x, this.trackedNode.getPosition().y);
+		this.setPosition(t);
+	}
+
+	/**
+	 * Draw the circle representing the node
+	 * @param {Truss} truss
+	 * @param {number} time
+	 * @param {number} graphicDebugLevel
+	 */
+	show(truss, time, graphicDebugLevel = 0) {
+		let view=truss.view;
+		this.highLight(view.context);
+		if (view.inside(this.getPosition())) {
+			view.context.strokeStyle = 'Yellow';
+			view.context.lineWidth = 1;
+			view.context.beginPath();
+			view.drawCircle(this.getPosition(), 0.1);
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+				Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+			view.context.stroke();
+		}
+	}
+}
+

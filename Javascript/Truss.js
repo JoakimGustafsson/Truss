@@ -16,11 +16,11 @@ class Truss {
 	 * @param  {number} timestep
 	 * @param  {Element} element
 	 */
-	constructor(parentTrussNode, view, timestep = 1/60) {
+	constructor(parentTrussNode, view, timestep = 1 / 60) {
 		this.time = 0;
 		this.view = view;
-		this.parentTrussNode=parentTrussNode;
-		this.entryPoint= new Position(0, 0);
+		this.parentTrussNode = parentTrussNode;
+		this.entryPoint = new Position(0, 0);
 		// this.element=element;
 		Object.defineProperty(this, 'element', {
 			get: function() {
@@ -34,9 +34,9 @@ class Truss {
 		this.positionBasedTensors = [];
 		this.velocityBasedTensors = [];
 
-		this.delta=0;
-		this.lastFrameTimeMs=0;
-		this.timestep=timestep;
+		this.delta = 0;
+		this.lastFrameTimeMs = 0;
+		this.timestep = timestep;
 		this.fps = 60,
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
@@ -44,7 +44,7 @@ class Truss {
 	}
 
 	/**
- 	*/
+	 */
 	hideEdit() {
 		this.editWindow.removeBanner(this);
 	}
@@ -56,7 +56,7 @@ class Truss {
 	 * @return {Object}
 	 */
 	serialize(superNodeList, superTensorList) {
-		let representationObject={
+		let representationObject = {
 			'classname': 'Truss',
 			'timestep': this.timestep,
 			'fps': this.fps,
@@ -64,12 +64,12 @@ class Truss {
 			'lastFpsUpdate': this.lastFpsUpdate,
 		};
 
-		representationObject.nodes=serializeList(this.nodes, superNodeList);
-		representationObject.tensors=serializeList(this.tensors, superTensorList);
+		representationObject.nodes = serializeList(this.nodes, superNodeList);
+		representationObject.tensors = serializeList(this.tensors, superTensorList);
 
-		representationObject.sensorNodes=serializeList(this.sensorNodes, superNodeList);
-		representationObject.positionBasedTensors=serializeList(this.positionBasedTensors, superTensorList);
-		representationObject.velocityBasedTensors=serializeList(this.velocityBasedTensors, superTensorList);
+		representationObject.sensorNodes = serializeList(this.sensorNodes, superNodeList);
+		representationObject.positionBasedTensors = serializeList(this.positionBasedTensors, superTensorList);
+		representationObject.velocityBasedTensors = serializeList(this.velocityBasedTensors, superTensorList);
 
 		representationObject.view = this.view.serialize();
 		representationObject.entryPoint = this.entryPoint.serialize(this.sensorNodes, superNodeList);
@@ -97,22 +97,22 @@ class Truss {
 			index++;
 		}*/
 
-		this.nodes=deserializeList(restoreObject.nodes, superNodeList);
-		this.tensors=deserializeList(restoreObject.tensors, superTensorList);
+		this.nodes = deserializeList(restoreObject.nodes, superNodeList);
+		this.tensors = deserializeList(restoreObject.tensors, superTensorList);
 
-		this.parentTrussNode=parentTrussNode;
+		this.parentTrussNode = parentTrussNode;
 
-		this.sensorNodes= deserializeList(restoreObject.sensorNodes, superNodeList);
-		this.positionBasedTensors= deserializeList(restoreObject.positionBasedTensors, superTensorList);
-		this.velocityBasedTensors= deserializeList(restoreObject.velocityBasedTensors, superTensorList);
-		this.lastFrameTimeMs= 0;
-		this.timestep= restoreObject.timestep;
-		this.fps= restoreObject.fps;
-		this.framesThisSecond= restoreObject.framesThisSecond;
-		this.lastFpsUpdate= restoreObject.lastFpsUpdate;
-		this.entryPoint= new Position().deserialize(restoreObject.entryPoint);
+		this.sensorNodes = deserializeList(restoreObject.sensorNodes, superNodeList);
+		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, superTensorList);
+		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, superTensorList);
+		this.lastFrameTimeMs = 0;
+		this.timestep = restoreObject.timestep;
+		this.fps = restoreObject.fps;
+		this.framesThisSecond = restoreObject.framesThisSecond;
+		this.lastFpsUpdate = restoreObject.lastFpsUpdate;
+		this.entryPoint = new Position().deserialize(restoreObject.entryPoint);
 
-		let tempView= new View(restoreObject.view.worldViewSize, parentTrussNode);
+		let tempView = new View(restoreObject.view.worldViewSize, parentTrussNode);
 		this.view = tempView.deserialize(restoreObject.view);
 
 		return this;
@@ -302,8 +302,7 @@ class Truss {
 	/**
 	 * Call this before discarding to remove nodes and event listeners
 	 */
-	close() {
-	}
+	close() {}
 
 	/**
 	 * Clear the screen
@@ -319,21 +318,21 @@ class Truss {
 	 * @return {Object}
 	 */
 	getClosestObject(position, maxDistance, avoid) {
-		let lowestDistance=1000000000;
+		let lowestDistance = 1000000000;
 		let closest;
 		for (let node of this.nodes) {
-			if (Position.distance(position, node.getPosition())<lowestDistance && node!=avoid) {
-				lowestDistance=Position.distance(position, node.getPosition());
-				closest=node;
+			if (Position.distance(position, node.getPosition()) < lowestDistance && node != avoid) {
+				lowestDistance = Position.distance(position, node.getPosition());
+				closest = node;
 			}
 		}
 		for (let tensor of this.tensors) {
-			if (Position.distance(position, tensor.getPosition())<lowestDistance && tensor!=avoid) {
-				lowestDistance=Position.distance(position, tensor.getPosition());
-				closest=tensor;
+			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
+				lowestDistance = Position.distance(position, tensor.getPosition());
+				closest = tensor;
 			}
 		}
-		if (lowestDistance>maxDistance) {
+		if (lowestDistance > maxDistance) {
 			return;
 		}
 		return closest;
@@ -360,10 +359,10 @@ class Truss {
 	 */
 	togglePause() {
 		if (!this.paused) {
-			this.delta=-1;
-			this.paused=true;
+			this.delta = -1;
+			this.paused = true;
 		} else {
-			this.paused=false;
+			this.paused = false;
 		}
 	}
 
@@ -378,28 +377,31 @@ class Truss {
 		// Track the accumulated time that hasn't been simulated yet
 		this.delta += timestamp - this.lastFrameTimeMs; // note += here
 		this.lastFrameTimeMs = timestamp;
-		if (this.delta>0.2) {
-			this.delta=0;
+
+		// console.log(this.delta);
+
+		if (this.delta > 0.2) {
+			this.delta = 0;
 		}
 
 		// Simulate the total elapsed time in fixed-size chunks
 		while (this.delta >= this.timestep) {
-			this.calculate(timestamp-this.delta, this.timestep/2);
+			this.calculate(timestamp - this.delta, this.timestep / 2);
 			this.delta -= this.timestep;
 		}
 
 		this.clear();
-		this.show(timestamp, this.debugLevel );
+		this.show(timestamp, this.debugLevel);
 
-		if (timestamp > this.lastFpsUpdate + 1) { // update every second
+		/* 	if (timestamp > this.lastFpsUpdate + 1) { // update every second
 			this.fps = 0.25 * this.framesThisSecond + (1 - 0.25) * this.fps; // compute the new FPS
 
 			this.lastFpsUpdate = timestamp;
 			this.framesThisSecond = 0;
 			if (FPSdisplay) {
-				FPSdisplay.innerHTML='FPS: '+Math.round(this.fps);
+				FPSdisplay.innerHTML= Math.round(this.fps);
 			}
-		}
+		} */
 		this.framesThisSecond++;
 	}
 }

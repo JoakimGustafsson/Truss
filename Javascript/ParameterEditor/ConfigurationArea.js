@@ -227,9 +227,9 @@ function createConfigurationArea(id) {
 	function createOption(backgroundDiv, text, value) {
 		let optionDebug = document.createElement('option');
 		if (value) {
-			optionDebug.value = text;
-		} else {
 			optionDebug.value = value;
+		} else {
+			optionDebug.value = text;
 		}
 		optionDebug.innerHTML = text;
 		backgroundDiv.appendChild(optionDebug);

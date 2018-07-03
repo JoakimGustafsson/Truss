@@ -177,7 +177,7 @@ class BinaryActuatorNode extends ActuatorNode {
 /**
  * Create a JumpNode
  * @class
- * @augments ActuatorNode
+ * @augments BinaryActuatorNode
  */
 class JumpNode extends BinaryActuatorNode {
 	/**
@@ -698,5 +698,71 @@ class LineBreakerNode extends ActuatorNode {
 		let pullSpring = new PullSpring(leftNode, rightNode, constant, equilibriumLength);
 		pullSpring.originalParent = parent;
 		return truss.addTensor(pullSpring);
+	}
+}
+
+
+/**
+ * Create a JumpNode
+ * @class
+ * @augments ActuatorNode
+ */
+class ScrollNode extends ActuatorNode {
+	/**
+	 * Create a ScrollNode. Given a centrePoint.
+	 * @constructor
+	 * @param {TrussNode} parentTrussNode - The parent trussNode
+	 * @param  {Node} goverenedTrussNode - The protagonist node that is influenced by this actuator
+	 * @param  {number} centerPoint - A vector representing where on the screen (in world coordinates) this node should appear to be.
+	 * @param  {number} mass
+	 * @param  {string} name
+	 * @param  {function} positionFunction
+	 * @param  {function} showFunction
+	 * @param  {number} velocityLoss
+	 */
+	constructor(parentTrussNode, goverenedTrussNode, centerPoint, mass = 0.01, name = 'ScrollNode',
+		positionFunction, showFunction, velocityLoss) {
+		super(parentTrussNode, goverenedTrussNode, centerPoint
+			, mass, name, positionFunction, showFunction, velocityLoss);
+		// this.goverenedTrussNode=goverenedTrussNode;
+		if (centerPoint) {
+			this.centerPoint=new Vector(centerPoint.x, centerPoint.y);
+		}
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname='ScrollNode';
+		representationObject.centerPoint=this.centerPoint.serialize(nodeList, tensorList);
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {ScrollNode}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		let c = new Position().deserialize(restoreObject.centerPoint, nodeList, tensorList);
+		this.centerPoint=new Vector(c.x, c.y);
+		// this.goverenedTrussNode = this.iO;
+		return this;
+	}
+
+	/** Change the offset in the governedTrussNode, so that this node seems to be on centrePoint position using World coordinates.
+	 * @param  {number} time
+	 * @param {number} deltaTime
+	 */
+	updatePosition(time, deltaTime) {
+		super.updatePosition(time, deltaTime); // Call parent in order to update this.iO nodes position
+
+		this.iO.view.setOffset(Vector.addVectors(this.getPosition(), this.centerPoint.opposite()));
 	}
 }
