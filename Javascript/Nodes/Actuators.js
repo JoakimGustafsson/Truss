@@ -48,11 +48,11 @@ class ActuatorNode extends Node {
 		return this;
 	}
 
-	/**
+	/** Probably not used. Remove
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 */
-	deserializeFixLinks(nodeList, tensorList) {
+	XdeserializeFixLinks(nodeList, tensorList) {
 		this.iO = nodeList[representationObject.iO];
 	}
 }
@@ -309,19 +309,12 @@ class LeftRightNode extends BinaryActuatorNode {
 		return this;
 	}
 
-	/**
+	/** Applies a force to the right or to the left depending on the keypress state
 	 * @param  {number} time
 	 * @param {number} deltaTime
 	 */
 	updatePosition(time, deltaTime) {
 		super.updatePosition(time, deltaTime); // Call parent in order to update this.iO nodes position
-		this.handleLeftOrRight();
-	}
-
-	/**
-	 * Applies a force to the right or to the left depending on the keypress state
-	 */
-	handleLeftOrRight() {
 		this.rightMovementTensor.constant = 0;
 		this.leftMovementTensor.constant = 0;
 		if (this.getState() == 1) {
@@ -331,7 +324,6 @@ class LeftRightNode extends BinaryActuatorNode {
 		}
 	}
 }
-
 
 /**
  * A LineBreakerNode is a special type of ActuatorNode that
@@ -703,7 +695,7 @@ class LineBreakerNode extends ActuatorNode {
 
 
 /**
- * Create a JumpNode
+ * Create a Scrollnode
  * @class
  * @augments ActuatorNode
  */

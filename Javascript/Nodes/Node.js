@@ -37,8 +37,10 @@ class Node {
 		this.showFunction = showFunction;
 		this.isNode = true;
 		this.color = 'lightgrey';
-		this._pictureReference='';
-		this._size=1;
+		this._pictureReference = '';
+		this._size = 1;
+		this.labelString = '';
+		this.labels = undefined;
 
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
@@ -121,6 +123,9 @@ class Node {
 		this.addProperty(new Property(this,
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The picture size'));
+		this.addProperty(new Property(this,
+			'labelString', 'labelString', 'Labels', ParameteType.STRINGLIST, ParameterCategory.CONTENT,
+			'The comma-separated list of labels'));
 
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
@@ -223,6 +228,7 @@ class Node {
 		representation.size = this.size;
 		representation.turnrate = this.turnrate;
 		representation.torqueConstant = this.torqueConstant;
+		representation.labelString=this.labelString;
 		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
 		representation.positionBasedTensors = serializeList(this.positionBasedTensors, tensorList);
 		representation.velocityLoss = this.velocityLoss;
@@ -273,6 +279,9 @@ class Node {
 		this.angle = restoreObject.angle;
 		this.turnrate = restoreObject.turnrate;
 		this.torqueConstant = restoreObject.torqueConstant;
+		this.labelString = restoreObject.labelString;
+		this.labels = universe.labels.parse(this.labelString, this);
+
 		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
 		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
 		this.velocityLoss = restoreObject.velocityLoss;

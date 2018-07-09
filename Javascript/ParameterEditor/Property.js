@@ -19,6 +19,7 @@ let ParameteType = {
 	POSITION: 5,
 	NODELIST: 6,
 	SWITCH: 7,
+	STRINGLIST: 8,
 };
 
 
@@ -108,6 +109,8 @@ class Property {
 			this.makePosition(element, this.identity, display);
 		} else if (this.type == ParameteType.SWITCH) {
 			this.makeSwitch(element, this.identity, display);
+		} else if (this.type == ParameteType.STRINGLIST) {
+			this.makeStringList(element, this.identity, display);
 		}
 	};
 	/**
@@ -189,6 +192,44 @@ class Property {
 		inputField.addEventListener('input', function(e) {
 			universe.selectedObject[_this.propertyName] = inputField.value;
 		}, false);
+		return inputField;
+	}
+
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 */
+	makeStringList(element, id) {
+		let parameterValue = this.createNameValuePair(element);
+
+		this.input = this.makeInputListField(id, parameterValue);
+		parameterValue.appendChild(this.input);
+	}
+
+	/**
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
+	makeInputListField(id, parameterValue) {
+		let inputField = this.makeViewOfInputField(id, parameterValue);
+		let _this = this;
+		// inputField.addEventListener('input', function(e) {
+		//	universe.selectedObject[_this.propertyName] = inputField.value;
+		// }, false);
+		inputField.addEventListener('input', function(e) {
+			universe.selectedObject[_this.propertyName] = inputField.value;
+		}, true);
+		inputField.addEventListener('keydown', function(e) {
+			if (e.key==='Enter') {
+				universe.selectedObject.labels =
+					universe.labels.parse(inputField.value, universe.selectedObject);
+			}
+		}, true);
+		inputField.addEventListener('blur', function(e) {
+			universe.selectedObject.labels =
+				universe.labels.parse(inputField.value, universe.selectedObject);
+		}, true);
 		return inputField;
 	}
 

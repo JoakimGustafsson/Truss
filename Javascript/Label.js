@@ -10,9 +10,12 @@ class Labels {
 
 	/**
      * @param  {Property} name
+     * @return {Label}
      */
 	addLabel(name) {
-		this.list.push(new Label(name));
+		let label = new Label(name);
+		this.list.push(label);
+		return label;
 	}
 
 	/**
@@ -32,7 +35,18 @@ class Labels {
 				return l;
 			}
 		}
-		this.addLabel(labelName);
+		return this.addLabel(labelName);
+	}
+
+	/**
+     * @param {Object} reference
+     */
+	clearOldReferences(reference) {
+		if (reference.labels) {
+			for (let l of reference.labels) {
+				l.clearOldReference(reference);
+			}
+		}
 	}
 
 	/**
@@ -41,12 +55,8 @@ class Labels {
      * @return {Label}
      */
 	addReference(labelName, reference) {
-		let label = findLabel(labelName);
-		if (reference.isNode) {
-			label.addNode(reference);
-		} else {
-			label.addTensor(reference);
-		}
+		let label = this.findLabel(labelName);
+		label.addReference(reference);
 		return label;
 	}
 
@@ -56,6 +66,7 @@ class Labels {
      * @return {Label}
      */
 	parse(labelString, reference) {
+		this.clearOldReferences(reference);
 		let stringList = labelString.toLowerCase().split(/[\s,]+/);
 		let returnList=[];
 		for (let name of stringList) {
@@ -79,10 +90,24 @@ class Label {
 	}
 
 	/**
-     * @param  {Property} node
+     * @param  {Property} reference
      */
-	addNode(node) {
-		this.nodes.push(node);
+	addReference(reference) {
+		if (reference.isNode) {
+			this.nodes.push(reference);
+		} else {
+			this.tensors.push(reference);
+		}
+	}
+	/**
+     * @param  {Property} reference
+     */
+	clearOldReference(reference) {
+		if (reference.isNode) {
+			removeIfPresent(reference, this.nodes);
+		} else {
+			removeIfPresent(reference, this.tensors);
+		}
 	}
 
 	/**
@@ -90,12 +115,6 @@ class Label {
      */
 	getNodes() {
 		return this.nodes;
-	}
-	/**
-     * @param  {Property} tensor
-     */
-	addTensor(tensor) {
-		this.tensors.push(tensor);
 	}
 
 	/**
@@ -111,3 +130,10 @@ class Label {
 		return [...this.tensors, ...this.nodes];
 	}
 }
+
+
+
+
+Behaviours replaces sensors and actuators.
+
+Given a list of special labels, new functionality, properties and labels are added

@@ -22,10 +22,8 @@ class PropertyEditor {
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
-
 		this.removeBanner();
 	}
-
 
 	/**
 	 * remove event listener

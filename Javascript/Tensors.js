@@ -27,6 +27,8 @@ class Tensor {
 		this.ghost = false;
 		this.isTensor=true;
 		this.color='white';
+		this.labelString='';
+		this.labels=undefined;
 
 		Object.defineProperty(this, 'degree2', {
 			get: function() {
@@ -69,6 +71,9 @@ class Tensor {
 		this.addProperty(new Property(this,
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The colour of the tensor.'));
+		this.addProperty(new Property(this,
+			'labelString', 'labelString', 'Labels', ParameteType.STRINGLIST, ParameterCategory.CONTENT,
+			'The comma-separated list of labels'));
 	}
 
 	/**
@@ -258,6 +263,7 @@ class Tensor {
 		representation.ghost=this.ghost;
 		representation.isTensor=this.isTensor;
 		representation.color=this.color;
+		representation.labelString=this.labelString;
 
 		return representation;
 	}
@@ -295,6 +301,9 @@ class Tensor {
 		this.ghost=restoreObject.ghost;
 		this.isTensor=restoreObject.isTensor;
 		this.color=restoreObject.color;
+
+		this.labelString = restoreObject.labelString;
+		this.labels = universe.labels.parse(this.labelString, this);
 
 		return this;
 	}
@@ -1129,6 +1138,7 @@ class PictureSpring extends Spring {
 		this.width=restoreObject.width;
 		this.stretch=restoreObject.stretch;
 		this.length=restoreObject.length;
+
 
 		this.createHTMLPicture(this.pictureReference);
 

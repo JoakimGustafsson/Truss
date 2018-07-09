@@ -225,6 +225,7 @@ class Universe {
 	constructor(background) {
 		this.name = 'MyUniverse';
 		this.universeStack = new Stack();
+		this.labels = new Labels();
 		this.currentWorld = undefined;	// This is the current world, including trussNode and Governors
 		this.currentNode = undefined; // This is the currently displayed trussNode (either the worlds trussNode or a governor Node)
 		this.background = background;

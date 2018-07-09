@@ -222,7 +222,7 @@ class ProximitySensorNode extends SensorNode {
 	sense(deltaTime, truss) {}
 
 	/**
-	 * Combines a key number with a vecor to move if that key is being pressed
+	 * Combines a node with a vecor to move if that node is close
 	 * @param  {Node} node
 	 * @param  {number} distance
 	 * @param  {Vector} vector
