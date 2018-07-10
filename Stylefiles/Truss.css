@@ -13,14 +13,14 @@ div {
 }
 
 .inputcss, input:checked + .slider,
-#fileList,
+.fileList,
 .filename {
 	background-color: #ffdab9;
 }
 
 
 .inputcss, .slider,
-#fileList,
+.fileList,
 .filename {
 	border: 1px solid grey;
 	border-radius: 2px;
@@ -194,8 +194,8 @@ div.tab button.active {
 	color: white;
 	opacity: 1;
 	border-radius: 4px 4px 0px 0px;
-	padding: 10px 0px 0px 15px;
-	margin: 10px 10px 0px 10px;
+	padding: 7px;
+	margin: 3px 5px 0px 10px;
 }
 
 .footerbackgroundarea {
@@ -220,7 +220,6 @@ div.tab button.active {
 
 .sectionbase {
 	border-radius: 0px 0px 4px 4px;
-	/* background-color: #99C68E; */
 	padding: 5px 10px 5px 10px;
 	margin: 0px 10px 10px 10px;
 	position: relative;
@@ -324,7 +323,7 @@ div.tab button.active {
 	font-size: 16px;
 }
 
-#fileList {
+.fileList {
 	padding: 5px;
 	font-family: Arial;
 	font-size: 16px;
@@ -361,11 +360,11 @@ div.tab {
 	/* border: 1px solid #ccc; */
 }
 
-/* Style the buttons inside the tab */
+/* Style the buttons inside the tab
 
 div.tab button {
 	padding: 14px 16px;
-}
+}*/
 
 /* Change background color of buttons on hover
 div.tab button:hover {
@@ -442,6 +441,21 @@ div.tab button.active {
 	padding: 5px 5px 5px 5px;
 	margin: 1px;
 }
+
+.labelList {
+	margin: 1px 0px;
+	background-color: lightgray;
+	border: 1px solid grey;
+	border-radius: 2px;
+	font-size: 10px;
+}
+
+.smallLabel {
+	display: inline-block;
+	font-family: Arial;
+	padding: 2px 2px;
+}
+
 
 /* Switch */
 .switch {

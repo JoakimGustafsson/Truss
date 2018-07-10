@@ -14,9 +14,9 @@ class Truss {
 	 * @param  {TrussNode} parentTrussNode
 	 * @param  {View} view
 	 * @param  {number} timestep
-	 * @param  {Element} element
+	 * @param  {World} world
 	 */
-	constructor(parentTrussNode, view, timestep = 1 / 60) {
+	constructor(parentTrussNode, view, timestep = 1 / 60, world) {
 		this.time = 0;
 		this.view = view;
 		this.parentTrussNode = parentTrussNode;
@@ -41,6 +41,12 @@ class Truss {
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
 		this.debugLevel = 5;
+
+		this.pullSpringLabel=world.labels.findLabel('pullspring');
+		this.pushSpringLabel=world.labels.findLabel('pushspring');
+		this.fieldLabel=world.labels.findLabel('field');
+		this.absorberLabel=world.labels.findLabel('absorber');
+		this.springLabel=world.labels.findLabel('spring');
 	}
 
 	/**
@@ -174,6 +180,7 @@ class Truss {
 		tensor.addToTruss();
 		return tensor;
 	};
+
 	/**
 	 * @param  {Tensor} tensor
 	 * @return {Tensor}
@@ -188,14 +195,24 @@ class Truss {
 		tensor.removeFromTruss();
 		return tensor;
 	};
+
 	/**
 	 * Calculate all forces caused by a Nodes position.
 	 * For example, Springs or Fields are position based force appliers.
 	 * @param {number} deltaTime
 	 */
 	calculatePositionBasedForces(deltaTime) {
-		for (let i = 0; i < this.positionBasedTensors.length; i++) {
-			this.positionBasedTensors[i].calculateForce();
+		for (let tensor of this.pullSpringLabel.getTensors()) {
+			tensor.calculateForcePull(deltaTime);
+		}
+		for (let tensor of this.pushSpringLabel.getTensors()) {
+			tensor.calculateForcePush(deltaTime);
+		}
+		for (let tensor of this.fieldLabel.getTensors()) {
+			tensor.calculateForceField(deltaTime);
+		}
+		for (let tensor of this.springLabel.getTensors()) {
+			tensor.calculateForceSpring(deltaTime);
 		}
 	};
 
@@ -205,10 +222,11 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculateVelocityBasedForces(deltaTime) {
-		for (let i = 0; i < this.velocityBasedTensors.length; i++) {
-			this.velocityBasedTensors[i].calculateForce(deltaTime);
+		for (let tensor of this.absorberLabel.getTensors()) {
+			tensor.calculateForceAbsorber(deltaTime);
 		}
 	};
+
 	/**
 	 * Update all nodes velocities based on Position based forces
 	 * @param {number} deltaTime

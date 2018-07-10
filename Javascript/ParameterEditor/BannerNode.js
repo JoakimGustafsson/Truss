@@ -78,8 +78,15 @@ class BannerNode extends Node {
 		this.rightBottomField.color = 'transparent';
 
 		this.leftBand = truss.addTensor(new DampenedSpring(this.leftTopNode, this.nail, 500, 5));
+		// this.leftBand.labelString='pullspring';
+		this.leftBand.labels =
+			universe.currentWorld.labels.parse('pullspring', this.leftBand);
+
 		this.rightBand = truss.addTensor(new DampenedSpring(this.nail, this.rightTopNode, 500, 5));
+		this.rightBand.labels =
+			universe.currentWorld.labels.parse('pullspring', this.rightBand);
 		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 3000));
+
 		this.topBand.color = 'transparent';
 		this.leftSpring = truss.addTensor(new DampenedSpring(this.leftTopNode, this.leftBottomNode, 200, 10));
 		this.leftSpring.color = 'transparent';

@@ -63,38 +63,42 @@
 				FPSdisplay = document.getElementById("FPSdisplay");
 
 				trussBackground = document.getElementById("temp");
+				let latestWorld =  universe.push(new World());
 
 /*
-				let mainNode2 = new TrussNode("Prime", new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
+
+				let oneWorld = universe.push(new World();
+				let mainNode2 = new TrussNode(oneWorld, "Prime", new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
 				mainNode2.truss.initiate();
 				mainNode2.resize();
-				universe.push(new World(mainNode2),[]);
 
-				let mainNode3 = new TrussNode(mainNode2, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode2", WalkTruss);
-				universe.push(new World(mainNode3),[]);
+				let mainNode3 = new TrussNode(oneWorld, mainNode2, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode2", WalkTruss);
+
 				mainNode3.truss.initiate();
 				mainNode3.resize(); */
 
-				// let latestNode = new TrussNode("Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
+				// let twoWorld = universe.push(new World(mainNode3),[]);
+				// let latestNode = new TrussNode(twoWorld, "Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				// latestNode.truss.initiate();
 
-				let latestNode = new TrussNode("Prime", new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode", PerformanceTruss);
+				let latestNode = new TrussNode(latestWorld, "Prime", new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode", PerformanceTruss);
 				latestNode.truss.initiate();
+				latestWorld.trussNode = latestNode;
+				latestWorld.governors = [];
+				latestNode.resize();
 
 /*
-				let egoMoveGovernor =new TrussNode(latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
+				let egoMoveGovernor =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
 				egoMoveGovernor.truss.initiate(protagonist);
 				egoMoveGovernor.resize();
 
-				let scroller =new TrussNode(latestNode, new Position(0, 0), new Vector(50, 50), 1 / 60, 1, "ScrollerTruss", ScrollerTruss)
+				let scroller =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(50, 50), 1 / 60, 1, "ScrollerTruss", ScrollerTruss)
 				scroller.truss.initiate(protagonist);
 				scroller.resize();
 
 				let governorList= [egoMoveGovernor, scroller];
 				*/
-				let governorList= [];
-				let latestWorld = universe.push(new World(latestNode, governorList));
-				latestNode.resize();
+
 
 				universe.setCurrentWorld(latestWorld);
 

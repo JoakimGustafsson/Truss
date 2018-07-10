@@ -41,6 +41,16 @@ function createConfigurationArea(id) {
 		}, false);
 		tabArea.appendChild(trussButton);
 
+		let labelButton = document.createElement('button');
+		labelButton.classList.add('tabsectionbuttons');
+		labelButton.classList.add('active');
+		labelButton.innerHTML = 'LABELS';
+		labelButton.addEventListener('click', function() {
+			openBottomPanel(event, 'labelDiv');
+			universe.currentWorld.labels.show('labelConfigArea');
+		}, false);
+		tabArea.appendChild(labelButton);
+
 		let fileButton = document.createElement('button');
 		fileButton.classList.add('tabsectionbuttons');
 		fileButton.classList.add('active');
@@ -166,6 +176,41 @@ function createConfigurationArea(id) {
 				createSimpleButton(trussPropertyLast, 'TrussNode');
 				createSimpleButton(trussPropertyLast, 'GravityNode');
 				createSimpleButton(trussPropertyLast, 'SelectorNode');
+			}
+		}
+
+		// The tab area at the top
+		let labelArea = document.createElement('div');
+		labelArea.classList.add('footerbackgroundarea');
+		labelArea.classList.add('tabcontent');
+		labelArea.id = 'labelDiv';
+		configAreaInner.appendChild(labelArea);
+
+		{
+			let labelPropertyArea = document.createElement('div');
+			labelPropertyArea.classList.add('sectionbase');
+			labelArea.appendChild(labelPropertyArea);
+
+			{
+				let labelConfigArea = document.createElement('div');
+				labelConfigArea.id = 'labelConfigArea';
+				labelPropertyArea.appendChild(labelConfigArea);
+
+				let labelContentArea = document.createElement('div');
+				labelContentArea.classList.add('labelList');
+				labelContentArea.id = 'labelContentArea';
+				labelPropertyArea.appendChild(labelContentArea);
+			}
+
+			let labelPropertyLast = document.createElement('div');
+			labelPropertyLast.classList.add('sectionlast');
+			labelArea.appendChild(labelPropertyLast);
+
+			{
+				createSimpleButton(labelPropertyLast, 'All');
+				createSimpleButton(labelPropertyLast, 'World');
+				createSimpleButton(labelPropertyLast, 'Node');
+				createSimpleButton(labelPropertyLast, 'Tensor');
 			}
 		}
 

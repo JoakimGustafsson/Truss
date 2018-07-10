@@ -19,7 +19,7 @@ let ParameteType = {
 	POSITION: 5,
 	NODELIST: 6,
 	SWITCH: 7,
-	STRINGLIST: 8,
+	LABELLIST: 8,
 };
 
 
@@ -109,7 +109,7 @@ class Property {
 			this.makePosition(element, this.identity, display);
 		} else if (this.type == ParameteType.SWITCH) {
 			this.makeSwitch(element, this.identity, display);
-		} else if (this.type == ParameteType.STRINGLIST) {
+		} else if (this.type == ParameteType.LABELLIST) {
 			this.makeStringList(element, this.identity, display);
 		}
 	};
@@ -202,36 +202,57 @@ class Property {
 	makeStringList(element, id) {
 		let parameterValue = this.createNameValuePair(element);
 
-		this.input = this.makeInputListField(id, parameterValue);
+
+		let secondaryLabelsDiv = document.createElement('div');
+		secondaryLabelsDiv.id = 'labelContainer';
+		secondaryLabelsDiv.classList.add('labelList');
+
+
+		this.input = this.makeInputListField(id, parameterValue, secondaryLabelsDiv);
+
 		parameterValue.appendChild(this.input);
+		element.appendChild(secondaryLabelsDiv);
 	}
 
 	/**
 	 * @param  {String} id
 	 * @param  {Element} parameterValue
+	 * @param  {Element} secondaryLabelsDiv
 	 * @return {Element}
 	 */
-	makeInputListField(id, parameterValue) {
+	makeInputListField(id, parameterValue, secondaryLabelsDiv) {
 		let inputField = this.makeViewOfInputField(id, parameterValue);
 		let _this = this;
 		// inputField.addEventListener('input', function(e) {
 		//	universe.selectedObject[_this.propertyName] = inputField.value;
 		// }, false);
+		let finalizelabels = function(object, value) {
+			universe.selectedObject.labels =
+			universe.currentWorld.labels.parse(value, object);
+			secondaryLabelsDiv.innerHTML='';
+			for (let label of _this.parentNode.labels) {
+				let labelDiv = document.createElement('div');
+				labelDiv.innerHTML = label.name;
+				labelDiv.classList.add('smallLabel');
+				secondaryLabelsDiv.appendChild(labelDiv);
+			}
+		};
 		inputField.addEventListener('input', function(e) {
 			universe.selectedObject[_this.propertyName] = inputField.value;
 		}, true);
 		inputField.addEventListener('keydown', function(e) {
 			if (e.key==='Enter') {
-				universe.selectedObject.labels =
-					universe.labels.parse(inputField.value, universe.selectedObject);
+				finalizelabels(universe.selectedObject, inputField.value);
 			}
 		}, true);
 		inputField.addEventListener('blur', function(e) {
-			universe.selectedObject.labels =
-				universe.labels.parse(inputField.value, universe.selectedObject);
+			finalizelabels(universe.selectedObject, inputField.value);
 		}, true);
+
+		finalizelabels(universe.selectedObject, this.parentNode.labelString);
 		return inputField;
 	}
+
 
 	/**
 		 * @param  {String} id

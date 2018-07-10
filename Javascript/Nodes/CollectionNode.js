@@ -19,9 +19,25 @@ class CollectionNode extends Node {
 		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
 		super(parentTrussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss, torqueConstant);
 		this.nodeCollection=nodeCollection;
+		this.collectionlabel=collectionlabel;
+		this._collectionlabelString=_collectionlabelString;
 
-		this.addProperty(new Property(this, 'nodeCollection', 'nodeCollection', 'Linked nodes', ParameteType.NODELIST,
-			ParameterCategory.CONTENT, 'A list of nodes grouped together by this node.'));
+		// this.addProperty(new Property(this, 'nodeCollection', 'nodeCollection', 'OLD: Linked nodes', ParameteType.NODELIST,
+		// ParameterCategory.CONTENT, 'A list of nodes grouped together by this node.'));
+
+		this.addProperty(new Property(this, 'collectionlabelString', 'collectionlabelString', 'Collection Label', ParameteType.LABEL,
+			ParameterCategory.CONTENT, 'The label on the nodes grouped together by this node.'));
+
+		Object.defineProperty(this, 'collectionlabelString', {
+			get: function() {
+				return this._collectionlabelString;
+			},
+			set: function(value) {
+				this._collectionlabelString = value;
+				this.collectionlabel=universe.currentWorld.labels.findLabel(value);
+				this.nodeCollection=this.collectionlabel.getNodes();
+			},
+		});
 	}
 
 	/**
@@ -40,8 +56,8 @@ class CollectionNode extends Node {
 	serialize(superNodeList, superTensorList) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'CollectionNode';
-
-		representationObject.nodeCollection=serializeList(this.nodeCollection, superNodeList);
+		representationObject._collectionlabelString=this._collectionlabelString;
+		// representationObject.nodeCollection=serializeList(this.nodeCollection, superNodeList);
 		return representationObject;
 	}
 
@@ -52,7 +68,8 @@ class CollectionNode extends Node {
 	 */
 	deserialize(restoreObject, superNodes, superTensors) {
 		super.deserialize(restoreObject, superNodes, superTensors);
-		this.nodeCollection= deserializeList(restoreObject.nodeCollection, superNodes);
+		// this.nodeCollection= deserializeList(restoreObject.nodeCollection, superNodes);
+		this._collectionlabelString= restoreObject._collectionlabelString;
 		return;
 	}
 

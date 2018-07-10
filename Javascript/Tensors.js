@@ -72,7 +72,7 @@ class Tensor {
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The colour of the tensor.'));
 		this.addProperty(new Property(this,
-			'labelString', 'labelString', 'Labels', ParameteType.STRINGLIST, ParameterCategory.CONTENT,
+			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
 	}
 
@@ -98,7 +98,9 @@ class Tensor {
 		let middleButton=document.createElement('button');
 		middleButton.classList.add('trussButton');
 		middleButton.classList.add('tensorButtonMiddle');
-		middleButton.style.color=this.color;
+		if (this.color!='transparent') {
+			middleButton.style.color=this.color;
+		}
 		middleButton.innerHTML = this.getName();
 		this.registerOnClick(middleButton, this);
 		div.appendChild(middleButton);
@@ -303,7 +305,7 @@ class Tensor {
 		this.color=restoreObject.color;
 
 		this.labelString = restoreObject.labelString;
-		this.labels = universe.labels.parse(this.labelString, this);
+		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
 
 		return this;
 	}
@@ -738,6 +740,72 @@ class Tensor {
 			ctx.strokeStyle='yellow';
 		}
 	}
+
+	/**
+	* Calculate the force in the Spring based on current length
+	*/
+	calculateForceSpring() {
+		let actualVector = this.getActual();
+		let normalized = actualVector.normalizeVector(this.equilibriumLength);
+		let diffVector = Vector.subtractVectors(actualVector, normalized);
+		this.force = Vector.multiplyVector(-this.constant, diffVector);
+	}
+
+	/**
+	* Calculate the force in the Spring based on current length
+	*/
+	calculateForcePull() {
+		let actualVector = this.getActual();
+		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
+			this.force = new Force(0, 0);
+		} else {
+			this.calculateForceSpring();
+		}
+	}
+
+	/**
+	* Calculate the force in the Spring based on current length
+	*/
+	calculateForcePush() {
+		let actualVector = this.getActual();
+		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) > this.equilibriumLength * this.equilibriumLength)) {
+			this.force = new Force(0, 0);
+		} else {
+			this.calculateForceSpring();
+		}
+	}
+
+	/**
+	* Calculate the force in the Field based on distance and mass of the nodes
+	*/
+	calculateForceField() {
+		let actualVector = this.getActual();
+		let normalized = actualVector.normalizeVector(1);
+		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
+		this.force = Vector.multiplyVector(-forceSize, normalized);
+	}
+
+	/**
+	* Calculate the force in the Absorber based on the relative speed between the nodes
+	*/
+	calculateForceAbsorber() {
+		let actualVector = this.getActual();
+		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
+		let parallellVelocity = Vector.multiplyVector(
+			Vector.dotProduct(actualVector, internalSpeed),
+			Vector.divideVector(actualVector, this.getLengthSquare()));
+		this.force = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
+	}
+
+	/**
+	* Using a space separated list, list the labels that should be added
+	* @param  {string} labels
+	*/
+	addLabel(labels) {
+		this.labelString+=labels+' ';
+		this.labels =
+				universe.currentWorld.labels.parse(this.labelString, this);
+	}
 }
 
 
@@ -757,6 +825,7 @@ class Spring extends Tensor {
 		super(node1, node2, type);
 		this.equilibriumLength = equilibriumLength;
 		this.constant = constant;
+		this.color='black';
 		if (this.equilibriumLength <= 0 && node1 && node2) {
 			this.equilibriumLength = this.getLength();
 		}
@@ -766,6 +835,8 @@ class Spring extends Tensor {
 		this.addProperty(new Property(this,
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How long should the relaxed spring be.'));
+
+		this.addLabel('spring');
 	}
 
 	/**
@@ -823,6 +894,7 @@ class PullSpring extends Spring {
 		this.addProperty(new Property(this,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links constant.'));
+		this.addLabel('pullspring');
 	}
 
 	/**
@@ -883,6 +955,7 @@ class Field extends Tensor {
 		this.addProperty(new Property(this,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links constant.'));
+		this.addLabel('field');
 	}
 
 	/**
@@ -944,6 +1017,7 @@ class Absorber extends Tensor {
 		this.addProperty(new Property(this,
 			'dampeningConstant', 'dampeningConstant', 'Dampening constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links dampening constant.'));
+		this.addLabel('absorber');
 	}
 
 	/**
@@ -1005,6 +1079,8 @@ class DampenedSpring extends Spring {
 		this.addProperty(new Property(this,
 			'dampeningConstant', 'dampeningConstant', 'Dampening constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links dampening constant.'));
+
+		this.addLabel('absorber');
 	}
 
 	/**
@@ -1091,6 +1167,8 @@ class PictureSpring extends Spring {
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
+
+		this.addLabel('picture');
 	}
 
 	/**

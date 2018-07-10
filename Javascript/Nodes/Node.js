@@ -124,7 +124,7 @@ class Node {
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The picture size'));
 		this.addProperty(new Property(this,
-			'labelString', 'labelString', 'Labels', ParameteType.STRINGLIST, ParameterCategory.CONTENT,
+			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
 
 		if (this.pictureReference) {
@@ -133,10 +133,9 @@ class Node {
 	}
 
 	/**
-	 * @param {Tensor} tensor
 	 * @return {Element}
 	 */
-	generateHTML(tensor) {
+	generateHTML() {
 		let leftButton=document.createElement('button');
 		leftButton.classList.add('trussButton');
 		leftButton.classList.add('nodeButton');
@@ -181,6 +180,16 @@ class Node {
 			});
 			universe.currentNode.element.dispatchEvent(event);
 		});
+	}
+
+	/**
+	* Using a space separated list, list the labels that should be added
+	* @param  {string} labels
+	*/
+	addLabel(labels) {
+		this.labelString+=labels+' ';
+		this.labels =
+				universe.currentWorld.labels.parse(this.labelString, this);
 	}
 
 	/** Handling properties
@@ -280,7 +289,7 @@ class Node {
 		this.turnrate = restoreObject.turnrate;
 		this.torqueConstant = restoreObject.torqueConstant;
 		this.labelString = restoreObject.labelString;
-		this.labels = universe.labels.parse(this.labelString, this);
+		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
 
 		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
 		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);

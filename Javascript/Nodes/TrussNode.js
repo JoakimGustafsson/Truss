@@ -5,6 +5,7 @@
  */
 class TrussNode extends Node {
 	/** Create a node that can contain a Truss within itself.
+	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
 	 * @param  {Position} startPosition
 	 * @param  {Position} viewSize
@@ -17,7 +18,7 @@ class TrussNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(parentTrussNode, startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
+	constructor(world, parentTrussNode, startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
 		mass = 1, name = 'trussNode', TrussClass = Truss, ...args) {
 		super(parentTrussNode, startPosition, mass, name, ...args);
 
@@ -27,7 +28,7 @@ class TrussNode extends Node {
 		this.selector=this;
 		if (parentTrussNode) {
 			this.handleCanvas();
-			this.truss = new TrussClass(this, this.view, timestep);
+			this.truss = new TrussClass(this, this.view, timestep, world);
 			this.setView();
 		}
 
