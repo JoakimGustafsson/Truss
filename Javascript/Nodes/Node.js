@@ -93,7 +93,7 @@ class Node {
 				this.angle = value * Math.PI / 180;
 			},
 		});
-
+		/*
 		this.addProperty(new Property(this,
 			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The name of the node.'));
@@ -122,7 +122,8 @@ class Node {
 			'The picture filename.'));
 		this.addProperty(new Property(this,
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The picture size'));
+			'The picture size')); */
+
 		this.addProperty(new Property(this,
 			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
@@ -209,10 +210,11 @@ class Node {
 
 	/** Handling properties
 	 * @param  {element} element
+	 * @param  {number} ignoreLabels
 	 * @return {Property}
 	 */
-	populateProperties(element) {
-		return this.properties.populateProperties(element);
+	populateProperties(element, ignoreLabels) {
+		return this.properties.populateProperties(element, ignoreLabels);
 	}
 
 

@@ -41,6 +41,13 @@ class PropertyList {
 	}
 
 	/**
+	 * @param  {Property} labelProperty The property containing the labels should always be present
+	 */
+	clearProperties(labelProperty) {
+		this.list = [labelProperty];
+	}
+
+	/**
 	 * @return {Array}
 	 */
 	getProperties() {
@@ -48,11 +55,33 @@ class PropertyList {
 	}
 
 	/**
-	 * @param  {element} element
+	 * @param {element} element
+	 * @param {number} ignoreLabels
 	 */
-	populateProperties(element) {
-		for (let i = 0; i < this.list.length; i++) {
-			this.list[i].populateProperty(element);
+	populateProperties(element, ignoreLabels) {
+		element.innerHTML='';
+
+		let labelArea = document.createElement('div');
+		labelArea.classList.add('dummy');
+
+		let otherArea = document.createElement('div');
+
+		this.list[0].populateProperty(labelArea, otherArea);
+		element.appendChild(labelArea);
+
+		this.populateRest(otherArea);
+		element.appendChild(otherArea);
+	}
+
+	/**
+	* @param {element} element
+	*/
+	populateRest(element) {
+		element.innerHTML='';
+		for (let prop of this.list) {
+			if (prop.propertyName != 'labelString') {
+				prop.populateProperty(element);
+			}
 		}
 	}
 
@@ -82,8 +111,8 @@ class Property {
 	 * @param  {string} helpText
 	 */
 	constructor(parentNode, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText) {
-		this.parentNode = parentNode;
 		this.propertyName = propertyName;
+		this.parentNode = parentNode;
 		this.identity = 'editWindowTruss' + idHTML;
 		this.title = displayTitle;
 		this.type = parameterType;
@@ -93,11 +122,13 @@ class Property {
 
 
 	/**
-	 * @param {HTMLElement} element
+	 * @param {Element} element
+	 * @param {Element} restArea
 	 */
-	populateProperty(element) {
+	populateProperty(element, restArea) {
 		let display = '';
 		let addNodeButton;
+		this.HTMLElement = restArea;
 
 		if (this.type == ParameteType.NODELIST) {
 			this.makeNodeButtons(element, this.identity);
@@ -208,51 +239,11 @@ class Property {
 		secondaryLabelsDiv.classList.add('labelList');
 
 
-		this.input = this.makeInputListField(id, parameterValue, secondaryLabelsDiv);
+		this.input = this.makePropertyListField(id, parameterValue, secondaryLabelsDiv);
 
 		parameterValue.appendChild(this.input);
 		element.appendChild(secondaryLabelsDiv);
 	}
-
-	/**
-	 * @param  {String} id
-	 * @param  {Element} parameterValue
-	 * @param  {Element} secondaryLabelsDiv
-	 * @return {Element}
-	 */
-	makeInputListField(id, parameterValue, secondaryLabelsDiv) {
-		let inputField = this.makeViewOfInputField(id, parameterValue);
-		let _this = this;
-		// inputField.addEventListener('input', function(e) {
-		//	universe.selectedObject[_this.propertyName] = inputField.value;
-		// }, false);
-		let finalizelabels = function(object, value) {
-			universe.selectedObject.labels =
-			universe.currentWorld.labels.parse(value, object);
-			secondaryLabelsDiv.innerHTML='';
-			for (let label of _this.parentNode.labels) {
-				let labelDiv = document.createElement('div');
-				labelDiv.innerHTML = label.name;
-				labelDiv.classList.add('smallLabel');
-				secondaryLabelsDiv.appendChild(labelDiv);
-			}
-		};
-		inputField.addEventListener('input', function(e) {
-			universe.selectedObject[_this.propertyName] = inputField.value;
-		}, true);
-		inputField.addEventListener('keydown', function(e) {
-			if (e.key==='Enter') {
-				finalizelabels(universe.selectedObject, inputField.value);
-			}
-		}, true);
-		inputField.addEventListener('blur', function(e) {
-			finalizelabels(universe.selectedObject, inputField.value);
-		}, true);
-
-		finalizelabels(universe.selectedObject, this.parentNode.labelString);
-		return inputField;
-	}
-
 
 	/**
 		 * @param  {String} id
@@ -423,6 +414,52 @@ class Property {
 		return res;
 	}
 
+	/**
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @param  {Element} secondaryLabelsDiv
+	 * @return {Element}
+	 */
+	makePropertyListField(id, parameterValue, secondaryLabelsDiv) {
+		let inputField = this.makeViewOfInputField(id, parameterValue);
+		let _this = this;
+		// inputField.addEventListener('input', function(e) {
+		//	universe.selectedObject[_this.propertyName] = inputField.value;
+		// }, false);
+		let finalizelabels = function(object, value) {
+			universe.selectedObject.labels =
+			universe.currentWorld.labels.parse(value, object);
+			secondaryLabelsDiv.innerHTML='';
+			_this.parentNode.properties.clearProperties(_this);
+			for (let label of _this.parentNode.labels) {
+				let labelDiv = document.createElement('div');
+				labelDiv.innerHTML = label.name;
+				labelDiv.classList.add('smallLabel');
+				secondaryLabelsDiv.appendChild(labelDiv);
+				for (let prop of label.properties) {
+					prop.parentNode=_this.parentNode;
+					_this.parentNode.properties.addProperty(prop);
+				}
+			}
+		};
+		inputField.addEventListener('input', function(e) {
+			universe.selectedObject[_this.propertyName] = inputField.value;
+		}, true);
+		inputField.addEventListener('keydown', function(e) {
+			if (e.key==='Enter') {
+				finalizelabels(universe.selectedObject, inputField.value);
+				_this.parentNode.properties.populateRest(_this.HTMLElement, true);
+			}
+		}, true);
+		inputField.addEventListener('blur', function(e) {
+			finalizelabels(universe.selectedObject, inputField.value);
+			_this.parentNode.properties.populateRest(_this.HTMLElement, true);
+		}, true);
+
+		finalizelabels(universe.selectedObject, this.parentNode.labelString);
+		return inputField;
+	}
+
 	// This is called when the screen should be updated by a value change in an object
 	/**
 	 * @param  {Object} selectedObject
@@ -432,7 +469,7 @@ class Property {
 			let elementX = this.xInput;
 			let elementY = this.yInput;
 			if ((elementX == undefined) || (elementX == null)) {
-				alert('updatePropertyValue cannot find HTML element ' + this.identity + 'X & Y. (Title:' + this.title + ')');
+				console.log('updatePropertyValue cannot find HTML element ' + this.identity + 'X & Y. (Title:' + this.title + ')');
 				return;
 			} else {
 				elementX.value = Math.round(100 * selectedObject[this.propertyName].x) / 100;
@@ -441,7 +478,7 @@ class Property {
 		} else {
 			let element = this.input;
 			if ((element == undefined) || (element == null)) {
-				alert('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
+				console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
 				return;
 			}
 			element.value = selectedObject[this.propertyName];

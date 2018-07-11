@@ -58,7 +58,7 @@ class Tensor {
 		// this.addProperty(new Property(this,
 		//	'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
 		//	'The angle of the node.'));
-
+		/*
 		this.addProperty(new Property(this,
 			'tensorType', 'tensorType', 'Type', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The links type number.'));
@@ -71,6 +71,7 @@ class Tensor {
 		this.addProperty(new Property(this,
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The colour of the tensor.'));
+			 */
 		this.addProperty(new Property(this,
 			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
@@ -229,10 +230,11 @@ class Tensor {
 
 	/** Handling properties
 	 * @param  {element} element
+	 * @param  {number} ignoreLabels
 	 * @return {Property}
 	 */
-	populateProperties(element) {
-		return this.properties.populateProperties(element);
+	populateProperties(element, ignoreLabels) {
+		return this.properties.populateProperties(element, ignoreLabels);
 	}
 
 	/**

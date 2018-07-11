@@ -17,7 +17,7 @@ class PropertyUpdateNode extends SensorNode {
 		let _this = this;
 		this.eventListenerFunction = function(e) {
 			if (universe.currentNode==_this.parentTrussNode) {
-				_this.showPropertyElements(e, _this);
+				_this.showPropertyElements(e);
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
@@ -25,14 +25,14 @@ class PropertyUpdateNode extends SensorNode {
 
 	/**
 	 * @param  {Event} selectionEvent
-	 * @param  {Object} th
 	 */
-	showPropertyElements(selectionEvent, th) {
+	showPropertyElements(selectionEvent) {
 		this.iO = selectionEvent.detail.selectedObject;
 
 		this.element.innerHTML='';
 		if (this.iO) {
-			this.iO.properties.populateProperties(this.element);
+			// this.iO.properties.populateProperties(this.element);
+			this.iO.populateProperties(this.element);
 		}
 	}
 

@@ -147,6 +147,12 @@ div.tab button.active {
 	font-family: Arial;
 }
 
+.dummy {
+	border: 1px solid red;
+	padding: 2px;
+	margin: 2px;
+}
+
 .rvalue {
 	float: right;
 	position: relative;

@@ -7,46 +7,50 @@ class Labels {
 	constructor() {
 		this.list = [];
 
-		let massProperty = new Property(this,
+		let massProperty = new Property(undefined,
 			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The mass of the node in Kilograms.');
-		let nameProperty = new Property(this,
+		let nameProperty = new Property(undefined,
 			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The name of the node.');
-		let constantProperty = new Property(this,
+		let constantProperty = new Property(undefined,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The tensor constant.');
-		let absorberProperty = new Property(this,
+		let absorberProperty = new Property(undefined,
 			'dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The absorb constant.');
-		let positionProperty = new Property(this,
+		let positionProperty = new Property(undefined,
 			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The position counted from the upper left corner.');
-		let angleProperty = new Property(this,
+		let angleProperty = new Property(undefined,
 			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle of the node.');
-		let torqueConstantProperty = new Property(this,
+		let torqueConstantProperty = new Property(undefined,
 			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How stiff the node is with respect to attempts angle differences.');
-		let nodeFrictionProperty = new Property(this,
+		let nodeFrictionProperty = new Property(undefined,
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		let colorProperty = new Property(this,
+		let colorProperty = new Property(undefined,
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The colour of the node.');
-		let pictureProperty = new Property(this,
+		let pictureProperty = new Property(undefined,
 			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The picture filename.');
-		let sizeProperty = new Property(this,
+		let sizeProperty = new Property(undefined,
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The picture size');
+
+		let equilibriumLength = new Property(undefined,
+			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'How long should the relaxed spring be.');
 
 
 		let nodeLabel = this.addLabel('node', [], [nameProperty, positionProperty]);
 		let tensorLabel = this.addLabel('tensor', [], []);
-		let pullLabel = this.addLabel('pullspring', [tensorLabel], [constantProperty]);
-		let pushLabel = this.addLabel('pushspring', [tensorLabel], [constantProperty]);
-		let springLabel = this.addLabel('spring', [tensorLabel], [constantProperty]);
+		let pullLabel = this.addLabel('pullspring', [tensorLabel], [constantProperty, equilibriumLength]);
+		let pushLabel = this.addLabel('pushspring', [tensorLabel], [constantProperty, equilibriumLength]);
+		let springLabel = this.addLabel('spring', [tensorLabel], [constantProperty, equilibriumLength]);
 		let fieldLabel = this.addLabel('fieldspring', [tensorLabel], [constantProperty]);
 		let absorbLabel = this.addLabel('absorber', [tensorLabel], [absorberProperty]);
 		let movabelLabel = this.addLabel('moveable', [nodeLabel], [massProperty, nodeFrictionProperty]);
@@ -81,7 +85,7 @@ class Labels {
 	 */
 	findLabel(labelName) {
 		if (!labelName) {
-			return;
+			labelName='EmptyName';
 		}
 		for (let l of this.list) {
 			if (l.name == labelName) {
@@ -109,26 +113,29 @@ class Labels {
 	 */
 	addReference(labelName, reference) {
 		let label = this.findLabel(labelName);
-		if (!label) {
-			return;
-		}
 		label.addReference(reference);
 		return label;
 	}
 
 	/**
 	 * @param {List} startList
+	 * @param {object} reference
+	 * @param {List} resultList
 	 * @return {List}
 	 */
-	recursiveDependencies(startList) {
+	recursiveDependencies(startList, reference, resultList) {
 		if (startList && startList.length==0) {
-			return [];
+			return resultList;
 		}
-		let returnList=[];
 		for (let label of startList) {
-			returnList = [...returnList, label, ...this.recursiveDependencies(label.dependencies)];
+			if (resultList.indexOf(label)==-1) {
+				label.addReference(reference);
+				resultList = [label, ...this.recursiveDependencies(label.dependencies, reference, resultList)];
+			} else {
+				resultList = this.recursiveDependencies(label.dependencies, reference, resultList);
+			}
 		}
-		return returnList;
+		return resultList;
 	}
 
 	/**
@@ -145,11 +152,13 @@ class Labels {
 		let startList = [];
 		for (let name of stringList) {
 			if (name!='') {
-				startList.push(this.addReference(name, reference));
+				let label = this.addReference(name, reference);
+				if (startList.indexOf(label)==-1) {
+					startList.push(label);
+				}
 			}
 		}
-		let returnList = this.recursiveDependencies(startList);
-		Ensure that these are also added references to
+		let returnList = this.recursiveDependencies(startList, reference, startList);
 		return returnList;
 	}
 
@@ -209,12 +218,13 @@ class Label {
 
 	/**
 	 * @param  {Property} reference
+	 * @return  {Object}
 	 */
 	addReference(reference) {
 		if (reference.isNode) {
-			this.nodes.push(reference);
+			return this.nodes.push(reference);
 		} else {
-			this.tensors.push(reference);
+			return this.tensors.push(reference);
 		}
 	}
 	/**
