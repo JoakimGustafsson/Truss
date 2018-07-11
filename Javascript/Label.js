@@ -40,10 +40,34 @@ class Labels {
 		let sizeProperty = new Property(undefined,
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The picture size');
-
 		let equilibriumLength = new Property(undefined,
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How long should the relaxed spring be.');
+		let degree1 = new Property(undefined,
+			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The angle the node connects to the start node.');
+		let degree2 = new Property(undefined,
+			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'The angle the node connects to the end node.');
+
+
+		let screenSize = new Property(undefined,
+			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The size of the displayed screen in pixels.');
+
+		let worldSize = new Property(undefined,
+			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The size of the displayed worldview in that worlds measurement.');
+
+		let setWorldOffset = new Property(undefined,
+			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The world coordinates of the upper left corner.');
+
+		let fpsTarget = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+
+		let fps = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
 
 		let nodeLabel = this.addLabel('node', [], [nameProperty, positionProperty]);
@@ -55,9 +79,11 @@ class Labels {
 		let absorbLabel = this.addLabel('absorber', [tensorLabel], [absorberProperty]);
 		let movabelLabel = this.addLabel('moveable', [nodeLabel], [massProperty, nodeFrictionProperty]);
 		let angleLabel = this.addLabel('angle', [nodeLabel], [angleProperty, torqueConstantProperty]);
-		let colorLabel = this.addLabel('color', [nodeLabel], [colorProperty]);
+		let debugtensor = this.addLabel('debugtensor', [], [degree1, degree2]);
+		let colorLabel = this.addLabel('color', [], [colorProperty]);
 		let pictureLabel = this.addLabel('picture', [nodeLabel], [pictureProperty, sizeProperty]);
 		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], []);
+		let trussLabel = this.addLabel('truss', [], [screenSize, worldSize, setWorldOffset, fpsTarget, fps]);
 	}
 
 	/**

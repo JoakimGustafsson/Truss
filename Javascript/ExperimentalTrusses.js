@@ -452,7 +452,6 @@ class PerformanceTruss extends Truss {
 		let parent = this.parentTrussNode;
 		let governedTruss=governedNode.truss;
 
-		// protagonist = governedTruss.protagonist;
 		parent.selector = this.addNode(new Selector(parent));
 
 		for (let row=1; row < 10; row++) {
@@ -461,8 +460,6 @@ class PerformanceTruss extends Truss {
 				x.pictureReference='trussicon.png';
 				x.pictureHeight=600;
 				x.pictureWidth=600;
-				// x.element.width='300px';
-				// x.pictureReference='trussIcon.png';
 				x.turnrate=0.04;
 				protagonist=x;
 			}

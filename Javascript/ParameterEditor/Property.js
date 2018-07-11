@@ -62,7 +62,7 @@ class PropertyList {
 		element.innerHTML='';
 
 		let labelArea = document.createElement('div');
-		labelArea.classList.add('dummy');
+		// labelArea.classList.add('dummy');
 
 		let otherArea = document.createElement('div');
 
@@ -84,7 +84,6 @@ class PropertyList {
 			}
 		}
 	}
-
 
 	/** Loop through all properties and display the values from the inputObject
 	 * @param  {Object} inputObject
@@ -120,7 +119,6 @@ class Property {
 		this.HTMLElement = undefined;
 	}
 
-
 	/**
 	 * @param {Element} element
 	 * @param {Element} restArea
@@ -144,6 +142,7 @@ class Property {
 			this.makeStringList(element, this.identity, display);
 		}
 	};
+
 	/**
 	 * @param  {Element} element
 	 * @param  {String} id
