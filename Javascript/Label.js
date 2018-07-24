@@ -7,83 +7,133 @@ class Labels {
 	constructor() {
 		this.list = [];
 
-		let massProperty = new Property(undefined,
+		this.massProperty = new Property(undefined,
 			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The mass of the node in Kilograms.');
-		let nameProperty = new Property(undefined,
+			'The mass of the node in Kilograms.', NaN);
+		this.nameProperty = new Property(undefined,
 			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The name of the node.');
-		let constantProperty = new Property(undefined,
+			'The name of the node.', 'Node');
+		this.constantProperty = new Property(undefined,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The tensor constant.');
-		let absorberProperty = new Property(undefined,
+			'The tensor constant.', 1);
+		this.absorberProperty = new Property(undefined,
 			'dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The absorb constant.');
-		let positionProperty = new Property(undefined,
+			'The absorb constant.', 1);
+		this.positionProperty = new Property(undefined,
 			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The position counted from the upper left corner.');
-		let angleProperty = new Property(undefined,
+			'The position counted from the upper left corner.', new Position(1, 1));
+		this.velocityProperty = new Property(undefined,
+			'velocity', 'velocity', 'velocityelocity', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'The velocity.', new Position(1, 1));
+		this.angleProperty = new Property(undefined,
 			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle of the node.');
-		let torqueConstantProperty = new Property(undefined,
+			'The angle of the node.', 0);
+		this.torqueConstantProperty = new Property(undefined,
 			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How stiff the node is with respect to attempts angle differences.');
-		let nodeFrictionProperty = new Property(undefined,
+			'How stiff the node is with respect to attempts angle differences.', 1);
+		this.nodeFrictionProperty = new Property(undefined,
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		let colorProperty = new Property(undefined,
+			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).', 0.99);
+		this.colorProperty = new Property(undefined,
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The colour of the node.');
-		let pictureProperty = new Property(undefined,
+			'The colour of the node.', 'lightgrey');
+		this.pictureProperty = new Property(undefined,
 			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The picture filename.');
-		let sizeProperty = new Property(undefined,
+			'The picture filename.', 'default.jpg');
+		this.sizeProperty = new Property(undefined,
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The picture size');
-		let equilibriumLength = new Property(undefined,
+			'The picture size', 1);
+		this.equilibriumLength = new Property(undefined,
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How long should the relaxed spring be.');
-		let degree1 = new Property(undefined,
+			'How long should the relaxed spring be.', 1);
+		this.degree1 = new Property(undefined,
 			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the start node.');
-		let degree2 = new Property(undefined,
+			'The angle the node connects to the start node.', 0);
+		this.degree2 = new Property(undefined,
 			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the end node.');
+			'The angle the node connects to the end node.', 0);
 
 
-		let screenSize = new Property(undefined,
+		this.screenSize = new Property(undefined,
 			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The size of the displayed screen in pixels.');
+			'The size of the displayed screen in pixels.', new Position(200, 200));
 
-		let worldSize = new Property(undefined,
+		this.worldSize = new Property(undefined,
 			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The size of the displayed worldview in that worlds measurement.');
+			'The size of the displayed worldview in that worlds measurement.', new Position(20, 20));
 
-		let setWorldOffset = new Property(undefined,
+		this.setWorldOffset = new Property(undefined,
 			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The world coordinates of the upper left corner.');
+			'The world coordinates of the upper left corner.', new Position(0, 0));
 
-		let fpsTarget = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+		this.fpsTarget = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.', 60);
 
-		let fps = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+		this.fps = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.', 60);
+
+		this.visibilityProperty = new Property(undefined,
+			'visible', 'visible', 'Visible', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'Should this be visible on the screen.', 1);
 
 
-		let nodeLabel = this.addLabel('node', [], [nameProperty, positionProperty]);
-		let tensorLabel = this.addLabel('tensor', [], []);
-		let pullLabel = this.addLabel('pullspring', [tensorLabel], [constantProperty, equilibriumLength]);
-		let pushLabel = this.addLabel('pushspring', [tensorLabel], [constantProperty, equilibriumLength]);
-		let springLabel = this.addLabel('spring', [tensorLabel], [constantProperty, equilibriumLength]);
-		let fieldLabel = this.addLabel('fieldspring', [tensorLabel], [constantProperty]);
-		let absorbLabel = this.addLabel('absorber', [tensorLabel], [absorberProperty]);
-		let movabelLabel = this.addLabel('moveable', [nodeLabel], [massProperty, nodeFrictionProperty]);
-		let angleLabel = this.addLabel('angle', [nodeLabel], [angleProperty, torqueConstantProperty]);
-		let debugtensor = this.addLabel('debugtensor', [], [degree1, degree2]);
-		let colorLabel = this.addLabel('color', [], [colorProperty]);
-		let pictureLabel = this.addLabel('picture', [nodeLabel], [pictureProperty, sizeProperty]);
-		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], []);
-		let trussLabel = this.addLabel('truss', [], [screenSize, worldSize, setWorldOffset, fpsTarget, fps]);
+		let nodeLabel = this.addLabel('node', [], {
+			'nameProperty': '',
+			'positionProperty': new Position(1, 1),
+			'visibilityProperty': 1,
+		});
+		let tensorLabel = this.addLabel('tensor', [], {
+			'visibilityProperty': 1,
+		});
+		let positionTensorLabel = this.addLabel('positiontensor', [tensorLabel], {
+			'constantProperty': 1,
+		});
+		let pullLabel = this.addLabel('pullspring', [positionTensorLabel], {
+			'equilibriumLength': 1,
+		});
+		let pushLabel = this.addLabel('pushspring', [positionTensorLabel], {
+			'equilibriumLength': 1,
+		});
+		let springLabel = this.addLabel('spring', [positionTensorLabel], {
+			'equilibriumLength': 1,
+		});
+		let fieldLabel = this.addLabel('fieldspring', [positionTensorLabel], {});
+		let absorbLabel = this.addLabel('absorber', [tensorLabel], {
+			'absorberProperty': 1,
+			'visibilityProperty': 0,
+		});
+		let moveabelLabel = this.addLabel('moveable', [nodeLabel], {
+			'massProperty': 1,
+			'nodeFrictionProperty': 0.99,
+		});
+		let angleLabel = this.addLabel('angle', [nodeLabel], {
+			'angleProperty': 1,
+			'torqueConstantProperty': 1,
+		});
+		let debugtensor = this.addLabel('debugtensor', [], {
+			'degree1': 1,
+			'degree2': 1,
+		});
+		let colorLabel = this.addLabel('color', [], {
+			'colorProperty': 'red',
+			'visibilityProperty': 1,
+		});
+		let pictureLabel = this.addLabel('picture', [nodeLabel], {
+			'pictureProperty': '/Resources/default.jpg',
+			'sizeProperty': 1,
+			'visibilityProperty': 1,
+		});
+		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], {
+			'angleProperty': 1,
+			'torqueConstantProperty': 1,
+		});
+		let trussLabel = this.addLabel('truss', [nodeLabel], {
+			'screenSize': new Position(200, 200),
+			'worldSize': new Position(20, 20),
+			'setWorldOffset': new Position(0, 0),
+			'fpsTarget': 60,
+			'fps': 60,
+		});
 	}
 
 	/**
@@ -93,6 +143,11 @@ class Labels {
 	 * @return {Label}
 	 */
 	addLabel(name, dependencies, properties) {
+		if (properties) {
+			for (const [key, value] of Object.entries(properties)) {
+				properties[key] = {'propertyObject': this[key], 'defaultValue': value};
+			}
+		}
 		let label = new Label(name, dependencies, properties);
 		this.list.push(label);
 		return label;
@@ -111,7 +166,7 @@ class Labels {
 	 */
 	findLabel(labelName) {
 		if (!labelName) {
-			labelName='EmptyName';
+			labelName = 'EmptyName';
 		}
 		for (let l of this.list) {
 			if (l.name == labelName) {
@@ -150,11 +205,11 @@ class Labels {
 	 * @return {List}
 	 */
 	recursiveDependencies(startList, reference, resultList) {
-		if (startList && startList.length==0) {
+		if (startList && startList.length == 0) {
 			return resultList;
 		}
 		for (let label of startList) {
-			if (resultList.indexOf(label)==-1) {
+			if (resultList.indexOf(label) == -1) {
 				label.addReference(reference);
 				resultList = [label, ...this.recursiveDependencies(label.dependencies, reference, resultList)];
 			} else {
@@ -177,9 +232,9 @@ class Labels {
 		let stringList = labelString.toLowerCase().split(/[\s,]+/);
 		let startList = [];
 		for (let name of stringList) {
-			if (name!='') {
+			if (name != '') {
 				let label = this.addReference(name, reference);
-				if (startList.indexOf(label)==-1) {
+				if (startList.indexOf(label) == -1) {
 					startList.push(label);
 				}
 			}
@@ -217,7 +272,7 @@ class Labels {
 	 */
 	registerOnClick(but, label, displayDiv) {
 		but.addEventListener('click', function() {
-			displayDiv.innerHTML='';
+			displayDiv.innerHTML = '';
 			for (let item of label.getReferences()) {
 				displayDiv.appendChild(item.generateHTML());
 			}
@@ -238,8 +293,8 @@ class Label {
 		this.name = name;
 		this.nodes = [];
 		this.tensors = [];
-		this.dependencies=dependencies;
-		this.properties=properties;
+		this.dependencies = dependencies;
+		this.properties = properties;
 	}
 
 	/**
@@ -271,7 +326,7 @@ class Label {
 	 * @return {number}
 	 */
 	used() {
-		return this.nodes.length+this.tensors.length;
+		return this.nodes.length + this.tensors.length;
 	}
 
 	/**

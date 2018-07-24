@@ -11,32 +11,6 @@ class BannerNode extends Node {
 		super();
 		this.name = 'bannerNode';
 		this.element = element;
-
-		/*
-		Object.defineProperty(this, 'idString', {
-			get: function() {
-				if (this.element) {
-					return this.element.id;
-				}
-			},
-			set: function(value) {
-				let oldElement = this.element;
-				if (oldElement) {
-					restoreMatrix(oldElement);
-				}
-				let newElement = document.getElementById(value);
-				if (newElement) {
-					this.element = newElement;
-				} else {
-					this.element = undefined;
-				}
-			},
-		});
-
-		this.addProperty(new Property(this,
-			'idString', 'idString', 'Element id', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The HTML elements id.'));
-			*/
 	}
 
 	/**
@@ -66,9 +40,11 @@ class BannerNode extends Node {
 
 		this.leftBottomNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 3, 'leftBottom', 0, 0, 0.99));
+		this.leftBottomNode.addLabel('moveable');
 
 		this.rightBottomNode = truss.addNode(new Node(truss,
 			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 3, 'rightBottom', 0, 0, 0.99));
+		this.rightBottomNode.addLabel('moveable');
 
 		this.leftBottomField = truss.addTensor(new PullSpring(this.leftBottomNode, this.bannerGravityWell, 0.1));
 		this.leftBottomField.equilibriumLength = 0;
@@ -78,9 +54,8 @@ class BannerNode extends Node {
 		this.rightBottomField.color = 'transparent';
 
 		this.leftBand = truss.addTensor(new DampenedSpring(this.leftTopNode, this.nail, 500, 5));
-		// this.leftBand.labelString='pullspring';
-		this.leftBand.labels =
-			universe.currentWorld.labels.parse('pullspring', this.leftBand);
+
+		this.leftBand.addLabel('pullspring');
 
 		this.rightBand = truss.addTensor(new DampenedSpring(this.nail, this.rightTopNode, 500, 5));
 		this.rightBand.labels =

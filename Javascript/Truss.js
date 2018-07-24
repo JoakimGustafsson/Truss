@@ -171,12 +171,12 @@ class Truss {
 	 * @return {Tensor}
 	 */
 	addTensor(tensor) {
-		this.tensors.push(tensor);
+		/* this.tensors.push(tensor);
 		if (tensor.tensorType == TensorType.ABSORBER) {
 			this.velocityBasedTensors.push(tensor);
 		} else {
 			this.positionBasedTensors.push(tensor);
-		}
+		}*/
 		tensor.addToTruss();
 		return tensor;
 	};
@@ -186,12 +186,12 @@ class Truss {
 	 * @return {Tensor}
 	 */
 	removeTensor(tensor) {
-		removeIfPresent(tensor, this.tensors);
+		/* removeIfPresent(tensor, this.tensors);
 		if (tensor.tensorType == TensorType.ABSORBER) {
 			removeIfPresent(tensor, this.velocityBasedTensors);
 		} else {
 			removeIfPresent(tensor, this.positionBasedTensors);
-		}
+		} */
 		tensor.removeFromTruss();
 		return tensor;
 	};
@@ -251,9 +251,18 @@ class Truss {
 	 * Update all nodes velocities based on Velocity based forces
 	 * @param {number} deltaTime
 	 */
-	calculateFinalVelocityAndRotation(deltaTime) {
+	calculateDampenedVelocity(deltaTime) {
 		for (let node of this.nodes) {
 			node.updateFinalVelocity(deltaTime);
+		}
+	};
+
+	/**
+	 * Update all nodes rotations
+	 * @param {number} deltaTime
+	 */
+	calculateRotation(deltaTime) {
+		for (let node of this.nodes) {
 			node.updateFinalRotation(deltaTime);
 		}
 	};
@@ -310,7 +319,8 @@ class Truss {
 			this.calculatePositionBasedForces(deltaTime);
 			this.calculatePositionBasedVelocities(deltaTime);
 			this.calculateVelocityBasedForces(deltaTime);
-			this.calculateFinalVelocityAndRotation(deltaTime);
+			this.calculateDampenedVelocity(deltaTime);
+			this.calculateRotation(deltaTime);
 
 			this.updatePositions(trussTime, deltaTime);
 		}

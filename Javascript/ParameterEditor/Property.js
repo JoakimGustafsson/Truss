@@ -108,14 +108,16 @@ class Property {
 	 * @param  {ParameteType} parameterType
 	 * @param  {parameterCategory} parameterCategory
 	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
 	 */
-	constructor(parentNode, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText) {
+	constructor(parentNode, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText, defaultValue) {
 		this.propertyName = propertyName;
 		this.parentNode = parentNode;
 		this.identity = 'editWindowTruss' + idHTML;
 		this.title = displayTitle;
 		this.type = parameterType;
 		this.help = helpText;
+		this.defaultValue = defaultValue;
 		this.HTMLElement = undefined;
 	}
 
@@ -430,16 +432,33 @@ class Property {
 			universe.currentWorld.labels.parse(value, object);
 			secondaryLabelsDiv.innerHTML='';
 			_this.parentNode.properties.clearProperties(_this);
+			let propObject = {};
 			for (let label of _this.parentNode.labels) {
 				let labelDiv = document.createElement('div');
 				labelDiv.innerHTML = label.name;
 				labelDiv.classList.add('smallLabel');
 				secondaryLabelsDiv.appendChild(labelDiv);
-				for (let prop of label.properties) {
-					prop.parentNode=_this.parentNode;
-					_this.parentNode.properties.addProperty(prop);
-				}
+
+				Object.assign(propObject, label.properties);
 			}
+			for (let [key, value] of Object.entries(propObject)) {
+				_this.parentNode.properties.addProperty(value.propertyObject, value.defaultValue);
+				_this.parentNode[value.propertyObject.propertyName]=value.defaultValue;
+			}
+
+			/*
+				for (let listItem of label.properties) {
+					let prop = listItem;
+					let defaultValue= prop.defaultValue;
+					if (listItem.property) {
+						prop=listItem.property;
+						defaultValue=listItem.defaultValue;
+					}
+					prop.parentNode=_this.parentNode;
+					_this.parentNode.properties.addProperty(prop, defaultValue);
+
+			}
+			*/
 		};
 		inputField.addEventListener('input', function(e) {
 			universe.selectedObject[_this.propertyName] = inputField.value;
@@ -461,8 +480,8 @@ class Property {
 
 	// This is called when the screen should be updated by a value change in an object
 	/**
-	 * @param  {Object} selectedObject
-	 */
+ * @param  {Object} selectedObject
+ */
 	updatePropertyValue(selectedObject) {
 		if (this.type == ParameteType.POSITION) {
 			let elementX = this.xInput;
@@ -479,6 +498,9 @@ class Property {
 			if ((element == undefined) || (element == null)) {
 				console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
 				return;
+			}
+			if (selectedObject[this.propertyName]==undefined) {
+				selectedObject[this.propertyName]=this.defaultValue;
 			}
 			element.value = selectedObject[this.propertyName];
 		}

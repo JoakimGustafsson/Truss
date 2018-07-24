@@ -1,6 +1,5 @@
 /**
  *
- */
 
 const TensorType = {
 	UNDEFINED: 0,
@@ -15,12 +14,10 @@ class Tensor {
 	/**
 	 * @param  {Node} node1
 	 * @param  {Node} node2
-	 * @param  {TensorType} type=TensorType.UNDEFINED
 	 */
-	constructor(node1, node2, type = TensorType.UNDEFINED) {
+	constructor(node1, node2) {
 		this.node1 = node1;
 		this.node2 = node2;
-		this.tensorType = type;
 		this.properties = new PropertyList();
 		this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
@@ -29,6 +26,18 @@ class Tensor {
 		this.color='white';
 		this.labelString='';
 		this.labels=undefined;
+
+
+		Object.defineProperty(this, 'labels', {
+			get: function() {
+				return this._labels;
+			},
+			set: function(value) {
+				this._labels=value;
+				this.absorber = (0 >= this._labels.indexOf(universe.currentWorld.labels.findLabel('absorblabel')));
+			},
+		});
+
 
 		Object.defineProperty(this, 'degree2', {
 			get: function() {
@@ -262,7 +271,6 @@ class Tensor {
 
 		representation.angle1= isNaN(this.angle1) ? 'NaN' : this.angle1;
 		representation.angle2= isNaN(this.angle2) ? 'NaN' : this.angle2;
-		representation.tensorType=this.tensorType;
 		representation.force=this.force;
 		representation.ghost=this.ghost;
 		representation.isTensor=this.isTensor;
@@ -300,7 +308,6 @@ class Tensor {
 		}
 
 
-		this.tensorType=restoreObject.tensorType;
 		this.force=restoreObject.force;
 		this.ghost=restoreObject.ghost;
 		this.isTensor=restoreObject.isTensor;
@@ -704,13 +711,13 @@ class Tensor {
 		if (this.isGhost()) {
 			return;
 		}
-		if ( (((graphicDebugLevel >= 4) || (graphicDebugLevel==2)) && (this.tensorType != TensorType.FIELD)) ||
+		if ( ( ((graphicDebugLevel >= 4) || (graphicDebugLevel==2)) && (this.tensorType != TensorType.FIELD)) ||
 			(graphicDebugLevel >= 6)) {
 			this.highLight(ctx);
 			ctx.beginPath();
 			view.drawLine(node1.getPosition(), node2.getPosition());
 			ctx.stroke();
-			if (graphicDebugLevel >= 10) {
+			if (graphicDebugLevel >= 10) { // Show debug text
 				ctx.beginPath();
 				ctx.fillStyle = 'cyan';
 				ctx.font = '20px Arial';
@@ -821,10 +828,9 @@ class Spring extends Tensor {
 	 * @param  {Node} node2
 	 * @param  {number} constant
 	 * @param  {number} equilibriumLength
-	 * @param  {TensorType} type
 	 */
-	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
-		super(node1, node2, type);
+	constructor(node1, node2, constant = 1, equilibriumLength = 0) {
+		super(node1, node2);
 		this.equilibriumLength = equilibriumLength;
 		this.constant = constant;
 		this.color='black';
@@ -888,10 +894,9 @@ class PullSpring extends Spring {
 	* @param  {Node} node2
 	* @param  {number} constant
 	* @param  {number} equilibriumLength
-	* @param  {TensorType} type
 	*/
-	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
-		super(node1, node2, constant, equilibriumLength, type);
+	constructor(node1, node2, constant = 1, equilibriumLength = 0) {
+		super(node1, node2, constant, equilibriumLength);
 		this.originalParent = undefined; // To remember that this can be set by linebreakers
 		this.addProperty(new Property(this,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
@@ -948,10 +953,9 @@ class Field extends Tensor {
  * @param  {Node} node1
  * @param  {Node} node2
  * @param  {number} constant
- * @param  {TensorType} type
  */
-	constructor(node1, node2, constant = 1, type = TensorType.FIELD) {
-		super(node1, node2, type);
+	constructor(node1, node2, constant = 1) {
+		super(node1, node2);
 		this.color='blue';
 		this.constant = constant;
 		this.addProperty(new Property(this,
@@ -1010,10 +1014,9 @@ class Absorber extends Tensor {
 	 * @param  {Node} node1
 	 * @param  {Node} node2
 	 * @param  {number} constant
-	 * @param  {TensorType} type
 	 */
-	constructor(node1, node2, constant = 1, type = TensorType.ABSORBER) {
-		super(node1, node2, type);
+	constructor(node1, node2, constant = 1) {
+		super(node1, node2);
 		this.color='green';
 		this.dampeningConstant = constant;
 		this.addProperty(new Property(this,
@@ -1072,10 +1075,9 @@ class DampenedSpring extends Spring {
 	 * @param  {Node} node2
 	 * @param  {number} constant
 	 * @param  {number} dampeningConstant
-	 * @param  {TensorType} type
 	 */
-	constructor(node1, node2, constant = 100, dampeningConstant = 100, type = TensorType.SPRING) {
-		super(node1, node2, constant, type);
+	constructor(node1, node2, constant = 100, dampeningConstant = 100) {
+		super(node1, node2, constant);
 		this.color='green';
 		this.dampeningConstant = dampeningConstant;
 		this.addProperty(new Property(this,
@@ -1144,7 +1146,7 @@ class PictureSpring extends Spring {
 	 * @param  {number} width
 	 */
 	constructor(node1, node2, constant = 1, pictureReference, width) {
-		super(node1, node2, constant, TensorType.SPRING);
+		super(node1, node2, constant);
 		this.pictureReference=pictureReference;
 		this.width=width;
 		this.stretch=1;

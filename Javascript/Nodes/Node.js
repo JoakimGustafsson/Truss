@@ -2,7 +2,8 @@
  * @class
  */
 class Node {
-	/**
+
+	/* *
 	 * @param  {Truss} parentTrussNode
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
@@ -11,7 +12,7 @@ class Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 * @param  {number} torqueConstant
-	 */
+	 * /
 	constructor(parentTrussNode, startPosition = new Position(0, 0), mass = 1, name = 'node',
 		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
 		this.name = name;
@@ -21,7 +22,7 @@ class Node {
 		this.properties = new PropertyList();
 		this.localPosition = new Position(startPosition.x, startPosition.y);
 		this.velocity = new Velocity(0, 0);
-		this._mass = mass;
+		// this._mass = mass;
 		if (mass) {
 			this.massRadius = Math.sqrt(mass);
 		} else {
@@ -29,18 +30,67 @@ class Node {
 		}
 		this.angle = 0;
 		this.turnrate = 0;
-		this.torqueConstant = torqueConstant;
+
+		// this.torqueConstant = torqueConstant;
 		this.velocityBasedTensors = [];
 		this.positionBasedTensors = [];
 		this.velocityLoss = velocityLoss;
 		this.positionFunction = positionFunction;
 		this.showFunction = showFunction;
 		this.isNode = true;
-		this.color = 'lightgrey';
+		// this.color = 'lightgrey';
 		this._pictureReference = '';
 		this._size = 1;
 		this.labelString = '';
-		this.labels = undefined;
+		this._labels = undefined;
+		// this.visibleLabel = universe.currentWorld.labels.findLabel('visible');
+		*/
+	/**
+	 * @param  {World} world
+	 * @param  {Truss} parentTrussNode
+	 * @param  {string} labels
+	 */
+	constructor(world, parentTrussNode, initialLabels) {
+		this.world = world;
+		this.name = 'node';
+		if (parentTrussNode) {
+			this.parentTrussNode= parentTrussNode;
+		}
+		this.properties = new PropertyList();
+		this.localPosition = new Position(0, 0);
+		this.velocity = new Velocity(0, 0);
+		/* this._mass = mass;
+		if (mass) {
+			this.massRadius = Math.sqrt(mass);
+		} else {
+			this.massRadius = 5;
+		} */
+
+		this.angle = 0;
+		this.turnrate = 0;
+
+		this.torqueConstant = 0;
+		this.velocityBasedTensors = [];
+		this.positionBasedTensors = [];
+		this.velocityLoss = 0.99;
+		this.positionFunction = undefined;
+		this.showFunction = undefined;
+		this.isNode = true;
+		// this.color = 'lightgrey';
+		this._pictureReference = '';
+		this._size = 1;
+		this.labelString = initialLabels;
+		this._labels = undefined;
+		// this.visibleLabel = universe.currentWorld.labels.findLabel('visible');
+
+		Object.defineProperty(this, 'labels', {
+			get: function() {
+				return this._labels;
+			},
+			set: function(value) {
+				this._labels=value;
+			},
+		});
 
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
@@ -73,6 +123,9 @@ class Node {
 
 		Object.defineProperty(this, 'mass', {
 			get: function() {
+				if (this._mass==undefined) {
+					return NaN;
+				}
 				return this._mass;
 			},
 			set: function(value) {
@@ -87,6 +140,9 @@ class Node {
 
 		Object.defineProperty(this, 'degree', {
 			get: function() {
+				if (this.angle==undefined) {
+					return 0;
+				}
 				return Math.round(this.angle * 180 / (Math.PI));
 			},
 			set: function(value) {
@@ -131,6 +187,9 @@ class Node {
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
+
+		this.mass=1;
+		this.labels = this.parentTrussNode.world.labels.parse(this.labelString);
 	}
 
 	/**
@@ -234,7 +293,7 @@ class Node {
 		representation.mass = this.mass;
 		representation.massRadius = this.massRadius;
 		representation.angle = this.angle;
-		representation.color = this.color;
+		// representation.color = this.color;
 		representation.pictureReference = this.pictureReference;
 		representation.size = this.size;
 		representation.turnrate = this.turnrate;
@@ -378,11 +437,11 @@ class Node {
 		if (!angle && this.torqueConstant) {
 			angle = NaN; // tensor.getTensorAngle(this) - this.angle;
 		}
-		if (tensor.tensorType == TensorType.ABSORBER) {
+		if (tensor.absorber) {
 			this.velocityBasedTensors.push(tensor);
-		} else {
-			this.positionBasedTensors.push(tensor);
 		}
+		this.positionBasedTensors.push(tensor);
+
 		return tensor;
 	};
 
@@ -402,12 +461,8 @@ class Node {
 			}
 			l.splice(a, 1);
 		}
-
-		if (tensor.tensorType == TensorType.ABSORBER) {
-			supportRemove(tensor, this.velocityBasedTensors);
-		} else {
-			supportRemove(tensor, this.positionBasedTensors);
-		}
+		supportRemove(tensor, this.velocityBasedTensors);
+		supportRemove(tensor, this.positionBasedTensors);
 	}
 
 	/**
@@ -552,6 +607,10 @@ class Node {
 	show(truss, time, graphicDebugLevel = 0) {
 		let view = truss.view;
 		let cxt = view.context;
+		if (!this.color) {
+			this.color='lightgrey';
+		}
+		cxt.strokeStyle = this.color;
 
 		if (graphicDebugLevel >= 3) {
 			if (this.pictureReference) {
@@ -601,7 +660,7 @@ class Node {
 					cxt.textAlign = 'left';
 					let textPos = this.getPosition();
 					view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
-						Math.trunc(this.getPosition().x * 100) / 100 + ')');
+						Math.trunc(this.getPosition().y * 100) / 100 + ')');
 				}
 			}
 		}

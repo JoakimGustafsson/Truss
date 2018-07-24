@@ -22,6 +22,7 @@ class TrussNode extends Node {
 		mass = 1, name = 'trussNode', TrussClass = Truss, ...args) {
 		super(parentTrussNode, startPosition, mass, name, ...args);
 
+		this.world=world;
 		this.element = document.createElement('div');
 		this.view= new View(viewSize, this);
 		this.canvas = document.createElement('canvas');
