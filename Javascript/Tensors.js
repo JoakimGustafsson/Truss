@@ -57,23 +57,6 @@ class Tensor {
 			},
 		});
 
-		// this.addProperty(new Property(this,
-		//	'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
-		//	'The angle of the node.'));
-		/*
-		this.addProperty(new Property(this,
-			'tensorType', 'tensorType', 'Type', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The links type number.'));
-		this.addProperty(new Property(this,
-			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the start node.'));
-		this.addProperty(new Property(this,
-			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the end node.'));
-		this.addProperty(new Property(this,
-			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The colour of the tensor.'));
-			 */
 		this.addProperty(new Property(this,
 			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
@@ -712,7 +695,7 @@ class Tensor {
 		if (this.isGhost()) {
 			return;
 		}
-		if ( ( ((graphicDebugLevel >= 4) || (graphicDebugLevel==2)) && (this.tensorType != TensorType.FIELD)) ||
+		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||
 			(graphicDebugLevel >= 6)) {
 			this.highLight(ctx);
 			ctx.beginPath();

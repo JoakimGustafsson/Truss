@@ -62,13 +62,15 @@ class BannerNode extends Node {
 			'mass': 3,
 		}));
 
-		this.leftBand = truss.addTensor(new Tensor(this.leftTopNode, this.nail, 'pullspring', {
+		this.leftBand = truss.addTensor(new Tensor(this.leftTopNode, this.nail, 'pullspring absorber', {
 			'equilibriumLength': 6,
+			'dampeningConstant': 10,
 			'constant': 5000,
 		}));
 
-		this.rightBand = truss.addTensor(new Tensor(this.rightTopNode, this.nail, 'pullspring', {
+		this.rightBand = truss.addTensor(new Tensor(this.rightTopNode, this.nail, 'pullspring absorber', {
 			'equilibriumLength': 6,
+			'dampeningConstant': 10,
 			'constant': 5000,
 		}));
 

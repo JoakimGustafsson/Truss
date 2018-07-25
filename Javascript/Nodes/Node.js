@@ -186,7 +186,7 @@ class Node {
 	generateconnectionHTML() {
 		let div = document.createElement('div');
 
-		for (let tensor of [...this.velocityBasedTensors, ...this.positionBasedTensors]) {
+		for (let tensor of this.positionBasedTensors) {
 			let tensorButton = tensor.generateconnectionHTML(this);
 			div.appendChild(tensorButton);
 

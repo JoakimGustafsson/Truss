@@ -238,20 +238,32 @@
 					connectionTensor = universe.currentNode.truss.addTensor(new Spring(universe.selectedObject, universe.currentNode.selector, 100));
 				} else if (value == 'DampenedSpring') {
 					connectionTensor = universe.currentNode.truss.addTensor(
-						new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber added', {
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber', {
 							'equilibriumLength': 6,
-							'dampeningConstant': 10,
+							'dampeningConstant': 1,
 							'constant': 100,
-							'color': 'red',
+							'color': 'white',
 						}));
 				} else if (value == 'PullSpring') {
-					connectionTensor = universe.currentNode.truss.addTensor(new PullSpring(universe.selectedObject,  universe.currentNode.selector, 100));
+					connectionTensor = universe.currentNode.truss.addTensor(
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'pullspring', {
+							'equilibriumLength': 6,
+							'constant': 100,
+						}));
+						// new PullSpring(universe.selectedObject,  universe.currentNode.selector, 100));
 				} else if (value == 'Absorber') {
-					connectionTensor = universe.currentNode.truss.addTensor(new Absorber(universe.selectedObject,  universe.currentNode.selector, 1));
+					connectionTensor = universe.currentNode.truss.addTensor(
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
+							'dampeningConstant': 1,
+						}));
+				// connectionTensor = universe.currentNode.truss.addTensor(new
+				// Absorber(universe.selectedObject,  universe.currentNode.selector, 1));
 				} else if (value == 'Field') {
-					connectionTensor = universe.currentNode.truss.addTensor(new Field(universe.selectedObject,  universe.currentNode.selector, 0.0001));
-				} else if (value == 'PictureSpring') {
-					connectionTensor = universe.currentNode.truss.addTensor(new PictureSpring(universe.selectedObject,  universe.currentNode.selector, 100, 'facade.jpg', 1));
+					connectionTensor = universe.currentNode.truss.addTensor(
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'field', {
+							'constant': 0.0001,
+						}));
+					// new Field(universe.selectedObject,  universe.currentNode.selector, 0.0001));
 				}
 				if (!connectionEventListener) {
 					connectionEventListener = document.addEventListener('selectionEvent', function (e) {

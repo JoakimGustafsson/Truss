@@ -30,7 +30,7 @@ class Truss {
 		this.sensorNodes = [];
 		this.nodes = [];
 
-		this.tensors = [];
+		this.tensors = parentTrussNode.world.labels.findLabel('tensor');
 		this.positionBasedTensors = [];
 		this.velocityBasedTensors = [];
 
@@ -71,7 +71,7 @@ class Truss {
 		};
 
 		representationObject.nodes = serializeList(this.nodes, superNodeList);
-		representationObject.tensors = serializeList(this.tensors, superTensorList);
+		representationObject.tensors = serializeList(this.tensors.getTensors(), superTensorList);
 
 		representationObject.sensorNodes = serializeList(this.sensorNodes, superNodeList);
 		representationObject.positionBasedTensors = serializeList(this.positionBasedTensors, superTensorList);
@@ -128,7 +128,7 @@ class Truss {
 	 * @return {Array}
 	 */
 	makeTensorList() {
-		return this.tensors;
+		return this.tensors.getTensors();
 	}
 
 	/**
@@ -354,7 +354,7 @@ class Truss {
 				closest = node;
 			}
 		}
-		for (let tensor of this.tensors) {
+		for (let tensor of this.tensors.getTensors()) {
 			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
 				lowestDistance = Position.distance(position, tensor.getPosition());
 				closest = tensor;
@@ -374,8 +374,8 @@ class Truss {
 	show(time, graphicDebugLevel) {
 		// this.view.context.drawimage(); xxx
 
-		for (let i = 0; i < this.tensors.length; i++) {
-			this.tensors[i].show(this, graphicDebugLevel);
+		for (let tensor of this.tensors.getTensors()) {
+			tensor.show(this, graphicDebugLevel);
 		}
 
 		for (let i = 0; i < this.nodes.length; i++) {

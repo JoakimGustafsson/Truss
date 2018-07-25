@@ -337,6 +337,5 @@ function createConfigurationArea(id) {
 		createOption(nodeSelect, 'PullSpring');
 		createOption(nodeSelect, 'Absorber');
 		createOption(nodeSelect, 'Field');
-		createOption(nodeSelect, 'PictureSpring');
 	}
 }
