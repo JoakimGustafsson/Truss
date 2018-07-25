@@ -1,21 +1,14 @@
 /**
- *
-
-const TensorType = {
-	UNDEFINED: 0,
-	SPRING: 1,
-	ABSORBER: 2,
-	FIELD: 3,
-};
-/**
  * Tensor class
  */
 class Tensor {
 	/**
 	 * @param  {Node} node1
 	 * @param  {Node} node2
+	 * @param  {string} initialLabels
+	 * @param  {object} valueObject
 	 */
-	constructor(node1, node2) {
+	constructor(node1, node2, initialLabels='', valueObject={}) {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.properties = new PropertyList();
@@ -24,7 +17,7 @@ class Tensor {
 		this.ghost = false;
 		this.isTensor=true;
 		this.color='white';
-		this.labelString='';
+		this.labelString=initialLabels;
 		this.labels=undefined;
 
 
@@ -84,6 +77,14 @@ class Tensor {
 		this.addProperty(new Property(this,
 			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
+
+		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
+
+		if (valueObject) {
+			for (let [key, value] of Object.entries(valueObject)) {
+				this[key]=value;
+			}
+		}
 	}
 
 	/**

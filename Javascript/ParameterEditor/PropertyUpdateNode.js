@@ -7,14 +7,16 @@ class PropertyUpdateNode extends SensorNode {
 	/** This node is used to ensure that the property editing window 'element' is updated with the selected
 	 * objects real time property values.
 	 * @constructor
+	 * @param {World} world
 	 * @param {Truss} parentTrussNode
+	 * @param {string} initialLabels
 	 * @param {Element} element - The HTML element that should display the edit area
-	 * @param {string} name - The name of the node.
 	 */
-	constructor(parentTrussNode, element, name = 'PropertyUpdateNode') {
-		super(parentTrussNode, new Position(0, 0), NaN, name);
+	constructor(world, parentTrussNode, initialLabels, element) {
+		super(world, parentTrussNode, initialLabels);
 		this.element=element;
 		let _this = this;
+		this.name = 'PropertyUpdateNode';
 		this.eventListenerFunction = function(e) {
 			if (universe.currentNode==_this.parentTrussNode) {
 				_this.showPropertyElements(e);

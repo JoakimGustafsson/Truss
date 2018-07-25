@@ -8,7 +8,7 @@ class BannerNode extends Node {
 	 * @param  {HTMLElement} element
 	 */
 	constructor(truss, element) {
-		super();
+		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner');
 		this.name = 'bannerNode';
 		this.element = element;
 	}
@@ -29,44 +29,83 @@ class BannerNode extends Node {
 			topScreenPos = new Position(truss.view.screenSize.x - screenWidth, 0);
 		}
 
-		this.nail = truss.addNode(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2), NaN, 'nail', 0, 0, 0.99));
-		this.leftTopNode = truss.addNode(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x, topScreenPos.y), 1, 'leftTop', 0, 0, 0.99));
-		this.rightTopNode = truss.addNode(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y), 1, 'rightTop', 0, 0, 0.99));
-		this.bannerGravityWell = truss.addNode(new Node(truss,
-			truss.view.worldPosition(screenWidth / 2, screenHeight * 1000), NaN, 'bannerGravityWell', 0, 0, 0.99));
+		this.nail = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner', {
+			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
+			'name': 'nail',
+			'mass': NaN,
+		}));
 
-		this.leftBottomNode = truss.addNode(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight), 3, 'leftBottom', 0, 0, 0.99));
-		this.leftBottomNode.addLabel('moveable');
+		this.leftTopNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
+			'name': 'leftTop',
+			'mass': 1,
+		}));
+		this.rightTopNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
+			'name': 'rightTop',
+			'mass': 1,
+		}));
+		this.bannerGravityWell = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner', {
+			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
+			'name': 'bannerGravityWell',
+		}));
 
-		this.rightBottomNode = truss.addNode(new Node(truss,
-			truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight), 3, 'rightBottom', 0, 0, 0.99));
-		this.rightBottomNode.addLabel('moveable');
+		this.leftBottomNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight),
+			'name': 'leftBottomNode',
+			'mass': 3,
+		}));
 
-		this.leftBottomField = truss.addTensor(new PullSpring(this.leftBottomNode, this.bannerGravityWell, 0.1));
-		this.leftBottomField.equilibriumLength = 0;
-		this.leftBottomField.color = 'transparent';
-		this.rightBottomField = truss.addTensor(new PullSpring(this.rightBottomNode, this.bannerGravityWell, 0.1));
-		this.rightBottomField.equilibriumLength = 0;
-		this.rightBottomField.color = 'transparent';
+		this.rightBottomNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight),
+			'name': 'rightBottomNode',
+			'mass': 3,
+		}));
 
-		this.leftBand = truss.addTensor(new DampenedSpring(this.leftTopNode, this.nail, 500, 5));
+		this.leftBand = truss.addTensor(new Tensor(this.leftTopNode, this.nail, 'pullspring', {
+			'equilibriumLength': 6,
+			'constant': 5000,
+		}));
 
-		this.leftBand.addLabel('pullspring');
+		this.rightBand = truss.addTensor(new Tensor(this.rightTopNode, this.nail, 'pullspring', {
+			'equilibriumLength': 6,
+			'constant': 5000,
+		}));
 
-		this.rightBand = truss.addTensor(new DampenedSpring(this.nail, this.rightTopNode, 500, 5));
-		this.rightBand.labels =
-			universe.currentWorld.labels.parse('pullspring', this.rightBand);
-		this.topBand = truss.addTensor(new Spring(this.leftTopNode, this.rightTopNode, 3000));
+		this.topBand = truss.addTensor(new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber', {
+			'equilibriumLength': 18,
+			'dampeningConstant': 10,
+			'constant': 3000,
+		}));
 
-		this.topBand.color = 'transparent';
-		this.leftSpring = truss.addTensor(new DampenedSpring(this.leftTopNode, this.leftBottomNode, 200, 10));
-		this.leftSpring.color = 'transparent';
-		this.rightSpring = truss.addTensor(new DampenedSpring(this.rightTopNode, this.rightBottomNode, 200, 10));
-		this.rightSpring.color = 'transparent';
+
+		this.leftSpring = truss.addTensor(new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber', {
+			'equilibriumLength': 6,
+			'dampeningConstant': 10,
+			'constant': 600,
+		}));
+
+		this.rightSpring = truss.addTensor(new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber', {
+			'equilibriumLength': 6,
+			'dampeningConstant': 10,
+			'constant': 600,
+			'color': 'red',
+		}));
+
+		this.leftBottomField = truss.addTensor(new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring', {
+			'equilibriumLength': 0,
+			'dampeningConstant': 10,
+			'constant': 0.1,
+			'color': 'red',
+		}));
+
+		this.rightBottomField = truss.addTensor(new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring', {
+			'equilibriumLength': 0,
+			'dampeningConstant': 10,
+			'constant': 0.1,
+			'color': 'red',
+		}));
+
 		this.visible = true;
 		return this.nail;
 	}

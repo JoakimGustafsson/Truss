@@ -10,16 +10,12 @@ let keyState = {};
  */
 class SensorNode extends Node {
 	/**
-	 * @param  {TrussNode} trussNode
-	 * @param  {Position} startPosition
-	 * @param  {number} mass
-	 * @param  {string} name
-	 * @param  {Function} positionFunction
-	 * @param  {Function} showFunction
-	 * @param  {number} velocityLoss
+	 * @param {World} world
+	 * @param {Truss} parentTrussNode
+	 * @param {string} initialLabels
 	 */
-	constructor(trussNode, startPosition, mass = 0.001, name, positionFunction, showFunction, velocityLoss) {
-		super(trussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(world, parentTrussNode, initialLabels) {
+		super(world, parentTrussNode, initialLabels);
 		this.sensor = true;
 	}
 }
@@ -498,10 +494,12 @@ class BounceSensorNode extends SensorNode {
 class Selector extends SensorNode {
 	/**
 	 * This class detects when an object bounces of a tensor or leaves it at the end.
+	 * @param {World} world
 	 * @param {TrussNode} trussNode
+	 * @param {string} initialLabels
 	 */
-	constructor(trussNode) {
-		super(trussNode, undefined, undefined, 'SelectorNode');
+	constructor(world, trussNode, initialLabels = '') {
+		super(world, trussNode, initialLabels+' selector');
 		this.lastPointedOn;
 		this.wasPressed=false;
 		this.cursorPosition = new Position(0, 0);

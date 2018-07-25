@@ -81,7 +81,9 @@
 				// let latestNode = new TrussNode(twoWorld, "Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				// latestNode.truss.initiate();
 
-				let latestNode = new TrussNode(latestWorld, "Prime", new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode", PerformanceTruss);
+				let latestNode = new TrussNode(latestWorld, undefined, 'truss', {
+					'name': 'MainNode',
+				},  new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode", PerformanceTruss);
 				latestNode.truss.initiate();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
@@ -101,8 +103,7 @@
 
 
 				universe.setCurrentWorld(latestWorld);
-				
-				latestNode.addLabel('truss');
+				// latestNode.addLabel('truss');
 
 				// universe.showUniverse(document.getElementById('mainArea'));
 
@@ -236,7 +237,13 @@
 				if (value == 'Spring') {
 					connectionTensor = universe.currentNode.truss.addTensor(new Spring(universe.selectedObject, universe.currentNode.selector, 100));
 				} else if (value == 'DampenedSpring') {
-					connectionTensor = universe.currentNode.truss.addTensor(new DampenedSpring(universe.selectedObject,  universe.currentNode.selector, 100));
+					connectionTensor = universe.currentNode.truss.addTensor(
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber added', {
+							'equilibriumLength': 6,
+							'dampeningConstant': 10,
+							'constant': 100,
+							'color': 'red',
+						}));
 				} else if (value == 'PullSpring') {
 					connectionTensor = universe.currentNode.truss.addTensor(new PullSpring(universe.selectedObject,  universe.currentNode.selector, 100));
 				} else if (value == 'Absorber') {

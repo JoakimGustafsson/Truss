@@ -7,6 +7,8 @@ class TrussNode extends Node {
 	/** Create a node that can contain a Truss within itself.
 	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
+	 * @param  {Truss} initialLabels
+	 * @param  {Object} valueObject
 	 * @param  {Position} startPosition
 	 * @param  {Position} viewSize
 	 * @param  {number} timestep
@@ -18,20 +20,22 @@ class TrussNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(world, parentTrussNode, startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
+	constructor(world, parentTrussNode, initialLabels, valueObject,
+		startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
 		mass = 1, name = 'trussNode', TrussClass = Truss, ...args) {
-		super(parentTrussNode, startPosition, mass, name, ...args);
+		super(world, parentTrussNode, initialLabels, valueObject, startPosition, mass, name, ...args);
 
 		this.world=world;
 		this.element = document.createElement('div');
 		this.view= new View(viewSize, this);
 		this.canvas = document.createElement('canvas');
 		this.selector=this;
-		if (parentTrussNode) {
-			this.handleCanvas();
-			this.truss = new TrussClass(this, this.view, timestep, world);
-			this.setView();
+		if (!parentTrussNode) {
+			this.parentTrussNode=this;
 		}
+		this.handleCanvas();
+		this.truss = new TrussClass(this, this.view, timestep, world);
+		this.setView();
 
 		Object.defineProperty(this, 'fps', {
 			get: function() {

@@ -2,7 +2,6 @@
  * @class
  */
 class Node {
-
 	/* *
 	 * @param  {Truss} parentTrussNode
 	 * @param  {Position} startPosition
@@ -48,9 +47,10 @@ class Node {
 	/**
 	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
-	 * @param  {string} labels
+	 * @param  {string} initialLabels
+	 * @param  {object} valueObject
 	 */
-	constructor(world, parentTrussNode, initialLabels) {
+	constructor(world, parentTrussNode, initialLabels, valueObject) {
 		this.world = world;
 		this.name = 'node';
 		if (parentTrussNode) {
@@ -149,36 +149,6 @@ class Node {
 				this.angle = value * Math.PI / 180;
 			},
 		});
-		/*
-		this.addProperty(new Property(this,
-			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The name of the node.'));
-
-		this.addProperty(new Property(this,
-			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The mass of the node in Kilograms.'));
-
-		this.addProperty(new Property(this,
-			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The position counted from the upper left corner.'));
-		this.addProperty(new Property(this,
-			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle of the node.'));
-		this.addProperty(new Property(this,
-			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How stiff the node is with respect to attempts angle differences.'));
-		this.addProperty(new Property(this,
-			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).'));
-		this.addProperty(new Property(this,
-			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The colour of the node.'));
-		this.addProperty(new Property(this,
-			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The picture filename.'));
-		this.addProperty(new Property(this,
-			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The picture size')); */
 
 		this.addProperty(new Property(this,
 			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
@@ -188,8 +158,13 @@ class Node {
 			this.createHTMLPicture(this.pictureReference);
 		}
 
-		this.mass=1;
-		this.labels = this.parentTrussNode.world.labels.parse(this.labelString);
+		this.labels = this.world.labels.parse(this.labelString, this);
+
+		if (valueObject) {
+			for (let [key, value] of Object.entries(valueObject)) {
+				this[key]=value;
+			}
+		}
 	}
 
 	/**

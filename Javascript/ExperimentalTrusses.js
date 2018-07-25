@@ -450,13 +450,15 @@ class PerformanceTruss extends Truss {
 	initiate() {
 		let governedNode=this.parentTrussNode.parentTrussNode;
 		let parent = this.parentTrussNode;
+		let world = parent.world;
 		let governedTruss=governedNode.truss;
 
-		parent.selector = this.addNode(new Selector(parent));
+		parent.selector = this.addNode(new Selector(parent.world, parent));
 
 		for (let row=1; row < 10; row++) {
 			for (let column=1; column < 10; column++) {
-				let x = this.addNode(new Node(parent, new Position(row*3, column*3), 1));
+				let x = this.addNode(new Node(world, parent, 'turngridnode node'));
+				x.localPosition= new Position(row*3, column*3);
 				x.pictureReference='trussicon.png';
 				x.pictureHeight=600;
 				x.pictureWidth=600;

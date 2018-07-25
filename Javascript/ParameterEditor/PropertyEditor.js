@@ -14,7 +14,11 @@ class PropertyEditor {
 		this.parentTrussNode = parentTrussNode;
 		this.parentTrussNode.truss.element.appendChild(outerElement);
 		this.bannerNode = new BannerNode(this.parentTrussNode, outerElement);
-		this.PropertyUpdateNode = new PropertyUpdateNode(this.parentTrussNode, propertyArea);
+		this.PropertyUpdateNode = new PropertyUpdateNode(
+			this.parentTrussNode.world,
+			this.parentTrussNode,
+			'propertyupdatenode',
+			propertyArea);
 		let _this = this;
 		this.eventListenerFunction = function(e) {
 			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.truss==_this.parentTrussNode.truss)) {
