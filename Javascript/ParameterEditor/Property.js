@@ -443,7 +443,10 @@ class Property {
 			}
 			for (let [key, value] of Object.entries(propObject)) {
 				_this.parentNode.properties.addProperty(value.propertyObject, value.defaultValue);
-				// _this.parentNode[value.propertyObject.propertyName]=value.defaultValue;
+				if (!_this.parentNode[value.propertyObject.propertyName] ||
+					_this.parentNode[value.propertyObject.propertyName]==NaN) {
+					_this.parentNode[value.propertyObject.propertyName]=value.defaultValue;
+				}
 			}
 
 			/*

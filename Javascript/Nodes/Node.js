@@ -2,48 +2,6 @@
  * @class
  */
 class Node {
-	/* *
-	 * @param  {Truss} parentTrussNode
-	 * @param  {Position} startPosition
-	 * @param  {number} mass
-	 * @param  {string} name
-	 * @param  {Function} positionFunction
-	 * @param  {Function} showFunction
-	 * @param  {number} velocityLoss
-	 * @param  {number} torqueConstant
-	 * /
-	constructor(parentTrussNode, startPosition = new Position(0, 0), mass = 1, name = 'node',
-		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
-		this.name = name;
-		if (parentTrussNode) {
-			this.parentTrussNode= parentTrussNode;
-		}
-		this.properties = new PropertyList();
-		this.localPosition = new Position(startPosition.x, startPosition.y);
-		this.velocity = new Velocity(0, 0);
-		// this._mass = mass;
-		if (mass) {
-			this.massRadius = Math.sqrt(mass);
-		} else {
-			this.massRadius = 5;
-		}
-		this.angle = 0;
-		this.turnrate = 0;
-
-		// this.torqueConstant = torqueConstant;
-		this.velocityBasedTensors = [];
-		this.positionBasedTensors = [];
-		this.velocityLoss = velocityLoss;
-		this.positionFunction = positionFunction;
-		this.showFunction = showFunction;
-		this.isNode = true;
-		// this.color = 'lightgrey';
-		this._pictureReference = '';
-		this._size = 1;
-		this.labelString = '';
-		this._labels = undefined;
-		// this.visibleLabel = universe.currentWorld.labels.findLabel('visible');
-		*/
 	/**
 	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
@@ -59,12 +17,6 @@ class Node {
 		this.properties = new PropertyList();
 		this.localPosition = new Position(0, 0);
 		this.velocity = new Velocity(0, 0);
-		/* this._mass = mass;
-		if (mass) {
-			this.massRadius = Math.sqrt(mass);
-		} else {
-			this.massRadius = 5;
-		} */
 
 		this.angle = 0;
 		this.turnrate = 0;
@@ -372,6 +324,12 @@ class Node {
 	copyPosition(position) {
 		this.localPosition.x = position.x;
 		this.localPosition.y = position.y;
+		if (universe.currentNode.gridSize && universe.currentNode.gridSize!='0') {
+			let x=position.x + universe.currentNode.gridSize/2;
+			let y=position.y + universe.currentNode.gridSize/2;
+			this.localPosition.x= x - x%universe.currentNode.gridSize;
+			this.localPosition.y= y - y%universe.currentNode.gridSize;
+		}
 	};
 
 	/** Assign a position object to the node. Also consider use of copyPosition() instead.
@@ -590,53 +548,51 @@ class Node {
 		if (graphicDebugLevel >= 3) {
 			if (this.pictureReference) {
 				this.pictureShow(truss, time);
-				// } else
-				// {
-				if (view.inside(this.getPosition())) {
-					this.highLight(cxt);
+			}
+			if (view.inside(this.getPosition())) {
+				this.highLight(cxt);
+				cxt.beginPath();
+				if (this.mass) {
+					view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+				} else {
+					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
+						Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
+					view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
+						Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
+				}
+				cxt.stroke();
+			}
+
+			if (graphicDebugLevel >= 6) {
+				cxt.beginPath();
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
+					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
+				cxt.stroke();
+
+				cxt.strokeStyle = 'lightblue';
+				cxt.beginPath();
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
+				cxt.stroke();
+
+				if (graphicDebugLevel >= 7) {
+					cxt.strokeStyle = 'red';
 					cxt.beginPath();
-					if (this.mass) {
-						view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
-					} else {
-						view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
-							Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
-						view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
-							Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
+					if (this.acceleration) {
+						view.drawLine(this.getPosition(),
+							Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
 					}
 					cxt.stroke();
 				}
+			}
 
-				if (graphicDebugLevel >= 6) {
-					cxt.beginPath();
-					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-						new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
-					cxt.stroke();
-
-					cxt.strokeStyle = 'lightblue';
-					cxt.beginPath();
-					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
-					cxt.stroke();
-
-					if (graphicDebugLevel >= 7) {
-						cxt.strokeStyle = 'red';
-						cxt.beginPath();
-						if (this.acceleration) {
-							view.drawLine(this.getPosition(),
-								Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
-						}
-						cxt.stroke();
-					}
-				}
-
-				if (graphicDebugLevel >= 10) {
-					cxt.beginPath();
-					cxt.fillStyle = this.color;
-					cxt.font = '10px Arial';
-					cxt.textAlign = 'left';
-					let textPos = this.getPosition();
-					view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
+			if (graphicDebugLevel >= 10) {
+				cxt.beginPath();
+				cxt.fillStyle = this.color;
+				cxt.font = '10px Arial';
+				cxt.textAlign = 'left';
+				let textPos = this.getPosition();
+				view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
 						Math.trunc(this.getPosition().y * 100) / 100 + ')');
-				}
 			}
 		}
 		if (graphicDebugLevel >= 1) {

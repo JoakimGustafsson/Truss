@@ -9,72 +9,76 @@ class Labels {
 
 		this.massProperty = new Property(undefined,
 			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The mass of the node in Kilograms.', NaN);
+			'The mass of the node in Kilograms.');
 		this.nameProperty = new Property(undefined,
 			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The name of the node.', 'Node');
+			'The name of the node.');
 		this.constantProperty = new Property(undefined,
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The tensor constant.', 1);
+			'The tensor constant.');
 		this.absorberProperty = new Property(undefined,
 			'dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The absorb constant.', 1);
+			'The absorb constant.');
 		this.positionProperty = new Property(undefined,
 			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The position counted from the upper left corner.', new Position(1, 1));
+			'The position counted from the upper left corner.');
 		this.velocityProperty = new Property(undefined,
 			'velocity', 'velocity', 'velocityelocity', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The velocity.', new Position(1, 1));
+			'The velocity.');
 		this.angleProperty = new Property(undefined,
 			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle of the node.', 0);
+			'The angle of the node.');
 		this.torqueConstantProperty = new Property(undefined,
 			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How stiff the node is with respect to attempts angle differences.', 1);
+			'How stiff the node is with respect to attempts angle differences.');
 		this.nodeFrictionProperty = new Property(undefined,
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).', 0.99);
+			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
 		this.colorProperty = new Property(undefined,
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The colour of the node.', 'lightgrey');
+			'The colour of the node.');
 		this.pictureProperty = new Property(undefined,
 			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The picture filename.', 'default.jpg');
+			'The picture filename.');
 		this.sizeProperty = new Property(undefined,
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The picture size', 1);
+			'The picture size');
 		this.equilibriumLength = new Property(undefined,
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How long should the relaxed spring be.', 1);
+			'How long should the relaxed spring be.');
 		this.degree1 = new Property(undefined,
 			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the start node.', 0);
+			'The angle the node connects to the start node.');
 		this.degree2 = new Property(undefined,
 			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the end node.', 0);
+			'The angle the node connects to the end node.');
 
 
 		this.screenSize = new Property(undefined,
 			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The size of the displayed screen in pixels.', new Position(200, 200));
+			'The size of the displayed screen in pixels.');
 
 		this.worldSize = new Property(undefined,
 			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The size of the displayed worldview in that worlds measurement.', new Position(20, 20));
+			'The size of the displayed worldview in that worlds measurement.');
 
 		this.setWorldOffset = new Property(undefined,
 			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The world coordinates of the upper left corner.', new Position(0, 0));
+			'The world coordinates of the upper left corner.');
 
 		this.fpsTarget = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.', 60);
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
 		this.fps = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.', 60);
+			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
 		this.visibilityProperty = new Property(undefined,
 			'visible', 'visible', 'Visible', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'Should this be visible on the screen.', 1);
+			'Should this be visible on the screen.');
+
+		this.snapGridProperty = new Property(undefined,
+			'gridSize', 'gridSize', 'Align to grid', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'Aligning all new positions to this grid. (0 for no alignment)');
 
 
 		let nodeLabel = this.addLabel('node', [], {
@@ -97,7 +101,7 @@ class Labels {
 		let springLabel = this.addLabel('spring', [positionTensorLabel], {
 			'equilibriumLength': 1,
 		});
-		let fieldLabel = this.addLabel('fieldspring', [positionTensorLabel], {});
+		let fieldLabel = this.addLabel('field', [positionTensorLabel], {});
 		let absorbLabel = this.addLabel('absorber', [tensorLabel], {
 			'absorberProperty': 1,
 			'visibilityProperty': 0,
@@ -113,6 +117,7 @@ class Labels {
 		let debugtensor = this.addLabel('debugtensor', [], {
 			'degree1': 1,
 			'degree2': 1,
+			'velocityProperty': undefined,
 		});
 		let colorLabel = this.addLabel('color', [], {
 			'colorProperty': 'red',
@@ -133,6 +138,7 @@ class Labels {
 			'setWorldOffset': new Position(0, 0),
 			'fpsTarget': 60,
 			'fps': 60,
+			'snapGridProperty': 0,
 		});
 	}
 

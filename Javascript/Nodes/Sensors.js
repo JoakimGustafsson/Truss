@@ -539,7 +539,7 @@ class Selector extends SensorNode {
 		this.cursorPosition = truss.view.worldPositionWithOffset(myX, myY);
 		let closest = truss.getClosestObject(this.cursorPosition, 20*truss.view.getDistanceMultiplier(), this);
 
-		if (!mouseSet) {
+		if (!mouseSet && !universe.newNode) {
 			if (!closest) {
 				if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
 					this.lastPointedOn.setHighlight(0);
@@ -555,6 +555,7 @@ class Selector extends SensorNode {
 				}
 			}
 		} else if (!this.wasPressed && mouseSet) { // Mouse was just pressed
+			universe.newNode= undefined;
 			if (universe.selectedObject!=closest) {
 				if (universe.selectedObject) {
 					universe.selectedObject.setHighlight(0);
@@ -575,7 +576,7 @@ class Selector extends SensorNode {
 				});
 				this.parentTrussNode.element.dispatchEvent(event);
 			}
-		} else if (mouseSet) { // Mouse is continually pressed
+		} else if (mouseSet || universe.newNode) { // Mouse is continually pressed
 			if (universe.selectedObject && universe.selectedObject.isNode) {
 				universe.selectedObject.resetVelocity();
 				universe.selectedObject.copyPosition(this.cursorPosition);

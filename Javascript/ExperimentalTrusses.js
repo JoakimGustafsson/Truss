@@ -457,12 +457,15 @@ class PerformanceTruss extends Truss {
 
 		for (let row=1; row < 10; row++) {
 			for (let column=1; column < 10; column++) {
-				let x = this.addNode(new Node(world, parent, 'turngridnode node'));
-				x.localPosition= new Position(row*3, column*3);
-				x.pictureReference='trussicon.png';
-				x.pictureHeight=600;
-				x.pictureWidth=600;
-				x.turnrate=0.04;
+				let x = this.addNode(new Node(world, parent, 'turngridnode node', {
+					'name': 'Node '+column+' '+row,
+					'localPosition': new Position(column*3, row*3),
+					'pictureReference': 'trussicon.png',
+					'pictureHeight': 600,
+					'pictureWidth': 600,
+					'turnrate': 0.04,
+				}));
+
 				protagonist=x;
 			}
 		}

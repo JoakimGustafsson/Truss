@@ -54,12 +54,14 @@ class BannerNode extends Node {
 			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight),
 			'name': 'leftBottomNode',
 			'mass': 3,
+			'color': 'transparent',
 		}));
 
 		this.rightBottomNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight),
 			'name': 'rightBottomNode',
 			'mass': 3,
+			'color': 'transparent',
 		}));
 
 		this.leftBand = truss.addTensor(new Tensor(this.leftTopNode, this.nail, 'pullspring absorber', {
@@ -85,27 +87,28 @@ class BannerNode extends Node {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 600,
+			'color': 'transparent',
 		}));
 
 		this.rightSpring = truss.addTensor(new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 600,
-			'color': 'red',
+			'color': 'transparent',
 		}));
 
 		this.leftBottomField = truss.addTensor(new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring', {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
-			'color': 'red',
+			'color': 'transparent',
 		}));
 
 		this.rightBottomField = truss.addTensor(new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring', {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
-			'color': 'red',
+			'color': 'transparent',
 		}));
 
 		this.visible = true;

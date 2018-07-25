@@ -234,6 +234,28 @@ class Universe {
 	}
 
 	/**
+	 * @param {Object} newSelectedObject
+	 */
+	select(newSelectedObject) {
+		let previousSelectedObject = this.selectedObject;
+		this.selectedObject = newSelectedObject;
+		let event = new CustomEvent('selectionEvent', {
+			detail: {
+				'selectedObject': this.selectedObject,
+				'previousSelectedObject': previousSelectedObject,
+				'truss': undefined,
+			},
+			bubbles: true,
+			cancelable: true,
+		});
+		if (!this.currentNode.element) {
+			alert('No element in currentNode for selection purposes.');
+			return;
+		}
+		this.currentNode.element.dispatchEvent(event);
+	}
+
+	/**
 	 * @return {World}
 	 */
 	pop() {
