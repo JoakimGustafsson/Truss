@@ -1,36 +1,31 @@
 /**
  * Tensor class
+ * @class
+ * @extends StoreableObject
  */
-class Tensor {
+class Tensor extends StoreableObject {
 	/**
 	 * @param  {Node} node1
 	 * @param  {Node} node2
 	 * @param  {string} initialLabels
 	 * @param  {object} valueObject
 	 */
-	constructor(node1, node2, initialLabels='', valueObject={}) {
+	constructor(node1, node2, initialLabels, valueObject) {
+		super(node1.world, initialLabels, valueObject);
 		this.node1 = node1;
 		this.node2 = node2;
-		this.properties = new PropertyList();
+
+		this.collideDistanceMapping = {};
+		this.force = new Force(0, 0);
+
+		/* this.properties = new PropertyList();
 		this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
 		this.ghost = false;
 		this.isTensor=true;
 		this.color='white';
 		this.labelString=initialLabels;
-		this.labels=undefined;
-
-
-		Object.defineProperty(this, 'labels', {
-			get: function() {
-				return this._labels;
-			},
-			set: function(value) {
-				this._labels=value;
-				this.absorber = (0 >= this._labels.indexOf(universe.currentWorld.labels.findLabel('absorblabel')));
-			},
-		});
-
+		this.visible=true;*/
 
 		Object.defineProperty(this, 'degree2', {
 			get: function() {
@@ -57,17 +52,14 @@ class Tensor {
 			},
 		});
 
-		this.addProperty(new Property(this,
-			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
-			'The comma-separated list of labels'));
+		this.initialRefresh();
+	}
 
-		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
-
-		if (valueObject) {
-			for (let [key, value] of Object.entries(valueObject)) {
-				this[key]=value;
-			}
-		}
+	/**
+	 * @param {Labels} value
+	 */
+	labelChange(value) {
+		this.absorber = (0 >= this.labels.indexOf(universe.currentWorld.labels.findLabel('absorblabel')));
 	}
 
 	/**
@@ -696,7 +688,7 @@ class Tensor {
 		let ctx = view.context;
 		let node1 = this.node1;
 		let node2 = this.node2;
-		if (this.isGhost()) {
+		if (this.isGhost() || !this.visible || this.visible=='0') {
 			return;
 		}
 		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||

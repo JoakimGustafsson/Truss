@@ -211,6 +211,10 @@ div.tab button.active {
 	overflow: hidden;
 }
 
+.activebutton {
+	background-color: red;
+}
+
 .configareaouter {
 	position: absolute;
 	top: 0px;

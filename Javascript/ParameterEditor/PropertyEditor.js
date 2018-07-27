@@ -23,6 +23,9 @@ class PropertyEditor {
 		this.eventListenerFunction = function(e) {
 			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.truss==_this.parentTrussNode.truss)) {
 				_this.createOrRemoveBanner.call(_this, e);
+
+				movePropertyEdit('propertyConfigArea');
+				openBottomPanel(e, 'propertiesDiv');
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);

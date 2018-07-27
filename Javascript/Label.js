@@ -43,33 +43,33 @@ class Labels {
 		this.sizeProperty = new Property(undefined,
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The picture size');
-		this.equilibriumLength = new Property(undefined,
+		this.equilibriumLengthProperty = new Property(undefined,
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How long should the relaxed spring be.');
-		this.degree1 = new Property(undefined,
+		this.degree1Property = new Property(undefined,
 			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle the node connects to the start node.');
-		this.degree2 = new Property(undefined,
+		this.degree2Property = new Property(undefined,
 			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle the node connects to the end node.');
 
 
-		this.screenSize = new Property(undefined,
+		this.screenSizeProperty = new Property(undefined,
 			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The size of the displayed screen in pixels.');
 
-		this.worldSize = new Property(undefined,
+		this.worldSizeProperty = new Property(undefined,
 			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The size of the displayed worldview in that worlds measurement.');
 
-		this.setWorldOffset = new Property(undefined,
+		this.setWorldOffsetProperty = new Property(undefined,
 			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The world coordinates of the upper left corner.');
 
-		this.fpsTarget = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
+		this.fpsTargetProperty = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
-		this.fps = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
+		this.fpsProperty = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
 		this.visibilityProperty = new Property(undefined,
@@ -80,6 +80,17 @@ class Labels {
 			'gridSize', 'gridSize', 'Align to grid', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'Aligning all new positions to this grid. (0 for no alignment)');
 
+		this.enforcedProperty = new Property(undefined,
+			'enforced', 'enforced', 'Enforced', ParameteType.NUMBER, ParameterCategory.CONTENT,
+			'Special parameter that only is used in labels to enforce all parameter values are enforced.');
+
+		this.startNodeProperty = new Property(undefined,
+			'node1', 'node1', 'Start node', ParameteType.NODE, ParameterCategory.CONTENT,
+			'Start node.');
+
+		this.endNodeProperty = new Property(undefined,
+			'node2', 'node2', 'End node', ParameteType.NODE, ParameterCategory.CONTENT,
+			'End node.');
 
 		let nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',
@@ -88,18 +99,20 @@ class Labels {
 		});
 		let tensorLabel = this.addLabel('tensor', [], {
 			'visibilityProperty': 1,
+			'startNodeProperty': undefined,
+			'endNodeProperty': undefined,
 		});
 		let positionTensorLabel = this.addLabel('positiontensor', [tensorLabel], {
 			'constantProperty': 1,
 		});
 		let pullLabel = this.addLabel('pullspring', [positionTensorLabel], {
-			'equilibriumLength': 1,
+			'equilibriumLengthProperty': 1,
 		});
 		let pushLabel = this.addLabel('pushspring', [positionTensorLabel], {
-			'equilibriumLength': 1,
+			'equilibriumLengthProperty': 1,
 		});
 		let springLabel = this.addLabel('spring', [positionTensorLabel], {
-			'equilibriumLength': 1,
+			'equilibriumLengthProperty': 1,
 		});
 		let fieldLabel = this.addLabel('field', [positionTensorLabel], {});
 		let absorbLabel = this.addLabel('absorber', [tensorLabel], {
@@ -115,8 +128,8 @@ class Labels {
 			'torqueConstantProperty': 1,
 		});
 		let debugtensor = this.addLabel('debugtensor', [], {
-			'degree1': 1,
-			'degree2': 1,
+			'degree1Property': 1,
+			'degree2Property': 1,
 			'velocityProperty': undefined,
 		});
 		let colorLabel = this.addLabel('color', [], {
@@ -132,12 +145,19 @@ class Labels {
 			'angleProperty': 1,
 			'torqueConstantProperty': 1,
 		});
+		let gravityLabel = this.addLabel('gravitywell', [nodeLabel], {
+			'constantProperty': 6.67e-11,
+			'massProperty': 5.97219e24,
+			'nameProperty': 'Earth',
+			'positionProperty': new Position(0, 6371e3),
+			'enforcedProperty': true,
+		});
 		let trussLabel = this.addLabel('truss', [nodeLabel], {
-			'screenSize': new Position(200, 200),
-			'worldSize': new Position(20, 20),
-			'setWorldOffset': new Position(0, 0),
-			'fpsTarget': 60,
-			'fps': 60,
+			'screenSizeProperty': new Position(200, 200),
+			'worldSizeProperty': new Position(20, 20),
+			'setWorldOffsetProperty': new Position(0, 0),
+			'fpsTargetProperty': 60,
+			'fpsProperty': 60,
 			'snapGridProperty': 0,
 		});
 	}
@@ -151,7 +171,12 @@ class Labels {
 	addLabel(name, dependencies, properties) {
 		if (properties) {
 			for (const [key, value] of Object.entries(properties)) {
-				properties[key] = {'propertyObject': this[key], 'defaultValue': value};
+				let enforced = properties.enforcedProperty;
+				properties[key] = {
+					'propertyObject': this[key],
+					'defaultValue': value,
+					'enforced': enforced,
+				};
 			}
 		}
 		let label = new Label(name, dependencies, properties);

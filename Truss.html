@@ -7,13 +7,14 @@
 	<script src="Javascript/Label.js" type="text/javascript"></script>
 	<script src="Javascript/FileSave.js" type="text/javascript"></script>
 	<script src="Javascript/View.js" type="text/javascript"></script>
+	<script src="Javascript/Universe.js" type="text/javascript"></script>
+	<script src="Javascript/StoreableObject.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/Node.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/CollectionNode.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/PictureNode.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/TrussNode.js" type="text/javascript"></script>
 	<script src="Javascript/Tensors.js" type="text/javascript"></script>
 	<script src="Javascript/Truss.js" type="text/javascript"></script>
-	<script src="Javascript/Universe.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/Actuators.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/Sensors.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/Property.js" type="text/javascript"></script>
@@ -131,6 +132,10 @@
 			}
 
 		window.addEventListener('keydown', function(e) {
+			if (!universe.currentWorld.fastEdit) {
+				return;
+			}
+			console.log(e.keyCode);
 			if (e.keyCode==78) {
 				makeNode();
 			} else if (e.keyCode==84) {
@@ -284,7 +289,7 @@
 				}
 				if (connectionTensor && !connectionEventListener) {
 					connectionEventListener = document.addEventListener('selectionEvent', function (e) {
-						if (connectionTensor && universe.selectedObject.isNode) {
+						if (connectionTensor && universe.selectedObject && universe.selectedObject.isNode) {
 							connectionTensor.sensorAttach();
 							connectionTensor = undefined;
 						}
@@ -297,7 +302,25 @@
 			}
 
 			function addGravityCheat() {
-				universe.currentNode.truss.addTensor(gravityField(universe.selectedObject));
+				let gravityWellLabel = universe.currentWorld.labels.findLabel('gravitywell');
+				if (!gravityWellLabel) {
+					return;
+				}
+				let nodes = gravityWellLabel.getNodes();
+				if (!nodes || nodes.length==0) {
+					return;
+				}
+				let gravityWell = nodes[0];
+				let constant = gravityWell.constant;
+				if (!constant) {
+					alert('Could not find gravitywell labeled node or field constant for gravity.');
+					return;
+				}
+				universe.currentNode.truss.addTensor(
+						new Tensor(universe.selectedObject, gravityWell, 'gravity field', {
+							'constant': constant,
+							'visible': 0,
+						}));
 			}
 
 			function deleteSelected() {

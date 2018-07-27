@@ -128,24 +128,6 @@ function createConfigurationArea(id) {
 				createSimpleButton(propertyButtons, 'Gravity', () => addGravityCheat(), 'gravityButton');
 				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
 
-
-				/* let gravityButton = document.createElement('button');
-				gravityButton.id = 'gravityButton';
-				gravityButton.classList.add('simpleButton');
-				gravityButton.innerHTML = 'Gravity';
-				gravityButton.addEventListener('click', function() {
-					addGravityCheat();
-				}, false);
-				propertyButtons.appendChild(gravityButton);
-
-				let deleteButton = document.createElement('button');
-				deleteButton.classList.add('simpleButton');
-				deleteButton.innerHTML = 'Delete';
-				deleteButton.addEventListener('click', function() {
-					deleteSelected();
-				}, false);
-				propertyButtons.appendChild(deleteButton);*/
-
 				createDebugDropdown(propertyButtons);
 			}
 		}
@@ -174,7 +156,20 @@ function createConfigurationArea(id) {
 
 			{
 				createSimpleButton(trussPropertyLast, 'TrussNode');
-				createSimpleButton(trussPropertyLast, 'GravityNode');
+				let fastEditButton = createSimpleButton(trussPropertyLast, 'FastEdit',
+					function() {
+						universe.currentWorld.fastEdit=!universe.currentWorld.fastEdit;
+						if (universe.currentWorld.fastEdit) {
+							this.classList.add('activebutton');
+						} else {
+							this.classList.remove('activebutton');
+						}
+					});
+				if (universe && universe.currentWorld && universe.currentWorld.fastEdit) { // set up correctly when added
+					fastEditButton.classList.add('activebutton');
+				} else {
+					fastEditButton.classList.remove('activebutton');
+				}
 				createSimpleButton(trussPropertyLast, 'SelectorNode');
 			}
 		}
@@ -252,6 +247,7 @@ function createConfigurationArea(id) {
 	 * @param  {String} text
 	 * @param  {Function} f
 	 * @param  {String} id
+	 * @return {Button}
 	 */
 	function createSimpleButton(backgroundDiv, text, f, id) {
 		let newButton = document.createElement('button');
@@ -262,6 +258,7 @@ function createConfigurationArea(id) {
 		newButton.innerHTML = text;
 		backgroundDiv.appendChild(newButton);
 		newButton.addEventListener('click', f, false);
+		return newButton;
 	}
 
 	/**

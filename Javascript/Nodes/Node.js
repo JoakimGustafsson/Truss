@@ -1,7 +1,8 @@
 /**
  * @class
+ * @extends StoreableObject
  */
-class Node {
+class Node extends StoreableObject {
 	/**
 	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
@@ -9,40 +10,31 @@ class Node {
 	 * @param  {object} valueObject
 	 */
 	constructor(world, parentTrussNode, initialLabels, valueObject) {
-		this.world = world;
-		this.name = 'node';
+		super(world, initialLabels, valueObject);
 		if (parentTrussNode) {
 			this.parentTrussNode= parentTrussNode;
 		}
-		this.properties = new PropertyList();
-		this.localPosition = new Position(0, 0);
-		this.velocity = new Velocity(0, 0);
-
+		if (!this.localPosition) {
+			this.localPosition = new Position(0, 0);
+		}
+		if (!this.velocity) {
+			this.velocity = new Velocity(0, 0);
+		}
+		this.velocityBasedTensors = [];
+		this.positionBasedTensors = [];
+/*
 		this.angle = 0;
 		this.turnrate = 0;
 
 		this.torqueConstant = 0;
-		this.velocityBasedTensors = [];
-		this.positionBasedTensors = [];
 		this.velocityLoss = 0.99;
 		this.positionFunction = undefined;
 		this.showFunction = undefined;
-		this.isNode = true;
 		// this.color = 'lightgrey';
 		this._pictureReference = '';
 		this._size = 1;
-		this.labelString = initialLabels;
-		this._labels = undefined;
 		// this.visibleLabel = universe.currentWorld.labels.findLabel('visible');
-
-		Object.defineProperty(this, 'labels', {
-			get: function() {
-				return this._labels;
-			},
-			set: function(value) {
-				this._labels=value;
-			},
-		});
+*/
 
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
@@ -102,21 +94,11 @@ class Node {
 			},
 		});
 
-		this.addProperty(new Property(this,
-			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
-			'The comma-separated list of labels'));
-
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
 
-		this.labels = this.world.labels.parse(this.labelString, this);
-
-		if (valueObject) {
-			for (let [key, value] of Object.entries(valueObject)) {
-				this[key]=value;
-			}
-		}
+		this.initialRefresh();
 	}
 
 	/**

@@ -20,6 +20,7 @@ let ParameteType = {
 	NODELIST: 6,
 	SWITCH: 7,
 	LABELLIST: 8,
+	NODE: 9,
 };
 
 
@@ -35,9 +36,11 @@ class PropertyList {
 
 	/**
 	 * @param  {Property} prop
+	 * @return {Property}
 	 */
 	addProperty(prop) {
 		this.list.push(prop);
+		return prop;
 	}
 
 	/**
@@ -142,8 +145,48 @@ class Property {
 			this.makeSwitch(element, this.identity, display);
 		} else if (this.type == ParameteType.LABELLIST) {
 			this.makeStringList(element, this.identity, display);
+		} else if (this.type == ParameteType.NODE) {
+			this.makeNode(element, this.identity, display);
 		}
 	};
+
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 * @param  {String} display
+	 */
+	makeNode(element, id, display) {
+		let parameterValue = this.createNameValuePair(element);
+
+		this.input = this.makeInputNode(id, parameterValue);
+		parameterValue.appendChild(this.input);
+	}
+
+	/**
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
+	makeInputNode(id, parameterValue) {
+		let inputField = this.makeViewOfButton(id, parameterValue);
+		let _this = this;
+		// inputField.addEventListener('input', function(e) {
+		//	universe.selectedObject[_this.propertyName] = inputField.value;
+		// }, false);
+		return inputField;
+	}
+
+	/**
+		 * @param  {String} id
+		 * @param  {Element} parameterValue
+		 * @return {Element}
+		 */
+	makeViewOfButton(id, parameterValue) {
+		let newButton = document.createElement('div');
+		
+		//newButton.addEventListener('click', f, false);
+		return newButton;
+	}
 
 	/**
 	 * @param  {Element} element
@@ -198,8 +241,6 @@ class Property {
 		yinputField.addEventListener('input', function(e) {
 			universe.selectedObject[_this.propertyName].y = parseInt(yinputField.value);
 		}, false);
-
-		return;
 	}
 
 	/**
@@ -424,13 +465,22 @@ class Property {
 	makePropertyListField(id, parameterValue, secondaryLabelsDiv) {
 		let inputField = this.makeViewOfInputField(id, parameterValue);
 		let _this = this;
-		// inputField.addEventListener('input', function(e) {
-		//	universe.selectedObject[_this.propertyName] = inputField.value;
-		// }, false);
 		let finalizelabels = function(object, value) {
-			universe.selectedObject.labels =
-			universe.currentWorld.labels.parse(value, object);
 			secondaryLabelsDiv.innerHTML='';
+			object.labelString=value;
+			object.refreshPropertiesAfterLabelChange();
+
+			for (let label of object.labels) {
+				let labelDiv = document.createElement('div');
+				labelDiv.innerHTML = label.name;
+				labelDiv.classList.add('smallLabel');
+				secondaryLabelsDiv.appendChild(labelDiv);
+			}
+
+			return;
+			/*
+			universe.selectedObject.labels =
+				universe.currentWorld.labels.parse(value, object);
 			_this.parentNode.properties.clearProperties(_this);
 			let propObject = {};
 			for (let label of _this.parentNode.labels) {
@@ -444,10 +494,12 @@ class Property {
 			for (let [key, value] of Object.entries(propObject)) {
 				_this.parentNode.properties.addProperty(value.propertyObject, value.defaultValue);
 				if (!_this.parentNode[value.propertyObject.propertyName] ||
-					_this.parentNode[value.propertyObject.propertyName]==NaN) {
+					_this.parentNode[value.propertyObject.propertyName]==NaN ||
+					value.enforced) {
 					_this.parentNode[value.propertyObject.propertyName]=value.defaultValue;
 				}
 			}
+
 
 			/*
 				for (let listItem of label.properties) {
@@ -496,6 +548,20 @@ class Property {
 				elementX.value = Math.round(100 * selectedObject[this.propertyName].x) / 100;
 				elementY.value = Math.round(100 * selectedObject[this.propertyName].y) / 100;
 			}
+		} else if (this.type == ParameteType.NODE) {
+			let element = this.input;
+			if ((element == undefined) || (element == null)) {
+				console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
+				return;
+			}
+			if (selectedObject[this.propertyName]==undefined) {
+				selectedObject[this.propertyName]=this.defaultValue;
+			}
+			if (element.myNode!=selectedObject[this.propertyName]) {
+				element.innerHTML = '';
+				element.appendChild(selectedObject[this.propertyName].generateHTML());
+			}
+			element.myNode=selectedObject[this.propertyName];
 		} else {
 			let element = this.input;
 			if ((element == undefined) || (element == null)) {

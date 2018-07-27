@@ -18,6 +18,7 @@ class Truss {
 	 */
 	constructor(parentTrussNode, view, timestep = 1 / 60, world) {
 		this.time = 0;
+		this.world=world;
 		this.view = view;
 		this.parentTrussNode = parentTrussNode;
 		this.entryPoint = new Position(0, 0);
@@ -42,6 +43,8 @@ class Truss {
 		this.lastFpsUpdate = 0;
 		this.debugLevel = 5;
 
+		this.angleLabel=world.labels.findLabel('angle');
+		this.moveableLabel=world.labels.findLabel('moveable');
 		this.pullSpringLabel=world.labels.findLabel('pullspring');
 		this.pushSpringLabel=world.labels.findLabel('pushspring');
 		this.fieldLabel=world.labels.findLabel('field');
@@ -232,7 +235,7 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculatePositionBasedVelocities(deltaTime) {
-		for (let node of this.nodes) {
+		for (let node of this.moveableLabel.getNodes()) {
 			node.updatePositionBasedVelocity(deltaTime);
 		}
 	};
@@ -242,18 +245,8 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculateTorques(deltaTime) {
-		for (let node of this.nodes) {
+		for (let node of this.angleLabel.getNodes()) {
 			node.calculateTorques(deltaTime);
-		}
-	};
-
-	/**
-	 * Update all nodes velocities based on Velocity based forces
-	 * @param {number} deltaTime
-	 */
-	calculateDampenedVelocity(deltaTime) {
-		for (let node of this.nodes) {
-			node.updateFinalVelocity(deltaTime);
 		}
 	};
 
@@ -262,8 +255,18 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculateRotation(deltaTime) {
-		for (let node of this.nodes) {
+		for (let node of this.angleLabel.getNodes()) {
 			node.updateFinalRotation(deltaTime);
+		}
+	};
+
+	/**
+	 * Update all nodes velocities based on Velocity based forces
+	 * @param {number} deltaTime
+	 */
+	calculateDampenedVelocity(deltaTime) {
+		for (let node of this.moveableLabel.getNodes()) {
+			node.updateFinalVelocity(deltaTime);
 		}
 	};
 
@@ -273,7 +276,7 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	updatePositions(trussTime, deltaTime) {
-		for (let node of this.nodes) {
+		for (let node of this.moveableLabel.getNodes()) {
 			node.updatePosition(trussTime, deltaTime);
 		}
 	};
