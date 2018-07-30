@@ -12,8 +12,6 @@ class Tensor extends StoreableObject {
 	 */
 	constructor(node1, node2, initialLabels, valueObject) {
 		super(node1.world, initialLabels, valueObject);
-		this.node1 = node1;
-		this.node2 = node2;
 
 		this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
@@ -52,14 +50,50 @@ class Tensor extends StoreableObject {
 			},
 		});
 
+		Object.defineProperty(this, 'node1', {
+			get: function() {
+				return this._node1;
+			},
+			set: function(value) {
+				if (this._node1) {
+					this._node1.removeTensor(this);
+				}
+				if (!value) {
+					return;
+				}
+				this._node1 = value;
+				// this.angle1 = angleSubstract(this.getTensorAngle(value), value.getAngle());
+				value.addTensor(this);
+			},
+		});
+
+		Object.defineProperty(this, 'node2', {
+			get: function() {
+				return this._node2;
+			},
+			set: function(value) {
+				if (this._node2) {
+					this._node2.removeTensor(this);
+				}
+				if (!value) {
+					return;
+				}
+				this._node2 = value;
+				// this.angle2 = angleSubstract(this.getTensorAngle(value), value.getAngle());
+				value.addTensor(this);
+			},
+		});
+
 		this.initialRefresh();
+		this.node1 = node1;
+		this.node2 = node2;
 	}
 
 	/**
 	 * @param {Labels} value
 	 */
 	labelChange(value) {
-		this.absorber = (0 >= this.labels.indexOf(universe.currentWorld.labels.findLabel('absorblabel')));
+		this.velocityBasedTensors = (0 >= this.labels.indexOf(universe.currentWorld.labels.findLabel('absorblabel')));
 	}
 
 	/**
@@ -108,20 +142,20 @@ class Tensor extends StoreableObject {
 
 		if (_this.node1 == leftNode) {
 			leftButton.onclick = function(x) {
-				_this.addNode1(universe.currentNode.selector);
+				_this.node1=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 			rightButton.onclick = function(x) {
-				_this.addNode2(universe.currentNode.selector);
+				_this.node2=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 		} else {
 			leftButton.onclick = function(x) {
-				_this.addNode2(universe.currentNode.selector);
+				_this.node2=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 			rightButton.onclick = function(x) {
-				_this.addNode1(universe.currentNode.selector);
+				_this.node1=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 		}
@@ -143,9 +177,9 @@ class Tensor extends StoreableObject {
 	 */
 	sensorAttach() {
 		if (this.node1 == universe.currentNode.selector) {
-			this.addNode1(universe.selectedObject);
+			this.node1=universe.selectedObject;
 		} else if (this.node2 == universe.currentNode.selector) {
-			this.addNode2(universe.selectedObject);
+			this.node2=universe.selectedObject;
 		}
 		if (this.attachFunction) {
 			document.removeEventListener('selectionEvent', this.attachFunction);
@@ -223,13 +257,15 @@ class Tensor extends StoreableObject {
 	}
 
 	/**
-	 * @param  {Array} localNodeList
+	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(localNodeList, tensorList) {
-		let representation={'classname': 'Tensor'};
-		representation.node1=localNodeList.indexOf(this.node1);
+	serialize(nodeList, tensorList) {
+		let representation = super.serialize(nodeList, tensorList);
+		representation.classname='Tensor';
+
+		/* representation.node1=localNodeList.indexOf(this.node1);
 		representation.node2=localNodeList.indexOf(this.node2);
 
 		if (this.breakStartTensor) {
@@ -251,7 +287,7 @@ class Tensor extends StoreableObject {
 		representation.ghost=this.ghost;
 		representation.isTensor=this.isTensor;
 		representation.color=this.color;
-		representation.labelString=this.labelString;
+		representation.labelString=this.labelString; */
 
 		return representation;
 	}
@@ -299,6 +335,9 @@ class Tensor extends StoreableObject {
 	 * @return {string} The name of the tensor
 	 */
 	getName() {
+		if (this.labels && this.labels.length>0) {
+			return this.labels[0].name;
+		}
 		return this.constructor.name;
 		/* if (this.node1) {
 			name += this.node1.name;
@@ -313,7 +352,7 @@ class Tensor extends StoreableObject {
 	/**
 	 * @param  {Node} node
 	 * @param  {number} angle
-	 */
+	 *
 	addNode1(node, angle) {
 		if (this.node1) {
 			this.node1.removeTensor(this);
@@ -332,7 +371,7 @@ class Tensor extends StoreableObject {
 	/**
 	 * @param  {Node} node
 	 * @param  {number} angle
-	 */
+	 *
 	addNode2(node, angle) {
 		if (this.node2) {
 			this.node2.removeTensor(this);
@@ -346,7 +385,7 @@ class Tensor extends StoreableObject {
 		if (node) {
 			node.addTensor(this);
 		}
-	};
+	}; */
 
 	/** Returns the midpoint of the tensor
 	 * @return {Position}
@@ -437,11 +476,13 @@ class Tensor extends StoreableObject {
 
 	/**
 	 * Makes sure the actual nodes will take this tensor into consideration
-	 */
+	 *
 	addToTruss() {
+		return;
+		alert('why?');
 		this.addNode1(this.node1);
 		this.addNode2(this.node2);
-	};
+	}; */
 
 
 	/**
@@ -469,7 +510,7 @@ class Tensor extends StoreableObject {
 	/**
 	 * Makes sure the nodes will NOT take this tensor into consideration
 	 */
-	removeFromTruss() {
+	removeFromWorld() {
 		if (this.node2) {
 			this.node2.removeTensor(this);
 		}

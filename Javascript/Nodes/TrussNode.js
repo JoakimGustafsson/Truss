@@ -106,7 +106,7 @@ class TrussNode extends Node {
 	serialize(superNodeList=[], superTensorList=[]) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
-		representationObject.truss = this.truss.serialize(superNodeList, superTensorList);
+		// representationObject.truss = this.truss.serialize(superNodeList, superTensorList);
 
 		// save the canvas properties
 		return representationObject;

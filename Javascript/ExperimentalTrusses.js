@@ -439,7 +439,7 @@ class PerformanceTruss extends Truss {
 	 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname = 'GovenorTruss';
+		representationObject.classname = 'PerformanceTruss';
 		return representationObject;
 	}
 
@@ -453,10 +453,11 @@ class PerformanceTruss extends Truss {
 		let world = parent.world;
 		let governedTruss=governedNode.truss;
 
-		parent.selector = this.addNode(new Selector(parent.world, parent));
-
-		for (let row=1; row < 10; row++) {
-			for (let column=1; column < 10; column++) {
+		parent.selector = this.addNode(new Selector(parent.world, parent, '', {
+			'name': 'Selector ',
+		}));
+		for (let row=1; row < 2; row++) {
+			for (let column=1; column < 2; column++) {
 				let x = this.addNode(new Node(world, parent, 'turngridnode node', {
 					'name': 'Node '+column+' '+row,
 					'localPosition': new Position(column*3, row*3),

@@ -21,6 +21,7 @@ let ParameteType = {
 	SWITCH: 7,
 	LABELLIST: 8,
 	NODE: 9,
+	TENSORLIST: 10,
 };
 
 
@@ -62,7 +63,7 @@ class PropertyList {
 	 * @param {number} ignoreLabels
 	 */
 	populateProperties(element, ignoreLabels) {
-		element.innerHTML='';
+		element.innerHTML = '';
 
 		let labelArea = document.createElement('div');
 		// labelArea.classList.add('dummy');
@@ -77,10 +78,10 @@ class PropertyList {
 	}
 
 	/**
-	* @param {element} element
-	*/
+	 * @param {element} element
+	 */
 	populateRest(element) {
-		element.innerHTML='';
+		element.innerHTML = '';
 		for (let prop of this.list) {
 			if (prop.propertyName != 'labelString') {
 				prop.populateProperty(element);
@@ -147,6 +148,8 @@ class Property {
 			this.makeStringList(element, this.identity, display);
 		} else if (this.type == ParameteType.NODE) {
 			this.makeNode(element, this.identity, display);
+		} else if (this.type == ParameteType.TENSORLIST) {
+			this.makeTensorButtons(element, this.identity, display);
 		}
 	};
 
@@ -157,36 +160,33 @@ class Property {
 	 */
 	makeNode(element, id, display) {
 		let parameterValue = this.createNameValuePair(element);
-
-		this.input = this.makeInputNode(id, parameterValue);
+		this.input = document.createElement('div');
+		this.input.style.display = 'inline';
+		// this.input.style.border = '2px solid green';
 		parameterValue.appendChild(this.input);
-	}
 
-	/**
-	 * @param  {String} id
-	 * @param  {Element} parameterValue
-	 * @return {Element}
-	 */
-	makeInputNode(id, parameterValue) {
-		let inputField = this.makeViewOfButton(id, parameterValue);
+		let changeButton = document.createElement('button');
+		changeButton.classList.add('trussButton');
+		changeButton.classList.add('tensorButtonRight');
+		changeButton.innerHTML = 'X';
+
+		parameterValue.appendChild(changeButton);
+
 		let _this = this;
-		// inputField.addEventListener('input', function(e) {
-		//	universe.selectedObject[_this.propertyName] = inputField.value;
-		// }, false);
-		return inputField;
+		this.attachFunction = function() {
+			if (_this && universe.currentNode.selector && universe.selectedObject && universe.selectedObject.isNode) {
+				_this.initialSelectedItem.sensorAttach();
+				_this = undefined;
+			}
+		};
+
+		changeButton.onclick = function(x) {
+			universe.selectedObject[_this.propertyName] = universe.currentNode.selector;
+			_this.initialSelectedItem = universe.selectedObject;
+			document.addEventListener('selectionEvent', _this.attachFunction, false);
+		};
 	}
 
-	/**
-		 * @param  {String} id
-		 * @param  {Element} parameterValue
-		 * @return {Element}
-		 */
-	makeViewOfButton(id, parameterValue) {
-		let newButton = document.createElement('div');
-		
-		//newButton.addEventListener('click', f, false);
-		return newButton;
-	}
 
 	/**
 	 * @param  {Element} element
@@ -208,11 +208,11 @@ class Property {
 		xparameterValue.classList.add('rvalue');
 		xValuePair.appendChild(xparameterValue);
 
-		let xinputField = this.makeViewOfInputField(id+'X', parameterValue);
-		xinputField.style.width='50px';
+		let xinputField = this.makeViewOfInputField(id + 'X', parameterValue);
+		xinputField.style.width = '50px';
 		xparameterValue.appendChild(xinputField);
 
-		this.xInput=xinputField;
+		this.xInput = xinputField;
 
 		let yValuePair = document.createElement('div');
 		yValuePair.classList.add('valuepair');
@@ -226,11 +226,11 @@ class Property {
 		yparameterValue.classList.add('rvalue');
 		yValuePair.appendChild(yparameterValue);
 
-		let yinputField = this.makeViewOfInputField(id+'Y', parameterValue);
-		yinputField.style.width='50px';
+		let yinputField = this.makeViewOfInputField(id + 'Y', parameterValue);
+		yinputField.style.width = '50px';
 		yparameterValue.appendChild(yinputField);
 
-		this.yInput=yinputField;
+		this.yInput = yinputField;
 
 		let _this = this;
 
@@ -241,6 +241,37 @@ class Property {
 		yinputField.addEventListener('input', function(e) {
 			universe.selectedObject[_this.propertyName].y = parseInt(yinputField.value);
 		}, false);
+	}
+
+	/**
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(serializeObject, localNodeList, tensorList) {
+		if (this.type == ParameteType.NODELIST) {
+			return {};
+		} else if (this.type == ParameteType.POSITION) {
+			return {
+				'x': serializeObject.x,
+				'y': serializeObject.y,
+			};
+		} else if (this.type == ParameteType.SWITCH) {
+			return serializeObject;
+		} else if (this.type == ParameteType.LABELLIST) {
+			return serializeObject;
+		} else if (this.type == ParameteType.NODE) {
+			return localNodeList.indexOf(serializeObject);
+		} else if (this.type == ParameteType.TENSORLIST) {
+			let returnList=[];
+			for (let tensor of serializeObject) {
+				returnList.push(tensorList.indexOf(tensor));
+			}
+			return returnList;
+		} else {
+			return serializeObject;
+		}
 	}
 
 	/**
@@ -288,10 +319,10 @@ class Property {
 	}
 
 	/**
-		 * @param  {String} id
-		 * @param  {Element} parameterValue
-		 * @return {Element}
-		 */
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
 	makeViewOfInputField(id, parameterValue) {
 		let inputField = document.createElement('input');
 		inputField.type = 'text';
@@ -299,7 +330,7 @@ class Property {
 		inputField.classList.add('text');
 		inputField.classList.add('inputcss');
 		inputField.id = id;
-		inputField.style.width='140px';
+		inputField.style.width = '140px';
 		parameterValue.appendChild(inputField);
 		return inputField;
 	}
@@ -354,10 +385,10 @@ class Property {
 	}
 
 	/**
-		 * @param  {String} id
-		 * @param  {Element} parameterValue
-		 * @return {Element}
-		 */
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
 	makeViewOfSwitchField(id, parameterValue) {
 		let inputLabel = document.createElement('label');
 		inputLabel.classList.add('switch');
@@ -385,6 +416,30 @@ class Property {
 		parameterValue.appendChild(this.input);
 		return;
 	}
+
+	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 */
+	makeTensorButtons(element, id) {
+		let parameterValue = this.createNameValuePair(element);
+
+		for (let tensor of universe.selectedObject[this.propertyName]) {
+			let tensorButton = document.createElement('button');
+			tensorButton.innerHTML = tensor.getName();
+			tensorButton.classList.add('simpleButton');
+			tensorButton.style.display = 'inline';
+			parameterValue.appendChild(tensorButton);
+			this.registerOnClick(tensorButton, tensor);
+		}
+
+		let inputField = document.createElement('div');
+		inputField.id = id;
+		inputField.style.width = '140px';
+		parameterValue.appendChild(inputField);
+		this.input=inputField;
+	}
+
 	/**
 	 * @param  {Element} element
 	 * @param  {String} id
@@ -418,7 +473,7 @@ class Property {
 			parameterValue.appendChild(nodeButton);
 			this.registerOnClick(nodeButton, node);
 		}
-		this.input={};
+		this.input = {};
 	}
 
 	/**
@@ -466,8 +521,8 @@ class Property {
 		let inputField = this.makeViewOfInputField(id, parameterValue);
 		let _this = this;
 		let finalizelabels = function(object, value) {
-			secondaryLabelsDiv.innerHTML='';
-			object.labelString=value;
+			secondaryLabelsDiv.innerHTML = '';
+			object.labelString = value;
 			object.refreshPropertiesAfterLabelChange();
 
 			for (let label of object.labels) {
@@ -478,48 +533,12 @@ class Property {
 			}
 
 			return;
-			/*
-			universe.selectedObject.labels =
-				universe.currentWorld.labels.parse(value, object);
-			_this.parentNode.properties.clearProperties(_this);
-			let propObject = {};
-			for (let label of _this.parentNode.labels) {
-				let labelDiv = document.createElement('div');
-				labelDiv.innerHTML = label.name;
-				labelDiv.classList.add('smallLabel');
-				secondaryLabelsDiv.appendChild(labelDiv);
-
-				Object.assign(propObject, label.properties);
-			}
-			for (let [key, value] of Object.entries(propObject)) {
-				_this.parentNode.properties.addProperty(value.propertyObject, value.defaultValue);
-				if (!_this.parentNode[value.propertyObject.propertyName] ||
-					_this.parentNode[value.propertyObject.propertyName]==NaN ||
-					value.enforced) {
-					_this.parentNode[value.propertyObject.propertyName]=value.defaultValue;
-				}
-			}
-
-
-			/*
-				for (let listItem of label.properties) {
-					let prop = listItem;
-					let defaultValue= prop.defaultValue;
-					if (listItem.property) {
-						prop=listItem.property;
-						defaultValue=listItem.defaultValue;
-					}
-					prop.parentNode=_this.parentNode;
-					_this.parentNode.properties.addProperty(prop, defaultValue);
-
-			}
-			*/
 		};
 		inputField.addEventListener('input', function(e) {
 			universe.selectedObject[_this.propertyName] = inputField.value;
 		}, true);
 		inputField.addEventListener('keydown', function(e) {
-			if (e.key==='Enter') {
+			if (e.key === 'Enter') {
 				finalizelabels(universe.selectedObject, inputField.value);
 				_this.parentNode.properties.populateRest(_this.HTMLElement, true);
 			}
@@ -535,8 +554,8 @@ class Property {
 
 	// This is called when the screen should be updated by a value change in an object
 	/**
- * @param  {Object} selectedObject
- */
+	 * @param  {Object} selectedObject
+	 */
 	updatePropertyValue(selectedObject) {
 		if (this.type == ParameteType.POSITION) {
 			let elementX = this.xInput;
@@ -559,7 +578,9 @@ class Property {
 			}
 			if (element.myNode!=selectedObject[this.propertyName]) {
 				element.innerHTML = '';
-				element.appendChild(selectedObject[this.propertyName].generateHTML());
+				let button=selectedObject[this.propertyName].generateHTML();
+				button.classList.add('tensorButtonLeft');
+				element.appendChild(button);
 			}
 			element.myNode=selectedObject[this.propertyName];
 		} else {

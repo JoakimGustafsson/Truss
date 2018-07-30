@@ -13,9 +13,10 @@ class SensorNode extends Node {
 	 * @param {World} world
 	 * @param {Truss} parentTrussNode
 	 * @param {string} initialLabels
+	 * @param  {object} valueObject
 	 */
-	constructor(world, parentTrussNode, initialLabels) {
-		super(world, parentTrussNode, initialLabels);
+	constructor(world, parentTrussNode, initialLabels, valueObject) {
+		super(world, parentTrussNode, initialLabels, valueObject);
 		this.sensor = true;
 	}
 }
@@ -298,7 +299,7 @@ class CollisionSensorNode extends SensorNode {
 	 * @param {Truss} truss
 	 */
 	sense(deltaTime, truss) {
-		for (let tensor of truss.positionBasedTensors) {
+		for (let tensor of truss.connectedTensors) {
 			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
 				tensor.checkCollision(this.localObject, truss);
 				// the tensor will raise an event that is caught by the collisionFunction()
@@ -497,9 +498,10 @@ class Selector extends SensorNode {
 	 * @param {World} world
 	 * @param {TrussNode} trussNode
 	 * @param {string} initialLabels
+	 * @param  {object} valueObject
 	 */
-	constructor(world, trussNode, initialLabels = '') {
-		super(world, trussNode, initialLabels+' selector');
+	constructor(world, trussNode, initialLabels = '', valueObject) {
+		super(world, trussNode, initialLabels+' selector moveable', valueObject);
 		this.lastPointedOn;
 		this.wasPressed=false;
 		this.cursorPosition = new Position(0, 0);

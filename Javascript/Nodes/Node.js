@@ -20,9 +20,8 @@ class Node extends StoreableObject {
 		if (!this.velocity) {
 			this.velocity = new Velocity(0, 0);
 		}
-		this.velocityBasedTensors = [];
-		this.positionBasedTensors = [];
-/*
+		this.connectedTensors = [];
+		/*
 		this.angle = 0;
 		this.turnrate = 0;
 
@@ -34,7 +33,7 @@ class Node extends StoreableObject {
 		this._pictureReference = '';
 		this._size = 1;
 		// this.visibleLabel = universe.currentWorld.labels.findLabel('visible');
-*/
+		*/
 
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
@@ -120,7 +119,7 @@ class Node extends StoreableObject {
 	generateconnectionHTML() {
 		let div = document.createElement('div');
 
-		for (let tensor of this.positionBasedTensors) {
+		for (let tensor of this.connectedTensors) {
 			let tensorButton = tensor.generateconnectionHTML(this);
 			div.appendChild(tensorButton);
 
@@ -192,9 +191,10 @@ class Node extends StoreableObject {
 	 * @return {Object}
 	 */
 	serialize(nodeList, tensorList) {
-		let representation = {
-			'classname': 'Node',
-		};
+		let representation = super.serialize(nodeList, tensorList);
+		representation.classname='Node';
+
+		/*
 		representation.name = this.name;
 		representation.parentTrussNode = nodeList.indexOf(this.parentTrussNode);
 		representation.localPosition = this.localPosition.serialize();
@@ -208,8 +208,8 @@ class Node extends StoreableObject {
 		representation.turnrate = this.turnrate;
 		representation.torqueConstant = this.torqueConstant;
 		representation.labelString=this.labelString;
-		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
-		representation.positionBasedTensors = serializeList(this.positionBasedTensors, tensorList);
+		// representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
+		representation.positionBasedTensors = serializeList(this.connectedTensors, tensorList);
 		representation.velocityLoss = this.velocityLoss;
 		if (this.positionFunction) {
 			representation.positionFunction = this.positionFunction.toString();
@@ -230,7 +230,7 @@ class Node extends StoreableObject {
 				});
 			}
 		}
-		representation.breakList = storeBreakList;
+		representation.breakList = storeBreakList; */
 
 		return representation;
 	}
@@ -261,8 +261,8 @@ class Node extends StoreableObject {
 		this.labelString = restoreObject.labelString;
 		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
 
-		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
-		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
+		// this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
+		this.connectedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
 		this.velocityLoss = restoreObject.velocityLoss;
 		try {
 			if (restoreObject.positionFunction) {
@@ -352,10 +352,10 @@ class Node extends StoreableObject {
 		if (!angle && this.torqueConstant) {
 			angle = NaN; // tensor.getTensorAngle(this) - this.angle;
 		}
-		if (tensor.absorber) {
-			this.velocityBasedTensors.push(tensor);
-		}
-		this.positionBasedTensors.push(tensor);
+		// if (tensor.absorber) {
+		//	this.velocityBasedTensors.push(tensor);
+		// }
+		this.connectedTensors.push(tensor);
 
 		return tensor;
 	};
@@ -376,9 +376,18 @@ class Node extends StoreableObject {
 			}
 			l.splice(a, 1);
 		}
-		supportRemove(tensor, this.velocityBasedTensors);
-		supportRemove(tensor, this.positionBasedTensors);
+		// supportRemove(tensor, this.velocityBasedTensors);
+		supportRemove(tensor, this.connectedTensors);
 	}
+
+	/**
+	 * Makes sure the labels will NOT take this node into consideration
+	 */
+	removeFromWorld() {
+		for (let label of this.labels) { // ensure no label points to this tensor
+			label.clearOldReference(this);
+		}
+	};
 
 	/**
 	 * Update the position based on velocity, then let
@@ -399,7 +408,7 @@ class Node extends StoreableObject {
 	 * @param  {number} timeFactor
 	 */
 	updatePositionBasedVelocity(timeFactor) {
-		this.updateVelocity(this.positionBasedTensors, timeFactor);
+		this.updateVelocity(this.connectedTensors, timeFactor);
 	}
 
 	/**
@@ -407,7 +416,7 @@ class Node extends StoreableObject {
 	 * @param {number} timeFactor
 	 */
 	updateFinalVelocity(timeFactor) {
-		this.updateVelocity(this.velocityBasedTensors, timeFactor);
+		this.updateVelocity(this.connectedTensors, timeFactor, 1);
 	}
 
 	/**
@@ -415,7 +424,7 @@ class Node extends StoreableObject {
 	 * @param {number} timeFactor
 	 */
 	updateFinalRotation(timeFactor) {
-		this.updateRotation(this.positionBasedTensors, timeFactor);
+		this.updateRotation(this.connectedTensors, timeFactor);
 	}
 
 	/**
@@ -434,7 +443,7 @@ class Node extends StoreableObject {
 		if (!this.turnable()) {
 			return;
 		}
-		for (let tensor of this.positionBasedTensors) {
+		for (let tensor of this.connectedTensors) {
 			if (tensor.tensorType == TensorType.SPRING) {
 				this.sumTorque += tensor.getTorque(this);
 			}
@@ -461,12 +470,13 @@ class Node extends StoreableObject {
 	 * Calculate the final velocity
 	 * @param {Array} forceAppliers
 	 * @param {number} timeFactor
+	 * @param {number} velocityPhase
 	 */
-	updateVelocity(forceAppliers, timeFactor) {
+	updateVelocity(forceAppliers, timeFactor, velocityPhase) {
 		if (isNaN(this.mass)) return;
 		let acceleration;
 		if (forceAppliers.length > 0) {
-			acceleration = this.getAcceleration(forceAppliers);
+			acceleration = this.getAcceleration(forceAppliers, velocityPhase);
 			this.acceleration=acceleration; // For debug display purpose
 		} else {
 			acceleration = new Vector(0, 0);
@@ -478,28 +488,31 @@ class Node extends StoreableObject {
 	/**
 	 * Sum all forces generated by the forceAppliers and divide by the mass to get the acceleration
 	 * @param {Array} forceAppliers
+	 * @param {number} velocityPhase
 	 * @return {Vector}
 	 */
-	getAcceleration(forceAppliers) {
-		return Vector.divideVector(this.sumAllForces(forceAppliers), this.mass);
+	getAcceleration(forceAppliers, velocityPhase) {
+		return Vector.divideVector(this.sumAllForces(forceAppliers, velocityPhase), this.mass);
 	}
 
 	/**
 	 * Go through the list of all forceAppliers and sum them up
 	 * @param  {Array} forceAppliers
+	 * @param {number} velocityPhase
 	 * @return {Force}
 	 */
-	sumAllForces(forceAppliers) {
+	sumAllForces(forceAppliers, velocityPhase=0) {
 		let result = new Force(0, 0);
 		let applier;
 		let tempForce;
-		for (let i = 0; i < forceAppliers.length; i++) {
-			applier = forceAppliers[i];
-			try {
-				tempForce = applier.getForce(this);
-				result.add(tempForce);
-			} catch (err) {
-				console.log(err);
+		for (let applier of forceAppliers) {
+			if (!velocityPhase || applier.velocityBasedTensors) {
+				try {
+					tempForce = applier.getForce(this);
+					result.add(tempForce);
+				} catch (err) {
+					console.log(err);
+				}
 			}
 		}
 		return result;

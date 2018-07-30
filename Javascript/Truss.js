@@ -32,8 +32,8 @@ class Truss {
 		this.nodes = [];
 
 		this.tensors = parentTrussNode.world.labels.findLabel('tensor');
-		this.positionBasedTensors = [];
-		this.velocityBasedTensors = [];
+		this.connectedTensors = [];
+		// this.velocityBasedTensors = [];
 
 		this.delta = 0;
 		this.lastFrameTimeMs = 0;
@@ -77,8 +77,8 @@ class Truss {
 		representationObject.tensors = serializeList(this.tensors.getTensors(), superTensorList);
 
 		representationObject.sensorNodes = serializeList(this.sensorNodes, superNodeList);
-		representationObject.positionBasedTensors = serializeList(this.positionBasedTensors, superTensorList);
-		representationObject.velocityBasedTensors = serializeList(this.velocityBasedTensors, superTensorList);
+		representationObject.positionBasedTensors = serializeList(this.connectedTensors, superTensorList);
+		// representationObject.velocityBasedTensors = serializeList(this.velocityBasedTensors, superTensorList);
 
 		representationObject.view = this.view.serialize();
 		representationObject.entryPoint = this.entryPoint.serialize(this.sensorNodes, superNodeList);
@@ -112,8 +112,8 @@ class Truss {
 		this.parentTrussNode = parentTrussNode;
 
 		this.sensorNodes = deserializeList(restoreObject.sensorNodes, superNodeList);
-		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, superTensorList);
-		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, superTensorList);
+		this.connectedTensors = deserializeList(restoreObject.positionBasedTensors, superTensorList);
+		// this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, superTensorList);
 		this.lastFrameTimeMs = 0;
 		this.timestep = restoreObject.timestep;
 		this.fps = restoreObject.fps;
@@ -155,15 +155,16 @@ class Truss {
 	};
 
 	/**
-	 * Remove a node to the truss so it will not anylonger be updated at ticks and displayed
+	 * Remove a node from the truss so it will not any longer be updated at ticks and displayed
 	 * @param  {Node} node
 	 */
 	removeNode(node) {
 		removeIfPresent(node, this.nodes);
+		node.removeFromWorld();
 		if (node.sensor) {
 			this.removeSensor(node);
 		}
-		for (let tensor of [...node.velocityBasedTensors, ...node.positionBasedTensors]) {
+		for (let tensor of node.connectedTensors) {
 			this.removeTensor(tensor);
 		}
 	};
@@ -172,17 +173,17 @@ class Truss {
 	 * Add a Tensor to the truss and it will be updated at ticks and displayed
 	 * @param  {Tensor} tensor
 	 * @return {Tensor}
-	 */
+	 *
 	addTensor(tensor) {
 		/* this.tensors.push(tensor);
 		if (tensor.tensorType == TensorType.ABSORBER) {
 			this.velocityBasedTensors.push(tensor);
 		} else {
 			this.positionBasedTensors.push(tensor);
-		}*/
+		}
 		tensor.addToTruss();
 		return tensor;
-	};
+}; */
 
 	/**
 	 * @param  {Tensor} tensor
@@ -195,7 +196,9 @@ class Truss {
 		} else {
 			removeIfPresent(tensor, this.positionBasedTensors);
 		} */
-		tensor.removeFromTruss();
+
+		removeIfPresent(tensor, this.connectedTensors);
+		tensor.removeFromWorld();
 		return tensor;
 	};
 
@@ -255,7 +258,7 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculateRotation(deltaTime) {
-		for (let node of this.angleLabel.getNodes()) {
+		for (let node of this.moveableLabel.getNodes()) {
 			node.updateFinalRotation(deltaTime);
 		}
 	};
@@ -265,7 +268,7 @@ class Truss {
 	 * @param {number} deltaTime
 	 */
 	calculateDampenedVelocity(deltaTime) {
-		for (let node of this.moveableLabel.getNodes()) {
+		for (let node of this.absorberLabel.getNodes()) {
 			node.updateFinalVelocity(deltaTime);
 		}
 	};

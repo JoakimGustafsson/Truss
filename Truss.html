@@ -261,31 +261,30 @@
 				connectionTensor=undefined;
 
 				if (value == 'Spring') {
-					connectionTensor = universe.currentNode.truss.addTensor(new Spring(universe.selectedObject, universe.currentNode.selector, 100));
+					connectionTensor = new Spring(universe.selectedObject, universe.currentNode.selector, 100);
 				} else if (value == 'DampenedSpring') {
-					connectionTensor = universe.currentNode.truss.addTensor(
+					connectionTensor =
 						new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber', {
 							'equilibriumLength': 6,
 							'dampeningConstant': 1,
 							'constant': 100,
 							'color': 'white',
-						}));
+						});
 				} else if (value == 'PullSpring') {
-					connectionTensor = universe.currentNode.truss.addTensor(
+					connectionTensor =
 						new Tensor(universe.selectedObject, universe.currentNode.selector, 'pullspring', {
 							'equilibriumLength': 6,
 							'constant': 100,
-						}));
+						});
 				} else if (value == 'Absorber') {
-					connectionTensor = universe.currentNode.truss.addTensor(
 						new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
 							'dampeningConstant': 1,
-						}));
+						});
 				} else if (value == 'Field') {
-					connectionTensor = universe.currentNode.truss.addTensor(
+					connectionTensor =
 						new Tensor(universe.selectedObject, universe.currentNode.selector, 'field', {
 							'constant': 0.0001,
-						}));
+						});
 				}
 				if (connectionTensor && !connectionEventListener) {
 					connectionEventListener = document.addEventListener('selectionEvent', function (e) {
@@ -359,7 +358,11 @@
 				container.appendChild(view);
 			}
 
+			function getlabel(label) {return universe.currentWorld.labels.findLabel(label);}
+
+
 			init();
+
 		</script>
 
 	</section>

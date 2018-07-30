@@ -39,11 +39,13 @@ class BannerNode extends Node {
 			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
 			'name': 'leftTop',
 			'mass': 1,
+			'velocityLoss': 0.9,
 		}));
 		this.rightTopNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
 			'name': 'rightTop',
 			'mass': 1,
+			'velocityLoss': 0.9,
 		}));
 		this.bannerGravityWell = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
@@ -55,6 +57,7 @@ class BannerNode extends Node {
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
+			'velocityLoss': 0.9,
 		}));
 
 		this.rightBottomNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
@@ -62,54 +65,57 @@ class BannerNode extends Node {
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
+			'velocityLoss': 0.9,
 		}));
 
-		this.leftBand = truss.addTensor(new Tensor(this.leftTopNode, this.nail, 'pullspring absorber banner', {
+		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 5000,
-		}));
+			'visible': 1,
+		});
 
-		this.rightBand = truss.addTensor(new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
+		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 5000,
-		}));
+			'visible': 1,
+		});
 
-		this.topBand = truss.addTensor(new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
+		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
 			'equilibriumLength': 18,
 			'dampeningConstant': 10,
 			'constant': 3000,
-		}));
+		});
 
 
-		this.leftSpring = truss.addTensor(new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 6,
+		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
+			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 600,
 			'color': 'transparent',
-		}));
+		});
 
-		this.rightSpring = truss.addTensor(new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 6,
+		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
+			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 600,
 			'color': 'transparent',
-		}));
+		});
 
-		this.leftBottomField = truss.addTensor(new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
+		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
 			'color': 'transparent',
-		}));
+		});
 
-		this.rightBottomField = truss.addTensor(new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
+		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
 			'color': 'transparent',
-		}));
+		});
 
 		this.visible = true;
 		return this.nail;
@@ -123,20 +129,15 @@ class BannerNode extends Node {
 			return;
 		}
 		this.element.style.display = 'none';
-		this.truss.removeTensor(this.leftBand);
-		this.truss.removeTensor(this.rightBand);
-		this.truss.removeTensor(this.topBand);
-		this.truss.removeTensor(this.leftSpring);
-		this.truss.removeTensor(this.rightSpring);
-		this.truss.removeTensor(this.leftBottomField);
-		this.truss.removeTensor(this.rightBottomField);
+		let bannerLabel=this.truss.parentTrussNode.world.labels.findLabel('banner');
 
-		this.truss.removeNode(this.nail);
-		this.truss.removeNode(this.leftTopNode);
-		this.truss.removeNode(this.rightTopNode);
-		this.truss.removeNode(this.leftBottomNode);
-		this.truss.removeNode(this.rightBottomNode);
-		this.truss.removeNode(this.bannerGravityWell);
+		for (let reference of bannerLabel.getTensors()) {
+			this.truss.removeTensor(reference);
+		}
+		let loop = bannerLabel.getNodes().slice();
+		for (let reference of loop) {
+			this.truss.removeNode(reference);
+		}
 	}
 
 

@@ -23,7 +23,7 @@ class Labels {
 			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The position counted from the upper left corner.');
 		this.velocityProperty = new Property(undefined,
-			'velocity', 'velocity', 'velocityelocity', ParameteType.POSITION, ParameterCategory.CONTENT,
+			'velocity', 'velocity', 'velocity', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The velocity.');
 		this.angleProperty = new Property(undefined,
 			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
@@ -57,18 +57,14 @@ class Labels {
 		this.screenSizeProperty = new Property(undefined,
 			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The size of the displayed screen in pixels.');
-
 		this.worldSizeProperty = new Property(undefined,
 			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The size of the displayed worldview in that worlds measurement.');
-
 		this.setWorldOffsetProperty = new Property(undefined,
 			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The world coordinates of the upper left corner.');
-
 		this.fpsTargetProperty = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
-
 		this.fpsProperty = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
@@ -92,10 +88,16 @@ class Labels {
 			'node2', 'node2', 'End node', ParameteType.NODE, ParameterCategory.CONTENT,
 			'End node.');
 
+
+		this.connectedTensorsProperty = new Property(undefined,
+			'connectedTensors', 'connectedTensors', 'Tensors', ParameteType.TENSORLIST, ParameterCategory.CONTENT,
+			'All tensors based on node positions.');
+
 		let nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
 			'visibilityProperty': 1,
+			'connectedTensorsProperty': undefined,
 		});
 		let tensorLabel = this.addLabel('tensor', [], {
 			'visibilityProperty': 1,
@@ -117,7 +119,7 @@ class Labels {
 		let fieldLabel = this.addLabel('field', [positionTensorLabel], {});
 		let absorbLabel = this.addLabel('absorber', [tensorLabel], {
 			'absorberProperty': 1,
-			'visibilityProperty': 0,
+			'visibilityProperty': 1,
 		});
 		let moveabelLabel = this.addLabel('moveable', [nodeLabel], {
 			'massProperty': 1,
@@ -127,9 +129,11 @@ class Labels {
 			'angleProperty': 1,
 			'torqueConstantProperty': 1,
 		});
-		let debugtensor = this.addLabel('debugtensor', [], {
+		let debugtensorLabel = this.addLabel('debugtensor', [], {
 			'degree1Property': 1,
 			'degree2Property': 1,
+		});
+		let debugnodeLabel = this.addLabel('debugnode', [], {
 			'velocityProperty': undefined,
 		});
 		let colorLabel = this.addLabel('color', [], {
@@ -242,7 +246,8 @@ class Labels {
 		for (let label of startList) {
 			if (resultList.indexOf(label) == -1) {
 				label.addReference(reference);
-				resultList = [label, ...this.recursiveDependencies(label.dependencies, reference, resultList)];
+				// resultList = [label, ...this.recursiveDependencies(label.dependencies, reference, resultList)];
+				resultList = this.recursiveDependencies(label.dependencies, reference, [...resultList, label]);
 			} else {
 				resultList = this.recursiveDependencies(label.dependencies, reference, resultList);
 			}
@@ -264,13 +269,13 @@ class Labels {
 		let startList = [];
 		for (let name of stringList) {
 			if (name != '') {
-				let label = this.addReference(name, reference);
+				let label = this.findLabel(name);
 				if (startList.indexOf(label) == -1) {
 					startList.push(label);
 				}
 			}
 		}
-		let returnList = this.recursiveDependencies(startList, reference, startList);
+		let returnList = this.recursiveDependencies(startList, reference, []);
 		return returnList;
 	}
 

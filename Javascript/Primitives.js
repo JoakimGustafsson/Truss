@@ -19,6 +19,17 @@ function removeIfPresent(element, list) {
 		list.splice(index, 1);
 	}
 }
+
+/** TODO: Not used. remove this:
+ * Support function that cleans a list using the cb function that I always seem to mess up
+ * @param  {list} list
+ * @param  {Function} cb
+ */
+function cleanup(list, cb) {
+	for (let r of t.slice()) {
+		cb(r);
+	}
+}
 /**
  * The base vector class used to represent a point on a two dimensional plane
  * @class

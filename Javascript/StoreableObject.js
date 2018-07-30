@@ -8,6 +8,7 @@ class StoreableObject {
 	 * @param  {object} valueObject
 	 */
 	constructor(world, initialLabels='', valueObject={}) {
+		this.name='';
 		this.properties = new PropertyList();
 		this.labelString=initialLabels;
 		this.valueObject=valueObject;
@@ -79,34 +80,15 @@ class StoreableObject {
 	 * @return {Object}
 	 */
 	serialize(localNodeList, tensorList) {
-		let representation={'classname': 'Tensor'};
-		representation.node1=localNodeList.indexOf(this.node1);
-		representation.node2=localNodeList.indexOf(this.node2);
-
+		let representation={'classname': 'StoreableObject'};
 		representation.labelString=this.labelString;
 		let properties = this.getPropertyObject();
 
-		if (this.breakStartTensor) {
-			representation.breakStartTensor=tensorList.indexOf(this.breakStartTensor);
+		for (let propertyContainer of Object.values(properties)) {
+			let property = propertyContainer.propertyObject;
+			representation[property.propertyName] =
+				property.serialize(this[property.propertyName], localNodeList, tensorList);
 		}
-		if (this.breakEndTensor) {
-			representation.breakEndTensor=tensorList.indexOf(this.breakEndTensor);
-		}
-		if (this.next) {
-			representation.next=tensorList.indexOf(this.next);
-		}
-		if (this.previous) {
-			representation.previous=tensorList.indexOf(this.previous);
-		}
-
-		representation.angle1= isNaN(this.angle1) ? 'NaN' : this.angle1;
-		representation.angle2= isNaN(this.angle2) ? 'NaN' : this.angle2;
-		representation.force=this.force;
-		representation.ghost=this.ghost;
-		representation.isTensor=this.isTensor;
-		representation.color=this.color;
-		representation.labelString=this.labelString;
-
 		return representation;
 	}
 }

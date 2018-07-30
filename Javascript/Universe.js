@@ -105,7 +105,7 @@ class World {
 		};
 
 		let {nodes, tensors} = this.listAllNodesAndTensors();
-		nodes = [this.trussNode, ...this.governors, ...nodes];
+		// nodes = [this.trussNode, ...this.governors, ...nodes];
 
 		this.serializeAllNodes(nodes, tensors, representationObject);
 
@@ -156,14 +156,8 @@ class World {
 	 * @return {Object}
 	 */
 	listAllNodesAndTensors() {
-		let nodes = this.trussNode.truss.nodes;
-		let tensors = this.trussNode.truss.tensors;
-		if (this.governors) {
-			for (let governor of this.governors) {
-				nodes = [...nodes, ...governor.truss.nodes];
-				tensors = [...tensors, ...governor.truss.tensors];
-			}
-		}
+		let nodes = this.labels.findLabel('node').getNodes();
+		let tensors = this.labels.findLabel('tensor').getTensors();
 		return {nodes, tensors};
 	}
 
