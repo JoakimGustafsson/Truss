@@ -8,7 +8,7 @@ class StoreableObject {
 	 * @param  {object} valueObject
 	 */
 	constructor(world, initialLabels='', valueObject={}) {
-		this.name='';
+		this.name='Unnamed';
 		this.properties = new PropertyList();
 		this.labelString=initialLabels;
 		this.valueObject=valueObject;

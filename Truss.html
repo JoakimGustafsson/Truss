@@ -14,7 +14,6 @@
 	<script src="Javascript/Nodes/PictureNode.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/TrussNode.js" type="text/javascript"></script>
 	<script src="Javascript/Tensors.js" type="text/javascript"></script>
-	<script src="Javascript/Truss.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/Actuators.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/Sensors.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/Property.js" type="text/javascript"></script>
@@ -82,10 +81,10 @@
 				// let latestNode = new TrussNode(twoWorld, "Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				// latestNode.truss.initiate();
 
-				let latestNode = new TrussNode(latestWorld, undefined, 'truss', {
+				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 					'name': 'MainNode',
-				},  new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode", PerformanceTruss);
-				latestNode.truss.initiate();
+				},  new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode");
+				latestNode.initiate();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
 				latestNode.resize();
@@ -242,7 +241,7 @@
 					let newNode=new Node(universe.currentWorld, universe.currentNode, 'node added', {
 							'localPosition': new Position(1,1),
 						});
-					universe.currentNode.truss.addNode(newNode);
+					universe.currentNode.addNode(newNode);
 					universe.select(newNode);
 					universe.newNode=newNode;
 				}
@@ -256,7 +255,7 @@
 				let value = selectorDropDown.value;
 				if (connectionTensor) {
 					// Some tensor is already currently being drawn
-					universe.currentNode.truss.removeTensor(connectionTensor);
+					universe.currentNode.removeTensor(connectionTensor);
 				}
 				connectionTensor=undefined;
 
@@ -297,7 +296,7 @@
 			}
 
 			function changeDebugLevel() {
-				universe.currentNode.truss.debugLevel = universe.currentNode.getElement("#debugLevel").value;
+				universe.currentNode.debugLevel = universe.currentNode.getElement("#debugLevel").value;
 			}
 
 			function addGravityCheat() {
@@ -315,7 +314,7 @@
 					alert('Could not find gravitywell labeled node or field constant for gravity.');
 					return;
 				}
-				universe.currentNode.truss.addTensor(
+				universe.currentNode.addTensor(
 						new Tensor(universe.selectedObject, gravityWell, 'gravity field', {
 							'constant': constant,
 							'visible': 0,
@@ -324,9 +323,9 @@
 
 			function deleteSelected() {
 				if (universe.selectedObject.isTensor) {
-					universe.currentNode.truss.removeTensor(universe.selectedObject);
+					universe.currentNode.removeTensor(universe.selectedObject);
 				} else if (universe.selectedObject.isNode) {
-					universe.currentNode.truss.removeNode(universe.selectedObject);
+					universe.currentNode.removeNode(universe.selectedObject);
 				}
 			}
 
@@ -337,7 +336,7 @@
 					detail: {
 						'selectedObject': universe.selectedObject,
 						'previousSelectedObject': previousSelectedObject,
-						'truss': universe.selectedObject.truss,
+						'trussNode': universe.selectedObject.parentObject,
 					},
 					bubbles: true,
 					cancelable: true,

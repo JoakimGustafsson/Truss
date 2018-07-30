@@ -223,7 +223,7 @@ class Tensor extends StoreableObject {
 				detail: {
 					'selectedObject': universe.selectedObject,
 					'previousSelectedObject': previousSelectedObject,
-					'truss': undefined,
+					'trussNode': node1.parentNode,
 				},
 				bubbles: true,
 				cancelable: true,

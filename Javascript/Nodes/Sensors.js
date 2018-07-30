@@ -532,14 +532,14 @@ class Selector extends SensorNode {
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {Trussnode} trussNode
 	 */
-	sense(deltaTime, truss) {
-		if (truss!=universe.currentNode.truss) {
+	sense(deltaTime, trussNode) {
+		if (trussNode!=universe.currentNode) {
 			return;
 		}
-		this.cursorPosition = truss.view.worldPositionWithOffset(myX, myY);
-		let closest = truss.getClosestObject(this.cursorPosition, 20*truss.view.getDistanceMultiplier(), this);
+		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
+		let closest = trussNode.getClosestObject(this.cursorPosition, 20*trussNode.view.getDistanceMultiplier(), this);
 
 		if (!mouseSet && !universe.newNode) {
 			if (!closest) {
@@ -571,7 +571,7 @@ class Selector extends SensorNode {
 					detail: {
 						'selectedObject': universe.selectedObject,
 						'previousSelectedObject': previousSelectedObject,
-						'truss': truss,
+						'trussNode': trussNode,
 					},
 					bubbles: true,
 					cancelable: true,
@@ -601,7 +601,7 @@ class Selector extends SensorNode {
 
 	/**
 	 * Draw the circle representing the node
-	 * @param {Truss} truss
+	 * @param {Trussnode} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */

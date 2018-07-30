@@ -5,9 +5,9 @@ let EarthCenter = new Position(0, 6371e3);
 
 /**
  * @class
- * @extends Truss
+ * @extends TrussNode
  */
-class WalkTruss extends Truss {
+class WalkTruss extends TrussNode {
 	/**
 	 * @constructor
 	 * @param  {View} view
@@ -283,9 +283,9 @@ class WalkTruss extends Truss {
 
 /**
  * @class
- * @extends Truss
+ * @extends TrussNode
  */
-class GovenorTruss extends Truss {
+class GovenorTruss extends TrussNode {
 	/**
 	 * @constructor
 	 * @param  {View} view
@@ -367,9 +367,9 @@ class GovenorTruss extends Truss {
 
 /**
  * @class
- * @extends Truss
+ * @extends TrussNode
  */
-class ScrollerTruss extends Truss {
+class ScrollerTruss extends TrussNode {
 	/**
 	 * @constructor
 	 * @param  {View} view
@@ -419,7 +419,7 @@ class ScrollerTruss extends Truss {
  * @class
  * @extends Truss
  */
-class PerformanceTruss extends Truss {
+class PerformanceTrussNode extends TrussNode {
 	/**
 	 * @constructor
 	 * @param  {View} view
@@ -428,7 +428,6 @@ class PerformanceTruss extends Truss {
 	constructor( ...args) {
 		super(...args);
 		this.blur = true;
-		// this.governedTruss = governedTruss;
 	}
 
 
@@ -439,7 +438,7 @@ class PerformanceTruss extends Truss {
 	 */
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname = 'PerformanceTruss';
+		representationObject.classname = 'PerformanceTrussNode';
 		return representationObject;
 	}
 
@@ -451,7 +450,6 @@ class PerformanceTruss extends Truss {
 		let governedNode=this.parentTrussNode.parentTrussNode;
 		let parent = this.parentTrussNode;
 		let world = parent.world;
-		let governedTruss=governedNode.truss;
 
 		parent.selector = this.addNode(new Selector(parent.world, parent, '', {
 			'name': 'Selector ',

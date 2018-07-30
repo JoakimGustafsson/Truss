@@ -12,7 +12,7 @@ class PropertyEditor {
 		let outerElement = createConfigurationArea('EditParameterElement');
 		let propertyArea = outerElement.querySelectorAll('#configview')[0];
 		this.parentTrussNode = parentTrussNode;
-		this.parentTrussNode.truss.element.appendChild(outerElement);
+		this.parentTrussNode.element.appendChild(outerElement);
 		this.bannerNode = new BannerNode(this.parentTrussNode, outerElement);
 		this.PropertyUpdateNode = new PropertyUpdateNode(
 			this.parentTrussNode.world,
@@ -21,7 +21,7 @@ class PropertyEditor {
 			propertyArea);
 		let _this = this;
 		this.eventListenerFunction = function(e) {
-			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.truss==_this.parentTrussNode.truss)) {
+			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.trussNode==_this.parentTrussNode)) {
 				_this.createOrRemoveBanner.call(_this, e);
 
 				movePropertyEdit('propertyConfigArea');
@@ -58,21 +58,21 @@ class PropertyEditor {
 	/**
 	 */
 	createBanner() {
-		let truss = this.parentTrussNode.truss;
+		let trussNode = this.parentTrussNode;
 		this.PropertyUpdateNode.activate();
-		truss.addNode(this.PropertyUpdateNode);
-		this.banner = this.bannerNode.create(truss);
-		truss.addNode(this.bannerNode);
+		trussNode.addNode(this.PropertyUpdateNode);
+		this.banner = this.bannerNode.create(trussNode);
+		trussNode.addNode(this.bannerNode);
 	}
 
 	/**
 	 */
 	removeBanner() {
-		let truss = this.parentTrussNode.truss;
+		let trussNode = this.parentTrussNode;
 		this.bannerNode.hide();
-		truss.removeNode(this.bannerNode);
+		trussNode.removeNode(this.bannerNode);
 		this.PropertyUpdateNode.close(); // Remove the event listener
-		truss.removeNode(this.PropertyUpdateNode);
+		trussNode.removeNode(this.PropertyUpdateNode);
 		this.banner=undefined;
 	}
 }

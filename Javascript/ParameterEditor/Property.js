@@ -488,7 +488,7 @@ class Property {
 				detail: {
 					'selectedObject': universe.selectedObject,
 					'previousSelectedObject': previousSelectedObject,
-					'truss': undefined,
+					'trussNode': undefined,
 				},
 				bubbles: true,
 				cancelable: true,
