@@ -29,7 +29,7 @@ class PropertyEditor {
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
-		this.removeBanner();
+		// this.removeBanner();
 	}
 
 	/**
@@ -60,9 +60,9 @@ class PropertyEditor {
 	createBanner() {
 		let trussNode = this.parentTrussNode;
 		this.PropertyUpdateNode.activate();
-		trussNode.addNode(this.PropertyUpdateNode);
+		// trussNode.addNode(this.PropertyUpdateNode);
 		this.banner = this.bannerNode.create(trussNode);
-		trussNode.addNode(this.bannerNode);
+		// trussNode.addNode(this.bannerNode);
 	}
 
 	/**
@@ -70,9 +70,9 @@ class PropertyEditor {
 	removeBanner() {
 		let trussNode = this.parentTrussNode;
 		this.bannerNode.hide();
-		trussNode.removeNode(this.bannerNode);
+		// trussNode.removeNode(this.bannerNode);
 		this.PropertyUpdateNode.close(); // Remove the event listener
-		trussNode.removeNode(this.PropertyUpdateNode);
+		// trussNode.removeNode(this.PropertyUpdateNode);
 		this.banner=undefined;
 	}
 }

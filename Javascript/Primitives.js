@@ -461,17 +461,19 @@ function deserializeList(numberList, allObjects) {
 }
 
 /**
- * @param  {Truss} truss
+ * @param  {World} world
  * @param  {Object} representationObject
  * @param  {Object} nodeList
  * @param  {Object} tensorList
  * @return {Object}
  */
-function objectFactory(truss, representationObject, nodeList, tensorList) {
+function objectFactory(world, representationObject, nodeList, tensorList) {
 	// let a = Function('return new ' + representationObject.classname+'('+truss+')');
 	// return (a)();
 	// newNode.deserialize(representationObject, nodeList, tensorList);
-	return (Function('return new ' + representationObject.classname))();
+	let newObject = (Function('return new ' + representationObject.classname))();
+	newObject.world=world;
+	return newObject;
 }
 
 

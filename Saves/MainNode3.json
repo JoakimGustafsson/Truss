@@ -5,7 +5,7 @@
         "labelString": "truss",
         "screenSize": {
             "x": 641,
-            "y": 1176
+            "y": 1201
         },
         "worldSize": {
             "x": 30,
@@ -18,7 +18,7 @@
         "fpsTarget": 60,
         "fps": 60,
         "gridSize": 0,
-        "name": "MainNode",
+        "name": "MainNodeX",
         "localPosition": {
             "x": 0,
             "y": 0
@@ -31,8 +31,8 @@
         "labelString": " selector moveable",
         "name": "Selector ",
         "localPosition": {
-            "x": 14.602184087363495,
-            "y": 12.351190476190476
+            "x": 27.8003120124805,
+            "y": 17.805995004163197
         },
         "visible": 1,
         "parentTrussNode": 0,
@@ -42,27 +42,25 @@
     }, {
         "classname": "Node",
         "labelString": "node added",
-        "name": "AAA",
+        "name": "Unnamed",
         "localPosition": {
-            "x": 11.653666146645866,
-            "y": 19.88095238095238
+            "x": 6.973478939157567,
+            "y": 2.885095753538718
         },
         "visible": 1,
         "parentTrussNode": 0,
         "connectedTensors": [0]
     }, {
         "classname": "Node",
-        "labelString": "turngridnode node moveable",
-        "name": "BBB",
+        "labelString": "turngridnode node",
+        "name": "Node 1 1",
         "localPosition": {
-            "x": 1.2437157996547084,
-            "y": 25.822511789960547
+            "x": 3.1825273010920436,
+            "y": 3.0016652789342215
         },
         "visible": true,
         "parentTrussNode": 0,
-        "connectedTensors": [0],
-        "mass": 1,
-        "velocityLoss": "1"
+        "connectedTensors": [0]
     }],
     "tensors": [{
         "classname": "Tensor",
@@ -70,8 +68,8 @@
         "equilibriumLength": 6,
         "constant": 100,
         "visible": 1,
-        "node1": 3,
-        "node2": 4,
+        "node1": 2,
+        "node2": 3,
         "parentTrussNode": -1,
         "dampeningConstant": 1
     }],

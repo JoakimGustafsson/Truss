@@ -451,19 +451,21 @@ class PerformanceTrussNode extends TrussNode {
 		let parent = this.parentTrussNode;
 		let world = parent.world;
 
-		parent.selector = this.addNode(new Selector(parent.world, parent, '', {
+		this.selector = new Selector(this.world, this, '', {
 			'name': 'Selector ',
-		}));
+		});
+		this.sensorNodes.push(this.selector);
+
 		for (let row=1; row < 2; row++) {
 			for (let column=1; column < 2; column++) {
-				let x = this.addNode(new Node(world, parent, 'turngridnode node', {
+				let x = new Node(this.world, this, 'turngridnode node', {
 					'name': 'Node '+column+' '+row,
 					'localPosition': new Position(column*3, row*3),
 					'pictureReference': 'trussicon.png',
 					'pictureHeight': 600,
 					'pictureWidth': 600,
 					'turnrate': 0.04,
-				}));
+				});
 
 				protagonist=x;
 			}

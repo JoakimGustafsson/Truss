@@ -522,11 +522,11 @@ class Selector extends SensorNode {
 	 * @param  {Object} restoreObject
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
-	 */
+	 *
 	deserialize(restoreObject, superNodes, superTensors) {
 		super.deserialize(restoreObject, superNodes, superTensors);
 		return;
-	}
+	} */
 
 	/**
 	 * If the position of the controlled object bounces or leaves on the right or

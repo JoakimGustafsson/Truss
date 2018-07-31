@@ -241,7 +241,7 @@
 					let newNode=new Node(universe.currentWorld, universe.currentNode, 'node added', {
 							'localPosition': new Position(1,1),
 						});
-					universe.currentNode.addNode(newNode);
+					// universe.currentNode.addNode(newNode);
 					universe.select(newNode);
 					universe.newNode=newNode;
 				}
@@ -322,11 +322,7 @@
 			}
 
 			function deleteSelected() {
-				if (universe.selectedObject.isTensor) {
-					universe.currentNode.removeTensor(universe.selectedObject);
-				} else if (universe.selectedObject.isNode) {
-					universe.currentNode.removeNode(universe.selectedObject);
-				}
+					universe.selectedObject.unreference();
 			}
 
 			function selectMainNode() {

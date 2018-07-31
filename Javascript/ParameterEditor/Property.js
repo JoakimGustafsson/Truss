@@ -275,6 +275,30 @@ class Property {
 	}
 
 	/**
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	deSerialize(serializeObject, localNodeList, tensorList) {
+		if (this.type == ParameteType.NODELIST) {
+			return {};
+		} else if (this.type == ParameteType.POSITION) {
+			return new Position(serializeObject.x, serializeObject.y);
+		} else if (this.type == ParameteType.NODE) {
+			return localNodeList[serializeObject];
+		} else if (this.type == ParameteType.TENSORLIST) {
+			let returnList=[];
+			for (let tensor of serializeObject) {
+				returnList.push(tensorList[tensor]);
+			}
+			return returnList;
+		} else {
+			return serializeObject;
+		}
+	}
+
+	/**
 	 * @param  {Element} element
 	 * @param  {String} id
 	 */

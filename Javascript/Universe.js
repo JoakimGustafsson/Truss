@@ -167,15 +167,16 @@ class World {
 	 * @return {Object}
 	 */
 	deserialize(restoreObject) {
+		this.labels = new Labels();
 		let nodeList=[];
 		for (let nodeRestoreObject of restoreObject.nodes) {
-			let node = objectFactory(undefined, nodeRestoreObject);
+			let node = objectFactory(this, nodeRestoreObject);
 			nodeList.push(node);
 		}
 
 		let tensorList=[];
 		for (let tensorRestoreObject of restoreObject.tensors) {
-			let tensor = objectFactory(undefined, tensorRestoreObject);
+			let tensor = objectFactory(this, tensorRestoreObject);
 			tensorList.push(tensor);
 		}
 

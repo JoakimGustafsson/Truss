@@ -88,6 +88,9 @@ class Labels {
 			'node2', 'node2', 'End node', ParameteType.NODE, ParameterCategory.CONTENT,
 			'End node.');
 
+		this.parentTrussNodeProperty = new Property(undefined,
+			'parentTrussNode', 'parentTrussNode', 'Truss node', ParameteType.NODE, ParameterCategory.CONTENT,
+			'Owning truss node.');
 
 		this.connectedTensorsProperty = new Property(undefined,
 			'connectedTensors', 'connectedTensors', 'Tensors', ParameteType.TENSORLIST, ParameterCategory.CONTENT,
@@ -97,12 +100,14 @@ class Labels {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
 			'visibilityProperty': 1,
+			'parentTrussNodeProperty': undefined,
 			'connectedTensorsProperty': undefined,
 		});
 		let tensorLabel = this.addLabel('tensor', [], {
 			'visibilityProperty': 1,
 			'startNodeProperty': undefined,
 			'endNodeProperty': undefined,
+			'parentTrussNodeProperty': undefined,
 		});
 		let positionTensorLabel = this.addLabel('positiontensor', [tensorLabel], {
 			'constantProperty': 1,
@@ -163,6 +168,10 @@ class Labels {
 			'fpsTargetProperty': 60,
 			'fpsProperty': 60,
 			'snapGridProperty': 0,
+		});
+		let sensorLabel = this.addLabel('sensor', [nodeLabel], {
+		});
+		let selectorLabel = this.addLabel('selector', [sensorLabel], {
 		});
 	}
 

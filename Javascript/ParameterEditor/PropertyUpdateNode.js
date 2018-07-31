@@ -13,7 +13,7 @@ class PropertyUpdateNode extends SensorNode {
 	 * @param {Element} element - The HTML element that should display the edit area
 	 */
 	constructor(world, parentTrussNode, initialLabels, element) {
-		super(world, parentTrussNode, initialLabels);
+		super(world, parentTrussNode, initialLabels + ' sensor ');
 		this.element=element;
 		let _this = this;
 		this.name = 'PropertyUpdateNode';

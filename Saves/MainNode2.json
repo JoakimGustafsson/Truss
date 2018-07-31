@@ -5,7 +5,7 @@
         "labelString": "truss",
         "screenSize": {
             "x": 641,
-            "y": 1176
+            "y": 1201
         },
         "worldSize": {
             "x": 30,
@@ -29,40 +29,38 @@
     }, {
         "classname": "Selector",
         "labelString": " selector moveable",
+        "mass": 1,
+        "velocityLoss": 0.99,
         "name": "Selector ",
         "localPosition": {
-            "x": 14.602184087363495,
-            "y": 12.351190476190476
+            "x": 27.191887675507022,
+            "y": 16.990008326394673
         },
         "visible": 1,
         "parentTrussNode": 0,
-        "connectedTensors": [],
-        "mass": 1,
-        "velocityLoss": 0.99
+        "connectedTensors": []
     }, {
         "classname": "Node",
         "labelString": "node added",
-        "name": "AAA",
+        "name": "BB",
         "localPosition": {
-            "x": 11.653666146645866,
-            "y": 19.88095238095238
+            "x": 7.769110764430578,
+            "y": 2.768526228143214
         },
         "visible": 1,
         "parentTrussNode": 0,
         "connectedTensors": [0]
     }, {
         "classname": "Node",
-        "labelString": "turngridnode node moveable",
-        "name": "BBB",
+        "labelString": "turngridnode node",
+        "name": "AA",
         "localPosition": {
-            "x": 1.2437157996547084,
-            "y": 25.822511789960547
+            "x": 3.229329173166927,
+            "y": 2.739383846794338
         },
         "visible": true,
         "parentTrussNode": 0,
-        "connectedTensors": [0],
-        "mass": 1,
-        "velocityLoss": "1"
+        "connectedTensors": [0]
     }],
     "tensors": [{
         "classname": "Tensor",
@@ -70,9 +68,9 @@
         "equilibriumLength": 6,
         "constant": 100,
         "visible": 1,
-        "node1": 3,
-        "node2": 4,
+        "node1": 2,
         "parentTrussNode": -1,
+        "node2": 3,
         "dampeningConstant": 1
     }],
     "trussNode": 0,

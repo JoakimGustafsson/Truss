@@ -11,6 +11,8 @@ class BannerNode extends Node {
 		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner');
 		this.name = 'bannerNode';
 		this.element = element;
+
+		
 	}
 
 	/**
@@ -29,44 +31,44 @@ class BannerNode extends Node {
 			topScreenPos = new Position(truss.view.screenSize.x - screenWidth, 0);
 		}
 
-		this.nail = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner', {
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
 			'name': 'nail',
 			'mass': NaN,
-		}));
+		});
 
-		this.leftTopNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-		}));
-		this.rightTopNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		});
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-		}));
-		this.bannerGravityWell = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner', {
+		});
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
 			'name': 'bannerGravityWell',
-		}));
+		});
 
-		this.leftBottomNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight),
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-		}));
+		});
 
-		this.rightBottomNode = truss.addNode(new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight),
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-		}));
+		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
 			'equilibriumLength': 6,
@@ -131,12 +133,9 @@ class BannerNode extends Node {
 		this.element.style.display = 'none';
 		let bannerLabel=this.truss.parentTrussNode.world.labels.findLabel('banner');
 
-		for (let reference of bannerLabel.getTensors()) {
-			this.truss.removeTensor(reference);
-		}
-		let loop = bannerLabel.getNodes().slice();
+		let loop = bannerLabel.getReferences().slice();
 		for (let reference of loop) {
-			this.truss.removeNode(reference);
+			reference.unreference();
 		}
 	}
 
@@ -181,4 +180,66 @@ class BannerNode extends Node {
 			}
 		}
 	};
+
+
+	xconstructor(world, parentTrussNode, initialLabels, element) {
+		super(world, parentTrussNode, initialLabels + ' sensor ');
+		this.element=element;
+		let _this = this;
+		this.name = 'PropertyUpdateNode';
+		this.eventListenerFunction = function(e) {
+			if (universe.currentNode==_this.parentTrussNode) {
+				_this.showPropertyElements(e);
+			}
+		};
+		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
+	}
+
+	/**
+	 * @param  {Event} selectionEvent
+	 */
+	showPropertyElements(selectionEvent) {
+		this.iO = selectionEvent.detail.selectedObject;
+
+		this.element.innerHTML='';
+		if (this.iO) {
+			// this.iO.properties.populateProperties(this.element);
+			this.iO.populateProperties(this.element);
+		}
+	}
+
+	/**
+	 * Call this before discarding to remove nodes and event listeners
+	 */
+	close() {
+		this.parentTrussNode.element.removeEventListener('selectionEvent', this.eventListenerFunction);
+	}
+
+	/**
+	 *
+	 */
+	activate() {
+		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction);
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 */
+	serialize(nodeList, tensorList) {
+		alert('HTMLEditNode should never be serialized');
+	}
+
+	/**
+	 * Use sense in order to make pause work
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	sense(deltaTime, truss) {
+		// super.updatePosition(time, deltaTime);
+		if (this.iO) {
+			this.iO.properties.updatePropertyValues(this.iO);
+		}
+	}
+
 }

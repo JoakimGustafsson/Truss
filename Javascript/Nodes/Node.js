@@ -157,7 +157,7 @@ class Node extends StoreableObject {
 	addLabel(labels) {
 		this.labelString+=labels+' ';
 		this.labels =
-				universe.currentWorld.labels.parse(this.labelString, this);
+				this.world.labels.parse(this.labelString, this);
 	}
 
 	/** Handling properties
@@ -235,11 +235,11 @@ class Node extends StoreableObject {
 		return representation;
 	}
 
-	/**
+	/*
 	 * @param  {Object} restoreObject
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
-	 */
+	 *
 	deserialize(restoreObject, nodeList, tensorList) {
 		this.name = restoreObject.name;
 		this.parentTrussNode = nodeList[restoreObject.parentTrussNode];
@@ -292,7 +292,7 @@ class Node extends StoreableObject {
 		// Make list of nodes
 		// make list of tensors (using the nodes)
 		// fill in the nodes tensor references
-	}
+	} */
 
 	/**
 	 */
@@ -306,11 +306,11 @@ class Node extends StoreableObject {
 	copyPosition(position) {
 		this.localPosition.x = position.x;
 		this.localPosition.y = position.y;
-		if (universe.currentNode.gridSize && universe.currentNode.gridSize!='0') {
-			let x=position.x + universe.currentNode.gridSize/2;
-			let y=position.y + universe.currentNode.gridSize/2;
-			this.localPosition.x= x - x%universe.currentNode.gridSize;
-			this.localPosition.y= y - y%universe.currentNode.gridSize;
+		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
+			let x=position.x + this.parentTrussNode.gridSize/2;
+			let y=position.y + this.parentTrussNode.gridSize/2;
+			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
+			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
 		}
 	};
 
@@ -381,14 +381,23 @@ class Node extends StoreableObject {
 	}
 
 	/**
-	 * Makes sure the labels will NOT take this node into consideration
+	 * replace by unreference
 	 */
-	removeFromWorld() {
+	xremoveFromWorld() {
 		for (let label of this.labels) { // ensure no label points to this tensor
 			label.clearOldReference(this);
 		}
 	};
 
+	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
+     *  All connected tensors should also be removed (or unreferenced, actually)
+     */
+	unreference() {
+		super.unreference();
+		for (let tensor of this.connectedTensors) {
+			tensor.unreference(this);
+		}
+	}
 	/**
 	 * Update the position based on velocity, then let
 	 * the this.positionFunction (if present) tell where it should actually be

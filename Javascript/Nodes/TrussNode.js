@@ -25,8 +25,6 @@ class TrussNode extends Node {
 		super(world, parentTrussNode, initialLabels, valueObject, startPosition, mass, name, ...args);
 
 		this.world=world;
-		this.nodes=[];
-		this.tensors = world.labels.findLabel('tensor');
 		this.sensorNodes=[];
 		this.element = document.createElement('div');
 		this.view= new View(viewSize, this);
@@ -36,7 +34,7 @@ class TrussNode extends Node {
 		this.delta = 0;
 		this.lastFrameTimeMs = 0;
 		this.timestep = 1/60;
-		this.fps = 60,
+		this._fps = 60,
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
 
@@ -45,16 +43,34 @@ class TrussNode extends Node {
 		if (!parentTrussNode) {
 			this.parentTrussNode=this;
 		}
-		this.handleCanvas();
-		// this.truss = new TrussClass(this, this.view, timestep, world);
-		this.setView();
 
 		Object.defineProperty(this, 'fps', {
 			get: function() {
-				return this.fps;
+				return this._fps;
 			},
 			set: function(value) {
-				this.fps = parseInt(value);
+				this._fps = parseInt(value);
+			},
+		}
+		);
+
+		Object.defineProperty(this, 'nodes', {
+			get: function() {
+				return this.nodeLabel.getNodes();
+			},
+			set: function(value) {
+				this.nodeLabel.addReference(value);
+			},
+		}
+		);
+
+
+		Object.defineProperty(this, 'tensors', {
+			get: function() {
+				return this.tensorLabel.getTensors();
+			},
+			set: function(value) {
+				this.tensorLabel.addReference(value);
 			},
 		}
 		);
@@ -73,17 +89,26 @@ class TrussNode extends Node {
 			get: function() {
 				return this.view.worldViewSize;
 			},
+			set: function(value) {
+				this.view.worldViewSize = value;
+			},
 		}
 		);
 		Object.defineProperty(this, 'screenSize', {
 			get: function() {
 				return this.view.screenSize;
 			},
+			set: function(value) {
+				this.view.screenSize = value;
+			},
 		}
 		);
 		Object.defineProperty(this, 'setWorldOffset', {
 			get: function() {
 				return this.view.offset;
+			},
+			set: function(value) {
+				this.view.offset = value;
 			},
 		}
 		);
@@ -106,16 +131,56 @@ class TrussNode extends Node {
 		this.addProperty(new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.'));
 
-		this.angleLabel=world.labels.findLabel('angle');
-		this.moveableLabel=world.labels.findLabel('moveable');
-		this.pullSpringLabel=world.labels.findLabel('pullspring');
-		this.pushSpringLabel=world.labels.findLabel('pushspring');
-		this.fieldLabel=world.labels.findLabel('field');
-		this.absorberLabel=world.labels.findLabel('absorber');
-		this.springLabel=world.labels.findLabel('spring');
+		if (world) {
+			this.handleCanvas();
+			// this.truss = new TrussClass(this, this.view, timestep, world);
+			this.setView();
+			this.setupLabels(world);
+		}
 
 		this.propertyDiv = this.element.querySelectorAll('#configview')[0];
 		this.debugLevel = this.element.querySelectorAll('#debugLevel')[0];
+	}
+
+	/**
+	 *
+	 */
+	handleCanvas() {
+		this.canvas.name = this.name;
+		this.canvas.style.top = this.localPosition.y + 'px';
+		this.canvas.style.left = this.localPosition.x + 'px';
+		this.canvas.style.position = 'relative';
+		this.element.appendChild(this.canvas);
+	}
+
+	/**
+	 * @param  {View} view
+	 */
+	setView() {
+		this.view.context = this.canvas.getContext('2d');
+		this.canvas.width = this.view.screenSize.x;
+		this.canvas.height = this.view.screenSize.y;
+		this.canvas.style.width = '100%';
+		this.canvas.style.height = '100%';
+
+		this.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
+	}
+
+	/**
+	 * @param  {World} world
+	 * @param  {Array} superTensorList
+	 */
+	setupLabels(world) {
+		this.tensorLabel = world.labels.findLabel('tensor');
+		this.nodeLabel = world.labels.findLabel('node');
+		this.sensorLabel = world.labels.findLabel('sensor');
+		this.angleLabel = world.labels.findLabel('angle');
+		this.moveableLabel = world.labels.findLabel('moveable');
+		this.pullSpringLabel = world.labels.findLabel('pullspring');
+		this.pushSpringLabel = world.labels.findLabel('pushspring');
+		this.fieldLabel = world.labels.findLabel('field');
+		this.absorberLabel = world.labels.findLabel('absorber');
+		this.springLabel = world.labels.findLabel('spring');
 	}
 
 	/**
@@ -138,6 +203,9 @@ class TrussNode extends Node {
 		super.deserialize(restoreObject, superNodes, superTensors);
 		this.handleCanvas();
 		this.setView();
+		if (this.world) {
+			this.setupLabels(this.world);
+		}
 	}
 
 	/**
@@ -159,17 +227,6 @@ class TrussNode extends Node {
 	/**
 	 *
 	 */
-	handleCanvas() {
-		this.canvas.name = this.name;
-		this.canvas.style.top = this.localPosition.y + 'px';
-		this.canvas.style.left = this.localPosition.x + 'px';
-		this.canvas.style.position = 'relative';
-		this.element.appendChild(this.canvas);
-	}
-
-	/**
-	 *
-	 */
 	clean() {
 		if (this.element) {
 			this.element.innerHTML='';
@@ -183,18 +240,6 @@ class TrussNode extends Node {
 		this.editWindow.close();
 	}
 
-	/**
-	 * @param  {View} view
-	 */
-	setView() {
-		this.view.context = this.canvas.getContext('2d');
-		this.canvas.width = this.view.screenSize.x;
-		this.canvas.height = this.view.screenSize.y;
-		this.canvas.style.width = '100%';
-		this.canvas.style.height = '100%';
-
-		this.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
-	}
 	/**
  */
 	resize() {
@@ -247,35 +292,30 @@ class TrussNode extends Node {
 	 * Add a node to the truss and it will be updated at ticks and displayed
 	 * @param  {Node} node
 	 * @return {Node}
-	 */
+	 *
 	addNode(node) {
-		this.nodes.push(node);
-		if (node.sensor) {
-			this.addSensor(node);
-		}
+		//this.nodes=node;
 		return node;
 	};
 
 	/**
 	 * Remove a node from the truss so it will not any longer be updated at ticks and displayed
 	 * @param  {Node} node
-	 */
+	 *
 	removeNode(node) {
-		removeIfPresent(node, this.nodes);
+		this.nodeLabel.clearOldReference(node);
 		node.removeFromWorld();
-		if (node.sensor) {
-			this.removeSensor(node);
-		}
+
 		for (let tensor of node.connectedTensors) {
 			this.removeTensor(tensor);
 		}
-	};
+	}; */
 
 	/**
 	 * @param  {Tensor} tensor
 	 * @return {Tensor}
 	 */
-	removeTensor(tensor) {
+	xremoveTensor(tensor) {
 		removeIfPresent(tensor, this.connectedTensors);
 		tensor.removeFromWorld();
 		return tensor;
@@ -366,7 +406,7 @@ class TrussNode extends Node {
 	/**
 	 * Add a node to the list of nodes that should be checked if the collide with a tensor
 	 * @param  {Node} sensorNode
-	 */
+	 *
 	addSensor(sensorNode) {
 		this.sensorNodes.push(sensorNode);
 	};
@@ -374,17 +414,17 @@ class TrussNode extends Node {
 	/**
 	 * Remove a node to the list of nodes that should be checked if the collide with a tensor
 	 * @param  {Node} sensorNode
-	 */
+	 *
 	removeSensor(sensorNode) {
 		removeIfPresent(sensorNode, this.sensorNodes);
-	};
+	}; */
 
 	/**
 	 * Go through all sensors added by addSensor() and trigger the sense() function
 	 * @param {number} deltaTime
 	 */
 	sense(deltaTime) {
-		for (let sensorNode of this.sensorNodes) {
+		for (let sensorNode of this.sensorLabel.getNodes()) {
 			sensorNode.sense(deltaTime, this);
 		}
 	}
@@ -434,7 +474,7 @@ class TrussNode extends Node {
 				closest = node;
 			}
 		}
-		for (let tensor of this.tensors.getTensors()) {
+		for (let tensor of this.tensors) {
 			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
 				lowestDistance = Position.distance(position, tensor.getPosition());
 				closest = tensor;
@@ -502,12 +542,12 @@ class TrussNode extends Node {
 	 * @param  {number} graphicDebugLevel
 	 */
 	showTruss(time, graphicDebugLevel) {
-		for (let tensor of this.tensors.getTensors()) {
+		for (let tensor of this.tensors) {
 			tensor.show(this, graphicDebugLevel);
 		}
 
-		for (let i = 0; i < this.nodes.length; i++) {
-			this.nodes[i].show(this, time, graphicDebugLevel);
+		for (let node of this.nodes) {
+			node.show(this, time, graphicDebugLevel);
 		}
 	}
 }

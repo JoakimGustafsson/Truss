@@ -60,7 +60,7 @@ function httpGetAsync(theUrl, callback) {
  * @param  {string} fileName
  */
 function saveFile(fileName) {
-	universe.currentWorld.mapAll((trussNode) => trussNode.truss.hideEdit());
+	universe.currentWorld.mapAll((trussNode) => trussNode.hideEdit());
 	httpPostAsync('/save', function(x) {
 		console.log('Server reported: ' + x);
 	}, universe.currentWorld.serialize(), fileName + '.json');

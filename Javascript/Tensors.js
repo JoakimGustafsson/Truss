@@ -11,7 +11,11 @@ class Tensor extends StoreableObject {
 	 * @param  {object} valueObject
 	 */
 	constructor(node1, node2, initialLabels, valueObject) {
-		super(node1.world, initialLabels, valueObject);
+		let parent = undefined;
+		if (node1) {
+			parent = node1.world;
+		}
+		super(parent, initialLabels, valueObject);
 
 		this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
@@ -84,16 +88,16 @@ class Tensor extends StoreableObject {
 			},
 		});
 
-		this.initialRefresh();
 		this.node1 = node1;
 		this.node2 = node2;
+		this.initialRefresh();
 	}
 
 	/**
 	 * @param {Labels} value
 	 */
 	labelChange(value) {
-		this.velocityBasedTensors = (0 >= this.labels.indexOf(universe.currentWorld.labels.findLabel('absorblabel')));
+		this.velocityBasedTensors = (0 >= this.labels.indexOf(this.world.labels.findLabel('absorblabel')));
 	}
 
 	/**
@@ -159,14 +163,6 @@ class Tensor extends StoreableObject {
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 		}
-
-		/* this.selectionEventListener=document.addEventListener('selectionEvent',
-			function(e) {
-				if (_this && universe.current.selector && universe.selectedObject && universe.selectedObject.isNode) {
-					_this.sensorAttach();
-					_this = undefined;
-				}
-			}, false);*/
 
 		return div;
 	}
@@ -297,9 +293,9 @@ class Tensor extends StoreableObject {
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Tensor}
-	 */
+	 *
 	deserialize(restoreObject, nodeList, tensorList) {
-		// super.deserialize(restoreObject);
+		super.deserialize(restoreObject);
 		this.node1=nodeList[restoreObject.node1];
 		this.node2=nodeList[restoreObject.node2];
 		this.angle1=restoreObject.angle1;
@@ -326,10 +322,10 @@ class Tensor extends StoreableObject {
 		this.color=restoreObject.color;
 
 		this.labelString = restoreObject.labelString;
-		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
+		this.labels = this.world.labels.parse(this.labelString, this);
 
 		return this;
-	}
+	} */
 
 	/**
 	 * @return {string} The name of the tensor
@@ -510,7 +506,8 @@ class Tensor extends StoreableObject {
 	/**
 	 * Makes sure the nodes will NOT take this tensor into consideration
 	 */
-	removeFromWorld() {
+	unreference() {
+		this.world.labels.clearOldReferences(this);
 		if (this.node2) {
 			this.node2.removeTensor(this);
 		}
@@ -518,10 +515,6 @@ class Tensor extends StoreableObject {
 			this.node1.removeTensor(this);
 		}
 		this.force = 0;
-
-		for (let label of this.labels) { // ensure no label points to this tensor
-			label.clearOldReference(this);
-		}
 	};
 
 	/**
@@ -671,7 +664,9 @@ class Tensor extends StoreableObject {
 	 * @return {string} the HTML color of the tensor
 	 */
 	getColour() {
-		return this.color;
+		if (this.color) {
+			return this.color;
+		} else return 'white';
 	};
 	/**
 	 * clear a specific node from the list of nodes that have collided with the tensor.
@@ -834,7 +829,7 @@ class Tensor extends StoreableObject {
 	addLabel(labels) {
 		this.labelString+=labels+' ';
 		this.labels =
-				universe.currentWorld.labels.parse(this.labelString, this);
+				this.world.labels.parse(this.labelString, this);
 	}
 }
 
