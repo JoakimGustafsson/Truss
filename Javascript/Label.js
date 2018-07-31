@@ -7,92 +7,92 @@ class Labels {
 	constructor() {
 		this.list = [];
 
-		this.massProperty = new Property(undefined,
+		this.massProperty = new Property(
 			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The mass of the node in Kilograms.');
-		this.nameProperty = new Property(undefined,
+		this.nameProperty = new Property(
 			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The name of the node.');
-		this.constantProperty = new Property(undefined,
+		this.constantProperty = new Property(
 			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The tensor constant.');
-		this.absorberProperty = new Property(undefined,
+		this.absorberProperty = new Property(
 			'dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The absorb constant.');
-		this.positionProperty = new Property(undefined,
+		this.positionProperty = new Property(
 			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The position counted from the upper left corner.');
-		this.velocityProperty = new Property(undefined,
+		this.velocityProperty = new Property(
 			'velocity', 'velocity', 'velocity', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The velocity.');
-		this.angleProperty = new Property(undefined,
+		this.angleProperty = new Property(
 			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle of the node.');
-		this.torqueConstantProperty = new Property(undefined,
+		this.torqueConstantProperty = new Property(
 			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How stiff the node is with respect to attempts angle differences.');
-		this.nodeFrictionProperty = new Property(undefined,
+		this.nodeFrictionProperty = new Property(
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		this.colorProperty = new Property(undefined,
+		this.colorProperty = new Property(
 			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The colour of the node.');
-		this.pictureProperty = new Property(undefined,
+		this.pictureProperty = new Property(
 			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
 			'The picture filename.');
-		this.sizeProperty = new Property(undefined,
+		this.sizeProperty = new Property(
 			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The picture size');
-		this.equilibriumLengthProperty = new Property(undefined,
+		this.equilibriumLengthProperty = new Property(
 			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'How long should the relaxed spring be.');
-		this.degree1Property = new Property(undefined,
+		this.degree1Property = new Property(
 			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle the node connects to the start node.');
-		this.degree2Property = new Property(undefined,
+		this.degree2Property = new Property(
 			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'The angle the node connects to the end node.');
 
 
-		this.screenSizeProperty = new Property(undefined,
+		this.screenSizeProperty = new Property(
 			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The size of the displayed screen in pixels.');
-		this.worldSizeProperty = new Property(undefined,
+		this.worldSizeProperty = new Property(
 			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The size of the displayed worldview in that worlds measurement.');
-		this.setWorldOffsetProperty = new Property(undefined,
+		this.setWorldOffsetProperty = new Property(
 			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
 			'The world coordinates of the upper left corner.');
-		this.fpsTargetProperty = new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
+		this.fpsTargetProperty = new Property('fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
-		this.fpsProperty = new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
+		this.fpsProperty = new Property('fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
-		this.visibilityProperty = new Property(undefined,
+		this.visibilityProperty = new Property(
 			'visible', 'visible', 'Visible', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'Should this be visible on the screen.');
 
-		this.snapGridProperty = new Property(undefined,
+		this.snapGridProperty = new Property(
 			'gridSize', 'gridSize', 'Align to grid', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'Aligning all new positions to this grid. (0 for no alignment)');
 
-		this.enforcedProperty = new Property(undefined,
+		this.enforcedProperty = new Property(
 			'enforced', 'enforced', 'Enforced', ParameteType.NUMBER, ParameterCategory.CONTENT,
 			'Special parameter that only is used in labels to enforce all parameter values are enforced.');
 
-		this.startNodeProperty = new Property(undefined,
+		this.startNodeProperty = new Property(
 			'node1', 'node1', 'Start node', ParameteType.NODE, ParameterCategory.CONTENT,
 			'Start node.');
 
-		this.endNodeProperty = new Property(undefined,
+		this.endNodeProperty = new Property(
 			'node2', 'node2', 'End node', ParameteType.NODE, ParameterCategory.CONTENT,
 			'End node.');
 
-		this.parentTrussNodeProperty = new Property(undefined,
+		this.parentTrussNodeProperty = new Property(
 			'parentTrussNode', 'parentTrussNode', 'Truss node', ParameteType.NODE, ParameterCategory.CONTENT,
 			'Owning truss node.');
 
-		this.connectedTensorsProperty = new Property(undefined,
+		this.connectedTensorsProperty = new Property(
 			'connectedTensors', 'connectedTensors', 'Tensors', ParameteType.TENSORLIST, ParameterCategory.CONTENT,
 			'All tensors based on node positions.');
 
@@ -158,7 +158,7 @@ class Labels {
 			'constantProperty': 6.67e-11,
 			'massProperty': 5.97219e24,
 			'nameProperty': 'Earth',
-			'positionProperty': new Position(0, 6371e3),
+			'positionProperty': new Position(0, 6371000),
 			'enforcedProperty': true,
 		});
 		let trussLabel = this.addLabel('truss', [nodeLabel], {
@@ -183,8 +183,8 @@ class Labels {
 	 */
 	addLabel(name, dependencies, properties) {
 		if (properties) {
+			let enforced = properties.enforcedProperty;
 			for (const [key, value] of Object.entries(properties)) {
-				let enforced = properties.enforcedProperty;
 				properties[key] = {
 					'propertyObject': this[key],
 					'defaultValue': value,

@@ -5,14 +5,22 @@
 class BannerNode extends Node {
 	/** This class displays a banner containing a HTML element.
 	 * @param  {Truss} truss
-	 * @param  {HTMLElement} element
+	 * @param  {HTMLElement} editParameterElement
+	 * @param  {HTMLElement} propertyElement
 	 */
-	constructor(truss, element) {
-		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner');
+	constructor(truss, editParameterElement, propertyElement) {
+		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner sensor');
 		this.name = 'bannerNode';
-		this.element = element;
+		this.element = editParameterElement;
+		this.propertyElement = propertyElement;
+		let _this=this;
 
-		
+		this.eventListenerFunction = function(e) {
+			if (universe.currentNode==_this.parentTrussNode) {
+				_this.showPropertyElements(e);
+			}
+		};
+		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
 	}
 
 	/**
@@ -149,15 +157,6 @@ class BannerNode extends Node {
 		return;
 	}
 
-	/**
-	 * @param  {Object} restoreObject
-	 * @param  {Array} superNodes
-	 * @param  {Array} superTensors
-	 */
-	deserialize(restoreObject, superNodes, superTensors) {
-		return;
-	}
-
 
 	/** Displays the Truss's canvas at the correct position
 	 * @param  {Truss} truss
@@ -181,30 +180,16 @@ class BannerNode extends Node {
 		}
 	};
 
-
-	xconstructor(world, parentTrussNode, initialLabels, element) {
-		super(world, parentTrussNode, initialLabels + ' sensor ');
-		this.element=element;
-		let _this = this;
-		this.name = 'PropertyUpdateNode';
-		this.eventListenerFunction = function(e) {
-			if (universe.currentNode==_this.parentTrussNode) {
-				_this.showPropertyElements(e);
-			}
-		};
-		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
-	}
-
 	/**
 	 * @param  {Event} selectionEvent
 	 */
 	showPropertyElements(selectionEvent) {
 		this.iO = selectionEvent.detail.selectedObject;
 
-		this.element.innerHTML='';
+		this.propertyElement.innerHTML='';
 		if (this.iO) {
 			// this.iO.properties.populateProperties(this.element);
-			this.iO.populateProperties(this.element);
+			this.iO.populateProperties(this.propertyElement);
 		}
 	}
 
@@ -223,14 +208,6 @@ class BannerNode extends Node {
 	}
 
 	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 */
-	serialize(nodeList, tensorList) {
-		alert('HTMLEditNode should never be serialized');
-	}
-
-	/**
 	 * Use sense in order to make pause work
 	 * @param {number} deltaTime
 	 * @param {Truss} truss
@@ -241,5 +218,4 @@ class BannerNode extends Node {
 			this.iO.properties.updatePropertyValues(this.iO);
 		}
 	}
-
 }

@@ -105,7 +105,7 @@ class PropertyList {
  */
 class Property {
 	/**
-	 * @param  {Object} parentNode
+
 	 * @param  {string} propertyName
 	 * @param  {string} idHTML
 	 * @param  {string} displayTitle
@@ -114,9 +114,8 @@ class Property {
 	 * @param  {string} helpText
 	 * @param  {Object} defaultValue
 	 */
-	constructor(parentNode, propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText, defaultValue) {
+	constructor(propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText, defaultValue) {
 		this.propertyName = propertyName;
-		this.parentNode = parentNode;
 		this.identity = 'editWindowTruss' + idHTML;
 		this.title = displayTitle;
 		this.type = parameterType;
@@ -324,25 +323,6 @@ class Property {
 	}
 
 	/**
-	 * @param  {Element} element
-	 * @param  {String} id
-	 */
-	makeStringList(element, id) {
-		let parameterValue = this.createNameValuePair(element);
-
-
-		let secondaryLabelsDiv = document.createElement('div');
-		secondaryLabelsDiv.id = 'labelContainer';
-		secondaryLabelsDiv.classList.add('labelList');
-
-
-		this.input = this.makePropertyListField(id, parameterValue, secondaryLabelsDiv);
-
-		parameterValue.appendChild(this.input);
-		element.appendChild(secondaryLabelsDiv);
-	}
-
-	/**
 	 * @param  {String} id
 	 * @param  {Element} parameterValue
 	 * @return {Element}
@@ -536,6 +516,25 @@ class Property {
 	}
 
 	/**
+	 * @param  {Element} element
+	 * @param  {String} id
+	 */
+	makeStringList(element, id) {
+		let parameterValue = this.createNameValuePair(element);
+
+
+		let secondaryLabelsDiv = document.createElement('div');
+		secondaryLabelsDiv.id = 'labelContainer';
+		secondaryLabelsDiv.classList.add('labelList');
+
+
+		this.input = this.makePropertyListField(id, parameterValue, secondaryLabelsDiv);
+
+		parameterValue.appendChild(this.input);
+		element.appendChild(secondaryLabelsDiv);
+	}
+
+	/**
 	 * @param  {String} id
 	 * @param  {Element} parameterValue
 	 * @param  {Element} secondaryLabelsDiv
@@ -544,7 +543,11 @@ class Property {
 	makePropertyListField(id, parameterValue, secondaryLabelsDiv) {
 		let inputField = this.makeViewOfInputField(id, parameterValue);
 		let _this = this;
+
 		let finalizelabels = function(object, value) {
+			if (!value) {
+				value = object.labelString;
+			}
 			secondaryLabelsDiv.innerHTML = '';
 			object.labelString = value;
 			object.refreshPropertiesAfterLabelChange();
@@ -558,21 +561,22 @@ class Property {
 
 			return;
 		};
+
 		inputField.addEventListener('input', function(e) {
 			universe.selectedObject[_this.propertyName] = inputField.value;
 		}, true);
 		inputField.addEventListener('keydown', function(e) {
 			if (e.key === 'Enter') {
 				finalizelabels(universe.selectedObject, inputField.value);
-				_this.parentNode.properties.populateRest(_this.HTMLElement, true);
+				universe.selectedObject.properties.populateRest(_this.HTMLElement, true);
 			}
 		}, true);
 		inputField.addEventListener('blur', function(e) {
 			finalizelabels(universe.selectedObject, inputField.value);
-			_this.parentNode.properties.populateRest(_this.HTMLElement, true);
+			universe.selectedObject.properties.populateRest(_this.HTMLElement, true);
 		}, true);
 
-		finalizelabels(universe.selectedObject, this.parentNode.labelString);
+		finalizelabels(universe.selectedObject);
 		return inputField;
 	}
 

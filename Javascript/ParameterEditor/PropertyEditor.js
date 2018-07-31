@@ -9,16 +9,15 @@ class PropertyEditor {
 	 * @param  {number} screenHeight
 	 */
 	constructor(parentTrussNode, topScreenPos, screenWidth, screenHeight) {
-		let outerElement = createConfigurationArea('EditParameterElement');
-		let propertyArea = outerElement.querySelectorAll('#configview')[0];
+		this.outerElement = createConfigurationArea('EditParameterElement');
+		this.propertyArea = this.outerElement.querySelectorAll('#configview')[0];
 		this.parentTrussNode = parentTrussNode;
-		this.parentTrussNode.element.appendChild(outerElement);
-		this.bannerNode = new BannerNode(this.parentTrussNode, outerElement);
-		this.PropertyUpdateNode = new PropertyUpdateNode(
+		this.parentTrussNode.element.appendChild(this.outerElement);
+		/* this.PropertyUpdateNode = new PropertyUpdateNode(
 			this.parentTrussNode.world,
 			this.parentTrussNode,
 			'propertyupdatenode',
-			propertyArea);
+			propertyArea); */
 		let _this = this;
 		this.eventListenerFunction = function(e) {
 			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.trussNode==_this.parentTrussNode)) {
@@ -49,7 +48,7 @@ class PropertyEditor {
 		let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
 		if (!previousSelectedObject && selectedObject && !this.banner) {
 			this.createBanner(truss);
-			this.PropertyUpdateNode.eventListenerFunction(selectionEvent);
+			this.bannerNode.eventListenerFunction(selectionEvent);
 		} else if (previousSelectedObject && !selectedObject) {
 			this.removeBanner(truss);
 		}
@@ -58,11 +57,9 @@ class PropertyEditor {
 	/**
 	 */
 	createBanner() {
-		let trussNode = this.parentTrussNode;
-		this.PropertyUpdateNode.activate();
-		// trussNode.addNode(this.PropertyUpdateNode);
-		this.banner = this.bannerNode.create(trussNode);
-		// trussNode.addNode(this.bannerNode);
+		this.bannerNode = new BannerNode(this.parentTrussNode, this.outerElement, this.propertyArea);
+		this.bannerNode.activate();
+		this.banner = this.bannerNode.create(this.parentTrussNode);
 	}
 
 	/**
@@ -70,9 +67,7 @@ class PropertyEditor {
 	removeBanner() {
 		let trussNode = this.parentTrussNode;
 		this.bannerNode.hide();
-		// trussNode.removeNode(this.bannerNode);
-		this.PropertyUpdateNode.close(); // Remove the event listener
-		// trussNode.removeNode(this.PropertyUpdateNode);
+		this.bannerNode.close(); // Remove the event listener
 		this.banner=undefined;
 	}
 }

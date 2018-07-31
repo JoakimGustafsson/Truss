@@ -28,7 +28,7 @@ class StoreableObject {
 			},
 		});
 
-		this.labelProperty = this.addProperty(new Property(this,
+		this.labelProperty = this.addProperty(new Property(
 			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
 	}
@@ -60,7 +60,12 @@ class StoreableObject {
 	getPropertyObject() {
 		let propObject = {};
 		for (let label of this.labels) {
-			Object.assign(propObject, label.properties);
+			for (let k in label.properties) {
+				if (!propObject[k] || !propObject[k].enforced) {
+					propObject[k]=label.properties[k];
+				}
+			}
+			// Object.assign(propObject, label.properties);
 		}
 		return propObject;
 	}
