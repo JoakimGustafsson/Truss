@@ -64,6 +64,15 @@ class Node extends StoreableObject {
 			},
 		});
 
+		Object.defineProperty(this, 'visible', {
+			get: function() {
+				return this._visible;
+			},
+			set: function(value) {
+				this._visible=value;
+			},
+		});
+
 		Object.defineProperty(this, 'mass', {
 			get: function() {
 				if (this._mass==undefined) {
@@ -544,6 +553,9 @@ class Node extends StoreableObject {
 	show(truss, time, graphicDebugLevel = 0) {
 		let view = truss.view;
 		let cxt = view.context;
+		if (!this.visible || this.visible=='0') {
+			return;
+		}
 		if (!this.color) {
 			this.color='lightgrey';
 		}
@@ -661,7 +673,7 @@ class Node extends StoreableObject {
 			this.visible=true;
 		} else if (!on && this.visible) {
 			this.element.display='none';
-			this.visible=true;
+			this.visible=false;
 		}
 	}
 

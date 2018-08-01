@@ -7,94 +7,94 @@ class Labels {
 	constructor() {
 		this.list = [];
 
-		this.massProperty = new Property(
-			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The mass of the node in Kilograms.');
-		this.nameProperty = new Property(
-			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
+		this.massProperty = new NumberProperty(
+			'mass', 'mass', 'Mass', ParameterCategory.CONTENT, 'The mass of the node in Kilograms.');
+		this.nameProperty = new StringProperty(
+			'name', 'name', 'Name', ParameterCategory.CONTENT,
 			'The name of the node.');
-		this.constantProperty = new Property(
-			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.constantProperty = new NumberProperty(
+			'constant', 'constant', 'Constant', ParameterCategory.CONTENT,
 			'The tensor constant.');
-		this.absorberProperty = new Property(
-			'dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.absorberProperty = new NumberProperty(
+			'dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameterCategory.CONTENT,
 			'The absorb constant.');
-		this.positionProperty = new Property(
-			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
+		this.positionProperty = new PositionProperty(
+			'localPosition', 'localPosition', 'Position', ParameterCategory.CONTENT,
 			'The position counted from the upper left corner.');
-		this.velocityProperty = new Property(
-			'velocity', 'velocity', 'velocity', ParameteType.POSITION, ParameterCategory.CONTENT,
+		this.velocityProperty = new PositionProperty(
+			'velocity', 'velocity', 'velocity', ParameterCategory.CONTENT,
 			'The velocity.');
-		this.angleProperty = new Property(
-			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.angleProperty = new NumberProperty(
+			'degree', 'degree', 'Angle', ParameterCategory.CONTENT,
 			'The angle of the node.');
-		this.torqueConstantProperty = new Property(
-			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.torqueConstantProperty = new NumberProperty(
+			'torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT,
 			'How stiff the node is with respect to attempts angle differences.');
-		this.nodeFrictionProperty = new Property(
-			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.nodeFrictionProperty = new NumberProperty(
+			'velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT,
 			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		this.colorProperty = new Property(
-			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
+		this.colorProperty = new StringProperty(
+			'color', 'color', 'Colour', ParameterCategory.CONTENT,
 			'The colour of the node.');
-		this.pictureProperty = new Property(
-			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
+		this.pictureProperty = new StringProperty(
+			'pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT,
 			'The picture filename.');
-		this.sizeProperty = new Property(
-			'size', 'size', 'Size (1=normal)', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.sizeProperty = new NumberProperty(
+			'size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT,
 			'The picture size');
-		this.equilibriumLengthProperty = new Property(
-			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.equilibriumLengthProperty = new NumberProperty(
+			'equilibriumLength', 'equilibriumLength', 'Length', ParameterCategory.CONTENT,
 			'How long should the relaxed spring be.');
-		this.degree1Property = new Property(
-			'degree1', 'degree1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.degree1Property = new NumberProperty(
+			'degree1', 'degree1', 'Angle 1', ParameterCategory.CONTENT,
 			'The angle the node connects to the start node.');
-		this.degree2Property = new Property(
-			'degree2', 'degree2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.degree2Property = new NumberProperty(
+			'degree2', 'degree2', 'Angle 2', ParameterCategory.CONTENT,
 			'The angle the node connects to the end node.');
 
 
-		this.screenSizeProperty = new Property(
-			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
+		this.screenSizeProperty = new PositionProperty(
+			'screenSize', 'screenSize', 'Screen size', ParameterCategory.CONTENT,
 			'The size of the displayed screen in pixels.');
-		this.worldSizeProperty = new Property(
-			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
+		this.worldSizeProperty = new PositionProperty(
+			'worldSize', 'worldSize', 'World display size', ParameterCategory.CONTENT,
 			'The size of the displayed worldview in that worlds measurement.');
-		this.setWorldOffsetProperty = new Property(
-			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
+		this.setWorldOffsetProperty = new PositionProperty(
+			'setWorldOffset', 'setWorldOffset', 'View position', ParameterCategory.CONTENT,
 			'The world coordinates of the upper left corner.');
-		this.fpsTargetProperty = new Property('fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
+		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second',
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
-		this.fpsProperty = new Property('fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
+		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per Second',
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 
-		this.visibilityProperty = new Property(
-			'visible', 'visible', 'Visible', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.visibilityProperty = new SwitchProperty(
+			'visible', 'visible', 'Visible', ParameterCategory.CONTENT,
 			'Should this be visible on the screen.');
 
-		this.snapGridProperty = new Property(
-			'gridSize', 'gridSize', 'Align to grid', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.snapGridProperty = new NumberProperty(
+			'gridSize', 'gridSize', 'Align to grid', ParameterCategory.CONTENT,
 			'Aligning all new positions to this grid. (0 for no alignment)');
 
-		this.enforcedProperty = new Property(
-			'enforced', 'enforced', 'Enforced', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.enforcedProperty = new NumberProperty(
+			'enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT,
 			'Special parameter that only is used in labels to enforce all parameter values are enforced.');
 
-		this.startNodeProperty = new Property(
-			'node1', 'node1', 'Start node', ParameteType.NODE, ParameterCategory.CONTENT,
+		this.startNodeProperty = new NodeProperty(
+			'node1', 'node1', 'Start node', ParameterCategory.CONTENT,
 			'Start node.');
 
-		this.endNodeProperty = new Property(
-			'node2', 'node2', 'End node', ParameteType.NODE, ParameterCategory.CONTENT,
+		this.endNodeProperty = new NodeProperty(
+			'node2', 'node2', 'End node', ParameterCategory.CONTENT,
 			'End node.');
 
-		this.parentTrussNodeProperty = new Property(
-			'parentTrussNode', 'parentTrussNode', 'Truss node', ParameteType.NODE, ParameterCategory.CONTENT,
+		this.parentTrussNodeProperty = new NodeProperty(
+			'parentTrussNode', 'parentTrussNode', 'Parent node', ParameterCategory.CONTENT,
 			'Owning truss node.');
 
-		this.connectedTensorsProperty = new Property(
-			'connectedTensors', 'connectedTensors', 'Tensors', ParameteType.TENSORLIST, ParameterCategory.CONTENT,
+		this.connectedTensorsProperty = new TensorListProperty(
+			'connectedTensors', 'connectedTensors', 'Tensors', ParameterCategory.CONTENT,
 			'All tensors based on node positions.');
+
 
 		let nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',

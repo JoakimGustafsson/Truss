@@ -461,10 +461,10 @@ class PerformanceTrussNode extends TrussNode {
 				let x = new Node(this.world, this, 'turngridnode node', {
 					'name': 'Node '+column+' '+row,
 					'localPosition': new Position(column*3, row*3),
-					'pictureReference': 'trussicon.png',
-					'pictureHeight': 600,
-					'pictureWidth': 600,
-					'turnrate': 0.04,
+					// 'pictureReference': 'trussicon.png',
+					// 'pictureHeight': 600,
+					// 'pictureWidth': 600,
+					// 'turnrate': 0.04,
 				});
 
 				protagonist=x;

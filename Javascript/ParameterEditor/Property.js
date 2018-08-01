@@ -1,8 +1,3 @@
-/* function setupFileSelectionPanel(type,callback){
-    openBottomPanel(0, 'resourceDiv', callback);
-    openBottomSubPanel(0, type);
-    //selectFileFunction(callback);
-}*/
 
 let ParameterCategory = {
 	APPEARANCE: 1,
@@ -11,6 +6,7 @@ let ParameterCategory = {
 	CONTENT: 4,
 };
 
+/*
 let ParameteType = {
 	STRING: 1,
 	NUMBER: 2,
@@ -22,7 +18,7 @@ let ParameteType = {
 	LABELLIST: 8,
 	NODE: 9,
 	TENSORLIST: 10,
-};
+}; */
 
 
 /**
@@ -109,20 +105,163 @@ class Property {
 	 * @param  {string} propertyName
 	 * @param  {string} idHTML
 	 * @param  {string} displayTitle
-	 * @param  {ParameteType} parameterType
 	 * @param  {parameterCategory} parameterCategory
 	 * @param  {string} helpText
 	 * @param  {Object} defaultValue
 	 */
-	constructor(propertyName, idHTML, displayTitle, parameterType, parameterCategory, helpText, defaultValue) {
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
 		this.propertyName = propertyName;
 		this.identity = 'editWindowTruss' + idHTML;
 		this.title = displayTitle;
-		this.type = parameterType;
 		this.help = helpText;
 		this.defaultValue = defaultValue;
 		this.HTMLElement = undefined;
 	}
+
+	/**
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(serializeObject, localNodeList, tensorList) {
+		return serializeObject;
+	}
+
+	/**
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	deSerialize(serializeObject, localNodeList, tensorList) {
+		return serializeObject;
+	}
+
+	/** creates the default value editing area and handles input updates
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
+	makeInputField(id, parameterValue) {
+		let inputField = this.makeViewOfInputField(id, parameterValue);
+		let _this = this;
+		inputField.addEventListener('input', function(e) {
+			universe.selectedObject[_this.propertyName] = inputField.value;
+		}, false);
+		return inputField;
+	}
+
+	/** Creates the default value editing area. This does not handle any input (see makeinputField)
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
+	makeViewOfInputField(id, parameterValue) {
+		let inputField = document.createElement('input');
+		inputField.type = 'text';
+		inputField.value = 'Default';
+		inputField.classList.add('text');
+		inputField.classList.add('inputcss');
+		inputField.id = id;
+		inputField.style.width = '140px';
+		parameterValue.appendChild(inputField);
+		return inputField;
+	}
+
+	/** Creates the graphical representation of a name value pair and return the editable area
+	 * @param  {Element} element
+	 * @return {Element} The right hand side that should be filled with value container(s)
+	 */
+	createNameValuePair(element) {
+		let outerDiv = document.createElement('div');
+		outerDiv.id = this.identity + 'Container';
+		// outerDiv.style.position='absolute';
+		outerDiv.classList.add('parameterEditArea');
+		element.appendChild(outerDiv);
+		let valuePair = document.createElement('div');
+		valuePair.classList.add('valuepair');
+		outerDiv.appendChild(valuePair);
+		let parameterName = document.createElement('div');
+		parameterName.classList.add('lname');
+		parameterName.title = this.help;
+		parameterName.innerHTML = this.title;
+		valuePair.appendChild(parameterName);
+		let parameterValue = document.createElement('div');
+		parameterValue.classList.add('rvalue');
+		valuePair.appendChild(parameterValue);
+		return parameterValue;
+	}
+
+
+	/**
+	 * @param  {buttonObject} but
+	 * @param  {Node} node1
+	 */
+	registerOnClick(but, node1) {
+		but.addEventListener('click', function() {
+			let previousSelectedObject = universe.selectedObject;
+			universe.selectedObject = node1;
+			let event = new CustomEvent('selectionEvent', {
+				detail: {
+					'selectedObject': universe.selectedObject,
+					'previousSelectedObject': previousSelectedObject,
+					'trussNode': undefined,
+				},
+				bubbles: true,
+				cancelable: true,
+			});
+			universe.currentNode.element.dispatchEvent(event);
+		});
+	}
+
+	// This is called when the screen should be updated by a value change in an object
+	/**
+	 * @param  {Object} selectedObject
+	 */
+	updatePropertyValue(selectedObject) {
+		let element = this.input;
+		if ((element == undefined) || (element == null)) {
+			console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
+			return;
+		}
+		if (selectedObject[this.propertyName]==undefined) {
+			selectedObject[this.propertyName]=this.defaultValue;
+		}
+		element.value = selectedObject[this.propertyName];
+	};
+}
+
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* *********************************************************************************** */
+/* ************************************************************************************ */
+
+
+/**
+ * @class NumberProperty
+ * @extends Property
+ */
+class NumberProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
+	}
+
 
 	/**
 	 * @param {Element} element
@@ -133,66 +272,172 @@ class Property {
 		let addNodeButton;
 		this.HTMLElement = restArea;
 
-		if (this.type == ParameteType.NODELIST) {
-			this.makeNodeButtons(element, this.identity);
-		} else if (this.type == ParameteType.NUMBER) {
-			this.makeNumber(element, this.identity);
-		} else if (this.type == ParameteType.STRING) {
-			this.makeString(element, this.identity);
-		} else if (this.type == ParameteType.POSITION) {
-			this.makePosition(element, this.identity, display);
-		} else if (this.type == ParameteType.SWITCH) {
-			this.makeSwitch(element, this.identity, display);
-		} else if (this.type == ParameteType.LABELLIST) {
-			this.makeStringList(element, this.identity, display);
-		} else if (this.type == ParameteType.NODE) {
-			this.makeNode(element, this.identity, display);
-		} else if (this.type == ParameteType.TENSORLIST) {
-			this.makeTensorButtons(element, this.identity, display);
-		}
-	};
-
-	/**
-	 * @param  {Element} element
-	 * @param  {String} id
-	 * @param  {String} display
-	 */
-	makeNode(element, id, display) {
 		let parameterValue = this.createNameValuePair(element);
-		this.input = document.createElement('div');
-		this.input.style.display = 'inline';
-		// this.input.style.border = '2px solid green';
+		this.input = this.makeInputField(this.identity, parameterValue);
 		parameterValue.appendChild(this.input);
+	}
+}
 
-		let changeButton = document.createElement('button');
-		changeButton.classList.add('trussButton');
-		changeButton.classList.add('tensorButtonRight');
-		changeButton.innerHTML = 'X';
-
-		parameterValue.appendChild(changeButton);
-
-		let _this = this;
-		this.attachFunction = function() {
-			if (_this && universe.currentNode.selector && universe.selectedObject && universe.selectedObject.isNode) {
-				_this.initialSelectedItem.sensorAttach();
-				_this = undefined;
-			}
-		};
-
-		changeButton.onclick = function(x) {
-			universe.selectedObject[_this.propertyName] = universe.currentNode.selector;
-			_this.initialSelectedItem = universe.selectedObject;
-			document.addEventListener('selectionEvent', _this.attachFunction, false);
-		};
+/**
+ * @class StringProperty
+ * @extends Property
+ */
+class StringProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
 	}
 
 
 	/**
-	 * @param  {Element} element
-	 * @param  {String} id
-	 * @param  {String} display
+	 * @param {Element} element
+	 * @param {Element} restArea
 	 */
-	makePosition(element, id, display) {
+	populateProperty(element, restArea) {
+		let display = '';
+		let addNodeButton;
+		this.HTMLElement = restArea;
+
+		let parameterValue = this.createNameValuePair(element);
+		this.input = this.makeInputField(this.identity, parameterValue);
+		parameterValue.appendChild(this.input);
+	}
+}
+
+/**
+ * @class SwitchProperty
+ * @extends Property
+ */
+class SwitchProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
+	}
+
+
+	/**
+	 * @param {Element} element
+	 * @param {Element} restArea
+	 */
+	populateProperty(element, restArea) {
+		let display = '';
+		let addNodeButton;
+		this.HTMLElement = restArea;
+		let parameterValue = this.createNameValuePair(element);
+		this.input = this.makeSwitchField(this.identity, parameterValue);
+	}
+
+	/**
+		 * @param  {String} id
+		 * @param  {Element} parameterValue
+		 * @return {Element}
+		 */
+	makeSwitchField(id, parameterValue) {
+		// let inputField = this.makeViewOfSwitchField(id, parameterValue);
+
+		let inputLabel = document.createElement('label');
+		inputLabel.classList.add('switch');
+		let inputField = document.createElement('input');
+		inputField.type = 'checkbox';
+		inputField.id = id;
+		inputLabel.appendChild(inputField);
+
+		let inputSpan = document.createElement('span');
+		inputSpan.classList.add('slider');
+		// inputSpan.classList.add('round');
+		inputLabel.appendChild(inputSpan);
+
+		parameterValue.appendChild(inputLabel);
+
+
+		let _this = this;
+		inputField.addEventListener('input', function(e) {
+			universe.selectedObject[_this.propertyName] = inputField.checked;
+		}, false);
+		return inputField;
+	}
+
+	/**
+		 * @param  {String} id
+		 * @param  {Element} parameterValue
+		 * @return {Element}
+		 */
+	makeViewOfSwitchField(id, parameterValue) {
+		let inputLabel = document.createElement('label');
+		inputLabel.classList.add('switch');
+		let inputField = document.createElement('input');
+		inputField.type = 'checkbox';
+		inputField.id = id;
+		inputLabel.appendChild(inputField);
+
+		let inputSpan = document.createElement('span');
+		inputSpan.classList.add('slider');
+		// inputSpan.classList.add('round');
+		inputLabel.appendChild(inputSpan);
+
+		parameterValue.appendChild(inputLabel);
+		return inputField;
+	}
+
+	// This is called when the screen should be updated by a value change in an object
+	/**
+	 * @param  {Object} selectedObject
+	 */
+	updatePropertyValue(selectedObject) {
+		let element = this.input;
+		if ((element == undefined) || (element == null)) {
+			console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
+			return;
+		}
+		if (selectedObject[this.propertyName]==undefined) {
+			selectedObject[this.propertyName]=this.defaultValue;
+		}
+		element.checked = selectedObject[this.propertyName];
+	};
+}
+
+/**
+ * @class PositionProperty
+ * @extends Property
+ */
+class PositionProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
+	}
+
+
+	/**
+	 * @param {Element} element
+	 * @param {Element} restArea
+	 */
+	populateProperty(element, restArea) {
+		let display = '';
+		let addNodeButton;
+		this.HTMLElement = restArea;
+		let id = this.identity;
+
 		let parameterValue = this.createNameValuePair(element);
 
 		let xValuePair = document.createElement('div');
@@ -249,29 +494,94 @@ class Property {
 	 * @return {Object}
 	 */
 	serialize(serializeObject, localNodeList, tensorList) {
-		if (this.type == ParameteType.NODELIST) {
-			return {};
-		} else if (this.type == ParameteType.POSITION) {
-			return {
-				'x': serializeObject.x,
-				'y': serializeObject.y,
-			};
-		} else if (this.type == ParameteType.SWITCH) {
-			return serializeObject;
-		} else if (this.type == ParameteType.LABELLIST) {
-			return serializeObject;
-		} else if (this.type == ParameteType.NODE) {
-			return localNodeList.indexOf(serializeObject);
-		} else if (this.type == ParameteType.TENSORLIST) {
-			let returnList=[];
-			for (let tensor of serializeObject) {
-				returnList.push(tensorList.indexOf(tensor));
-			}
-			return returnList;
+		return {
+			'x': serializeObject.x,
+			'y': serializeObject.y,
+		};
+	}
+
+	/**
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Position}
+	 */
+	deSerialize(serializeObject, localNodeList, tensorList) {
+		return new Position(serializeObject.x, serializeObject.y);
+	}
+
+	// This is called when the screen should be updated by a value change in an object
+	/**
+	 * @param  {Object} selectedObject
+	 */
+	updatePropertyValue(selectedObject) {
+		let elementX = this.xInput;
+		let elementY = this.yInput;
+		if ((elementX == undefined) || (elementX == null)) {
+			console.log('updatePropertyValue cannot find HTML element ' + this.identity + 'X & Y. (Title:' + this.title + ')');
+			return;
 		} else {
-			return serializeObject;
+			elementX.value = Math.round(100 * selectedObject[this.propertyName].x) / 100;
+			elementY.value = Math.round(100 * selectedObject[this.propertyName].y) / 100;
 		}
 	}
+}
+
+/**
+ * @class NodeProperty
+ * @extends Property
+ */
+class NodeProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
+	}
+
+
+	/**
+	 * @param {Element} element
+	 * @param {Element} restArea
+	 */
+	populateProperty(element, restArea) {
+		let display = '';
+		let addNodeButton;
+		this.HTMLElement = restArea;
+		let id = this.identity;
+
+		let parameterValue = this.createNameValuePair(element);
+		this.input = document.createElement('div');
+		this.input.style.display = 'inline';
+		parameterValue.appendChild(this.input);
+
+		let changeButton = document.createElement('button');
+		changeButton.classList.add('trussButton');
+		changeButton.classList.add('tensorButtonRight');
+		changeButton.innerHTML = 'X';
+
+		parameterValue.appendChild(changeButton);
+
+		let _this = this;
+		this.attachFunction = function() {
+			if (_this && universe.currentNode.selector && universe.selectedObject && universe.selectedObject.isNode) {
+				_this.initialSelectedItem.sensorAttach();
+				_this = undefined;
+			}
+		};
+
+		changeButton.onclick = function(x) {
+			universe.selectedObject[_this.propertyName] = universe.currentNode.selector;
+			_this.initialSelectedItem = universe.selectedObject;
+			document.addEventListener('selectionEvent', _this.attachFunction, false);
+		};
+	}
+
 
 	/**
 	 * @param  {Object} serializeObject
@@ -279,153 +589,76 @@ class Property {
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
+	serialize(serializeObject, localNodeList, tensorList) {
+		return localNodeList.indexOf(serializeObject);
+	}
+
+	/**
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Position}
+	 */
 	deSerialize(serializeObject, localNodeList, tensorList) {
-		if (this.type == ParameteType.NODELIST) {
-			return {};
-		} else if (this.type == ParameteType.POSITION) {
-			return new Position(serializeObject.x, serializeObject.y);
-		} else if (this.type == ParameteType.NODE) {
-			return localNodeList[serializeObject];
-		} else if (this.type == ParameteType.TENSORLIST) {
-			let returnList=[];
-			for (let tensor of serializeObject) {
-				returnList.push(tensorList[tensor]);
-			}
-			return returnList;
-		} else {
-			return serializeObject;
+		return localNodeList[serializeObject];
+	}
+
+	// This is called when the screen should be updated by a value change in an object
+	/**
+	 * @param  {Object} selectedObject
+	 */
+	updatePropertyValue(selectedObject) {
+		let element = this.input;
+		if ((element == undefined) || (element == null)) {
+			console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
+			return;
 		}
+		if (selectedObject[this.propertyName]==undefined) {
+			selectedObject[this.propertyName]=this.defaultValue;
+		}
+		if (element.myNode!=selectedObject[this.propertyName]) {
+			element.innerHTML = '';
+			let node = selectedObject[this.propertyName];
+			if (node) {
+				let button=selectedObject[this.propertyName].generateHTML();
+				button.classList.add('tensorButtonLeft');
+				element.appendChild(button);
+			} else {
+				element.innerHTML = 'undefined';
+			}
+		}
+		element.myNode=selectedObject[this.propertyName];
+	}
+}
+
+/**
+ * @class TensorListProperty
+ * @extends Property
+ */
+class TensorListProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
 	}
 
-	/**
-	 * @param  {Element} element
-	 * @param  {String} id
-	 */
-	makeString(element, id) {
-		let parameterValue = this.createNameValuePair(element);
-
-		this.input = this.makeInputField(id, parameterValue);
-		parameterValue.appendChild(this.input);
-	}
 
 	/**
-	 * @param  {String} id
-	 * @param  {Element} parameterValue
-	 * @return {Element}
+	 * @param {Element} element
+	 * @param {Element} restArea
 	 */
-	makeInputField(id, parameterValue) {
-		let inputField = this.makeViewOfInputField(id, parameterValue);
-		let _this = this;
-		inputField.addEventListener('input', function(e) {
-			universe.selectedObject[_this.propertyName] = inputField.value;
-		}, false);
-		return inputField;
-	}
+	populateProperty(element, restArea) {
+		let display = '';
+		let addNodeButton;
+		this.HTMLElement = restArea;
+		let id = this.identity;
 
-	/**
-	 * @param  {String} id
-	 * @param  {Element} parameterValue
-	 * @return {Element}
-	 */
-	makeViewOfInputField(id, parameterValue) {
-		let inputField = document.createElement('input');
-		inputField.type = 'text';
-		inputField.value = 'Default';
-		inputField.classList.add('text');
-		inputField.classList.add('inputcss');
-		inputField.id = id;
-		inputField.style.width = '140px';
-		parameterValue.appendChild(inputField);
-		return inputField;
-	}
-
-	/**
-	 * @param  {Element} element
-	 * @return {Element} The right hand side that should be filled with value container(s)
-	 */
-	createNameValuePair(element) {
-		let outerDiv = document.createElement('div');
-		outerDiv.id = this.identity + 'Container';
-		// outerDiv.style.position='absolute';
-		outerDiv.classList.add('parameterEditArea');
-		element.appendChild(outerDiv);
-		let valuePair = document.createElement('div');
-		valuePair.classList.add('valuepair');
-		outerDiv.appendChild(valuePair);
-		let parameterName = document.createElement('div');
-		parameterName.classList.add('lname');
-		parameterName.title = this.help;
-		parameterName.innerHTML = this.title;
-		valuePair.appendChild(parameterName);
-		let parameterValue = document.createElement('div');
-		parameterValue.classList.add('rvalue');
-		valuePair.appendChild(parameterValue);
-		return parameterValue;
-	}
-
-	/**
-	 * @param  {Element} element
-	 * @param  {String} id
-	 */
-	makeSwitch(element, id) {
-		let parameterValue = this.createNameValuePair(element);
-
-		this.input = this.makeSwitchField(id, parameterValue);
-		parameterValue.appendChild(this.input);
-	}
-
-	/**
-	 * @param  {String} id
-	 * @param  {Element} parameterValue
-	 * @return {Element}
-	 */
-	makeSwitchField(id, parameterValue) {
-		let inputField = this.makeViewOfSwitchField(id, parameterValue);
-		let _this = this;
-		inputField.addEventListener('input', function(e) {
-			universe.selectedObject[_this.propertyName] = inputField.checked;
-		}, false);
-		return inputField;
-	}
-
-	/**
-	 * @param  {String} id
-	 * @param  {Element} parameterValue
-	 * @return {Element}
-	 */
-	makeViewOfSwitchField(id, parameterValue) {
-		let inputLabel = document.createElement('label');
-		inputLabel.classList.add('switch');
-		let inputField = document.createElement('input');
-		inputField.type = 'checkbox';
-		inputField.id = id;
-		inputLabel.appendChild(inputField);
-
-		let inputSpan = document.createElement('span');
-		inputSpan.classList.add('slider');
-		// inputSpan.classList.add('round');
-		inputLabel.appendChild(inputSpan);
-
-		parameterValue.appendChild(inputLabel);
-		return inputLabel;
-	}
-
-	/**
-	 * @param  {Element} element
-	 * @param  {String} id
-	 */
-	makeNumber(element, id) {
-		let parameterValue = this.createNameValuePair(element);
-		this.input = this.makeInputField(id, parameterValue);
-		parameterValue.appendChild(this.input);
-		return;
-	}
-
-	/**
-	 * @param  {Element} element
-	 * @param  {String} id
-	 */
-	makeTensorButtons(element, id) {
 		let parameterValue = this.createNameValuePair(element);
 
 		for (let tensor of universe.selectedObject[this.propertyName]) {
@@ -444,82 +677,63 @@ class Property {
 		this.input=inputField;
 	}
 
+
 	/**
-	 * @param  {Element} element
-	 * @param  {String} id
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
 	 */
-	makeNodeButtons(element, id) {
-		let parameterValue = this.createNameValuePair(element);
-
-		let addNodeButton = document.createElement('button');
-		addNodeButton.innerHTML = 'Add node';
-		addNodeButton.id = id;
-		addNodeButton.classList.add('trussButton');
-		addNodeButton.classList.add('tensorButtonMiddle');
-		addNodeButton.addEventListener('click', function() {
-			alert('RIGHT Add');
-		}, false);
-		parameterValue.appendChild(addNodeButton);
-
-		let removeNodeButton = document.createElement('button');
-		removeNodeButton.innerHTML = 'Remove node';
-		removeNodeButton.classList.add('simpleButton');
-		removeNodeButton.style.display = 'inline';
-		removeNodeButton.addEventListener('click', function() {
-			alert('RIGHT Remove');
-		}, false);
-		parameterValue.appendChild(removeNodeButton);
-		for (let node of this.parentNode.nodeCollection) {
-			let nodeButton = document.createElement('button');
-			nodeButton.innerHTML = node.name;
-			nodeButton.classList.add('simpleButton');
-			nodeButton.style.display = 'inline';
-			parameterValue.appendChild(nodeButton);
-			this.registerOnClick(nodeButton, node);
+	serialize(serializeObject, localNodeList, tensorList) {
+		let returnList=[];
+		for (let tensor of serializeObject) {
+			returnList.push(tensorList.indexOf(tensor));
 		}
-		this.input = {};
+		return returnList;
 	}
 
 	/**
-	 * @param  {buttonObject} but
-	 * @param  {Node} node1
+	 * @param  {Object} serializeObject
+	 * @param  {Array} localNodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
 	 */
-	registerOnClick(but, node1) {
-		but.addEventListener('click', function() {
-			let previousSelectedObject = universe.selectedObject;
-			universe.selectedObject = node1;
-			let event = new CustomEvent('selectionEvent', {
-				detail: {
-					'selectedObject': universe.selectedObject,
-					'previousSelectedObject': previousSelectedObject,
-					'trussNode': undefined,
-				},
-				bubbles: true,
-				cancelable: true,
-			});
-			universe.currentNode.element.dispatchEvent(event);
-		});
-	}
-
-	/**
-	 * @param {Array} list
-	 * @return {string}
-	 */
-	generateOptions(list) {
-		let res = '';
-		for (let i = 0; i < list.length; i++) {
-			if (!list[i][2] || userLevel != 'basic') {
-				res += ' <option value="' + list[i][0] + '">' + list[i][1] + '</option>';
-			}
+	deSerialize(serializeObject, localNodeList, tensorList) {
+		let returnList=[];
+		for (let tensor of serializeObject) {
+			returnList.push(tensorList[tensor]);
 		}
-		return res;
+		return returnList;
+	}
+}
+
+/**
+ * @class LabelListProperty
+ * @extends Property
+ */
+class LabelListProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
 	}
 
+
 	/**
-	 * @param  {Element} element
-	 * @param  {String} id
+	 * @param {Element} element
+	 * @param {Element} restArea
 	 */
-	makeStringList(element, id) {
+	populateProperty(element, restArea) {
+		let display = '';
+		let addNodeButton;
+		this.HTMLElement = restArea;
+
 		let parameterValue = this.createNameValuePair(element);
 
 
@@ -527,21 +741,19 @@ class Property {
 		secondaryLabelsDiv.id = 'labelContainer';
 		secondaryLabelsDiv.classList.add('labelList');
 
-
-		this.input = this.makePropertyListField(id, parameterValue, secondaryLabelsDiv);
+		this.input = this.makePropertyListField(parameterValue, secondaryLabelsDiv);
 
 		parameterValue.appendChild(this.input);
 		element.appendChild(secondaryLabelsDiv);
 	}
 
 	/**
-	 * @param  {String} id
 	 * @param  {Element} parameterValue
 	 * @param  {Element} secondaryLabelsDiv
 	 * @return {Element}
 	 */
-	makePropertyListField(id, parameterValue, secondaryLabelsDiv) {
-		let inputField = this.makeViewOfInputField(id, parameterValue);
+	makePropertyListField(parameterValue, secondaryLabelsDiv) {
+		let inputField = this.makeViewOfInputField(this.identity, parameterValue);
 		let _this = this;
 
 		let finalizelabels = function(object, value) {
@@ -579,48 +791,4 @@ class Property {
 		finalizelabels(universe.selectedObject);
 		return inputField;
 	}
-
-	// This is called when the screen should be updated by a value change in an object
-	/**
-	 * @param  {Object} selectedObject
-	 */
-	updatePropertyValue(selectedObject) {
-		if (this.type == ParameteType.POSITION) {
-			let elementX = this.xInput;
-			let elementY = this.yInput;
-			if ((elementX == undefined) || (elementX == null)) {
-				console.log('updatePropertyValue cannot find HTML element ' + this.identity + 'X & Y. (Title:' + this.title + ')');
-				return;
-			} else {
-				elementX.value = Math.round(100 * selectedObject[this.propertyName].x) / 100;
-				elementY.value = Math.round(100 * selectedObject[this.propertyName].y) / 100;
-			}
-		} else if (this.type == ParameteType.NODE) {
-			let element = this.input;
-			if ((element == undefined) || (element == null)) {
-				console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
-				return;
-			}
-			if (selectedObject[this.propertyName]==undefined) {
-				selectedObject[this.propertyName]=this.defaultValue;
-			}
-			if (element.myNode!=selectedObject[this.propertyName]) {
-				element.innerHTML = '';
-				let button=selectedObject[this.propertyName].generateHTML();
-				button.classList.add('tensorButtonLeft');
-				element.appendChild(button);
-			}
-			element.myNode=selectedObject[this.propertyName];
-		} else {
-			let element = this.input;
-			if ((element == undefined) || (element == null)) {
-				console.log('updatePropertyValue cannot find HTML element ' + this.identity + '. (Title:' + this.title + ')');
-				return;
-			}
-			if (selectedObject[this.propertyName]==undefined) {
-				selectedObject[this.propertyName]=this.defaultValue;
-			}
-			element.value = selectedObject[this.propertyName];
-		}
-	};
 }

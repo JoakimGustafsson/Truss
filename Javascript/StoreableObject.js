@@ -28,8 +28,8 @@ class StoreableObject {
 			},
 		});
 
-		this.labelProperty = this.addProperty(new Property(
-			'labelString', 'labelString', 'Labels', ParameteType.LABELLIST, ParameterCategory.CONTENT,
+		this.labelProperty = this.addProperty(new LabelListProperty(
+			'labelString', 'labelString', 'Labels', ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
 	}
 
@@ -79,7 +79,7 @@ class StoreableObject {
 
 		for (let [key, value] of Object.entries(this.getPropertyObject())) {
 			this.properties.addProperty(value.propertyObject, value.defaultValue);
-			if (!this[value.propertyObject.propertyName] ||
+			if (this[value.propertyObject.propertyName]==undefined ||
                 this[value.propertyObject.propertyName]==NaN ||
                 value.enforced) {
 				this[value.propertyObject.propertyName]=value.defaultValue;

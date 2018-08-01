@@ -64,7 +64,6 @@ class TrussNode extends Node {
 		}
 		);
 
-
 		Object.defineProperty(this, 'tensors', {
 			get: function() {
 				return this.tensorLabel.getTensors();
@@ -113,27 +112,8 @@ class TrussNode extends Node {
 		}
 		);
 
-		this.addProperty(new Property(undefined,
-			'screenSize', 'screenSize', 'Screen size', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The size of the displayed screen in pixels.'));
-
-		this.addProperty(new Property(undefined,
-			'worldSize', 'worldSize', 'World display size', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The size of the displayed worldview in that worlds measurement.'));
-
-		this.addProperty(new Property(undefined,
-			'setWorldOffset', 'setWorldOffset', 'View position', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The world coordinates of the upper left corner.'));
-
-		this.addProperty(new Property(undefined, 'fpsTarget', 'fpsTarget', 'Updates per second', ParameteType.NUMBER,
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.'));
-
-		this.addProperty(new Property(undefined, 'fps', 'fps', 'Frames per Second', ParameteType.NUMBER,
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.'));
-
 		if (world) {
 			this.handleCanvas();
-			// this.truss = new TrussClass(this, this.view, timestep, world);
 			this.setView();
 			this.setupLabels(world);
 		}
