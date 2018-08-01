@@ -160,6 +160,14 @@ class Node extends StoreableObject {
 	}
 
 	/**
+	 * Dummy function. This is better handled in the updatePosition() function since
+	 * the sensor directly inluence the position of the sensor node rather than the iO.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	sense(deltaTime, truss) {}
+
+	/**
 	* Using a space separated list, list the labels that should be added
 	* @param  {string} labels
 	*/
@@ -190,7 +198,7 @@ class Node extends StoreableObject {
 	 * @return {Property}
 	 */
 	populateProperties(element, ignoreLabels) {
-		return this.properties.populateProperties(element, ignoreLabels);
+		return this.properties.populateProperties(element, this, ignoreLabels);
 	}
 
 

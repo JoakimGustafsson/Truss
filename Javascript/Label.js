@@ -7,6 +7,8 @@ class Labels {
 	constructor() {
 		this.list = [];
 
+		this.behaviours = new Behaviours();
+
 		this.massProperty = new NumberProperty(
 			'mass', 'mass', 'Mass', ParameterCategory.CONTENT, 'The mass of the node in Kilograms.');
 		this.nameProperty = new StringProperty(
@@ -22,7 +24,7 @@ class Labels {
 			'localPosition', 'localPosition', 'Position', ParameterCategory.CONTENT,
 			'The position counted from the upper left corner.');
 		this.velocityProperty = new PositionProperty(
-			'velocity', 'velocity', 'velocity', ParameterCategory.CONTENT,
+			'velocity', 'velocity', 'Velocity', ParameterCategory.CONTENT,
 			'The velocity.');
 		this.angleProperty = new NumberProperty(
 			'degree', 'degree', 'Angle', ParameterCategory.CONTENT,
@@ -95,6 +97,19 @@ class Labels {
 			'connectedTensors', 'connectedTensors', 'Tensors', ParameterCategory.CONTENT,
 			'All tensors based on node positions.');
 
+		this.keyProperty = new PropertyListProperty(
+			'keyVectors', 'keyVectors', 'KeyVectorList', ParameterCategory.CONTENT,
+			'All tensors based on node positions.', [
+				() => new StringProperty(
+					'key', 'key', 'Trigger key', ParameterCategory.CONTENT,
+					'The number of the key that triggers the move.'),
+				() => new PositionProperty(
+					'vector', 'vector', 'Position change', ParameterCategory.CONTENT,
+					'The position node moves when the key is pressed.')]);
+
+		this.restPositionProperty = new PositionProperty(
+			'restPosition', 'restPosition', 'Rest position', ParameterCategory.CONTENT,
+			'The position when no key is pressed.');
 
 		let nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',
@@ -171,7 +186,11 @@ class Labels {
 		});
 		let sensorLabel = this.addLabel('sensor', [nodeLabel], {
 		});
-		let selectorLabel = this.addLabel('selector', [sensorLabel], {
+		let selectorLabel = this.addLabel('selector', [sensorLabel, moveabelLabel], {
+		});
+		let keySensorLabel = this.addLabel('keysensor', [sensorLabel, moveabelLabel], {
+			'keyProperty': [],
+			'restPositionProperty': new Position(1, 1),
 		});
 	}
 

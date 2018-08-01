@@ -195,8 +195,8 @@ class Tensor extends StoreableObject {
 
 		let div = document.createElement('div'); // Create the element in memory
 
-		let button0 = leftNode.generateHTML(this);
-		div.appendChild(button0);
+		// let button0 = leftNode.generateHTML(this);
+		// div.appendChild(button0);
 
 		let button1 = this.generateHTML(leftNode);
 		div.appendChild(button1);
@@ -249,7 +249,7 @@ class Tensor extends StoreableObject {
 	 * @return {Property}
 	 */
 	populateProperties(element, ignoreLabels) {
-		return this.properties.populateProperties(element, ignoreLabels);
+		return this.properties.populateProperties(element, this, ignoreLabels);
 	}
 
 	/**

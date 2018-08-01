@@ -44,8 +44,8 @@ class KeySensorNode extends SensorNode {
 	 */
 	constructor(trussNode, startPosition, mass = 0.001, name = 'keysensornode', positionFunction, showFunction, velocityLoss = 1) {
 		super(trussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
-		this.startPosition = startPosition;
-		this.keyList = [];
+		this.restPosition = startPosition;
+		this.keyVectors = [];
 
 		window.addEventListener('keydown', function(e) {
 			keyState[e.keyCode || e.which] = true;
@@ -64,8 +64,8 @@ class KeySensorNode extends SensorNode {
 	serialize(truss, nodeList, tensorList) {
 		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'KeySensorNode';
-		representationObject.startPosition = this.startPosition.serialize();
-		representationObject.keyList = JSON.stringify(this.keyList);
+		representationObject.startPosition = this.restPosition.serialize();
+		representationObject.keyList = JSON.stringify(this.keyVectors);
 
 		return representationObject;
 	}
@@ -78,8 +78,8 @@ class KeySensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
-		this.startPosition = new Position().deserialize(restoreObject.startPosition);
-		this.keyList = JSON.parse(restoreObject.keyList);
+		this.restPosition = new Position().deserialize(restoreObject.startPosition);
+		this.keyVectors = JSON.parse(restoreObject.keyList);
 		return this;
 	}
 
@@ -89,22 +89,15 @@ class KeySensorNode extends SensorNode {
 	 * @param  {number} time
 	 */
 	updatePosition(time) {
-		let p = this.startPosition;
-		for (let i = 0; i < this.keyList.length; i++) {
-			if (keyState[this.keyList[i].key]) {
-				p = Vector.addVectors(p, this.keyList[i].vector);
+		let p = this.restPosition;
+		for (let i = 0; i < this.keyVectors.length; i++) {
+			if (keyState[this.keyVectors[i].key]) {
+				p = Vector.addVectors(p, this.keyVectors[i].vector);
 			}
 		}
 		this.setPosition(p);
 	};
 
-	/**
-	 * Dummy function. This is better handled in the updatePosition() function since
-	 * the sensor directly inluence the position of the sensor node rather than the iO.
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
-	 */
-	sense(deltaTime, truss) {}
 
 	/**
 	 * Combines a key number with a vecor to move if that key is being pressed
@@ -112,7 +105,7 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Vector} v
 	 */
 	registerKey(keyNr, v) {
-		this.keyList.push({
+		this.keyVectors.push({
 			'key': keyNr,
 			'vector': v,
 		});
@@ -500,8 +493,8 @@ class Selector extends SensorNode {
 	 * @param {string} initialLabels
 	 * @param  {object} valueObject
 	 */
-	constructor(world, trussNode, initialLabels = '', valueObject) {
-		super(world, trussNode, initialLabels+' selector moveable', valueObject);
+	constructor(world, trussNode, initialLabels, valueObject) {
+		super(world, trussNode, initialLabels, valueObject);
 		this.lastPointedOn;
 		this.wasPressed=false;
 		this.cursorPosition = new Position(0, 0);

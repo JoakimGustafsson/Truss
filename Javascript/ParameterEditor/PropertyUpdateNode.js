@@ -34,7 +34,7 @@ class PropertyUpdateNode extends SensorNode {
 		this.element.innerHTML='';
 		if (this.iO) {
 			// this.iO.properties.populateProperties(this.element);
-			this.iO.populateProperties(this.element);
+			this.iO.populateProperties(this.element, this);
 		}
 	}
 

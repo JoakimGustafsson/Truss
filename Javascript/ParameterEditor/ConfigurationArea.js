@@ -31,6 +31,7 @@ function createConfigurationArea(id) {
 		}, false);
 		tabArea.appendChild(propertiesButton);
 
+		/*
 		let trussButton = document.createElement('button');
 		trussButton.classList.add('tabsectionbuttons');
 		trussButton.classList.add('active');
@@ -39,7 +40,7 @@ function createConfigurationArea(id) {
 			movePropertyEdit('trussConfigArea');
 			openBottomPanel(event, 'trussDiv');
 		}, false);
-		tabArea.appendChild(trussButton);
+		tabArea.appendChild(trussButton); */
 
 		let labelButton = document.createElement('button');
 		labelButton.classList.add('tabsectionbuttons');
@@ -127,6 +128,20 @@ function createConfigurationArea(id) {
 				createSimpleButton(propertyButtons, 'Pause', () => universe.currentNode.togglePause());
 				createSimpleButton(propertyButtons, 'Gravity', () => addGravityCheat(), 'gravityButton');
 				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
+				let fastEditButton = createSimpleButton(propertyButtons, 'FastEdit',
+					function() {
+						universe.currentWorld.fastEdit=!universe.currentWorld.fastEdit;
+						if (universe.currentWorld.fastEdit) {
+							this.classList.add('activebutton');
+						} else {
+							this.classList.remove('activebutton');
+						}
+					});
+				if (universe && universe.currentWorld && universe.currentWorld.fastEdit) { // set up correctly when added
+					fastEditButton.classList.add('activebutton');
+				} else {
+					fastEditButton.classList.remove('activebutton');
+				}
 
 				createDebugDropdown(propertyButtons);
 			}
@@ -156,7 +171,7 @@ function createConfigurationArea(id) {
 
 			{
 				createSimpleButton(trussPropertyLast, 'TrussNode');
-				let fastEditButton = createSimpleButton(trussPropertyLast, 'FastEdit',
+				/* let fastEditButton = createSimpleButton(trussPropertyLast, 'FastEdit',
 					function() {
 						universe.currentWorld.fastEdit=!universe.currentWorld.fastEdit;
 						if (universe.currentWorld.fastEdit) {
@@ -169,7 +184,7 @@ function createConfigurationArea(id) {
 					fastEditButton.classList.add('activebutton');
 				} else {
 					fastEditButton.classList.remove('activebutton');
-				}
+				} */
 				createSimpleButton(trussPropertyLast, 'SelectorNode');
 			}
 		}
@@ -196,7 +211,7 @@ function createConfigurationArea(id) {
 				labelContentArea.id = 'labelContentArea';
 				labelPropertyArea.appendChild(labelContentArea);
 			}
-
+			/*
 			let labelPropertyLast = document.createElement('div');
 			labelPropertyLast.classList.add('sectionlast');
 			labelArea.appendChild(labelPropertyLast);
@@ -206,7 +221,7 @@ function createConfigurationArea(id) {
 				createSimpleButton(labelPropertyLast, 'World');
 				createSimpleButton(labelPropertyLast, 'Node');
 				createSimpleButton(labelPropertyLast, 'Tensor');
-			}
+			} */
 		}
 
 

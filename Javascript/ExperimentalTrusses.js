@@ -451,7 +451,7 @@ class PerformanceTrussNode extends TrussNode {
 		let parent = this.parentTrussNode;
 		let world = parent.world;
 
-		this.selector = new Selector(this.world, this, '', {
+		this.selector = new Selector(this.world, this, 'selector', {
 			'name': 'Selector ',
 		});
 		this.sensorNodes.push(this.selector);
