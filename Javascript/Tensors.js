@@ -1,11 +1,7 @@
 /**
-<<<<<<< HEAD
- *
-=======
  * Tensor class
  * @class
  * @extends StoreableObject
->>>>>>> newtestbranch
  */
 class Tensor extends StoreableObject {
 	/**
@@ -172,136 +168,6 @@ class Tensor extends StoreableObject {
 	}
 
 
-<<<<<<< HEAD
-const TensorType = {
-	UNDEFINED: 0,
-	SPRING: 1,
-	ABSORBER: 2,
-	FIELD: 3,
-};
-/**
- * Tensor class
- */
-class Tensor {
-	/**
-	 * @param  {Node} node1
-	 * @param  {Node} node2
-	 * @param  {number} constant=1
-	 * @param  {TensorType} type=TensorType.UNDEFINED
-	 */
-	constructor(node1, node2, constant = 1, type = TensorType.UNDEFINED) {
-		this.node1 = node1;
-		this.node2 = node2;
-		this.constant = constant;
-		this.tensorType = type;
-		this.properties = new PropertyList();
-		this.collideDistanceMapping = {};
-		this.force = 0;
-		this.ghost = false;
-		this.isTensor=true;
-		this.color='grey';
-
-		this.addProperty(new Property(this,
-			'constant', 'constant', 'Constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The links constant.'));
-		this.addProperty(new Property(this,
-			'tensorType', 'tensorType', 'Type', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The links type number.'));
-		this.addProperty(new Property(this,
-			'angle1', 'angle1', 'Angle 1', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the start node.'));
-		this.addProperty(new Property(this,
-			'angle2', 'angle2', 'Angle 2', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle the node connects to the end node.'));
-		this.addProperty(new Property(this,
-			'color', 'color', 'Colour', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The colour of the tensor.'));
-	}
-
-	/**
-	 * @param {Node} leftNode
-	 * @return {Element}
-	 */
-	generateHTML(leftNode) {
-		let sign;
-		if (this.node1==leftNode) {
-			sign='>';
-		} else {
-			sign='<';
-		}
-		let div = document.createElement('div');
-		div.classList.add('trussButtonDiv');
-		let leftButton=document.createElement('button');
-		leftButton.classList.add('trussButton');
-		leftButton.classList.add('tensorButtonLeft');
-		leftButton.innerHTML = sign;
-		div.appendChild(leftButton);
-
-		let middleButton=document.createElement('button');
-		middleButton.classList.add('trussButton');
-		middleButton.classList.add('tensorButtonMiddle');
-		middleButton.innerHTML = this.getName();
-		this.registerOnClick(middleButton, this);
-		div.appendChild(middleButton);
-
-		let rightButton=document.createElement('button');
-		rightButton.classList.add('trussButton');
-		rightButton.classList.add('tensorButtonRight');
-		rightButton.innerHTML = sign;
-		/* rightButton.onclick= function(x) {
-			if (_this.node1==leftNode) {
-				_this.addNode2(sensor);
-			} else {
-				_this.addNode1(sensor);
-			}
-		};*/
-		div.appendChild(rightButton);
-
-		let _this = this;
-		if (_this.node1 == leftNode) {
-			leftButton.onclick = function(x) {
-				_this.addNode1(sensor);
-			};
-			rightButton.onclick = function(x) {
-				_this.addNode2(sensor);
-			};
-		} else {
-			leftButton.onclick = function(x) {
-				_this.addNode2(sensor);
-			};
-			rightButton.onclick = function(x) {
-				_this.addNode1(sensor);
-			};
-		}
-
-		this.selectionEventListener=document.addEventListener('selectionEvent',
-			function(e) {
-				if (_this && sensor && selectedObject && selectedObject.isNode) {
-					_this.sensorAttach();
-					_this = undefined;
-				}
-			}, false);
-
-		return div;
-	}
-
-
-	/**
-	 * @param {Tensor} tensor
-	 */
-	sensorAttach() {
-		if (this.node1 == sensor) {
-			this.addNode1(selectedObject);
-		} else if (this.node2 == sensor) {
-			this.addNode2(selectedObject);
-		}
-		if (this.selectionEventListener) {
-			document.removeEventListener('selectionEvent', this.selectionEventListener);
-		}
-	}
-
-	/**
-=======
 	/**
 	 * @param {Tensor} tensor
 	 */
@@ -317,7 +183,6 @@ class Tensor {
 	}
 
 	/**
->>>>>>> newtestbranch
 	 * @param {Node} left
 	 * @return {string}
 	 */
@@ -330,13 +195,8 @@ class Tensor {
 
 		let div = document.createElement('div'); // Create the element in memory
 
-<<<<<<< HEAD
-		let button0 = leftNode.generateHTML(this);
-		div.appendChild(button0);
-=======
 		// let button0 = leftNode.generateHTML(this);
 		// div.appendChild(button0);
->>>>>>> newtestbranch
 
 		let button1 = this.generateHTML(leftNode);
 		div.appendChild(button1);
@@ -353,15 +213,6 @@ class Tensor {
 	 */
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
-<<<<<<< HEAD
-			let previousSelectedObject = selectedObject;
-			selectedObject = node1;
-			let event = new CustomEvent('selectionEvent', {
-				detail: {
-					'selectedObject': selectedObject,
-					'previousSelectedObject': previousSelectedObject,
-					'truss': undefined,
-=======
 			let previousSelectedObject = universe.selectedObject;
 			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
@@ -369,16 +220,11 @@ class Tensor {
 					'selectedObject': universe.selectedObject,
 					'previousSelectedObject': previousSelectedObject,
 					'trussNode': node1.parentNode,
->>>>>>> newtestbranch
 				},
 				bubbles: true,
 				cancelable: true,
 			});
-<<<<<<< HEAD
-			document.dispatchEvent(event);
-=======
 			universe.currentNode.element.dispatchEvent(event);
->>>>>>> newtestbranch
 		});
 	}
 
@@ -399,22 +245,6 @@ class Tensor {
 
 	/** Handling properties
 	 * @param  {element} element
-<<<<<<< HEAD
-	 * @return {Property}
-	 */
-	populateProperties(element) {
-		return this.properties.populateProperties(element);
-	}
-
-	/**
-	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
-	 * @return {Object}
-	 */
-	serialize(localNodeList, tensorList) {
-		let representation={'classname': 'Tensor'};
-		representation.node1=localNodeList.indexOf(this.node1);
-=======
 	 * @param  {number} ignoreLabels
 	 * @return {Property}
 	 */
@@ -432,7 +262,6 @@ class Tensor {
 		representation.classname='Tensor';
 
 		/* representation.node1=localNodeList.indexOf(this.node1);
->>>>>>> newtestbranch
 		representation.node2=localNodeList.indexOf(this.node2);
 
 		if (this.breakStartTensor) {
@@ -448,14 +277,6 @@ class Tensor {
 			representation.previous=tensorList.indexOf(this.previous);
 		}
 
-<<<<<<< HEAD
-		representation.angle1=this.angle1;
-		representation.angle2=this.angle2;
-		representation.constant=this.constant;
-		representation.tensorType=this.tensorType;
-		representation.force=this.force;
-		representation.ghost=this.ghost;
-=======
 		representation.angle1= isNaN(this.angle1) ? 'NaN' : this.angle1;
 		representation.angle2= isNaN(this.angle2) ? 'NaN' : this.angle2;
 		representation.force=this.force;
@@ -463,7 +284,6 @@ class Tensor {
 		representation.isTensor=this.isTensor;
 		representation.color=this.color;
 		representation.labelString=this.labelString; */
->>>>>>> newtestbranch
 
 		return representation;
 	}
@@ -473,15 +293,9 @@ class Tensor {
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Tensor}
-<<<<<<< HEAD
-	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		// super.deserialize(restoreObject);
-=======
 	 *
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject);
->>>>>>> newtestbranch
 		this.node1=nodeList[restoreObject.node1];
 		this.node2=nodeList[restoreObject.node2];
 		this.angle1=restoreObject.angle1;
@@ -501,16 +315,6 @@ class Tensor {
 			this.breakEndTensor=tensorList[restoreObject.breakEndTensor];
 		}
 
-<<<<<<< HEAD
-		this.constant=restoreObject.constant;
-
-		this.tensorType=restoreObject.tensorType;
-		this.force=restoreObject.force;
-		this.ghost=restoreObject.ghost;
-
-		return this;
-	}
-=======
 
 		this.force=restoreObject.force;
 		this.ghost=restoreObject.ghost;
@@ -522,18 +326,14 @@ class Tensor {
 
 		return this;
 	} */
->>>>>>> newtestbranch
 
 	/**
 	 * @return {string} The name of the tensor
 	 */
 	getName() {
-<<<<<<< HEAD
-=======
 		if (this.labels && this.labels.length>0) {
 			return this.labels[0].name;
 		}
->>>>>>> newtestbranch
 		return this.constructor.name;
 		/* if (this.node1) {
 			name += this.node1.name;
@@ -548,11 +348,7 @@ class Tensor {
 	/**
 	 * @param  {Node} node
 	 * @param  {number} angle
-<<<<<<< HEAD
-	 */
-=======
 	 *
->>>>>>> newtestbranch
 	addNode1(node, angle) {
 		if (this.node1) {
 			this.node1.removeTensor(this);
@@ -571,11 +367,7 @@ class Tensor {
 	/**
 	 * @param  {Node} node
 	 * @param  {number} angle
-<<<<<<< HEAD
-	 */
-=======
 	 *
->>>>>>> newtestbranch
 	addNode2(node, angle) {
 		if (this.node2) {
 			this.node2.removeTensor(this);
@@ -589,11 +381,7 @@ class Tensor {
 		if (node) {
 			node.addTensor(this);
 		}
-<<<<<<< HEAD
-	};
-=======
 	}; */
->>>>>>> newtestbranch
 
 	/** Returns the midpoint of the tensor
 	 * @return {Position}
@@ -627,12 +415,9 @@ class Tensor {
 	 */
 	getTorque(node) {
 		let idealAngle = this.getIdealAngle(node);
-<<<<<<< HEAD
-=======
 		if (isNaN(idealAngle)) {
 			return 0;
 		}
->>>>>>> newtestbranch
 		let tensorAngle = this.getTensorAngle(node);
 		let theNodeShouldHaveAngle = tensorAngle-idealAngle;
 
@@ -687,13 +472,6 @@ class Tensor {
 
 	/**
 	 * Makes sure the actual nodes will take this tensor into consideration
-<<<<<<< HEAD
-	 */
-	addToTruss() {
-		this.addNode1(this.node1);
-		this.addNode2(this.node2);
-	};
-=======
 	 *
 	addToTruss() {
 		return;
@@ -701,7 +479,6 @@ class Tensor {
 		this.addNode1(this.node1);
 		this.addNode2(this.node2);
 	}; */
->>>>>>> newtestbranch
 
 
 	/**
@@ -729,12 +506,8 @@ class Tensor {
 	/**
 	 * Makes sure the nodes will NOT take this tensor into consideration
 	 */
-<<<<<<< HEAD
-	removeFromTruss() {
-=======
 	unreference() {
 		this.world.labels.clearOldReferences(this);
->>>>>>> newtestbranch
 		if (this.node2) {
 			this.node2.removeTensor(this);
 		}
@@ -891,13 +664,9 @@ class Tensor {
 	 * @return {string} the HTML color of the tensor
 	 */
 	getColour() {
-<<<<<<< HEAD
-		return this.color;
-=======
 		if (this.color) {
 			return this.color;
 		} else return 'white';
->>>>>>> newtestbranch
 	};
 	/**
 	 * clear a specific node from the list of nodes that have collided with the tensor.
@@ -955,27 +724,16 @@ class Tensor {
 		let ctx = view.context;
 		let node1 = this.node1;
 		let node2 = this.node2;
-<<<<<<< HEAD
-		if (this.isGhost()) {
-			return;
-		}
-		if ( (((graphicDebugLevel >= 4) || (graphicDebugLevel==2)) && (this.tensorType != TensorType.FIELD)) ||
-=======
 		if (this.isGhost() || !this.visible || this.visible=='0') {
 			return;
 		}
 		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||
->>>>>>> newtestbranch
 			(graphicDebugLevel >= 6)) {
 			this.highLight(ctx);
 			ctx.beginPath();
 			view.drawLine(node1.getPosition(), node2.getPosition());
 			ctx.stroke();
-<<<<<<< HEAD
-			if (graphicDebugLevel >= 10) {
-=======
 			if (graphicDebugLevel >= 10) { // Show debug text
->>>>>>> newtestbranch
 				ctx.beginPath();
 				ctx.fillStyle = 'cyan';
 				ctx.font = '20px Arial';
@@ -1008,168 +766,15 @@ class Tensor {
 		}
 	}
 
-<<<<<<< HEAD
-
-/**
-	 * @class
-	 * @augments Tensor
-	 */
-class Spring extends Tensor {
-	/**
-	 * @param  {Node} node1
-	 * @param  {Node} node2
-	 * @param  {number} constant
-	 * @param  {number} equilibriumLength
-	 * @param  {TensorType} type
-	 */
-	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
-		super(node1, node2, constant, type);
-		this.equilibriumLength = equilibriumLength;
-		if (this.equilibriumLength <= 0 && node1 && node2) {
-			this.equilibriumLength = this.getLength();
-		}
-		this.addProperty(new Property(this,
-			'equilibriumLength', 'equilibriumLength', 'Length', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How long should the relaxed spring be.'));
-	}
-
-	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Object}
-	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='Spring';
-		representationObject.equilibriumLength=this.equilibriumLength;
-		return representationObject;
-	}
-
-	/**
-	 * @param  {Object} restoreObject
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Spring}
-	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		this.equilibriumLength=restoreObject.equilibriumLength;
-		return this;
-	}
-
-	/**
-		 * Calculate the force in the Spring based on current length
-		 */
-	calculateForce() {
-		// if (!this.node1 || !this.node2)
-		//	return this.force=new Force(0,0);
-=======
 	/**
 	* Calculate the force in the Spring based on current length
 	*/
 	calculateForceSpring() {
->>>>>>> newtestbranch
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(this.equilibriumLength);
 		let diffVector = Vector.subtractVectors(actualVector, normalized);
 		this.force = Vector.multiplyVector(-this.constant, diffVector);
 	}
-<<<<<<< HEAD
-}
-
-/** This is a spring that only pulls things together. think of a long, thin spring that would bend if you press the ends together
- * @class PullSpring
- * @augments Spring
- */
-class PullSpring extends Spring {
-	/** This is a spring that only pulls things together. think of a long, thin spring that would bend if you press the ends together
-	* @param  {Node} node1
-	* @param  {Node} node2
-	* @param  {number} constant
-	* @param  {number} equilibriumLength
-	* @param  {TensorType} type
-	*/
-	constructor(node1, node2, constant = 1, equilibriumLength = 0, type = TensorType.SPRING) {
-		super(node1, node2, constant, equilibriumLength, type);
-		this.originalParent = undefined; // To remember that this can be set by linebreakers
-	}
-
-	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Object}
-	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='PullSpring';
-		representationObject.originalParent = tensorList.indexOf(this.originalParent);
-		return representationObject;
-	}
-
-	/**
-	 * @param  {Object} restoreObject
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Spring}
-	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		this.originalParent = tensorList[restoreObject.originalParent];
-		return this;
-	}
-
-	/**
-		 * Calculate the force in the Spring based on current length
-		 */
-	calculateForce() {
-		let actualVector = this.getActual();
-		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
-			this.force = new Force(0, 0);
-		} else {
-			Spring.prototype.calculateForce.call(this);
-			// console.log(length(this.force));
-		}
-	}
-}
-
-// A normal field based on the square of the length between the nodes
-
-/**
- * @class
- * @augments Tensor
- */
-class Field extends Tensor {
-/**
- * @param  {Node} node1
- * @param  {Node} node2
- * @param  {number} constant
- * @param  {TensorType} type
- */
-	constructor(node1, node2, constant = 1, type = TensorType.FIELD) {
-		super(node1, node2, constant, type);
-		this.color='blue';
-	}
-
-	/**
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Object}
-	 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='Field';
-		return representationObject;
-	}
-
-	/**
-		 * Calculate the force in the Field based on distance between the nodes
-		 */
-	calculateForce() {
-		let actualVector = this.getActual();
-		let normalized = actualVector.normalizeVector(1);
-		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
-		this.force = Vector.multiplyVector(-forceSize, normalized);
-=======
 
 	/**
 	* Calculate the force in the Spring based on current length
@@ -1225,118 +830,21 @@ class Field extends Tensor {
 		this.labelString+=labels+' ';
 		this.labels =
 				this.world.labels.parse(this.labelString, this);
->>>>>>> newtestbranch
 	}
 }
 
 /**
-<<<<<<< HEAD
- * An absorber work against the velocity between the nodes.
- * The higher the "parallell" velocity is, the higher the force
- * counteracting it will be.
- * @class
- * @augments Tensor
- */
-class Absorber extends Tensor {
-=======
  * A PictureSpring works like a spring but has an attached picture
  *
  *  * @class
  * @augments Spring
  */
 class PictureSpring extends Tensor {
->>>>>>> newtestbranch
 	/**
 	 * @constructor
 	 * @param  {Node} node1
 	 * @param  {Node} node2
 	 * @param  {number} constant
-<<<<<<< HEAD
-	 * @param  {TensorType} type
-	 */
-	constructor(node1, node2, constant = 1, type = TensorType.ABSORBER) {
-		super(node1, node2, constant, type);
-		this.color='green';
-	}
-
-	/**
-		 * @param  {Array} nodeList
-		 * @param  {Array} tensorList
-		 * @return {Object}
-		 */
-	serialize(nodeList, tensorList) {
-		let representationObject = super.serialize(nodeList, tensorList);
-		representationObject.classname='Absorber';
-		return representationObject;
-	}
-
-	/**
-		 * Calculate the force in the Field based on the relative velocity between the nodes
-		*/
-	calculateForce() {
-		let actualVector = this.getActual();
-		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
-		let parallellVelocity = Vector.multiplyVector(
-			Vector.dotProduct(actualVector, internalSpeed),
-			Vector.divideVector(actualVector, this.getLengthSquare()));
-		this.force = Vector.multiplyVector(this.constant, parallellVelocity);
-	}
-}
-
-/**
- * A PictureSpring works like a spring but has an attached picture
- *
- *  * @class
- * @augments Spring
- */
-class PictureSpring extends Spring {
-	/**
-	 * @constructor
-	 * @param  {Node} node1
-	 * @param  {Node} node2
-	 * @param  {number} constant
-	 * @param  {String} pictureReference
-	 * @param  {number} width
-	 */
-	constructor(node1, node2, constant = 1, pictureReference, width) {
-		super(node1, node2, constant, TensorType.SPRING);
-		this.pictureReference=pictureReference;
-		this.width=width;
-		this.stretch=1;
-		this.length=this.equilibriumLength;
-		this.addProperty(new Property(this,
-			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The picture filename.'));
-		this.addProperty(new Property(this,
-			'width', 'width', 'Width', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The picture width out from the tensor'));
-
-		this.addProperty(new Property(this,
-			'length', 'length', 'Picture length', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How long should the picture be along the tensor length'));
-
-		this.addProperty(new Property(this,
-			'stretch', 'stretch', 'stretch or clip', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'0 = clip, 1 = stretch'));
-
-		/* TODO
-		add option for swap picture direction. just modify call order to warp
-		add option for putting picture above lineWidth
-		add binary switch in settings
-		add option for node picture.
-		add an add&remove pic to all tensors. maybe a tensor modifier class.
-		(add option for adjusting width)
-		*/
-
-
-		this.element = document.createElement('img');
-		this.element.style.position='absolute';
-		this.element.src='Resources/'+pictureReference;
-		this.element.style.zIndex=-1;
-		document.body.appendChild(this.element);
-	}
-
-=======
 	 * @param  {String} pictureReference
 	 * @param  {number} width
 	 */
@@ -1387,7 +895,6 @@ class PictureSpring extends Spring {
 		this.width=this.element.offsetWidth;
 	}
 
->>>>>>> newtestbranch
 	/**
 		 * @param  {Array} nodeList
 		 * @param  {Array} tensorList
@@ -1396,20 +903,14 @@ class PictureSpring extends Spring {
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname='PictureSpring';
-<<<<<<< HEAD
-		alert('Picturespring not serialized');
-=======
 		representationObject.pictureReference=this.pictureReference;
 		representationObject.width=this.width;
 		representationObject.stretch=this.stretch;
 		representationObject.length=this.length;
->>>>>>> newtestbranch
 		return representationObject;
 	}
 
 	/**
-<<<<<<< HEAD
-=======
 	 * @param  {Object} restoreObject
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
@@ -1436,7 +937,6 @@ class PictureSpring extends Spring {
 	}
 
 	/**
->>>>>>> newtestbranch
 	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
 	 * @param  {truss} truss
 	 * @param  {number} graphicDebugLevel=0
@@ -1444,14 +944,6 @@ class PictureSpring extends Spring {
 	show(truss, graphicDebugLevel = 0) {
 		super.show(truss, graphicDebugLevel);
 
-<<<<<<< HEAD
-		this.a = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
-		this.c = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
-
-		if (this.stretch && this.stretch!='0') {
-			this.b = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
-			this.d = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
-=======
 		let a = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
 		let c = Vector.addVectors(this.node1.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
 		let b=0;
@@ -1460,25 +952,10 @@ class PictureSpring extends Spring {
 		if (this.stretch && this.stretch!='0') {
 			b = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular().normalizeVector(this.width / 2));
 			d = Vector.addVectors(this.node2.getPosition(), this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
->>>>>>> newtestbranch
 		} else {
 			let normVector = this.getActual().normalizeVector(this.length);
 			let newnormal = Vector.addVectors(this.node1.getPosition(), normVector);
 
-<<<<<<< HEAD
-			this.b = Vector.addVectors(newnormal, this.getActual().perpendicular().normalizeVector(this.width / 2));
-			this.d = Vector.addVectors(newnormal, this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
-
-			this.element.style.clip = 'rect(0px, ' +
-				Math.round(this.element.offsetWidth * this.getLength() / this.length) + 'px, 1000px, 0px)';
-		}
-
-		warpMatrix(truss, this.element,
-			this.a,
-			this.b,
-			this.c,
-			this.d);
-=======
 			b = Vector.addVectors(newnormal, this.getActual().perpendicular().normalizeVector(this.width / 2));
 			d = Vector.addVectors(newnormal, this.getActual().perpendicular(-1).normalizeVector(this.width / 2));
 
@@ -1487,7 +964,6 @@ class PictureSpring extends Spring {
 		}
 
 		warpMatrix(truss, this, a, b, c, d, this.width, this.height);
->>>>>>> newtestbranch
 	};
 }
 

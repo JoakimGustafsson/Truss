@@ -66,6 +66,8 @@ class KeySensor extends Behaviour {
 			}
 		}
 		this.setPosition(p);
+
+		test();
 	};
 }
 

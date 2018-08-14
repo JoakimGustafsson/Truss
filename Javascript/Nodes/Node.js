@@ -1,44 +1,5 @@
 /**
  * @class
-<<<<<<< HEAD
- */
-class Node {
-	/**
-	 * @param  {Truss} truss
-	 * @param  {Position} startPosition
-	 * @param  {number} mass
-	 * @param  {string} name
-	 * @param  {Function} positionFunction
-	 * @param  {Function} showFunction
-	 * @param  {number} velocityLoss
-	 * @param  {number} torqueConstant
-	 */
-	constructor(truss, startPosition = new Position(0, 0), mass = 1, name = 'node',
-		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
-		this.truss=truss;
-		this.properties = new PropertyList();
-		this.name = name;
-		this.localPosition = startPosition;
-		this.velocity = new Velocity(0, 0);
-		this._mass = mass;
-		if (mass) {
-			this.massRadius = Math.sqrt(mass);
-		} else {
-			this.massRadius = 5;
-		}
-		this.angle = 0;
-		this.turnrate = 0;
-		this.torqueConstant = torqueConstant;
-		this.velocityBasedTensors = [];
-		this.positionBasedTensors = [];
-		this.velocityLoss = velocityLoss;
-		this.positionFunction = positionFunction;
-		this.showFunction = showFunction;
-		this.isNode = true;
-
-		Object.defineProperty(this, 'mass', {
-			get: function() {
-=======
  * @extends StoreableObject
  */
 class Node extends StoreableObject {
@@ -117,7 +78,6 @@ class Node extends StoreableObject {
 				if (this._mass==undefined) {
 					return NaN;
 				}
->>>>>>> newtestbranch
 				return this._mass;
 			},
 			set: function(value) {
@@ -132,12 +92,9 @@ class Node extends StoreableObject {
 
 		Object.defineProperty(this, 'degree', {
 			get: function() {
-<<<<<<< HEAD
-=======
 				if (this.angle==undefined) {
 					return 0;
 				}
->>>>>>> newtestbranch
 				return Math.round(this.angle * 180 / (Math.PI));
 			},
 			set: function(value) {
@@ -145,35 +102,6 @@ class Node extends StoreableObject {
 			},
 		});
 
-<<<<<<< HEAD
-		this.addProperty(new Property(this,
-			'name', 'name', 'Name', ParameteType.STRING, ParameterCategory.CONTENT,
-			'The name of the node.'));
-
-		this.addProperty(new Property(this,
-			'mass', 'mass', 'Mass', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The mass of the node in Kilograms.'));
-
-		this.addProperty(new Property(this,
-			'localPosition', 'localPosition', 'Position', ParameteType.POSITION, ParameterCategory.CONTENT,
-			'The position counted from the upper left corner.'));
-		this.addProperty(new Property(this,
-			'degree', 'degree', 'Angle', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'The angle of the node.'));
-		this.addProperty(new Property(this,
-			'torqueConstant', 'torqueConstant', 'Torque constant', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How stiff the node is with respect to attempts angle differences.'));
-		this.addProperty(new Property(this,
-			'velocityLoss', 'velocityLoss', 'Node friction', ParameteType.NUMBER, ParameterCategory.CONTENT,
-			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).'));
-	}
-
-	/**
-	 * @param {Tensor} tensor
-	 * @return {Element}
-	 */
-	generateHTML(tensor) {
-=======
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
@@ -185,7 +113,6 @@ class Node extends StoreableObject {
 	 * @return {Element}
 	 */
 	generateHTML() {
->>>>>>> newtestbranch
 		let leftButton=document.createElement('button');
 		leftButton.classList.add('trussButton');
 		leftButton.classList.add('nodeButton');
@@ -201,11 +128,7 @@ class Node extends StoreableObject {
 	generateconnectionHTML() {
 		let div = document.createElement('div');
 
-<<<<<<< HEAD
-		for (let tensor of [...this.velocityBasedTensors, ...this.positionBasedTensors]) {
-=======
 		for (let tensor of this.connectedTensors) {
->>>>>>> newtestbranch
 			let tensorButton = tensor.generateconnectionHTML(this);
 			div.appendChild(tensorButton);
 
@@ -221,31 +144,17 @@ class Node extends StoreableObject {
 	 */
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
-<<<<<<< HEAD
-			let previousSelectedObject = selectedObject;
-			selectedObject = node1;
-			let event = new CustomEvent('selectionEvent', {
-				detail: {
-					'selectedObject': selectedObject,
-=======
 			let previousSelectedObject = universe.selectedObject;
 			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
 					'selectedObject': universe.selectedObject,
->>>>>>> newtestbranch
 					'previousSelectedObject': previousSelectedObject,
 					'truss': undefined,
 				},
 				bubbles: true,
 				cancelable: true,
 			});
-<<<<<<< HEAD
-			document.dispatchEvent(event);
-		});
-	}
-
-=======
 			universe.currentNode.element.dispatchEvent(event);
 		});
 	}
@@ -268,7 +177,6 @@ class Node extends StoreableObject {
 				this.world.labels.parse(this.labelString, this);
 	}
 
->>>>>>> newtestbranch
 	/** Handling properties
 	 * @param  {Property} property
 	 * @return {Property}
@@ -286,37 +194,19 @@ class Node extends StoreableObject {
 
 	/** Handling properties
 	 * @param  {element} element
-<<<<<<< HEAD
-	 * @return {Property}
-	 */
-	populateProperties(element) {
-		return this.properties.populateProperties(element);
-=======
 	 * @param  {number} ignoreLabels
 	 * @return {Property}
 	 */
 	populateProperties(element, ignoreLabels) {
 		return this.properties.populateProperties(element, this, ignoreLabels);
->>>>>>> newtestbranch
 	}
 
 
 	/**
-<<<<<<< HEAD
-	 * @param  {Truss} truss
-=======
->>>>>>> newtestbranch
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-<<<<<<< HEAD
-	serialize(truss, nodeList, tensorList) {
-		let representation = {
-			'classname': 'Node',
-		};
-		representation.name = this.name;
-=======
 	serialize(nodeList, tensorList) {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Node';
@@ -324,18 +214,11 @@ class Node extends StoreableObject {
 		/*
 		representation.name = this.name;
 		representation.parentTrussNode = nodeList.indexOf(this.parentTrussNode);
->>>>>>> newtestbranch
 		representation.localPosition = this.localPosition.serialize();
 		representation.velocity = this.velocity.serialize();
 		representation.mass = this.mass;
 		representation.massRadius = this.massRadius;
 		representation.angle = this.angle;
-<<<<<<< HEAD
-		representation.turnrate = this.turnrate;
-		representation.torqueConstant = this.torqueConstant;
-		representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
-		representation.positionBasedTensors = serializeList(this.positionBasedTensors, tensorList);
-=======
 		// representation.color = this.color;
 		representation.pictureReference = this.pictureReference;
 		representation.size = this.size;
@@ -344,7 +227,6 @@ class Node extends StoreableObject {
 		representation.labelString=this.labelString;
 		// representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
 		representation.positionBasedTensors = serializeList(this.connectedTensors, tensorList);
->>>>>>> newtestbranch
 		representation.velocityLoss = this.velocityLoss;
 		if (this.positionFunction) {
 			representation.positionFunction = this.positionFunction.toString();
@@ -365,26 +247,11 @@ class Node extends StoreableObject {
 				});
 			}
 		}
-<<<<<<< HEAD
-		representation.breakList = storeBreakList;
-=======
 		representation.breakList = storeBreakList; */
->>>>>>> newtestbranch
 
 		return representation;
 	}
 
-<<<<<<< HEAD
-	/**
-	 * @param  {Truss} truss
-	 * @param  {Object} restoreObject
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 */
-	deserialize(truss, restoreObject, nodeList, tensorList) {
-		this.name = restoreObject.name;
-		this.truss = truss;
-=======
 	/*
 	 * @param  {Object} restoreObject
 	 * @param  {Array} nodeList
@@ -394,7 +261,6 @@ class Node extends StoreableObject {
 		this.name = restoreObject.name;
 		this.parentTrussNode = nodeList[restoreObject.parentTrussNode];
 
->>>>>>> newtestbranch
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
 		this.mass = restoreObject.mass;
@@ -402,13 +268,6 @@ class Node extends StoreableObject {
 			this.mass = NaN;
 		}
 		this.massRadius = restoreObject.massRadius;
-<<<<<<< HEAD
-		this.angle = restoreObject.angle;
-		this.turnrate = restoreObject.turnrate;
-		this.torqueConstant = restoreObject.torqueConstant;
-		this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
-		this.positionBasedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
-=======
 		this.color=restoreObject.color;
 		this.pictureReference = restoreObject.pictureReference;
 
@@ -421,7 +280,6 @@ class Node extends StoreableObject {
 
 		// this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
 		this.connectedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
->>>>>>> newtestbranch
 		this.velocityLoss = restoreObject.velocityLoss;
 		try {
 			if (restoreObject.positionFunction) {
@@ -451,11 +309,7 @@ class Node extends StoreableObject {
 		// Make list of nodes
 		// make list of tensors (using the nodes)
 		// fill in the nodes tensor references
-<<<<<<< HEAD
-	}
-=======
 	} */
->>>>>>> newtestbranch
 
 	/**
 	 */
@@ -469,15 +323,12 @@ class Node extends StoreableObject {
 	copyPosition(position) {
 		this.localPosition.x = position.x;
 		this.localPosition.y = position.y;
-<<<<<<< HEAD
-=======
 		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
 			let x=position.x + this.parentTrussNode.gridSize/2;
 			let y=position.y + this.parentTrussNode.gridSize/2;
 			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
 			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
 		}
->>>>>>> newtestbranch
 	};
 
 	/** Assign a position object to the node. Also consider use of copyPosition() instead.
@@ -516,15 +367,6 @@ class Node extends StoreableObject {
 	 */
 	addTensor(tensor, angle) {
 		if (!angle && this.torqueConstant) {
-<<<<<<< HEAD
-			angle = tensor.getTensorAngle(this) - this.angle;
-		}
-		if (tensor.tensorType == TensorType.ABSORBER) {
-			this.velocityBasedTensors.push(tensor);
-		} else {
-			this.positionBasedTensors.push(tensor);
-		}
-=======
 			angle = NaN; // tensor.getTensorAngle(this) - this.angle;
 		}
 		// if (tensor.absorber) {
@@ -532,7 +374,6 @@ class Node extends StoreableObject {
 		// }
 		this.connectedTensors.push(tensor);
 
->>>>>>> newtestbranch
 		return tensor;
 	};
 
@@ -552,16 +393,6 @@ class Node extends StoreableObject {
 			}
 			l.splice(a, 1);
 		}
-<<<<<<< HEAD
-
-		if (tensor.tensorType == TensorType.ABSORBER) {
-			supportRemove(tensor, this.velocityBasedTensors);
-		} else {
-			supportRemove(tensor, this.positionBasedTensors);
-		}
-	}
-
-=======
 		// supportRemove(tensor, this.velocityBasedTensors);
 		supportRemove(tensor, this.connectedTensors);
 	}
@@ -584,7 +415,6 @@ class Node extends StoreableObject {
 			tensor.unreference(this);
 		}
 	}
->>>>>>> newtestbranch
 	/**
 	 * Update the position based on velocity, then let
 	 * the this.positionFunction (if present) tell where it should actually be
@@ -604,11 +434,7 @@ class Node extends StoreableObject {
 	 * @param  {number} timeFactor
 	 */
 	updatePositionBasedVelocity(timeFactor) {
-<<<<<<< HEAD
-		this.updateVelocity(this.positionBasedTensors, timeFactor);
-=======
 		this.updateVelocity(this.connectedTensors, timeFactor);
->>>>>>> newtestbranch
 	}
 
 	/**
@@ -616,11 +442,7 @@ class Node extends StoreableObject {
 	 * @param {number} timeFactor
 	 */
 	updateFinalVelocity(timeFactor) {
-<<<<<<< HEAD
-		this.updateVelocity(this.velocityBasedTensors, timeFactor);
-=======
 		this.updateVelocity(this.connectedTensors, timeFactor, 1);
->>>>>>> newtestbranch
 	}
 
 	/**
@@ -628,11 +450,7 @@ class Node extends StoreableObject {
 	 * @param {number} timeFactor
 	 */
 	updateFinalRotation(timeFactor) {
-<<<<<<< HEAD
-		this.updateRotation(this.positionBasedTensors, timeFactor);
-=======
 		this.updateRotation(this.connectedTensors, timeFactor);
->>>>>>> newtestbranch
 	}
 
 	/**
@@ -651,11 +469,7 @@ class Node extends StoreableObject {
 		if (!this.turnable()) {
 			return;
 		}
-<<<<<<< HEAD
-		for (let tensor of this.positionBasedTensors) {
-=======
 		for (let tensor of this.connectedTensors) {
->>>>>>> newtestbranch
 			if (tensor.tensorType == TensorType.SPRING) {
 				this.sumTorque += tensor.getTorque(this);
 			}
@@ -674,11 +488,7 @@ class Node extends StoreableObject {
 		} else {
 			this.turnrate = 0; // weightless cannot turn
 		}
-<<<<<<< HEAD
-		this.turnrate = this.turnrate * 0.8;
-=======
 		// this.turnrate = this.turnrate * 0.8;
->>>>>>> newtestbranch
 		this.angle += this.turnrate;
 	}
 
@@ -686,14 +496,6 @@ class Node extends StoreableObject {
 	 * Calculate the final velocity
 	 * @param {Array} forceAppliers
 	 * @param {number} timeFactor
-<<<<<<< HEAD
-	 */
-	updateVelocity(forceAppliers, timeFactor) {
-		if (isNaN(this.mass)) return;
-		let acceleration;
-		if (forceAppliers.length > 0) {
-			acceleration = this.getAcceleration(forceAppliers);
-=======
 	 * @param {number} velocityPhase
 	 */
 	updateVelocity(forceAppliers, timeFactor, velocityPhase) {
@@ -701,7 +503,6 @@ class Node extends StoreableObject {
 		let acceleration;
 		if (forceAppliers.length > 0) {
 			acceleration = this.getAcceleration(forceAppliers, velocityPhase);
->>>>>>> newtestbranch
 			this.acceleration=acceleration; // For debug display purpose
 		} else {
 			acceleration = new Vector(0, 0);
@@ -713,35 +514,16 @@ class Node extends StoreableObject {
 	/**
 	 * Sum all forces generated by the forceAppliers and divide by the mass to get the acceleration
 	 * @param {Array} forceAppliers
-<<<<<<< HEAD
-	 * @return {Vector}
-	 */
-	getAcceleration(forceAppliers) {
-		return Vector.divideVector(this.sumAllForces(forceAppliers), this.mass);
-=======
 	 * @param {number} velocityPhase
 	 * @return {Vector}
 	 */
 	getAcceleration(forceAppliers, velocityPhase) {
 		return Vector.divideVector(this.sumAllForces(forceAppliers, velocityPhase), this.mass);
->>>>>>> newtestbranch
 	}
 
 	/**
 	 * Go through the list of all forceAppliers and sum them up
 	 * @param  {Array} forceAppliers
-<<<<<<< HEAD
-	 * @return {Force}
-	 */
-	sumAllForces(forceAppliers) {
-		let result = new Force(0, 0);
-		let applier;
-		let tempForce;
-		for (let i = 0; i < forceAppliers.length; i++) {
-			applier = forceAppliers[i];
-			tempForce = applier.getForce(this);
-			result.add(tempForce);
-=======
 	 * @param {number} velocityPhase
 	 * @return {Force}
 	 */
@@ -758,7 +540,6 @@ class Node extends StoreableObject {
 					console.log(err);
 				}
 			}
->>>>>>> newtestbranch
 		}
 		return result;
 	}
@@ -780,10 +561,6 @@ class Node extends StoreableObject {
 	show(truss, time, graphicDebugLevel = 0) {
 		let view = truss.view;
 		let cxt = view.context;
-<<<<<<< HEAD
-
-		if (graphicDebugLevel >= 3) {
-=======
 		if (!this.visible || this.visible=='0') {
 			return;
 		}
@@ -796,7 +573,6 @@ class Node extends StoreableObject {
 			if (this.pictureReference) {
 				this.pictureShow(truss, time);
 			}
->>>>>>> newtestbranch
 			if (view.inside(this.getPosition())) {
 				this.highLight(cxt);
 				cxt.beginPath();
@@ -826,12 +602,8 @@ class Node extends StoreableObject {
 					cxt.strokeStyle = 'red';
 					cxt.beginPath();
 					if (this.acceleration) {
-<<<<<<< HEAD
-						view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
-=======
 						view.drawLine(this.getPosition(),
 							Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
->>>>>>> newtestbranch
 					}
 					cxt.stroke();
 				}
@@ -839,21 +611,12 @@ class Node extends StoreableObject {
 
 			if (graphicDebugLevel >= 10) {
 				cxt.beginPath();
-<<<<<<< HEAD
-				cxt.fillStyle = 'lightgreen';
-				cxt.font = '10px Arial';
-				cxt.textAlign = 'left';
-				let textPos = this.getPosition();
-				view.drawText(textPos, '('+Math.trunc(this.getPosition().x*100)/100+', '+
-					Math.trunc(this.getPosition().x*100)/100+')');
-=======
 				cxt.fillStyle = this.color;
 				cxt.font = '10px Arial';
 				cxt.textAlign = 'left';
 				let textPos = this.getPosition();
 				view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
 						Math.trunc(this.getPosition().y * 100) / 100 + ')');
->>>>>>> newtestbranch
 			}
 		}
 		if (graphicDebugLevel >= 1) {
@@ -863,20 +626,12 @@ class Node extends StoreableObject {
 		}
 	}
 
-<<<<<<< HEAD
-=======
-
->>>>>>> newtestbranch
 	/**
 	 * @param  {Context} ctx
 	 */
 	highLight(ctx) {
 		if (!this.highlighted) {
-<<<<<<< HEAD
-			ctx.strokeStyle = 'lightgrey';
-=======
 			ctx.strokeStyle = this.color;
->>>>>>> newtestbranch
 			ctx.shadowBlur = 0;
 			ctx.lineWidth = 2;
 			ctx.shadowColor = 'black';
@@ -892,8 +647,6 @@ class Node extends StoreableObject {
 			ctx.shadowColor = 'yellow';
 		}
 	}
-<<<<<<< HEAD
-=======
 
 	/**
 		 * @param  {string} pictureReference
@@ -970,6 +723,5 @@ class Node extends StoreableObject {
 
 		warpMatrix(truss, this, d, c, a, b, this. pictureWidth, this.pictureHeight);
 	}
->>>>>>> newtestbranch
 }
 

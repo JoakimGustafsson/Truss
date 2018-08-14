@@ -4,38 +4,25 @@
 <head>
 	<meta charset="UTF-8" />
 	<script src="Javascript/Primitives.js" type="text/javascript"></script>
-<<<<<<< HEAD
-	<script src="Javascript/FileSave.js" type="text/javascript"></script>
-	<script src="Javascript/View.js" type="text/javascript"></script>
-=======
 	<script src="Javascript/Label.js" type="text/javascript"></script>
 	<script src="Javascript/FileSave.js" type="text/javascript"></script>
 	<script src="Javascript/View.js" type="text/javascript"></script>
 	<script src="Javascript/Universe.js" type="text/javascript"></script>
 	<script src="Javascript/StoreableObject.js" type="text/javascript"></script>
->>>>>>> newtestbranch
 	<script src="Javascript/Nodes/Node.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/CollectionNode.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/PictureNode.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/TrussNode.js" type="text/javascript"></script>
 	<script src="Javascript/Tensors.js" type="text/javascript"></script>
-<<<<<<< HEAD
-	<script src="Javascript/Truss.js" type="text/javascript"></script>
-=======
->>>>>>> newtestbranch
 	<script src="Javascript/Nodes/Actuators.js" type="text/javascript"></script>
 	<script src="Javascript/Nodes/Sensors.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/Property.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/BannerNode.js" type="text/javascript"></script>
-<<<<<<< HEAD
-	<script src="Javascript/Pictures.js" type="text/javascript"></script>
-=======
 	<script src="Javascript/ParameterEditor/ConfigurationArea.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/PropertyEditor.js" type="text/javascript"></script>
 	<script src="Javascript/ParameterEditor/PropertyUpdateNode.js" type="text/javascript"></script>
 	<script src="Javascript/Pictures.js" type="text/javascript"></script>
 	<script src="Javascript/Behaviour.js" type="text/javascript"></script>
->>>>>>> newtestbranch
 	<script src="Javascript/ExperimentalTrusses.js" type="text/javascript"></script>
 
 	<link rel="stylesheet" type="text/css" href="../Stylefiles/Truss.css">
@@ -49,162 +36,6 @@
 </head>
 
 <body style="background-color: #343f48; margin:0px;" onresize="updateResize()">
-<<<<<<< HEAD
-	<!--<img id="dimage" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; "
-	    alt="Mountain View">
-	 <div style="border:2px solid red; width:300px; height:300px;">
-		<img id="dimage2" src="Resources/facade.jpg" style="position: absolute; left:0px; top:0px; width: 200px; height: 200px; clip: rect(0px,100px,300px,0px);"
-		    alt="Mountain View">
-	</div> -->
-
-
-	<section>
-		<div id="TrussBackground" class="trussBackgroundDiv" align="left">
-			<div class="configareaouter" id="configarea">
-				<div class="configareainner">
-
-					<div class="tab">
-						<button class="tabsectionbuttons" id="propertiesButton" onclick="MovePropertyEdit('propertyConfigArea'); openBottomPanel(event, 'propertiesDiv')">PROPERTIES</button>
-						<button class="tabsectionbuttons" onclick="MovePropertyEdit('trussConfigArea'); openBottomPanel(event, 'trussDiv'); ">TRUSS</button>
-						<button class="tabsectionbuttons advanced" onclick="openBottomPanel(event, 'fileDiv'); directory('Saves');">FILE</button>
-					</div>
-
-					<div id="propertiesDiv" class="footerbackgroundarea tabcontent">
-						<!--- div class="sectionheader">Configuration</div> -->
-						<div class="sectionbase">
-							<div id="propertyConfigArea">
-								<div id="configview" class="sectionmiddle"></div>
-							</div>
-
-							<div id="connectionDiv" class="sectionmiddle"></div>
-
-
-							<div id="addDiv" class="sectionlast">
-								<!-- div class="sectionheader">Configuration</div> -->
-								<div>
-									<select id='nodeType' oninput='' class="inputcss">
-										<option value='Node'>Node</option>
-										<option value=''>--Sensors--</option>
-										<option value='KeySensorNode'>KeySensor</option>
-										<option value='ProximitySensornODE'>ProximitySensor</option>
-										<option value=''>--Actuators--</option>
-										<option value='jumpNode'>JumpNodeActuator</option>
-										<option value='LeftRightNode'>LeftRightActuator</option>
-										<option value='Linebreakernode'>LinebreakerActuator</option>
-									</select>
-									<button class="simpleButton" type="button" onclick="makeNode()">Create</button>
-								</div>
-								<div id="tensorAdder">
-									<select id='tensorType' oninput='' class="inputcss">
-										<option value='Spring'>Spring</option>
-										<option value='PullSpring'>PullSpring</option>
-										<option value='Absorber'>Absorber</option>
-										<option value='Field'>Field</option>
-										<option value='PictureSpring'>PictureSpring</option>
-									</select>
-									<button class="simpleButton" type="button" onclick="makeTensor()">Create</button>
-								</div>
-							</div>
-						</div>
-
-						<div class="sectionlast">
-							<button class="simpleButton" type="button" onclick="mainNode.togglePause()">Pause</button>
-							<!-- <button class="simpleButton" type="button" onclick="mainNode.toggleMove()">Lock</button> -->
-							<button id="gravityButton" class="simpleButton" type="button" onclick="addGravityCheat();">Gravity</button>
-							<button class="simpleButton" type="button" onclick="deleteSelected()">Delete</button>
-
-							<select id='debugLevel'class ="inputcss" onchange='changeDebugLevel();'>
-								<option value='1'>Debug level</option>
-								<option value='0'>0 - Nothing</option>
-								<option value='1'>1 - Only web parts</option>
-								<option value='2'>2 - Only lines</option>
-								<option value='3'>3 - Only nodes</option>
-								<option value='5'>5 - Lines and Nodes</option>
-								<option value='6'>6 - Add speeds</option>
-								<option value='7'>7 - Add acceleration</option>
-								<option value='10'>10 - Add numbers</option>
-							</select>
-						</div>
-					</div>
-
-					<div id="addDiv" class="footerbackgroundarea tabcontent">
-						<!-- div class="sectionheader">Configuration</div> -->
-						<div>
-							<button class="simpleButton" type="button">New Node</button>
-						</div>
-						<div>
-							<button class="simpleButton" type="button">New Tensor</button>
-						</div>
-					</div>
-					<div id="trussDiv" class="footerbackgroundarea tabcontent">
-
-						<div class="sectionbase">
-
-							<div id="trussConfigArea"></div>
-						</div>
-						<div class="sectionlast">
-							<button class="simpleButton" type="button">TrussNode</button>
-							<button class="simpleButton" type="button">gravityNode</button>
-							<button class="simpleButton" type="button">selectorNode</button>
-						</div>
-					</div>
-
-
-					<div id="fileDiv" class="footerbackgroundarea tabcontent">
-
-						<div class="sectionbase">
-
-							<div class="fileList" id="fileList">X</div>
-
-							<div class="valuepair">
-								<div title="Filename" class="lname">Filename</div>
-								<div class="rvalue">
-									<input class="text" type="text" id="fileNameInput" value="myFile" style="text-align: right; width:140px;">
-								</div>
-							</div>
-						</div>
-
-
-						<button class="simpleButton" type="button" onclick="saveFile(document.getElementById('fileNameInput').value);">Save</button>
-
-					</div>
-
-				</div>
-
-
-			</div>
-
-
-		</div>
-
-
-		<div id="FPSdisplay" style="position: absolute; left:10px; bottom:10px; color: white;">
-		</div>
-
-		<script type="text/javascript">
-			var mainNode;
-			var newMainNode;
-			var savedState = 0;
-
-			// var tensors, nodes;
-			var selectedObject;
-			var sensor;
-
-			//Main Draw loop
-			function mainLoop(timestamp) {
-				if (newMainNode) {
-					mainNode.truss.clear();
-					mainNode = newMainNode;
-
-					mainNode.canvas.onmousemove = myMove;
-					mainNode.canvas.onmousedown = downMouse;
-					mainNode.canvas.onmouseup = upMouse;
-
-					newMainNode = undefined;
-				}
-				mainNode.tick(timestamp / 1000);
-				requestAnimationFrame(mainLoop);
-=======
 
 	<section>
 		<div id="mainArea"></div>
@@ -303,7 +134,6 @@
 		window.addEventListener('keydown', function(e) {
 			if (!universe.currentWorld.fastEdit) {
 				return;
->>>>>>> newtestbranch
 			}
 			console.log(e.keyCode);
 			if (e.keyCode==78) {
@@ -313,211 +143,6 @@
 			}
 		}, true);
 
-<<<<<<< HEAD
-			// Setting up the canvas and ensure other initialization routines are run
-			function init() {
-				FPSdisplay = document.getElementById("FPSdisplay");
-				trussBackground = document.getElementById("TrussBackground");
-
-				let mainView = new View(new Vector(20, 20), trussBackground);
-				mainNode = new TrussNode(undefined, new Position(0, 0), mainView, 1 / 60, 1, "MainNode", WalkTruss,
-					'TrussBackground');
-				mainNode.truss.initiate();
-
-				window.requestAnimationFrame(mainLoop);
-
-
-
-				mainView.context.canvas.onmousemove = myMove;
-				mainView.context.canvas.onmousedown = downMouse;
-				mainView.context.canvas.onmouseup = upMouse;
-
-				let configarea = document.getElementById('configarea');
-				let connectionDiv = document.getElementById('connectionDiv');
-				let gravitybutton = document.getElementById('gravitybutton');
-				let tensorAdder = document.getElementById('tensorAdder');
-				let debugLevel = document.getElementById('debugLevel');
-
-				document.addEventListener('selectionEvent',
-					function (e) {
-						select.call(this, e);
-					}, false);
-
-
-				openBottomPanel(event, 'propertiesDiv');
-
-				// configarea.style.left = "200px";
-				configarea.style.display = "none";
-
-			}
-
-
-
-			let myX = 3;
-			let myY = 3;
-			let mouseSet = false;
-			/**
-			 * @param  {Event} e
-			 */
-			function myMove(e) {
-				myX = e.pageX;
-				myY = e.pageY;
-			}
-
-			/**
-			 * @param  {Event} e
-			 */
-			function downMouse(e) {
-				mouseSet = true;
-			}
-
-			/**
-			 * @param  {Event} e
-			 */
-			function upMouse(e) {
-				mouseSet = false;
-			}
-
-
-
-			function openBottomPanel(evt, divName) {
-				// Declare all variables
-				var i, tabcontent, tablinks;
-
-				// Get all elements with class="tabcontent" and hide them
-				tabcontent = document.getElementsByClassName("tabcontent");
-				for (i = 0; i < tabcontent.length; i++) {
-					tabcontent[i].style.display = "none";
-				}
-
-				// Get all elements with class="tablinks" and remove the class "active"
-				tablinks = document.getElementsByClassName("tabsectionbuttons");
-				for (i = 0; i < tablinks.length; i++) {
-					tablinks[i].classList.remove("active");
-				}
-
-				// Show the current tab, and add an "active" class to the button that opened the tab
-				document.getElementById(divName).style.display = "block";
-
-				if (evt)
-					evt.currentTarget.classList.add("active");
-				else
-					document.getElementById("propertiesButton").classList.add("active");
-			}
-
-
-			/**
-			 * @param  {Event} selectionEvent
-			 */
-			function select(selectionEvent) {
-				let select = selectionEvent.detail.selectedObject;
-				if (!select) {
-					connectionDiv.innerHTML = '';
-					return;
-				}
-				let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
-				select.setHighlight(2);
-				if (previousSelectedObject) {
-					previousSelectedObject.setHighlight(0);
-				}
-				connectionDiv.innerHTML = '';
-				connectionDiv.appendChild(select.generateconnectionHTML());
-
-				if (select.isNode) {
-					gravityButton.style.display = 'inline';
-					tensorAdder.style.display = 'inline';
-				} else {
-					gravityButton.style.display = 'none';
-					tensorAdder.style.display = 'none';
-				}
-
-				// if (select!=mainNode) {
-				//	MovePropertyEdit('propertyConfigArea');
-				//	openBottomPanel(undefined, 'propertiesDiv');
-				// }
-			}
-
-			function makeNode() {
-				let selector = document.getElementById('nodeType');
-				let value = selector.value;
-				if (value == 'Node') {
-					mainNode.truss.addNode(new Node(mainNode.truss, new Position(1, 1), 10, 'node'));
-				}
-			}
-
-			var connectionTensor;
-			var connectionEventListener;
-
-			function makeTensor() {
-				let selector = document.getElementById('tensorType');
-				let value = selector.value;
-				if (value == 'Spring') {
-					connectionTensor = mainNode.truss.addTensor(new Spring(selectedObject, sensor, 100));
-				} else if (value == 'PullSpring') {
-					connectionTensor = mainNode.truss.addTensor(new PullSpring(selectedObject, sensor, 100));
-				} else if (value == 'Absorber') {
-					connectionTensor = mainNode.truss.addTensor(new Absorber(selectedObject, sensor, 1));
-				} else if (value == 'Field') {
-					connectionTensor = mainNode.truss.addTensor(new Field(selectedObject, sensor, 0.0001));
-				} else if (value == 'PictureSpring') {
-					connectionTensor = mainNode.truss.addTensor(new PictureSpring(selectedObject, sensor, 100, 'facade.jpg', 1));
-				}
-				if (!connectionEventListener) {
-					connectionEventListener = document.addEventListener('selectionEvent', function (e) {
-						if (connectionTensor && selectedObject.isNode) {
-							connectionTensor.sensorAttach();
-							connectionTensor = undefined;
-						}
-					}, false);
-				}
-			}
-
-			function changeDebugLevel() {
-				mainNode.truss.debugLevel = debugLevel.value;
-			}
-
-			function addGravityCheat() {
-				mainNode.truss.addTensor(gravityField(selectedObject));
-			}
-
-			function deleteSelected() {
-				if (selectedObject.isTensor) {
-					mainNode.truss.removeTensor(selectedObject);
-				} else if (selectedObject.isNode) {
-					mainNode.truss.removeNode(selectedObject);
-				}
-			}
-
-			function selectMainNode() {
-				let previousSelectedObject = selectedObject;
-				selectedObject = mainNode;
-				let event = new CustomEvent('selectionEvent', {
-					detail: {
-						'selectedObject': selectedObject,
-						'previousSelectedObject': previousSelectedObject,
-						'truss': undefined,
-					},
-					bubbles: true,
-					cancelable: true,
-				});
-				document.dispatchEvent(event);
-			}
-
-			function updateResize() {
-				mainNode.resize();
-			}
-
-			function MovePropertyEdit(configAreaName) {
-				if (configAreaName == 'trussConfigArea') {
-					selectMainNode();
-				}
-				let view = document.getElementById('configview');
-				let container = document.getElementById(configAreaName);
-				container.appendChild(view);
-			}
-
-			init();
-=======
 
 			let myX = 3;
 			let myY = 3;
@@ -734,7 +359,6 @@
 
 			init();
 
->>>>>>> newtestbranch
 		</script>
 
 	</section>
