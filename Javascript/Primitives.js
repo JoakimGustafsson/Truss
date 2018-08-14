@@ -41,6 +41,41 @@ class Vector {
 		return new Vector(-this.x, -this.y);
 	};
 
+<<<<<<< HEAD
+=======
+/** TODO: Not used. remove this:
+ * Support function that cleans a list using the cb function that I always seem to mess up
+ * @param  {list} list
+ * @param  {Function} cb
+ */
+function cleanup(list, cb) {
+	for (let r of t.slice()) {
+		cb(r);
+	}
+}
+/**
+ * The base vector class used to represent a point on a two dimensional plane
+ * @class
+ */
+class Vector {
+	/**
+	 * Create a vector consisting of an x and a y position
+	 * @param  {number} x=0
+	 * @param  {number} y=0
+	 */
+	constructor(x = 0, y = 0) {
+		this.x = x;
+		this.y = y;
+	}
+	/**
+	 * Returns the vector pointing in exactly the opposite direction
+	 * @return {Vector} The vector pointing in exactly the oposite direction
+	 */
+	opposite() {
+		return new Vector(-this.x, -this.y);
+	};
+
+>>>>>>> newtestbranch
 	/**
 	 * Returns the vector pointing in exactly the opposite direction
 	 * @return {Vector} The vector pointing in exactly the oposite direction
@@ -96,6 +131,7 @@ class Vector {
 		this.y += v.y;
 		return this;
 	};
+<<<<<<< HEAD
 
 	/**
 	 * Modify the length of this vector by dividing it by c
@@ -155,6 +191,34 @@ class Vector {
 	 */
 	static length(v) {
 		return Math.sqrt(length2(v));
+=======
+
+	/**
+	 * Modify the length of this vector by dividing it by c
+	 * @param  {number} c
+	 * @return {Vector}
+	 */
+	divide(c) {
+		this.x /= c;
+		this.y /= c;
+		return this;
+	};
+
+	/** return the vectors angle in the range -PI to PI
+	 * @return {number}
+	 */
+	getAngle() {
+		return getAngle(this.x, this.y);
+	}
+
+	/** Class method that Returns a new vector that is the sum of two vectors
+	 * @param  {Vector} v1
+	 * @param  {Vector} v2
+	 * @return {Vector}
+	 */
+	static addVectors(v1, v2) {
+		return new Vector(v1.x + v2.x, v1.y + v2.y);
+>>>>>>> newtestbranch
 	}
 
 	/**
@@ -162,6 +226,49 @@ class Vector {
 	 * @param  {Vector} v2
 	 * @return {number}
 	 */
+<<<<<<< HEAD
+=======
+	static subtractVectors(v1, v2) {
+		return new Vector(v1.x - v2.x, v1.y - v2.y);
+	}
+	/**
+	 * @param  {number} m
+	 * @param  {Vector} v1
+	 * @return {Vector}
+	 */
+	static multiplyVector(m, v1) {
+		return new Vector(m * v1.x, m * v1.y);
+	}
+	/**
+	 * @param  {Vector} v1
+	 * @param  {number} m
+	 * @return {Vector}
+	 */
+	static divideVector(v1, m) {
+		return new Vector(v1.x / m, v1.y / m);
+	}
+
+	/**
+	 * @param  {Vector} v
+	 * @return {number}
+	 */
+	static length2(v) {
+		return v.x * v.x + v.y * v.y;
+	}
+	/**
+	 * @param  {Vector} v
+	 * @return {number}
+	 */
+	static length(v) {
+		return Math.sqrt(Vector.length2(v));
+	}
+
+	/**
+	 * @param  {Vector} v1
+	 * @param  {Vector} v2
+	 * @return {number}
+	 */
+>>>>>>> newtestbranch
 	static dotProduct(v1, v2) {
 		return v1.x * v2.x + v1.y * v2.y;
 	}
@@ -200,6 +307,7 @@ class AlertVector {
 	 */
 	constructor(v, f) {
 		this.v = v;
+<<<<<<< HEAD
 
 		Object.defineProperty(this, 'x', {
 			get: function() {
@@ -220,6 +328,47 @@ class AlertVector {
 			},
 		});
 	}
+=======
+
+		Object.defineProperty(this, 'x', {
+			get: function() {
+				return this.v.x;
+			},
+			set: function(value) {
+				this.v.x = value;
+				f(this.v);
+			},
+		});
+		Object.defineProperty(this, 'y', {
+			get: function() {
+				return this.v.y;
+			},
+			set: function(value) {
+				this.v.y = value;
+				f(this.v);
+			},
+		});
+	}
+
+	/**
+	 * Returns the vector pointing in exactly the opposite direction
+	 * @return {Vector} The vector pointing in exactly the oposite direction
+	 */
+	serialize() {
+		return this.v.serialize();
+	};
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @return {Vector}
+	 */
+	deserialize(restoreObject) {
+		if (!this.v) {
+			this.v=new Position(restoreObject.x, restoreObject.y);
+		}
+		return this;
+	};
+>>>>>>> newtestbranch
 }
 
 /**
@@ -338,9 +487,15 @@ function nodeDistance(n1, n2) {
  * @return {number} This number tells the minimum distance between the P1 P2 line and p3. The sign tells if on right or left side
  */
 function getS(p1, p2, p3) {
+<<<<<<< HEAD
 	let a = subtractVectors(p2, p1);
 	let b = subtractVectors(p3, p1);
 	let s = dotProduct(a, perpendicular(b)) / length2(a);
+=======
+	let a = Vector.subtractVectors(p2, p1);
+	let b = Vector.subtractVectors(p3, p1);
+	let s = Vector.dotProduct(a, Vector.perpendicular(b)) / Vector.length2(a);
+>>>>>>> newtestbranch
 	return s;
 }
 
@@ -354,9 +509,15 @@ function getS(p1, p2, p3) {
  * @return {number} This represent where on the p1p2 line P3 is closest
  */
 function getT(p1, p2, p3) {
+<<<<<<< HEAD
 	let a = subtractVectors(p2, p1);
 	let b = subtractVectors(p3, p1);
 	let t = dotProduct(a, b) / length2(a);
+=======
+	let a = Vector.subtractVectors(p2, p1);
+	let b = Vector.subtractVectors(p3, p1);
+	let t = Vector.dotProduct(a, b) / Vector.length2(a);
+>>>>>>> newtestbranch
 	return t;
 }
 
@@ -421,6 +582,7 @@ function deserializeList(numberList, allObjects) {
 		returnList.push(allObjects[t]);
 	}
 	return returnList;
+<<<<<<< HEAD
 }
 
 /**
@@ -435,4 +597,39 @@ function objectFactory(truss, representationObject, nodeList, tensorList) {
 	// return (a)();
 	// newNode.deserialize(representationObject, nodeList, tensorList);
 	return (Function('return new ' + representationObject.classname))();
+=======
+}
+
+/**
+ * @param  {World} world
+ * @param  {Object} representationObject
+ * @param  {Object} nodeList
+ * @param  {Object} tensorList
+ * @return {Object}
+ */
+function objectFactory(world, representationObject, nodeList, tensorList) {
+	// let a = Function('return new ' + representationObject.classname+'('+truss+')');
+	// return (a)();
+	// newNode.deserialize(representationObject, nodeList, tensorList);
+	let newObject = (Function('return new ' + representationObject.classname))();
+	newObject.world=world;
+	return newObject;
+}
+
+
+/**
+	 * @param  {number} text
+	 * @param  {number} hidden
+	 * */
+function timelog(text, hidden) {
+	return;
+	if (!this.lastTimeTemp) {
+		this.lastTimeTemp=Date.now();
+	}
+	let t = Date.now()-this.lastTimeTemp;
+	if (!hidden && t>1) {
+		console.log(text+' '+t);
+	}
+	this.lastTimeTemp=Date.now();
+>>>>>>> newtestbranch
 }

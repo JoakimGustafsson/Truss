@@ -4,21 +4,30 @@ div {
 	/* 	font-weight: bold; */
 }
 
-
 /* parameter background color */
-.parameterEditArea, .sectionbase  {
-	background-color:#f0fff0;
-	color:black;
+
+.parameterEditArea,
+.sectionbase {
+	background-color: #f0fff0;
+	color: black;
 }
 
-.inputcss {
+.inputcss, input:checked + .slider,
+.fileList,
+.filename {
 	background-color: #ffdab9;
+}
+
+
+.inputcss, .slider,
+.fileList,
+.filename {
 	border: 1px solid grey;
 	border-radius: 2px;
-	}
+}
 
 option {
-	padding:0px;
+	padding: 0px;
 }
 
 .parameterEditArea {
@@ -27,20 +36,41 @@ option {
 }
 
 /* button color */
-.ogbutton, .tabsectionbuttons, div.tab button, .trussButton, .simpleButton {
+
+.ogbutton, .slider,
+.tabsectionbuttons,
+div.tab button,
+.trussButton,
+.simpleButton,
+.textbox {
 	background-color: #cdaf95;
-	color: black;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    transition: 0.3s;
+
 }
 
-.trussButton:hover, div.tab button:hover, .simpleButton:hover {
+.ogbutton,
+.tabsectionbuttons,
+div.tab button,
+.trussButton,
+.simpleButton,
+.textbox {
+	color: black;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.trussButton:hover,
+div.tab button:hover,
+.simpleButton:hover,
+.selectedfilename {
 	background-color: #eecbad;
 }
 
-.trussButton:active, div.tab button:active, .simpleButton:active, div.tab button.active {
+.trussButton:active,
+div.tab button:active,
+.simpleButton:active,
+div.tab button.active {
 	background-color: #ffdab9;
 }
 
@@ -49,35 +79,78 @@ option {
 	border: 2px solid black;
 }
 
-.trussBackgroundDiv  {
+.trussBackgroundDiv {
 	border: 1px solid yellow;
-	position:absolute;
+	position: absolute;
 	left: 50px;
 	right: 50px;
 	top: 50px;
 	bottom: 50px;
 	cursor: crosshair;
-	overflow:hidden;
-	}
+	overflow: hidden;
+}
+
+.mainTruss {
+	border: 1px solid yellow;
+	position: absolute;
+	left: 100px;
+	right: 100px;
+	top: 50px;
+	bottom: 50px;
+	cursor: crosshair;
+}
+
+.govenorTruss {
+	position: absolute;
+	right: 10px;
+	height: 80px;
+	width: 80px;
+	cursor: crosshair;
+}
+
+.govenorTrussFrame {
+	border: 1px solid green;
+	overflow: hidden;
+}
+
+.stackTrussFrame {
+	border: 1px solid red;
+	overflow: hidden;
+}
+
+.stackTruss {
+	position: absolute;
+	left: 10px;
+	height: 80px;
+	width: 80px;
+	cursor: crosshair;
+	background: "pink";
+	overflow: hidden;
+}
 
 .valuepair {
-		overflow: auto;
-		position: relative;
-		font-family: Arial;
-		margin: 0px 0px;
-	}
-	
-.xyvaluepair {
-	display:inline-block;
-	width:70px;
-	margin-bottom: -4px;
-	}
+	overflow: auto;
+	position: relative;
+	font-family: Arial;
+	margin: 0px 0px;
+}
 
+.xyvaluepair {
+	display: inline-block;
+	width: 70px;
+	margin-bottom: -4px;
+}
 
 .lname {
 	float: left;
 	position: relative;
 	font-family: Arial;
+}
+
+.dummy {
+	border: 1px solid red;
+	padding: 2px;
+	margin: 2px;
 }
 
 .rvalue {
@@ -110,7 +183,7 @@ option {
 }
 
 #debugLevel {
-	width:130px;
+	width: 130px;
 }
 
 .sectionheader {
@@ -127,8 +200,8 @@ option {
 	color: white;
 	opacity: 1;
 	border-radius: 4px 4px 0px 0px;
-	padding: 10px 0px 0px 15px;
-	margin: 10px 10px 0px 10px;
+	padding: 7px;
+	margin: 3px 5px 0px 10px;
 }
 
 .footerbackgroundarea {
@@ -136,24 +209,28 @@ option {
 	padding: 0px 0px 10px 0px;
 	display: none;
 	overflow: hidden;
-  }
-
-  .configareaouter {
-	position: absolute;
-	z-index:1000;
-	width:350px;
-	height:300px;
 }
+
+.activebutton {
+	background-color: red;
+}
+
+.configareaouter {
+	position: absolute;
+	top: 0px;
+	z-index: 1000;
+	width: 350px;
+	height: 300px;
+}
+
 .configareainner {
 	opacity: 0.9;
 	border-radius: 14px;
 }
 
-
 .sectionbase {
 	border-radius: 0px 0px 4px 4px;
-	/* background-color: #99C68E; */
-	padding: 5px 10px 5px 15px;
+	padding: 5px 10px 5px 10px;
 	margin: 0px 10px 10px 10px;
 	position: relative;
 	font-family: Arial;
@@ -165,7 +242,7 @@ option {
 }
 
 .sectionlast {
-	margin: 0px 10px 10px 10px;
+	padding: 5px 0px;
 }
 
 .ogbutton {
@@ -177,7 +254,6 @@ option {
 	color: white;
 	z-index: 999;
 }
-
 
 .savebackground {
 	display: none;
@@ -253,52 +329,52 @@ option {
 
 .textbox {
 	padding: 5px;
-	background-color: white;
-	color: black;
 	font-family: Arial;
 	font-size: 16px;
 }
 
-#fileList {
+.fileList {
 	padding: 5px;
-	background-color: white;
-	color: black;
 	font-family: Arial;
 	font-size: 16px;
 }
 
 .filename {
-	background-color: white;
-	color: black;
 	font-family: Arial;
 	font-size: 16px;
+	border: 0px;
+	cursor: pointer;
+}
+
+.filenameInput {
+	text-align: right;
+	width: 140px;
+	margin: 5px 0px;
 }
 
 .selectedfilename {
-	background-color: blue;
-	color: white;
-	font-family: Arial;
-	font-size: 16px;
+	cursor: pointer;
 }
 
-
-  .footerbackgroundarea {
-  margin: 0px;
-  padding: 0px 0px 10px 0px;
-  display: none;
-  overflow: hidden;
+.footerbackgroundarea {
+	margin: 0px;
+	padding: 0px 0px 10px 0px;
+	display: none;
+	overflow: hidden;
 }
 
 /* Style the tab */
+
 div.tab {
-    overflow: hidden;
-    /* border: 1px solid #ccc; */
+	overflow: hidden;
+	/* border: 1px solid #ccc; */
 }
 
-/* Style the buttons inside the tab */
+/* Style the buttons inside the tab
+
 div.tab button {
-    padding: 14px 16px;
-}
+	padding: 14px 16px;
+}*/
 
 /* Change background color of buttons on hover
 div.tab button:hover {
@@ -311,171 +387,140 @@ div.tab button.active {
 }*/
 
 /* Style the tab content */
+
 .tabcontent {
-   display: none;
- /*     border: 1px solid #ccc; */
-    border-top: none;
-  color:white;
+	display: none;
+	/*     border: 1px solid #ccc; */
+	border-top: none;
+	color: white;
 }
 
 /* Style the tab content */
+
 .tabresourcecontent {
-    display: none;
-   /*  border: 1px solid #ccc; */
-    border-top: none;
+	display: none;
+	/*  border: 1px solid #ccc; */
+	border-top: none;
 }
 
 .simpleButton {
 	border: none;
 	border-radius: 5px;
-	padding:5px 5px 5px 5px;
-	margin:1px 5px 1px 5px;
+	padding: 5px 5px 5px 5px;
+	margin: 1px 5px 1px 5px;
 	font-family: Arial;
-    outline: none;
+	outline: none;
 }
 
 .trussButtonDiv {
 	display: inline;
-	margin:1px 10px 1px 1px;
+	margin: 1px 10px 1px 1px;
 }
 
 .trussButton {
 	border: none;
-/* 	background-color: #505E6B;
+	/* 	background-color: #505E6B;
 	color: white; */
 	color: black;
 	outline: none;
-	display:inline;
-    cursor: pointer;
-    transition: 0.3s;
+	display: inline;
+	cursor: pointer;
+	transition: 0.3s;
 }
-
 
 .nodeButton {
-	border-radius: 5px 5px 5px 5px;
-	padding:5px;
-	margin:1px 10px 1px 1px;
+	padding: 2px 5px 2px 5px;
+	padding: 5px;
+	margin: 1px 10px 1px 1px;
 }
 
-.tensorButtonLeft{
+.tensorButtonLeft {
 	border-radius: 5px 0px 0px 5px;
-	padding:5px 5px 5px 5px;
-	margin:1px;
+	padding: 2px 5px 2px 5px;
+	margin: 1px;
 }
 
-.tensorButtonMiddle{
+.tensorButtonMiddle {
 	border-radius: 0px 0px 0px 0px;
-	padding:5px 5px 5px 5px;
-	margin:1px;
+	padding: 2px 5px 2px 5px;
+	margin: 1px;
 }
 
-.tensorButtonRight{
+.tensorButtonRight {
 	border-radius: 0px 5px 5px 0px;
-	padding:5px 5px 5px 5px;
-	margin:1px;
+	padding: 2px 5px 2px 5px;
+	margin: 1px;
 }
 
-/*
-@ -webkit-keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
+.labelList {
+	margin: 1px 0px;
+	background-color: lightgray;
+	border: 1px solid grey;
+	border-radius: 2px;
+	font-size: 10px;
 }
 
-@ -moz-keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
+.dynamicPropertyList {
+	float: right;
 }
 
-@ -o-keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
+.smallLabel {
+	display: inline-block;
+	font-family: Arial;
+	padding: 2px 2px;
 }
 
-@ keyframes up {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (-30deg);
-	}
-}
 
-@ -webkit-keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
+/* Switch */
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 56px;
+	height: 18px;
+	margin: 1px 0px -3px 0px;
+  }
 
-@ -moz-keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
+  .switch input {display:none;}
 
-@ -o-keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
+  .slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	-webkit-transition: .2s;
+	transition: .2s;
+  }
 
-@ keyframes down {
-	0%,
-	100% {
-		transform: rotate(0);
-	}
-	50% {
-		transform: rotate (30deg);
-	}
-}
+  .slider::before {
+	position: absolute;
+	content: "";
+	width: 20px;
+	left: 4px;
+	bottom: 2px;
+	top: 2px;
+	background-color: white;
+	-webkit-transition: .2s;
+	transition: .2s;
+  }
 
-@ -webkit-keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}
+  input:focus + .slider {
+	box-shadow: 0 0 1px green;
+  }
 
-@ -moz-keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}
+  input:checked + .slider:before {
+	background-color: black;
+	-webkit-transform: translateX(26px);
+	-ms-transform: translateX(26px);
+	transform: translateX(26px);
+  }
 
-@ -o-keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}
+  /* Rounded sliders */
+  .slider.round {
+	border-radius: 34px;
+  }
 
-@ keyframes r-to-l {
-	100% {
-		margin-left: -1px;
-	}
-}*/
+  .slider.round:before {
+	border-radius: 50%;
+  }

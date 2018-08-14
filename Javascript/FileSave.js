@@ -60,10 +60,17 @@ function httpGetAsync(theUrl, callback) {
  * @param  {string} fileName
  */
 function saveFile(fileName) {
+<<<<<<< HEAD
 	mainNode.truss.hideEdit();
 	httpPostAsync('/save', function(x) {
 		console.log('Server reported: ' + x);
 	}, mainNode.serialize(), fileName + '.json');
+=======
+	universe.currentWorld.mapAll((trussNode) => trussNode.hideEdit());
+	httpPostAsync('/save', function(x) {
+		console.log('Server reported: ' + x);
+	}, universe.currentWorld.serialize(), fileName + '.json');
+>>>>>>> newtestbranch
 }
 
 /**
@@ -79,12 +86,24 @@ function directory(folderName) {
 /** @param  {string} fileName
 */
 function loadFile(fileName) {
+<<<<<<< HEAD
 	mainNode.truss.hideEdit();
 	httpGetAsync('/load/' + fileName, function(x) {
 		console.log('Server reported: ' + x);
 		mainNode.clean();
 		newMainNode=new TrussNode();
 		newMainNode.deserialize(undefined, JSON.parse(x));
+=======
+	// mainNode.truss.hideEdit();
+	httpGetAsync('/load/' + fileName, function(x) {
+		console.log('Server reported: ' + x);
+		// mainNode.clean();
+		universe.pop().close();
+		let newWorld= new World();
+		newWorld.deserialize(JSON.parse(x));
+		universe.push(newWorld);
+		universe.setCurrentWorld(newWorld);
+>>>>>>> newtestbranch
 	});
 }
 
@@ -109,7 +128,12 @@ function displaySaves(text) {
 	let fullPath;
 	let element;
 
+<<<<<<< HEAD
 	let fileListElement = document.getElementById('fileList');
+=======
+	let fileListElement = universe.currentNode.getElement('#fileList');
+	// document.getElementById('fileList');
+>>>>>>> newtestbranch
 	if (!fileListElement) {
 		alert('Could not find file list window.');
 		return;
@@ -122,11 +146,19 @@ function displaySaves(text) {
 		fileName = fileList[i];
 		if (getFileExtension(fileName) == 'json') {
 			fullPath = '../Saves/' + fileName;
+<<<<<<< HEAD
 			element = document.createElement('span');
 			element.className = 'filename';
 			element.innerHTML = fileName;
 			fileListElement.appendChild(element);
 			fileListElement.appendChild(document.createElement('br'));
+=======
+			element = document.createElement('div');
+			element.className = 'filename';
+			element.innerHTML = fileName;
+			fileListElement.appendChild(element);
+			// fileListElement.appendChild(document.createElement('br'));
+>>>>>>> newtestbranch
 			element.title = fileName;
 			element.setAttribute('onclick', 'loadFile(\'' + fileName + '\');');
 			element.setAttribute('onmouseover', 'highLightFile(this);');

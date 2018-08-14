@@ -10,6 +10,7 @@ let keyState = {};
  */
 class SensorNode extends Node {
 	/**
+<<<<<<< HEAD
 	 * @param  {Truss} truss
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
@@ -20,6 +21,15 @@ class SensorNode extends Node {
 	 */
 	constructor(truss, startPosition, mass = 0.001, name, positionFunction, showFunction, velocityLoss) {
 		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+=======
+	 * @param {World} world
+	 * @param {Truss} parentTrussNode
+	 * @param {string} initialLabels
+	 * @param  {object} valueObject
+	 */
+	constructor(world, parentTrussNode, initialLabels, valueObject) {
+		super(world, parentTrussNode, initialLabels, valueObject);
+>>>>>>> newtestbranch
 		this.sensor = true;
 	}
 }
@@ -37,7 +47,11 @@ class SensorNode extends Node {
  */
 class KeySensorNode extends SensorNode {
 	/**
+<<<<<<< HEAD
 	 * @param  {Truss} truss
+=======
+	 * @param  {TrussNode} trussNode
+>>>>>>> newtestbranch
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -45,10 +59,17 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
+<<<<<<< HEAD
 	constructor(truss, startPosition, mass = 0.001, name = 'keysensornode', positionFunction, showFunction, velocityLoss = 1) {
 		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 		this.startPosition = startPosition;
 		this.keyList = [];
+=======
+	constructor(trussNode, startPosition, mass = 0.001, name = 'keysensornode', positionFunction, showFunction, velocityLoss = 1) {
+		super(trussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+		this.restPosition = startPosition;
+		this.keyVectors = [];
+>>>>>>> newtestbranch
 
 		window.addEventListener('keydown', function(e) {
 			keyState[e.keyCode || e.which] = true;
@@ -59,15 +80,27 @@ class KeySensorNode extends SensorNode {
 	}
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @param  {Truss} truss
+>>>>>>> newtestbranch
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
+<<<<<<< HEAD
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
 		representationObject.classname = 'KeySensorNode';
 		representationObject.startPosition = this.startPosition.serialize();
 		representationObject.keyList = JSON.stringify(this.keyList);
+=======
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
+		representationObject.classname = 'KeySensorNode';
+		representationObject.startPosition = this.restPosition.serialize();
+		representationObject.keyList = JSON.stringify(this.keyVectors);
+>>>>>>> newtestbranch
 
 		return representationObject;
 	}
@@ -80,8 +113,13 @@ class KeySensorNode extends SensorNode {
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
+<<<<<<< HEAD
 		this.startPosition = new Position().deserialize(restoreObject.startPosition);
 		this.keyList = JSON.parse(restoreObject.keyList);
+=======
+		this.restPosition = new Position().deserialize(restoreObject.startPosition);
+		this.keyVectors = JSON.parse(restoreObject.keyList);
+>>>>>>> newtestbranch
 		return this;
 	}
 
@@ -91,15 +129,23 @@ class KeySensorNode extends SensorNode {
 	 * @param  {number} time
 	 */
 	updatePosition(time) {
+<<<<<<< HEAD
 		let p = this.startPosition;
 		for (let i = 0; i < this.keyList.length; i++) {
 			if (keyState[this.keyList[i].key]) {
 				p = Vector.addVectors(p, this.keyList[i].vector);
+=======
+		let p = this.restPosition;
+		for (let i = 0; i < this.keyVectors.length; i++) {
+			if (keyState[this.keyVectors[i].key]) {
+				p = Vector.addVectors(p, this.keyVectors[i].vector);
+>>>>>>> newtestbranch
 			}
 		}
 		this.setPosition(p);
 	};
 
+<<<<<<< HEAD
 	/**
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
@@ -107,6 +153,8 @@ class KeySensorNode extends SensorNode {
 	 * @param {Truss} truss
 	 */
 	sense(deltaTime, truss) {}
+=======
+>>>>>>> newtestbranch
 
 	/**
 	 * Combines a key number with a vecor to move if that key is being pressed
@@ -114,7 +162,11 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Vector} v
 	 */
 	registerKey(keyNr, v) {
+<<<<<<< HEAD
 		this.keyList.push({
+=======
+		this.keyVectors.push({
+>>>>>>> newtestbranch
 			'key': keyNr,
 			'vector': v,
 		});
@@ -130,7 +182,11 @@ class KeySensorNode extends SensorNode {
  */
 class ProximitySensorNode extends SensorNode {
 	/**
+<<<<<<< HEAD
 	 * @param  {Truss} truss
+=======
+	 * @param  {TrussNode} trussNode
+>>>>>>> newtestbranch
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -138,20 +194,34 @@ class ProximitySensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
+<<<<<<< HEAD
 	constructor(truss, startPosition, mass = 0.001, name = 'proximitysensornode', triggerFunction, showFunction, velocityLoss = 1) {
 		super(truss, startPosition, mass, name, undefined, showFunction, velocityLoss);
+=======
+	constructor(trussNode, startPosition, mass = 0.001, name = 'proximitysensornode', triggerFunction, showFunction, velocityLoss = 1) {
+		super(trussNode, startPosition, mass, name, undefined, showFunction, velocityLoss);
+>>>>>>> newtestbranch
 		this.startPosition = startPosition;
 		this.triggerFunction = triggerFunction;
 		this.proximityList = [];
 	}
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @param  {Truss} truss
+>>>>>>> newtestbranch
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
+<<<<<<< HEAD
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
+=======
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
+>>>>>>> newtestbranch
 		representationObject.classname = 'ProximitySensorNode';
 		representationObject.startPosition = this.startPosition.serialize();
 		representationObject.triggerFunction = this.triggerFunction;
@@ -220,7 +290,11 @@ class ProximitySensorNode extends SensorNode {
 	sense(deltaTime, truss) {}
 
 	/**
+<<<<<<< HEAD
 	 * Combines a key number with a vecor to move if that key is being pressed
+=======
+	 * Combines a node with a vecor to move if that node is close
+>>>>>>> newtestbranch
 	 * @param  {Node} node
 	 * @param  {number} distance
 	 * @param  {Vector} vector
@@ -243,7 +317,11 @@ class CollisionSensorNode extends SensorNode {
 	 * This class detects collisions between an object and tensors.
 	 * First use registerTrussObjectAndActuator() to connect and object
 	 * to the actuator that should be triggered inside a truss.
+<<<<<<< HEAD
 	 * @param  {Truss} truss
+=======
+	 * @param  {TrussNode} trussNode
+>>>>>>> newtestbranch
 	 * @param  {Position} position
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -253,8 +331,14 @@ class CollisionSensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
+<<<<<<< HEAD
 	constructor(truss, position, mass = 0.01, name = 'collisionSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
 		super(truss, position, mass, name, positionFunction, showFunction, velocityLoss);
+=======
+	constructor(trussNode, position, mass = 0.01, name = 'collisionSensorNode', obj,
+		actuator, positionFunction, showFunction, velocityLoss) {
+		super(trussNode, position, mass, name, positionFunction, showFunction, velocityLoss);
+>>>>>>> newtestbranch
 		this.localActuator = actuator;
 		this.localObject = obj;
 		let _this = this;
@@ -265,12 +349,21 @@ class CollisionSensorNode extends SensorNode {
 	}
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @param  {Truss} truss
+>>>>>>> newtestbranch
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
+<<<<<<< HEAD
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
+=======
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
+>>>>>>> newtestbranch
 		representationObject.classname = 'CollisionSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
 		representationObject.localObject = nodeList.indexOf(this.localObject);
@@ -298,7 +391,11 @@ class CollisionSensorNode extends SensorNode {
 	 * @param {Truss} truss
 	 */
 	sense(deltaTime, truss) {
+<<<<<<< HEAD
 		for (let tensor of truss.positionBasedTensors) {
+=======
+		for (let tensor of truss.connectedTensors) {
+>>>>>>> newtestbranch
 			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
 				tensor.checkCollision(this.localObject, truss);
 				// the tensor will raise an event that is caught by the collisionFunction()
@@ -337,7 +434,11 @@ class CollisionSensorNode extends SensorNode {
 class BounceSensorNode extends SensorNode {
 	/**
 	 * This class detects when an object bounces of a tensor or leaves it at the end.
+<<<<<<< HEAD
 	 * @param  {Truss} truss
+=======
+	 * @param  {TrussNode} trussNode
+>>>>>>> newtestbranch
 	 * @param  {Position} position
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -347,19 +448,33 @@ class BounceSensorNode extends SensorNode {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
+<<<<<<< HEAD
 	constructor(truss, position, mass = 0.01, name = 'BounceSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
 		super(truss, position, mass, name, positionFunction, showFunction, velocityLoss);
+=======
+	constructor(trussNode, position, mass = 0.01, name = 'BounceSensorNode', obj, actuator, positionFunction, showFunction, velocityLoss) {
+		super(trussNode, position, mass, name, positionFunction, showFunction, velocityLoss);
+>>>>>>> newtestbranch
 		this.localActuator = actuator;
 		this.localObject = obj;
 	}
 
 	/**
+<<<<<<< HEAD
+=======
+	 * @param  {Truss} truss
+>>>>>>> newtestbranch
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
+<<<<<<< HEAD
 	serialize(nodeList, tensorList) {
 		let representationObject = super.serialize(nodeList, tensorList);
+=======
+	serialize(truss, nodeList, tensorList) {
+		let representationObject = super.serialize(truss, nodeList, tensorList);
+>>>>>>> newtestbranch
 		representationObject.classname = 'BounceSensorNode';
 		representationObject.localActuator = nodeList.indexOf(this.localActuator);
 		representationObject.localObject = nodeList.indexOf(this.localObject);
@@ -493,10 +608,20 @@ class BounceSensorNode extends SensorNode {
 class Selector extends SensorNode {
 	/**
 	 * This class detects when an object bounces of a tensor or leaves it at the end.
+<<<<<<< HEAD
 	 * @param {Truss} truss
 	 */
 	constructor(truss) {
 		super(truss, undefined, 'SelectorNode');
+=======
+	 * @param {World} world
+	 * @param {TrussNode} trussNode
+	 * @param {string} initialLabels
+	 * @param  {object} valueObject
+	 */
+	constructor(world, trussNode, initialLabels, valueObject) {
+		super(world, trussNode, initialLabels, valueObject);
+>>>>>>> newtestbranch
 		this.lastPointedOn;
 		this.wasPressed=false;
 		this.cursorPosition = new Position(0, 0);
@@ -514,6 +639,7 @@ class Selector extends SensorNode {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
 	 * @param {number} deltaTime
@@ -526,12 +652,44 @@ class Selector extends SensorNode {
 		if (!mouseSet) {
 			if (!closest) {
 				if (this.lastPointedOn && this.lastPointedOn != selectedObject) {
+=======
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 *
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
+		return;
+	} */
+
+	/**
+	 * If the position of the controlled object bounces or leaves on the right or
+	 * left side, disconnect it and restore the tensor to its original.
+	 * @param {number} deltaTime
+	 * @param {Trussnode} trussNode
+	 */
+	sense(deltaTime, trussNode) {
+		if (trussNode!=universe.currentNode) {
+			return;
+		}
+		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
+		let closest = trussNode.getClosestObject(this.cursorPosition, 20*trussNode.view.getDistanceMultiplier(), this);
+
+		if (!mouseSet && !universe.newNode) {
+			if (!closest) {
+				if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
+>>>>>>> newtestbranch
 					this.lastPointedOn.setHighlight(0);
 				}
 				this.lastPointedOn = undefined;
 			} else { // There is a closest object
+<<<<<<< HEAD
 				if (closest != selectedObject && this.lastPointedOn != closest) {
 					if (this.lastPointedOn && this.lastPointedOn != selectedObject) {
+=======
+				if (closest != universe.selectedObject && this.lastPointedOn != closest) {
+					if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
+>>>>>>> newtestbranch
 						this.lastPointedOn.setHighlight(0);
 					}
 					closest.setHighlight(1);
@@ -539,13 +697,21 @@ class Selector extends SensorNode {
 				}
 			}
 		} else if (!this.wasPressed && mouseSet) { // Mouse was just pressed
+<<<<<<< HEAD
 			if (selectedObject!=closest) {
 				if (selectedObject) {
 					selectedObject.setHighlight(0);
+=======
+			universe.newNode= undefined;
+			if (universe.selectedObject!=closest) {
+				if (universe.selectedObject) {
+					universe.selectedObject.setHighlight(0);
+>>>>>>> newtestbranch
 				}
 				// if (closest) {
 				//	closest.setHighlight(2);
 				// }
+<<<<<<< HEAD
 				let previousSelectedObject=selectedObject;
 				selectedObject = closest;
 				let event = new CustomEvent('selectionEvent', {
@@ -553,16 +719,34 @@ class Selector extends SensorNode {
 						'selectedObject': selectedObject,
 						'previousSelectedObject': previousSelectedObject,
 						'truss': truss,
+=======
+				let previousSelectedObject=universe.selectedObject;
+				universe.selectedObject = closest;
+				let event = new CustomEvent('selectionEvent', {
+					detail: {
+						'selectedObject': universe.selectedObject,
+						'previousSelectedObject': previousSelectedObject,
+						'trussNode': trussNode,
+>>>>>>> newtestbranch
 					},
 					bubbles: true,
 					cancelable: true,
 				});
+<<<<<<< HEAD
 				document.dispatchEvent(event);
 			}
 		} else if (mouseSet) { // Mouse is continually pressed
 			if (selectedObject && selectedObject.isNode) {
 				selectedObject.resetVelocity();
 				selectedObject.copyPosition(this.cursorPosition);
+=======
+				this.parentTrussNode.element.dispatchEvent(event);
+			}
+		} else if (mouseSet || universe.newNode) { // Mouse is continually pressed
+			if (universe.selectedObject && universe.selectedObject.isNode) {
+				universe.selectedObject.resetVelocity();
+				universe.selectedObject.copyPosition(this.cursorPosition);
+>>>>>>> newtestbranch
 			}
 		}
 
@@ -582,6 +766,80 @@ class Selector extends SensorNode {
 
 	/**
 	 * Draw the circle representing the node
+<<<<<<< HEAD
+=======
+	 * @param {Trussnode} truss
+	 * @param {number} time
+	 * @param {number} graphicDebugLevel
+	 */
+	show(truss, time, graphicDebugLevel = 0) {
+		let view=truss.view;
+		this.highLight(view.context);
+		if (view.inside(this.getPosition())) {
+			view.context.strokeStyle = 'Yellow';
+			view.context.lineWidth = 1;
+			view.context.beginPath();
+			view.drawCircle(this.getPosition(), 0.1);
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+				Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+			view.context.stroke();
+		}
+	}
+}
+
+/**
+ * @class
+ * @extends SensorNode
+ */
+class PositionNode extends SensorNode {
+	/**
+	 * This class represents a node that reflect the position of another node, that node is likely from another truss.
+	 * @param {TrussNode} trussNode - The trussNode that "owns" this node
+	 * @param {TrussNode} trackedNode - The node that should be mirrored.
+	 */
+	constructor(trussNode, trackedNode) {
+		super(trussNode, undefined, undefined, 'PositionNode');
+		this.trackedNode = trackedNode;
+	}
+
+	/**
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(nodeList, tensorList) {
+		let representationObject = super.serialize(nodeList, tensorList);
+		representationObject.classname = 'PositionNode';
+		representationObject.trackedNode=nodeList.indexOf(this.trackedNode);
+		return representationObject;
+	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} superNodes
+	 * @param  {Array} superTensors
+	 */
+	deserialize(restoreObject, superNodes, superTensors) {
+		super.deserialize(restoreObject, superNodes, superTensors);
+		this.trackedNode=superNodes[restoreObject.trackedNode];
+		return;
+	}
+
+	/**
+	 * Simply mirrors the position of the tracked node.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	sense(deltaTime, truss) {
+		let t = new Position(this.trackedNode.getPosition().x, this.trackedNode.getPosition().y);
+		this.setPosition(t);
+	}
+
+	/**
+	 * Draw the circle representing the node
+>>>>>>> newtestbranch
 	 * @param {Truss} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel

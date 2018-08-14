@@ -11,6 +11,7 @@ class View {
 	 * Currently also used to draw a few simple forms and display text.
 	 *
 	 * @param  {Vector} worldViewSize The size of the world to fit onto the screenSize
+<<<<<<< HEAD
 	 * @param  {Element} element The HTML element displaying the world view
 	 */
 	constructor(worldViewSize, element) {
@@ -23,11 +24,54 @@ class View {
 		});
 		this.worldViewSize = new AlertVector(worldViewSize, function(x) {
 			_this.recalculate();
+=======
+	 * @param  {TrussNode} parentNode The HTML element displaying the world view
+	 */
+	constructor(worldViewSize, parentNode) {
+		// this.element=element;
+		this.parentNode = parentNode;
+		Object.defineProperty(this, 'element', {
+			get: function() {
+				return this.parentNode.element;
+			},
+>>>>>>> newtestbranch
 		});
 
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
+<<<<<<< HEAD
 		this.resize();
+=======
+		if (this.element) {
+			this.setupAlertVectors(this.element, worldViewSize);
+			this.resize();
+		}
+	}
+	/**
+	 * @param  {Element} element
+	 * @param  {Position} worldViewSize
+	 */
+	setupAlertVectors(element, worldViewSize) {
+		let x = 0;
+		let y = 0;
+		let _this = this;
+		if (element) {
+			x = element.offsetWidth;
+			y = element.offsetHeight;
+		}
+		this.screenSize = new AlertVector(new Vector(x, y), function(v) {
+			element.offsetWidth = v.x;
+			element.offsetHeight = v.y;
+			_this.recalculate();
+		});
+		if (worldViewSize) {
+			x = worldViewSize.x;
+			y = worldViewSize.y;
+		}
+		this.worldViewSize = new AlertVector(new Vector(x, y), function(x) {
+			_this.recalculate();
+		});
+>>>>>>> newtestbranch
 	}
 
 	/** Multiply this number with a screen distance in pixels to get the world distance
@@ -35,6 +79,7 @@ class View {
 	 */
 	getDistanceMultiplier() {
 		return this.distanceMultiplier;
+<<<<<<< HEAD
 	}
 	/**
 	 */
@@ -68,6 +113,43 @@ class View {
 	}
 
 	/**
+=======
+	}
+	/**
+	 */
+	resize() {
+		this.screenSize.v = new Vector(this.element.offsetWidth, this.element.offsetHeight);
+		this.recalculate();
+	}
+
+	/**
+	 * @param  {Array} tensorList
+	 * @return {Object}
+	 */
+	serialize(tensorList) {
+		return {
+			'screenSize': this.screenSize.serialize(),
+			'worldViewSize': this.worldViewSize.serialize(),
+			'offset': this.offset.serialize(),
+		};
+	}
+
+	/**
+	 * @param {Object} restoreObject
+	 * @return {View}
+	 */
+	deserialize(restoreObject) {
+		let screenSize = new Vector().deserialize(restoreObject.screenSize);
+		this.element.style.width = screenSize.x + 'px';
+		this.element.style.height = screenSize.y + 'px';
+		this.setupAlertVectors(this.element, new Vector().deserialize(restoreObject.worldViewSize));
+		this.offset = new Vector().deserialize(restoreObject.offset);
+		this.recalculate();
+		return this;
+	}
+
+	/**
+>>>>>>> newtestbranch
 	 * Check if this position is inside the visible screen
 	 * @param  {Position} position
 	 * @return {number} 0 if it is outside
@@ -112,10 +194,15 @@ class View {
 	 * @return {Position}
 	 */
 	worldPositionWithOffset(x, y) {
+<<<<<<< HEAD
 		let bodyRect= document.body.getBoundingClientRect();
 		let elemRect = this.element.getBoundingClientRect();
 		return new Position((x-elemRect.top+bodyRect.top) * this.xScale + this.offset.x,
 			(y-elemRect.left+bodyRect.left) * this.yScale + this.offset.y);
+=======
+		return new Position((x - this.elemRectleft + this.bodyRectleft) * this.xScale + this.offset.x,
+			(y - this.elemRecttop + this.bodyRecttop) * this.yScale + this.offset.y);
+>>>>>>> newtestbranch
 	};
 
 	/**
@@ -124,7 +211,11 @@ class View {
 	 * @return {Position}
 	 */
 	screenPosition(node) {
+<<<<<<< HEAD
 		return new Position(this.x(node)+1, this.y(node)+1);
+=======
+		return new Position(this.x(node) + 1, this.y(node) + 1);
+>>>>>>> newtestbranch
 	};
 
 	/**
@@ -163,10 +254,25 @@ class View {
 		}
 		this.xScale = this.worldViewSize.x / this.screenSize.x;
 		this.yScale = this.worldViewSize.y / this.screenSize.y;
+<<<<<<< HEAD
 
 		this.distanceMultiplier=Math.max(this.xScale, this.yScale);
 	};
 
+=======
+
+		this.distanceMultiplier = Math.max(this.xScale, this.yScale);
+
+		// Do the following to avoid reading element properties that slows down rendering
+		this.bodyRect = document.body.getBoundingClientRect();
+		this.elemRect = this.element.getBoundingClientRect();
+		this.bodyRectleft = this.bodyRect.left;
+		this.elemRectleft = this.elemRect.left;
+		this.bodyRecttop = this.bodyRect.top;
+		this.elemRecttop = this.elemRect.top;
+	};
+
+>>>>>>> newtestbranch
 	/**
 	 * Set the size of the screen display you want to see
 	 * @param  {Vector} screenSize
