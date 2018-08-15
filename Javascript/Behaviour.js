@@ -19,6 +19,7 @@ class Behaviour {
 	 *
 	 */
 	constructor() {
+		// Adding parameters here
 	}
 }
 
