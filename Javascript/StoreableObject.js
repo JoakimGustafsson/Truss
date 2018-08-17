@@ -14,6 +14,7 @@ class StoreableObject {
 		this.valueObject=valueObject;
 		this.world=world;
 		this.isNode = this instanceof Node;
+		this.updatePositionList=[];
 
 
 		Object.defineProperty(this, 'labels', {
@@ -155,4 +156,49 @@ class StoreableObject {
 
 		return this;
 	}
+
+
+
+	/**
+	 * @param  {number} type
+	 * @param  {Function} newFunction
+	 */
+	registerOverride(type, newFunction) {
+		switch(type) {
+			case BehaviourOverride.UPDATEPOSITION:
+				this.updatePositionList.push(newFunction);
+				break;
+		}
+	}
+
+	/**
+	 * @param  {number} type
+	 * @param  {Function} newFunction
+	 */
+	unregisterOverride(type, newFunction) {
+		switch(type) {
+			case BehaviourOverride.UPDATEPOSITION:
+			removeIfPresent(newFunction, this.updatePositionList);
+				break;
+		}
+	}
+
+	
+	/**
+	 * Update the position based on velocity, then let
+	 * the this.positionFunction (if present) tell where it should actually be
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
+	updatePosition(...args) {
+		for (let f in this.updatePositionList) {
+			let result = f.call(this, args);
+			if (result) {
+				return result;
+			}
+		}
+		return 0;
+	}
+
 }

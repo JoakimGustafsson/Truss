@@ -9,108 +9,47 @@ class Labels {
 
 		this.behaviours = new Behaviours();
 
-		this.massProperty = new NumberProperty(
-			'mass', 'mass', 'Mass', ParameterCategory.CONTENT, 'The mass of the node in Kilograms.');
-		this.nameProperty = new StringProperty(
-			'name', 'name', 'Name', ParameterCategory.CONTENT,
-			'The name of the node.');
-		this.constantProperty = new NumberProperty(
-			'constant', 'constant', 'Constant', ParameterCategory.CONTENT,
-			'The tensor constant.');
-		this.absorberProperty = new NumberProperty(
-			'dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameterCategory.CONTENT,
-			'The absorb constant.');
-		this.positionProperty = new PositionProperty(
-			'localPosition', 'localPosition', 'Position', ParameterCategory.CONTENT,
-			'The position counted from the upper left corner.');
-		this.velocityProperty = new PositionProperty(
-			'velocity', 'velocity', 'Velocity', ParameterCategory.CONTENT,
-			'The velocity.');
-		this.angleProperty = new NumberProperty(
-			'degree', 'degree', 'Angle', ParameterCategory.CONTENT,
-			'The angle of the node.');
-		this.torqueConstantProperty = new NumberProperty(
-			'torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT,
-			'How stiff the node is with respect to attempts angle differences.');
-		this.nodeFrictionProperty = new NumberProperty(
-			'velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT,
-			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		this.colorProperty = new StringProperty(
-			'color', 'color', 'Colour', ParameterCategory.CONTENT,
-			'The colour of the node.');
-		this.pictureProperty = new StringProperty(
-			'pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT,
-			'The picture filename.');
-		this.sizeProperty = new NumberProperty(
-			'size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT,
-			'The picture size');
-		this.equilibriumLengthProperty = new NumberProperty(
-			'equilibriumLength', 'equilibriumLength', 'Length', ParameterCategory.CONTENT,
-			'How long should the relaxed spring be.');
-		this.degree1Property = new NumberProperty(
-			'degree1', 'degree1', 'Angle 1', ParameterCategory.CONTENT,
-			'The angle the node connects to the start node.');
-		this.degree2Property = new NumberProperty(
-			'degree2', 'degree2', 'Angle 2', ParameterCategory.CONTENT,
-			'The angle the node connects to the end node.');
+		this.createProperties();
 
+		this.createInitialLabels();
+	}
 
-		this.screenSizeProperty = new PositionProperty(
-			'screenSize', 'screenSize', 'Screen size', ParameterCategory.CONTENT,
-			'The size of the displayed screen in pixels.');
-		this.worldSizeProperty = new PositionProperty(
-			'worldSize', 'worldSize', 'World display size', ParameterCategory.CONTENT,
-			'The size of the displayed worldview in that worlds measurement.');
-		this.setWorldOffsetProperty = new PositionProperty(
-			'setWorldOffset', 'setWorldOffset', 'View position', ParameterCategory.CONTENT,
-			'The world coordinates of the upper left corner.');
-		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second',
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
-		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per Second',
-			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+	createProperties() {
+		this.massProperty = new NumberProperty('mass', 'mass', 'Mass', ParameterCategory.CONTENT, 'The mass of the node in Kilograms.');
+		this.nameProperty = new StringProperty('name', 'name', 'Name', ParameterCategory.CONTENT, 'The name of the node.');
+		this.constantProperty = new NumberProperty('constant', 'constant', 'Constant', ParameterCategory.CONTENT, 'The tensor constant.');
+		this.absorberProperty = new NumberProperty('dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameterCategory.CONTENT, 'The absorb constant.');
+		this.positionProperty = new PositionProperty('localPosition', 'localPosition', 'Position', ParameterCategory.CONTENT, 'The position counted from the upper left corner.');
+		this.velocityProperty = new PositionProperty('velocity', 'velocity', 'Velocity', ParameterCategory.CONTENT, 'The velocity.');
+		this.angleProperty = new NumberProperty('degree', 'degree', 'Angle', ParameterCategory.CONTENT, 'The angle of the node.');
+		this.torqueConstantProperty = new NumberProperty('torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT, 'How stiff the node is with respect to attempts angle differences.');
+		this.nodeFrictionProperty = new NumberProperty('velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT, 'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
+		this.colorProperty = new StringProperty('color', 'color', 'Colour', ParameterCategory.CONTENT, 'The colour of the node.');
+		this.pictureProperty = new StringProperty('pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT, 'The picture filename.');
+		this.sizeProperty = new NumberProperty('size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT, 'The picture size');
+		this.equilibriumLengthProperty = new NumberProperty('equilibriumLength', 'equilibriumLength', 'Length', ParameterCategory.CONTENT, 'How long should the relaxed spring be.');
+		this.degree1Property = new NumberProperty('degree1', 'degree1', 'Angle 1', ParameterCategory.CONTENT, 'The angle the node connects to the start node.');
+		this.degree2Property = new NumberProperty('degree2', 'degree2', 'Angle 2', ParameterCategory.CONTENT, 'The angle the node connects to the end node.');
+		this.screenSizeProperty = new PositionProperty('screenSize', 'screenSize', 'Screen size', ParameterCategory.CONTENT, 'The size of the displayed screen in pixels.');
+		this.worldSizeProperty = new PositionProperty('worldSize', 'worldSize', 'World display size', ParameterCategory.CONTENT, 'The size of the displayed worldview in that worlds measurement.');
+		this.setWorldOffsetProperty = new PositionProperty('setWorldOffset', 'setWorldOffset', 'View position', ParameterCategory.CONTENT, 'The world coordinates of the upper left corner.');
+		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per Second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+		this.visibilityProperty = new SwitchProperty('visible', 'visible', 'Visible', ParameterCategory.CONTENT, 'Should this be visible on the screen.');
+		this.snapGridProperty = new NumberProperty('gridSize', 'gridSize', 'Align to grid', ParameterCategory.CONTENT, 'Aligning all new positions to this grid. (0 for no alignment)');
+		this.enforcedProperty = new NumberProperty('enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT, 'Special parameter that only is used in labels to enforce all parameter values are enforced.');
+		this.startNodeProperty = new NodeProperty('node1', 'node1', 'Start node', ParameterCategory.CONTENT, 'Start node.');
+		this.endNodeProperty = new NodeProperty('node2', 'node2', 'End node', ParameterCategory.CONTENT, 'End node.');
+		this.parentTrussNodeProperty = new NodeProperty('parentTrussNode', 'parentTrussNode', 'Parent node', ParameterCategory.CONTENT, 'Owning truss node.');
+		this.connectedTensorsProperty = new TensorListProperty('connectedTensors', 'connectedTensors', 'Tensors', ParameterCategory.CONTENT, 'All tensors based on node positions.');
+		this.keyProperty = new PropertyListProperty('keyVectors', 'keyVectors', 'KeyVectorList', ParameterCategory.CONTENT, 'All tensors based on node positions.', [
+			() => new StringProperty('key', 'key', 'Trigger key', ParameterCategory.CONTENT, 'The number of the key that triggers the move.'),
+			() => new PositionProperty('vector', 'vector', 'Position change', ParameterCategory.CONTENT, 'The position node moves when the key is pressed.')
+		]);
+		this.restPositionProperty = new PositionProperty('restPosition', 'restPosition', 'Rest position', ParameterCategory.CONTENT, 'The position when no key is pressed.');
+	}
 
-		this.visibilityProperty = new SwitchProperty(
-			'visible', 'visible', 'Visible', ParameterCategory.CONTENT,
-			'Should this be visible on the screen.');
-
-		this.snapGridProperty = new NumberProperty(
-			'gridSize', 'gridSize', 'Align to grid', ParameterCategory.CONTENT,
-			'Aligning all new positions to this grid. (0 for no alignment)');
-
-		this.enforcedProperty = new NumberProperty(
-			'enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT,
-			'Special parameter that only is used in labels to enforce all parameter values are enforced.');
-
-		this.startNodeProperty = new NodeProperty(
-			'node1', 'node1', 'Start node', ParameterCategory.CONTENT,
-			'Start node.');
-
-		this.endNodeProperty = new NodeProperty(
-			'node2', 'node2', 'End node', ParameterCategory.CONTENT,
-			'End node.');
-
-		this.parentTrussNodeProperty = new NodeProperty(
-			'parentTrussNode', 'parentTrussNode', 'Parent node', ParameterCategory.CONTENT,
-			'Owning truss node.');
-
-		this.connectedTensorsProperty = new TensorListProperty(
-			'connectedTensors', 'connectedTensors', 'Tensors', ParameterCategory.CONTENT,
-			'All tensors based on node positions.');
-
-		this.keyProperty = new PropertyListProperty(
-			'keyVectors', 'keyVectors', 'KeyVectorList', ParameterCategory.CONTENT,
-			'All tensors based on node positions.', [
-				() => new StringProperty(
-					'key', 'key', 'Trigger key', ParameterCategory.CONTENT,
-					'The number of the key that triggers the move.'),
-				() => new PositionProperty(
-					'vector', 'vector', 'Position change', ParameterCategory.CONTENT,
-					'The position node moves when the key is pressed.')]);
-
-		this.restPositionProperty = new PositionProperty(
-			'restPosition', 'restPosition', 'Rest position', ParameterCategory.CONTENT,
-			'The position when no key is pressed.');
-
+	createInitialLabels() {
 		let nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
@@ -184,23 +123,22 @@ class Labels {
 			'fpsProperty': 60,
 			'snapGridProperty': 0,
 		});
-		let sensorLabel = this.addLabel('sensor', [nodeLabel], {
-		});
-		let selectorLabel = this.addLabel('selector', [sensorLabel, moveabelLabel], {
-		});
+		let sensorLabel = this.addLabel('sensor', [nodeLabel], {});
+		let selectorLabel = this.addLabel('selector', [sensorLabel, moveabelLabel], {});
 		let keySensorLabel = this.addLabel('keysensor', [sensorLabel, moveabelLabel], {
 			'keyProperty': [],
 			'restPositionProperty': new Position(1, 1),
-		});
+		}, [new KeySensor()]);
 	}
 
 	/**
 	 * @param  {Property} name
 	 * @param  {List} dependencies
 	 * @param  {List} properties
+	 * @param  {List} behaviours
 	 * @return {Label}
 	 */
-	addLabel(name, dependencies, properties) {
+	addLabel(name, dependencies, properties, behaviours) {
 		if (properties) {
 			let enforced = properties.enforcedProperty;
 			for (const [key, value] of Object.entries(properties)) {
@@ -211,7 +149,7 @@ class Labels {
 				};
 			}
 		}
-		let label = new Label(name, dependencies, properties);
+		let label = new Label(name, dependencies, properties, behaviours);
 		this.list.push(label);
 		return label;
 	}
@@ -352,13 +290,15 @@ class Label {
 	 * @param {string} name
 	 * @param {string} dependencies
 	 * @param {string} properties
+	 * @param {List} behaviours
 	 */
-	constructor(name, dependencies = [], properties = []) {
+	constructor(name, dependencies = [], properties = [], behaviours =[]) {
 		this.name = name;
 		this.nodes = [];
 		this.tensors = [];
 		this.dependencies = dependencies;
 		this.properties = properties;
+		this.behaviours = behaviours;
 	}
 
 	/**
@@ -366,6 +306,9 @@ class Label {
 	 * @return  {Object}
 	 */
 	addReference(reference) {
+		for (let behaviour in this.behaviours) {
+			behaviour.attachTo(storeableObject);
+		}
 		if (reference.isNode) {
 			return this.nodes.push(reference);
 		} else {
@@ -377,6 +320,9 @@ class Label {
 	 * @return  {number} Nr of uses
 	 */
 	clearOldReference(reference) {
+		for (let behaviour in this.behaviours) {
+			behaviour.DetachFrom(storeableObject);
+		}
 		if (reference.isNode) {
 			removeIfPresent(reference, this.nodes);
 			return this.used();

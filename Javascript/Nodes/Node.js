@@ -422,12 +422,18 @@ class Node extends StoreableObject {
 	 * @param  {number} timeFactor
 	 */
 	updatePosition(trussTime, timeFactor) {
+		let result = super.updatePosition(trussTime, timeFactor);
+		if (result) {
+			return result;
+		}
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
 		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
-		if (this.positionFunction) {
-			this.setPosition(this.positionFunction(this, trussTime));
-			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
-		}
+		
+		// Handle the thing below as a behaviour instead
+		// if (this.positionFunction) {
+		//	this.setPosition(this.positionFunction(this, trussTime));
+		//	this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
+		// }
 	}
 
 	/** Update the velocity based on position based tensors

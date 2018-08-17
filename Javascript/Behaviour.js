@@ -1,4 +1,9 @@
 
+let BehaviourOverride = {
+	SHOW: 1,
+	UPDATEPOSITION: 2,
+	CALCULATE: 3,
+};
 
 /**
  * @class
@@ -38,13 +43,13 @@ class KeySensor extends Behaviour {
 	 */
 	constructor() {
 		super();
+		this.keyState=[];
 	}
 
 	/**
-	 *
+	 * @param {StoreableObject} storeableObject
 	 */
-	oncreate() {
-		this.keyState=[];
+	attachTo(storeableObject) {
 		window.addEventListener('keydown', (e) =>{
 			this.keyState[e.keyCode || e.which] = true;
 		}, true);
@@ -52,14 +57,40 @@ class KeySensor extends Behaviour {
 			this.keyState[e.keyCode || e.which] = false;
 		}, true);
 
+		storeableObject.registerOverride(BehaviourOverride.UPDATEPOSITION, this.prototype.updatePosition);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		// this.keyState=[];
+		window.addEventListener('keydown', (e) =>{
+			this.keyState[e.keyCode || e.which] = true;
+		}, true);
+		window.addEventListener('keyup', (e) => {
+			this.keyState[e.keyCode || e.which] = false;
+		}, true);
+
+		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, this.prototype.updatePosition);
+
 	}
 
 	/**
 	 * Used to poll if a key has been pressed and moves to the corresponding vector
 	 * Note that several keys can be pressed simultaneously
-	 * @param  {number} time
+	 * 
+	 * Remember that this function will be attached to a storebale object and thus 
+	 * the 'this' keyword will reference the node or object rather than the behaviour
+	 * 
+	/**
+	 * Update the position based on velocity, then let
+	 * the this.positionFunction (if present) tell where it should actually be
+	 * @param  {number} trussTime
+	 * @param  {number} timeFactor
 	 */
-	updatePosition(time) {
+	updatePosition(trussTime, timeFactor) {
+		alert('here');
 		let p = this.restPosition;
 		for (let i = 0; i < this.keyVectors.length; i++) {
 			if (this.keyState[this.keyVectors[i].key]) {
@@ -67,8 +98,6 @@ class KeySensor extends Behaviour {
 			}
 		}
 		this.setPosition(p);
-
-		test();
 	};
 }
 
