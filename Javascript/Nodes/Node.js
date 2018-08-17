@@ -426,7 +426,7 @@ class Node extends StoreableObject {
 		if (result) {
 			return result;
 		}
-		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
+		// let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
 		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
 		
 		// Handle the thing below as a behaviour instead

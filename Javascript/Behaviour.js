@@ -43,36 +43,34 @@ class KeySensor extends Behaviour {
 	 */
 	constructor() {
 		super();
-		this.keyState=[];
 	}
 
 	/**
 	 * @param {StoreableObject} storeableObject
 	 */
 	attachTo(storeableObject) {
-		window.addEventListener('keydown', (e) =>{
-			this.keyState[e.keyCode || e.which] = true;
-		}, true);
-		window.addEventListener('keyup', (e) => {
-			this.keyState[e.keyCode || e.which] = false;
-		}, true);
+		storeableObject.keyState=[];
+		storeableObject.keyDownFunction = (e) =>{
+			storeableObject.keyState[e.keyCode || e.which] = true;
+		};
+		storeableObject.keyUpFunction = (e) =>{
+			storeableObject.keyState[e.keyCode || e.which] = true;
+		};
+		
+		window.addEventListener('keydown', storeableObject.keyDownFunction, true);
+		window.addEventListener('keyup', storeableObject.keyUpFunction, true);
 
-		storeableObject.registerOverride(BehaviourOverride.UPDATEPOSITION, this.prototype.updatePosition);
+		storeableObject.registerOverride(BehaviourOverride.UPDATEPOSITION, KeySensor.prototype.updatePosition);
 	}
 
 	/**
 	 * @param {StoreableObject} storeableObject
 	 */
 	detachFrom(storeableObject) {
-		// this.keyState=[];
-		window.addEventListener('keydown', (e) =>{
-			this.keyState[e.keyCode || e.which] = true;
-		}, true);
-		window.addEventListener('keyup', (e) => {
-			this.keyState[e.keyCode || e.which] = false;
-		}, true);
+		window.removeEventListener('keydown', storeableObject.keyDownFunction, true);
+		window.removeEventListener('keyup', storeableObject.keyUpFunction, true);
 
-		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, this.prototype.updatePosition);
+		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, KeySensor.prototype.updatePosition);
 
 	}
 
@@ -90,7 +88,6 @@ class KeySensor extends Behaviour {
 	 * @param  {number} timeFactor
 	 */
 	updatePosition(trussTime, timeFactor) {
-		alert('here');
 		let p = this.restPosition;
 		for (let i = 0; i < this.keyVectors.length; i++) {
 			if (this.keyState[this.keyVectors[i].key]) {
@@ -98,6 +95,54 @@ class KeySensor extends Behaviour {
 			}
 		}
 		this.setPosition(p);
+	};
+}
+
+
+/** This behaviour sets the position according to a javascript snippet
+ * @class
+ * @extends Node
+ */
+class ScriptPosition extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.UPDATEPOSITION, ScriptPosition.prototype.updatePosition);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, ScriptPosition.prototype.updatePosition);
+	}
+
+	/**
+	 * Used to poll if a key has been pressed and moves to the corresponding vector
+	 * Note that several keys can be pressed simultaneously
+	 * 
+	 * Remember that this function will be attached to a storebale object and thus 
+	 * the 'this' keyword will reference the node or object rather than the behaviour
+	 * 
+	/**
+	 * Update the position based on velocity, then let
+	 * the this.positionFunction (if present) tell where it should actually be
+	 * @param  {Object} args
+	 */
+	updatePosition(...args) {
+		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
+		let func = eval(this.positionScriptText);
+		this.setPosition(func(this, ...args));
+		this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
+
+		return 1; // blocks all other position updates on this node.
 	};
 }
 

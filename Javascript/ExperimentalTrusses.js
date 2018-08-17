@@ -197,9 +197,10 @@ class PerformanceTrussNode extends TrussNode {
 
 		for (let row=1; row < 2; row++) {
 			for (let column=1; column < 2; column++) {
-				let x = new Node(this.world, this, 'turngridnode node', {
+				let x = new Node(this.world, this, 'turngridnode node scriptposition', {
 					'name': 'Node '+column+' '+row,
 					'localPosition': new Position(column*3, row*3),
+					'positionScriptText': "(_this, time) => {return new Position(5, Math.sin(time)+1);}",
 					// 'pictureReference': 'trussicon.png',
 					// 'pictureHeight': 600,
 					// 'pictureWidth': 600,

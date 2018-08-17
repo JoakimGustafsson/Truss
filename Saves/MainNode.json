@@ -1,1 +1,67 @@
-{"classname":"World","nodes":[{"classname":"PerformanceTrussNode","labelString":"truss","screenSize":{"x":641,"y":1176},"worldSize":{"x":30,"y":35},"setWorldOffset":{"x":0,"y":0},"fpsTarget":60,"fps":60,"gridSize":0,"name":"MainNode","localPosition":{"x":0,"y":0},"visible":1,"parentTrussNode":0,"connectedTensors":[]},{"classname":"Selector","labelString":" selector moveable","name":"Selector ","localPosition":{"x":27.98751950078003,"y":18.660714285714285},"visible":1,"parentTrussNode":0,"connectedTensors":[],"mass":1,"velocityLoss":0.99},{"classname":"Node","labelString":"turngridnode node","name":"Node 1 1","localPosition":{"x":18.252730109204368,"y":26.041666666666664},"visible":true,"parentTrussNode":0,"connectedTensors":[0]},{"classname":"Node","labelString":"node added moveable","name":"Unnamed","localPosition":{"x":30.31595224557274,"y":40.84012832536258},"visible":1,"parentTrussNode":0,"connectedTensors":[0],"mass":1,"velocityLoss":"1"}],"tensors":[{"classname":"Tensor","labelString":"spring absorber","equilibriumLength":6,"constant":100,"visible":1,"node1":3,"node2":2,"parentTrussNode":-1,"dampeningConstant":1}],"trussNode":0,"governors":[]}
+{
+    "classname": "World",
+    "nodes": [
+        {
+            "classname": "PerformanceTrussNode",
+            "labelString": "truss",
+            "screenSize": {
+                "x": 373,
+                "y": 814
+            },
+            "worldSize": {
+                "x": 30,
+                "y": 35
+            },
+            "setWorldOffset": {
+                "x": 0,
+                "y": 0
+            },
+            "fpsTarget": 60,
+            "fps": 60,
+            "gridSize": 0,
+            "name": "MainNode",
+            "localPosition": {
+                "x": 0,
+                "y": 0
+            },
+            "visible": 1,
+            "parentTrussNode": 0,
+            "connectedTensors": []
+        },
+        {
+            "classname": "Selector",
+            "labelString": "selector",
+            "name": "Selector ",
+            "localPosition": {
+                "x": 21.715817694369974,
+                "y": 16.554054054054056
+            },
+            "visible": 1,
+            "parentTrussNode": 0,
+            "connectedTensors": [],
+            "mass": null,
+            "velocityLoss": 0.99
+        },
+        {
+            "classname": "Node",
+            "labelString": "turngridnode node keysensor",
+            "name": "Node 1 1",
+            "localPosition": {
+                "x": 3.136729222520107,
+                "y": 3.697788697788698
+            },
+            "visible": 1,
+            "parentTrussNode": 0,
+            "connectedTensors": [],
+            "restPosition": {
+                "x": 3.136729222520107,
+                "y": 3.697788697788698
+            },
+            "mass": null,
+            "velocityLoss": 0.99
+        }
+    ],
+    "tensors": [],
+    "trussNode": 0,
+    "governors": []
+}

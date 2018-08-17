@@ -192,8 +192,8 @@ class StoreableObject {
 	 * calls to this function. A final answer has been found;
 	 */
 	updatePosition(...args) {
-		for (let f in this.updatePositionList) {
-			let result = f.call(this, args);
+		for (let f of this.updatePositionList) {
+			let result = f.call(this, ...args);
 			if (result) {
 				return result;
 			}
