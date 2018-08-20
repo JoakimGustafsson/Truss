@@ -138,12 +138,54 @@ class ScriptPosition extends Behaviour {
 	 */
 	updatePosition(...args) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
-		let func = eval(this.positionScriptText);
-		this.setPosition(func(this, ...args));
-		this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
-
-		return 1; // blocks all other position updates on this node.
+		let func = this.positionScript_Evaluated;
+		if (func) {
+			this.setPosition(func(...args));
+			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
+			return 1; // blocks all other position updates on this node.
+		}
 	};
 }
 
+
+/** This behaviour sets the position according to a javascript snippet
+ * @class
+ * @extends Node
+ */
+class ScriptShow extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.SHOW, ScriptShow.prototype.show);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.SHOW, ScriptShow.prototype.show);
+	}
+
+	/**
+	 * Draw the circle representing the node
+	 * @param  {Object} args
+	 * @return {number}
+	 */
+	show(...args) {
+		let func = this.showScript_Evaluated;
+		let _this =this;
+		if (func) {
+			func(...args);
+			return 1; // blocks all other position updates on this node.
+		}
+	};
+	
+}
 

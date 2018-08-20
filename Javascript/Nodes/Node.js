@@ -565,6 +565,11 @@ class Node extends StoreableObject {
 	 * @param {number} graphicDebugLevel
 	 */
 	show(truss, time, graphicDebugLevel = 0) {
+		let result = super.show(truss, time, graphicDebugLevel);
+		if (result) {
+			return result;
+		}
+		
 		let view = truss.view;
 		let cxt = view.context;
 		if (!this.visible || this.visible=='0') {

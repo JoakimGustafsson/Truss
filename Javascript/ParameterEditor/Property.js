@@ -158,14 +158,14 @@ class Property {
 
 	/** actually assign to the owning object
 	 * @param  {Object} value
-	 * @param  {string} modifier
+	 * @param  {Object} owner
 	 */
-	assignValue(value, modifier) {
-		if (!modifier) {
-			this.owner[this.propertyName] = value;
-		} else {
-			this.owner[this.propertyName][modifier] = value;
+	assignValue(value, owner) {
+		if (owner) {
+			this.owner=owner;
 		}
+		this.owner[this.propertyName] = value;
+	
 	}
 
 	/** Creates the default value editing area. This does not handle any input (see makeinputField)
@@ -176,6 +176,24 @@ class Property {
 	makeViewOfInputField(id, parameterValue) {
 		let inputField = document.createElement('input');
 		inputField.type = 'text';
+		inputField.value = 'Default';
+		inputField.classList.add('text');
+		inputField.classList.add('inputcss');
+		inputField.id = id;
+		inputField.style.width = '140px';
+		parameterValue.appendChild(inputField);
+		return inputField;
+	}
+
+	/** Creates the default value editing area. This does not handle any input (see makeinputField)
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @param  {number} rows
+	 * @return {Element}
+	 */
+	makeViewOfInputFieldMultiline(id, parameterValue, rows) {
+		let inputField = document.createElement('textarea');
+		inputField.rows = rows;
 		inputField.value = 'Default';
 		inputField.classList.add('text');
 		inputField.classList.add('inputcss');
@@ -320,6 +338,65 @@ class StringProperty extends Property {
 		this.input = this.makeInputField(this.identity, parameterValue);
 		parameterValue.appendChild(this.input);
 	}
+}
+
+/**
+ * @class ScriptProperty
+ * @extends Property
+ */
+class ScriptProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
+		this[propertyName+'_Evaluated']='X';
+	}
+
+
+	/**
+	 * @param {Element} element
+	 * @param {Object} owner
+	 */
+	populateProperty(element, owner) {
+		this.owner=owner;
+		let parameterValue = this.createNameValuePair(element);
+		this.input = this.makeViewOfInputFieldMultiline(this.identity, parameterValue, 5);
+		this.input.addEventListener('input', () => {
+			this.assignValue(this.input.value);
+		});
+		parameterValue.appendChild(this.input);
+	}
+
+	
+	/** actually assign to the owning object
+	 * @param  {Object} value
+	 * @param  {Object} owner
+	 */
+	assignValue(value, owner) {
+		let supportThis = function myEval(script) {
+			return eval(script);
+		}
+		if (owner) {
+			this.owner=owner;
+		}
+		this.owner[this.propertyName] = value;
+		
+		try {
+			this.owner[this.propertyName+'_Evaluated']=
+				supportThis.call(this.owner, value);
+		}
+		catch(err) {
+			console.log(err);
+			this.owner[this.propertyName+'_Evaluated']=undefined;
+		}
+	}
+
 }
 
 /**

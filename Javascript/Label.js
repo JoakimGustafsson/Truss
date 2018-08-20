@@ -25,7 +25,8 @@ class Labels {
 		this.torqueConstantProperty = new NumberProperty('torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT, 'How stiff the node is with respect to attempts angle differences.');
 		this.nodeFrictionProperty = new NumberProperty('velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT, 'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
 		this.colorProperty = new StringProperty('color', 'color', 'Colour', ParameterCategory.CONTENT, 'The colour of the node.');
-		this.positionScriptProperty = new StringProperty('positionScriptText', 'positionScriptText', 'Position script', ParameterCategory.CONTENT, 'This script should return a new position object where this node will be moved to.');
+		this.positionScriptProperty = new ScriptProperty('positionScript', 'positionScript', 'Position script', ParameterCategory.CONTENT, 'This script should return a new position object where this node will be moved to.');
+		this.showScriptProperty = new ScriptProperty('showScript', 'showScript', 'Show script', ParameterCategory.CONTENT, 'This script is run when the object should be drawn on the screen.');
 	
 		this.pictureProperty = new StringProperty('pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT, 'The picture filename.');
 		this.sizeProperty = new NumberProperty('size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT, 'The picture size');
@@ -135,6 +136,10 @@ class Labels {
 		let positionScriptLabel = this.addLabel('scriptposition', [moveabelLabel], {
 			'positionScriptProperty': "alert('MyPositionScript');",
 		}, [new ScriptPosition()]);
+		let showScriptLabel = this.addLabel('scriptshow', [], {
+			'showScriptProperty': "alert('MyShowScript');",
+		}, [new ScriptShow()]);
+
 	}
 
 	/**

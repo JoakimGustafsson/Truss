@@ -720,6 +720,10 @@ class Tensor extends StoreableObject {
 	 * @param  {number} graphicDebugLevel=0
 	 */
 	show(truss, graphicDebugLevel = 0) {
+		let result = super.show(truss, 0, graphicDebugLevel);
+		if (result) {
+			return result;
+		}
 		let view = truss.view;
 		let ctx = view.context;
 		let node1 = this.node1;

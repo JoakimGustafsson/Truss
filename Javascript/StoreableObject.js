@@ -15,7 +15,7 @@ class StoreableObject {
 		this.world=world;
 		this.isNode = this instanceof Node;
 		this.updatePositionList=[];
-
+		this.showList=[];
 
 		Object.defineProperty(this, 'labels', {
 			get: function() {
@@ -46,13 +46,17 @@ class StoreableObject {
      */
 	initialRefresh() {
 		if (this.world) {
-			this.refreshPropertiesAfterLabelChange();
+			this.refreshPropertiesAfterLabelChange(this.valueObject);
 		}
+		/*
 		if (this.valueObject) {
 			for (let [key, value] of Object.entries(this.valueObject)) {
 				this[key]=value;
-			}
-		}
+				we need to use something like this:
+				Or send the valuelist to refresh and load there
+				propertyObject.assignValue(value.defaultValue, this);	
+			} 
+		} */
 	}
 
 	/**
@@ -72,18 +76,23 @@ class StoreableObject {
 	}
 
 	/**
+	 * @param {Object} valueObject
      *
      */
-	refreshPropertiesAfterLabelChange() {
+	refreshPropertiesAfterLabelChange(valueObject = {}) {
 		this.labels = this.world.labels.parse(this.labelString, this);
 		this.properties.clearProperties(this.labelProperty);
 
 		for (let [key, value] of Object.entries(this.getPropertyObject())) {
-			this.properties.addProperty(value.propertyObject, value.defaultValue);
-			if (this[value.propertyObject.propertyName]==undefined ||
-                this[value.propertyObject.propertyName]==NaN ||
+			let propertyObject = value.propertyObject;
+			let propertyName = propertyObject.propertyName;
+			this.properties.addProperty(propertyObject, value.defaultValue);
+			if (valueObject[propertyName]) {
+				propertyObject.assignValue(valueObject[propertyName], this);
+			} else if (this[propertyName]==undefined ||
+                this[propertyName]==NaN ||
                 value.enforced) {
-				this[value.propertyObject.propertyName]=value.defaultValue;
+				propertyObject.assignValue(value.defaultValue, this);	
 			}
 		}
 	}
@@ -125,35 +134,6 @@ class StoreableObject {
 				property.deSerialize(restoreObject[property.propertyName], nodeList, tensorList);
 		}
 
-		/* super.deserialize(restoreObject);
-		this.node1=nodeList[restoreObject.node1];
-		this.node2=nodeList[restoreObject.node2];
-		this.angle1=restoreObject.angle1;
-		this.angle2=restoreObject.angle2;
-
-
-		if (restoreObject.next) {
-			this.next=tensorList[restoreObject.next];
-		}
-		if (restoreObject.previous) {
-			this.previous=tensorList[restoreObject.previous];
-		}
-		if (restoreObject.breakStartTensor) {
-			this.breakStartTensor=tensorList[restoreObject.breakStartTensor];
-		}
-		if (restoreObject.breakEndTensor) {
-			this.breakEndTensor=tensorList[restoreObject.breakEndTensor];
-		}
-
-
-		this.force=restoreObject.force;
-		this.ghost=restoreObject.ghost;
-		this.isTensor=restoreObject.isTensor;
-		this.color=restoreObject.color;
-
-		this.labelString = restoreObject.labelString;
-		this.labels = universe.currentWorld.labels.parse(this.labelString, this); */
-
 		return this;
 	}
 
@@ -168,6 +148,9 @@ class StoreableObject {
 			case BehaviourOverride.UPDATEPOSITION:
 				this.updatePositionList.push(newFunction);
 				break;
+			case BehaviourOverride.SHOW:
+				this.showList.push(newFunction);
+				break;
 		}
 	}
 
@@ -178,7 +161,10 @@ class StoreableObject {
 	unregisterOverride(type, newFunction) {
 		switch(type) {
 			case BehaviourOverride.UPDATEPOSITION:
-			removeIfPresent(newFunction, this.updatePositionList);
+				removeIfPresent(newFunction, this.updatePositionList);
+				break;
+			case BehaviourOverride.SHOW:
+				removeIfPresent(newFunction, this.showList);
 				break;
 		}
 	}
@@ -193,6 +179,23 @@ class StoreableObject {
 	 */
 	updatePosition(...args) {
 		for (let f of this.updatePositionList) {
+			let result = f.call(this, ...args);
+			if (result) {
+				return result;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Update the position based on velocity, then let
+	 * the this.positionFunction (if present) tell where it should actually be
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
+	show(...args) {
+		for (let f of this.showList) {
 			let result = f.call(this, ...args);
 			if (result) {
 				return result;

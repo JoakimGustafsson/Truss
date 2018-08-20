@@ -200,17 +200,50 @@ class PerformanceTrussNode extends TrussNode {
 				let x = new Node(this.world, this, 'turngridnode node scriptposition', {
 					'name': 'Node '+column+' '+row,
 					'localPosition': new Position(column*3, row*3),
-					'positionScriptText': "(_this, time) => {return new Position(5, Math.sin(time)+1);}",
-					// 'pictureReference': 'trussicon.png',
-					// 'pictureHeight': 600,
-					// 'pictureWidth': 600,
-					// 'turnrate': 0.04,
+					'positionScript': "(time) => {return new Position(5, Math.sin(time)+1);}",
 				});
 
+
+			
 				protagonist=x;
 			}
 		}
+
+		new Node(this.world, this, 'turngridnode node scriptshow', {
+			'name': 'showNode',
+			'localPosition': new Position(2, 4),
+			'showScript': `(truss, time, graphicDebugLevel = 0) => {
+				let view=truss.view;
+	this.highLight(view.context);
+	if (view.inside(this.getPosition())) {
+		view.context.lineWidth = 5;
+		view.context.beginPath();
+		view.drawCircle(this.getPosition(), 1);
+		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+			Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
+		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+			Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+		view.context.stroke();
 	}
+	return 1; // blocks all other drawing of this node.
+			}`,
+		});
+	}
+}
+var a = function(truss, time, graphicDebugLevel = 0) {
+	let view=truss.view;
+	this.highLight(view.context);
+	if (view.inside(this.getPosition())) {
+		view.context.lineWidth = 5;
+		view.context.beginPath();
+		view.drawCircle(this.getPosition(), 1);
+		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+			Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
+		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+			Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+		view.context.stroke();
+	}
+	return 1; // blocks all other drawing of this node.
 }
 
 /**
