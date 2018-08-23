@@ -16,6 +16,10 @@ class StoreableObject {
 		this.isNode = this instanceof Node;
 		this.updatePositionList=[];
 		this.showList=[];
+		this.torqueList=[];
+		this.calcList=[];
+		this.calcList2=[];
+		this.rotateList=[];
 
 		Object.defineProperty(this, 'labels', {
 			get: function() {
@@ -48,15 +52,6 @@ class StoreableObject {
 		if (this.world) {
 			this.refreshPropertiesAfterLabelChange(this.valueObject);
 		}
-		/*
-		if (this.valueObject) {
-			for (let [key, value] of Object.entries(this.valueObject)) {
-				this[key]=value;
-				we need to use something like this:
-				Or send the valuelist to refresh and load there
-				propertyObject.assignValue(value.defaultValue, this);	
-			} 
-		} */
 	}
 
 	/**
@@ -151,6 +146,19 @@ class StoreableObject {
 			case BehaviourOverride.SHOW:
 				this.showList.push(newFunction);
 				break;
+			case BehaviourOverride.TORQUE:
+				this.torqueList.push(newFunction);
+				break;
+			case BehaviourOverride.CALCULATE:
+				this.calcList.push(newFunction);
+				break;
+			case BehaviourOverride.POSTCALCULATE:
+				this.calcList2.push(newFunction);
+				break;
+			case BehaviourOverride.ROTATE:
+				this.rotateList.push(newFunction);
+				break;
+				
 		}
 	}
 
@@ -165,6 +173,18 @@ class StoreableObject {
 				break;
 			case BehaviourOverride.SHOW:
 				removeIfPresent(newFunction, this.showList);
+				break;
+			case BehaviourOverride.TORQUE:
+				removeIfPresent(newFunction, this.torqueList);
+				break;
+			case BehaviourOverride.CALCULATE:
+				removeIfPresent(newFunction, this.calcList);
+				break;
+			case BehaviourOverride.POSTCALCULATE:
+				removeIfPresent(newFunction, this.calcList2);
+				break;
+			case BehaviourOverride.ROTATE:
+				removeIfPresent(newFunction, this.rotateList);
 				break;
 		}
 	}
@@ -204,4 +224,55 @@ class StoreableObject {
 		return 0;
 	}
 
+	/**
+	 * Calculate the forces acting on the object
+	 * @param  {number} stage 0 for normal calculations, 1 for absorbers and other calculations that 'calms down' the world
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
+	calculateForce(stage=0, ...args) {
+		let list = this.calcList;
+		if (stage==1) {
+			list = this.calcList2;
+		}
+		for (let f of list) {
+			let result = f.call(this, ...args);
+			if (result) {
+				return result;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Calculate the torques acting on the object (node)
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
+	calculateTorques(...args) {
+		for (let f of this.torqueList) {
+			let result = f.call(this, ...args);
+			if (result) {
+				return result;
+			}
+		}
+		return 0;
+	}
+	/**
+	 * rotate the node according to the node according to angular velocity
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
+	rotate(...args) {
+		for (let f of this.rotateList) {
+			let result = f.call(this, ...args);
+			if (result) {
+				return result;
+			}
+		}
+		return 0;
+	}
 }

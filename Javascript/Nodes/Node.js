@@ -21,20 +21,7 @@ class Node extends StoreableObject {
 			this.velocity = new Velocity(0, 0);
 		}
 		this.connectedTensors = [];
-		/*
-		this.angle = 0;
-		this.turnrate = 0;
-
-		this.torqueConstant = 0;
-		this.velocityLoss = 0.99;
-		this.positionFunction = undefined;
-		this.showFunction = undefined;
-		// this.color = 'lightgrey';
-		this._pictureReference = '';
-		this._size = 1;
-		// this.visibleLabel = universe.currentWorld.labels.findLabel('visible');
-		*/
-
+	
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
 				return this._pictureReference;
@@ -90,7 +77,7 @@ class Node extends StoreableObject {
 			},
 		});
 
-		Object.defineProperty(this, 'degree', {
+		/* Object.defineProperty(this, 'degree', {
 			get: function() {
 				if (this.angle==undefined) {
 					return 0;
@@ -100,7 +87,7 @@ class Node extends StoreableObject {
 			set: function(value) {
 				this.angle = value * Math.PI / 180;
 			},
-		});
+		}); */
 
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
@@ -211,105 +198,9 @@ class Node extends StoreableObject {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Node';
 
-		/*
-		representation.name = this.name;
-		representation.parentTrussNode = nodeList.indexOf(this.parentTrussNode);
-		representation.localPosition = this.localPosition.serialize();
-		representation.velocity = this.velocity.serialize();
-		representation.mass = this.mass;
-		representation.massRadius = this.massRadius;
-		representation.angle = this.angle;
-		// representation.color = this.color;
-		representation.pictureReference = this.pictureReference;
-		representation.size = this.size;
-		representation.turnrate = this.turnrate;
-		representation.torqueConstant = this.torqueConstant;
-		representation.labelString=this.labelString;
-		// representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
-		representation.positionBasedTensors = serializeList(this.connectedTensors, tensorList);
-		representation.velocityLoss = this.velocityLoss;
-		if (this.positionFunction) {
-			representation.positionFunction = this.positionFunction.toString();
-		}
-		if (this.showFunction) {
-			representation.showFunction = this.showFunction.toString();
-		}
-
-		let storeBreakList = [];
-		if (this.breakList) {
-			for (let lineBreaker of this.breakList) {
-				storeBreakList.push({
-					'original': tensorList.indexOf(lineBreaker.original),
-					'immediatelyLeft': tensorList.indexOf(lineBreaker.immediatelyLeft),
-					'immediatelyRight': tensorList.indexOf(lineBreaker.immediatelyRight),
-					'direction': lineBreaker.direction,
-					'outerLayer': lineBreaker.outerLayer,
-				});
-			}
-		}
-		representation.breakList = storeBreakList; */
-
 		return representation;
 	}
 
-	/*
-	 * @param  {Object} restoreObject
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 *
-	deserialize(restoreObject, nodeList, tensorList) {
-		this.name = restoreObject.name;
-		this.parentTrussNode = nodeList[restoreObject.parentTrussNode];
-
-		this.localPosition = new Position().deserialize(restoreObject.localPosition);
-		this.velocity = new Vector().deserialize(restoreObject.velocity);
-		this.mass = restoreObject.mass;
-		if (!this.mass) {
-			this.mass = NaN;
-		}
-		this.massRadius = restoreObject.massRadius;
-		this.color=restoreObject.color;
-		this.pictureReference = restoreObject.pictureReference;
-
-		this.size = restoreObject.size;
-		this.angle = restoreObject.angle;
-		this.turnrate = restoreObject.turnrate;
-		this.torqueConstant = restoreObject.torqueConstant;
-		this.labelString = restoreObject.labelString;
-		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
-
-		// this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
-		this.connectedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
-		this.velocityLoss = restoreObject.velocityLoss;
-		try {
-			if (restoreObject.positionFunction) {
-				this.positionFunction = eval('(' + restoreObject.positionFunction + ')');
-			}
-			if (restoreObject.showFunction) {
-				this.showFunction = eval('(' + restoreObject.showFunction + ')');
-			}
-		} catch (err) {
-			alert(err);
-			alert(this);
-		}
-
-		if (restoreObject.breakList) {
-			this.breakList = [];
-			for (let lineBreaker of restoreObject.breakList) {
-				this.breakList.push({
-					'original': tensorList[lineBreaker.original],
-					'immediatelyLeft': tensorList[lineBreaker.immediatelyLeft],
-					'immediatelyRight': tensorList[lineBreaker.immediatelyRight],
-					'direction': lineBreaker.direction,
-					'outerLayer': lineBreaker.outerLayer,
-				});
-			}
-		}
-		// Set easy properties
-		// Make list of nodes
-		// make list of tensors (using the nodes)
-		// fill in the nodes tensor references
-	} */
 
 	/**
 	 */
@@ -345,12 +236,12 @@ class Node extends StoreableObject {
 		return this.localPosition;
 	};
 
-	/** return the angle this node has with respect to its initial direction.
+	/* return the angle this node has with respect to its initial direction.
 	 * @return {number}
-	 */
+	 *
 	getAngle() {
 		return this.angle;
-	};
+	}; */
 
 	/** Returns the torque constant
 	 * @return {number}
@@ -396,15 +287,6 @@ class Node extends StoreableObject {
 		// supportRemove(tensor, this.velocityBasedTensors);
 		supportRemove(tensor, this.connectedTensors);
 	}
-
-	/**
-	 * replace by unreference
-	 */
-	xremoveFromWorld() {
-		for (let label of this.labels) { // ensure no label points to this tensor
-			label.clearOldReference(this);
-		}
-	};
 
 	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
      *  All connected tensors should also be removed (or unreferenced, actually)
@@ -455,8 +337,16 @@ class Node extends StoreableObject {
 	 * Update the rotation speed based on velocity based tensors
 	 * @param {number} timeFactor
 	 */
-	updateFinalRotation(timeFactor) {
+	XupdateFinalRotation(timeFactor) {
 		this.updateRotation(this.connectedTensors, timeFactor);
+	}
+
+	/**
+	 * Calculate the final rotation speed
+	 * @param {List} args
+	 */
+	XupdateRotation(...args) {
+		super.updaterotation(...args);
 	}
 
 	/**
@@ -471,6 +361,8 @@ class Node extends StoreableObject {
 	 * @return {number}
 	 */
 	calculateTorques() {
+		return super.calculateTorques()
+		/*
 		this.sumTorque = 0;
 		if (!this.turnable()) {
 			return;
@@ -480,23 +372,9 @@ class Node extends StoreableObject {
 				this.sumTorque += tensor.getTorque(this);
 			}
 		}
-		return this.sumTorque;
+		return this.sumTorque; */
 	}
 
-	/**
-	 * Calculate the final rotation speed
-	 * @param {Array} forceAppliers
-	 * @param {number} timeFactor
-	 */
-	updateRotation(forceAppliers, timeFactor) {
-		if (this.mass) {
-			this.turnrate += this.sumTorque / (this.mass * 1000);
-		} else {
-			this.turnrate = 0; // weightless cannot turn
-		}
-		// this.turnrate = this.turnrate * 0.8;
-		this.angle += this.turnrate;
-	}
 
 	/**
 	 * Calculate the final velocity
@@ -569,7 +447,7 @@ class Node extends StoreableObject {
 		if (result) {
 			return result;
 		}
-		
+
 		let view = truss.view;
 		let cxt = view.context;
 		if (!this.visible || this.visible=='0') {

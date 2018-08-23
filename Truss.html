@@ -261,28 +261,49 @@
 				connectionTensor=undefined;
 
 				if (value == 'Spring') {
-					connectionTensor = new Spring(universe.selectedObject, universe.currentNode.selector, 100);
-				} else if (value == 'DampenedSpring') {
-					connectionTensor =
-						new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber', {
+					connectionTensor = new Tensor(
+						universe.selectedObject, 
+						universe.currentNode.selector,
+						'spring',
+						{
 							'equilibriumLength': 6,
-							'dampeningConstant': 1,
 							'constant': 100,
 							'color': 'white',
 						});
+				} else if (value == 'DampenedSpring') {
+					connectionTensor =
+						new Tensor(universe.selectedObject, 
+						universe.currentNode.selector, 
+						'spring absorber', 
+						{
+							'equilibriumLength': 6,
+							'dampeningConstant': 1,
+							'constant': 100,
+							'color': 'lightgray',
+						});
 				} else if (value == 'PullSpring') {
 					connectionTensor =
-						new Tensor(universe.selectedObject, universe.currentNode.selector, 'pullspring', {
-							'equilibriumLength': 6,
-							'constant': 100,
+						new Tensor(universe.selectedObject, 
+							universe.currentNode.selector, 
+							'pullspring', 
+							{
+								'equilibriumLength': 6,
+								'constant': 100,
 						});
 				} else if (value == 'Absorber') {
-						new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
+					connectionTensor =
+						new Tensor(universe.selectedObject, 
+						universe.currentNode.selector, 
+						'absorber', 
+						{
 							'dampeningConstant': 1,
 						});
 				} else if (value == 'Field') {
 					connectionTensor =
-						new Tensor(universe.selectedObject, universe.currentNode.selector, 'field', {
+						new Tensor(universe.selectedObject, 
+						universe.currentNode.selector, 
+						'field',
+						{
 							'constant': 0.0001,
 						});
 				}

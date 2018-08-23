@@ -98,6 +98,7 @@ class Tensor extends StoreableObject {
 	 */
 	labelChange(value) {
 		this.velocityBasedTensors = (0 >= this.labels.indexOf(this.world.labels.findLabel('absorblabel')));
+		this.angleTensor=value.indexOf(this.world.labels.findLabel('angletensor'))>=0;
 	}
 
 	/**
@@ -260,72 +261,9 @@ class Tensor extends StoreableObject {
 	serialize(nodeList, tensorList) {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Tensor';
-
-		/* representation.node1=localNodeList.indexOf(this.node1);
-		representation.node2=localNodeList.indexOf(this.node2);
-
-		if (this.breakStartTensor) {
-			representation.breakStartTensor=tensorList.indexOf(this.breakStartTensor);
-		}
-		if (this.breakEndTensor) {
-			representation.breakEndTensor=tensorList.indexOf(this.breakEndTensor);
-		}
-		if (this.next) {
-			representation.next=tensorList.indexOf(this.next);
-		}
-		if (this.previous) {
-			representation.previous=tensorList.indexOf(this.previous);
-		}
-
-		representation.angle1= isNaN(this.angle1) ? 'NaN' : this.angle1;
-		representation.angle2= isNaN(this.angle2) ? 'NaN' : this.angle2;
-		representation.force=this.force;
-		representation.ghost=this.ghost;
-		representation.isTensor=this.isTensor;
-		representation.color=this.color;
-		representation.labelString=this.labelString; */
-
 		return representation;
 	}
 
-	/**
-	 * @param  {Object} restoreObject
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 * @return {Tensor}
-	 *
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject);
-		this.node1=nodeList[restoreObject.node1];
-		this.node2=nodeList[restoreObject.node2];
-		this.angle1=restoreObject.angle1;
-		this.angle2=restoreObject.angle2;
-
-
-		if (restoreObject.next) {
-			this.next=tensorList[restoreObject.next];
-		}
-		if (restoreObject.previous) {
-			this.previous=tensorList[restoreObject.previous];
-		}
-		if (restoreObject.breakStartTensor) {
-			this.breakStartTensor=tensorList[restoreObject.breakStartTensor];
-		}
-		if (restoreObject.breakEndTensor) {
-			this.breakEndTensor=tensorList[restoreObject.breakEndTensor];
-		}
-
-
-		this.force=restoreObject.force;
-		this.ghost=restoreObject.ghost;
-		this.isTensor=restoreObject.isTensor;
-		this.color=restoreObject.color;
-
-		this.labelString = restoreObject.labelString;
-		this.labels = this.world.labels.parse(this.labelString, this);
-
-		return this;
-	} */
 
 	/**
 	 * @return {string} The name of the tensor
@@ -345,44 +283,6 @@ class Tensor extends StoreableObject {
 		return name;*/
 	}
 
-	/**
-	 * @param  {Node} node
-	 * @param  {number} angle
-	 *
-	addNode1(node, angle) {
-		if (this.node1) {
-			this.node1.removeTensor(this);
-		}
-		this.node1 = node;
-		if (angle ) {
-			this.angle1 = angle;
-		} else {
-			this.angle1 = angleSubstract(this.getTensorAngle(node), node.getAngle());
-		}
-		if (node) {
-			node.addTensor(this);
-		}
-	};
-
-	/**
-	 * @param  {Node} node
-	 * @param  {number} angle
-	 *
-	addNode2(node, angle) {
-		if (this.node2) {
-			this.node2.removeTensor(this);
-		}
-		this.node2 = node;
-		if (angle) {
-			this.angle2 = angle;
-		} else {
-			this.angle2 = angleSubstract(this.getTensorAngle(node), node.getAngle());
-		}
-		if (node) {
-			node.addTensor(this);
-		}
-	}; */
-
 	/** Returns the midpoint of the tensor
 	 * @return {Position}
 	 */
@@ -396,10 +296,10 @@ class Tensor extends StoreableObject {
 	};
 
 
-	/** Given a node. Return the angle that the tensor wants o have wrt to the node
+	/* Given a node. Return the angle that the tensor wants o have wrt to the node
 	 * @param  {Node} node
 	 * @return {number} wanted angle
-	 */
+	 *
 	getIdealAngle(node) {
 		if (node==this.node1) {
 			return this.angle1;
@@ -412,7 +312,7 @@ class Tensor extends StoreableObject {
 	 * Return the torque.
 	 * @param  {Node} node
 	 * @return {number}
-	 */
+	 *
 	getTorque(node) {
 		let idealAngle = this.getIdealAngle(node);
 		if (isNaN(idealAngle)) {
@@ -424,11 +324,6 @@ class Tensor extends StoreableObject {
 		let nodeAngle = anglify(node.getAngle());
 		let correctionAngle = anglify(theNodeShouldHaveAngle - nodeAngle);
 
-
-		// let wantedAbsoluteAngle = relativeIdealAngle + nodeAngle;
-		// let absoluteTensorAngle = this.getTensorAngle(node);
-		// // let relativeTensorAngle = angleAdd(absoluteTensorAngle, nodeAngle);
-		// let angleToCorrect = wantedAbsoluteAngle - absoluteTensorAngle;
 		let torque= node.getTorqueConstant() * correctionAngle;
 		if (node==this.node1) {
 			this.torque1=-torque;
@@ -438,22 +333,22 @@ class Tensor extends StoreableObject {
 		return torque;
 	};
 
-	/** This retrieves a torque that has been previously calculated during the calculatetorque step.
+	/* This retrieves a torque that has been previously calculated during the calculatetorque step.
 	 * @param  {Node} node
 	 * @return {number}
-	 */
+	 *
 	getStoredTorque(node) {
 		if (node==this.node1) {
 			return this.torque1;
 		}
 		return this.torque2;
-	}
+	} 
 
 	/**
 	 * Returns the force from this tensor resulting from the torque in the opposite node.
 	 * @param  {Node} node
 	 * @return {number}
-	 */
+	 *
 	calculateTorqueForce(node) {
 		let opposite = this.getOppositeNode(node);
 		if (opposite.getTorqueConstant()==0) {
@@ -468,18 +363,7 @@ class Tensor extends StoreableObject {
 		let perp = actual.perpendicular();
 		let force = perp.normalizeVector(forceLenth);
 		return force.opposite();
-	};
-
-	/**
-	 * Makes sure the actual nodes will take this tensor into consideration
-	 *
-	addToTruss() {
-		return;
-		alert('why?');
-		this.addNode1(this.node1);
-		this.addNode2(this.node2);
 	}; */
-
 
 	/**
 	 * @return {number}
@@ -646,18 +530,19 @@ class Tensor extends StoreableObject {
 	 * @return {number}
 	 */
 	getForce(node) {
-		// if (this.callback) {
-		//	this.callback(this);
-		// }
-
 		let directedforce;
+		let torqueForce;
 		if (node == this.node2) {
 			directedforce = this.force;
+			torqueForce = this.torqueForce1;
 		} else {
 			directedforce = this.force.opposite();
+			torqueForce = this.torqueForce2;
 		}
 
-		return Vector.addVectors(directedforce, this.calculateTorqueForce(node));
+		if (!torqueForce) {
+			return directedforce;
+		} else return Vector.addVectors(directedforce, torqueForce);
 	};
 
 	/** Return {string} the HTML color of the tensor
@@ -771,8 +656,23 @@ class Tensor extends StoreableObject {
 	}
 
 	/**
-	* Calculate the force in the Spring based on current length
+	* Calculate the force 
 	*/
+	calculateForce() {
+		super.calculateForce(0);
+	}
+
+	/**
+	* Calculate the second stage of forces (probably only absorbers based 
+		on velocity rather than position, to make the world 'calmer' ) 
+	*/
+	calculateForce2() {
+		super.calculateForce(1);
+	}
+
+	/*
+	* Calculate the force in the Spring based on current length
+	*
 	calculateForceSpring() {
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(this.equilibriumLength);
@@ -782,7 +682,7 @@ class Tensor extends StoreableObject {
 
 	/**
 	* Calculate the force in the Spring based on current length
-	*/
+	*
 	calculateForcePull() {
 		let actualVector = this.getActual();
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
@@ -794,7 +694,7 @@ class Tensor extends StoreableObject {
 
 	/**
 	* Calculate the force in the Spring based on current length
-	*/
+	*
 	calculateForcePush() {
 		let actualVector = this.getActual();
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) > this.equilibriumLength * this.equilibriumLength)) {
@@ -806,17 +706,17 @@ class Tensor extends StoreableObject {
 
 	/**
 	* Calculate the force in the Field based on distance and mass of the nodes
-	*/
+	*
 	calculateForceField() {
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(1);
 		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
 		this.force = Vector.multiplyVector(-forceSize, normalized);
-	}
+	} */
 
 	/**
 	* Calculate the force in the Absorber based on the relative speed between the nodes
-	*/
+	*
 	calculateForceAbsorber() {
 		let actualVector = this.getActual();
 		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
@@ -824,7 +724,7 @@ class Tensor extends StoreableObject {
 			Vector.dotProduct(actualVector, internalSpeed),
 			Vector.divideVector(actualVector, this.getLengthSquare()));
 		this.force = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
-	}
+	}*/
 
 	/**
 	* Using a space separated list, list the labels that should be added

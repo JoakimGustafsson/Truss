@@ -154,7 +154,7 @@ class TrussNode extends Node {
 		this.tensorLabel = world.labels.findLabel('tensor');
 		this.nodeLabel = world.labels.findLabel('node');
 		this.sensorLabel = world.labels.findLabel('sensor');
-		this.angleLabel = world.labels.findLabel('angle');
+		this.angleNodeLabel = world.labels.findLabel('anglenode');
 		this.moveableLabel = world.labels.findLabel('moveable');
 		this.pullSpringLabel = world.labels.findLabel('pullspring');
 		this.pushSpringLabel = world.labels.findLabel('pushspring');
@@ -221,7 +221,7 @@ class TrussNode extends Node {
 	}
 
 	/**
- */
+ 	*/
 	resize() {
 		this.view.resize();
 		this.canvas.width = this.view.screenSize.x;
@@ -240,7 +240,6 @@ class TrussNode extends Node {
 	 * @param {number} delta
 	 */
 	updatePosition(time, delta) {
-		// this.tick(time, delta);
 		super.updatePosition(time, delta); // Call parent in order to update this nodes position
 	};
 
@@ -255,13 +254,6 @@ class TrussNode extends Node {
 		this.canvas.style.top = this.view.y(this.localPosition) + 'px';
 	};
 
-
-	/* *********************************************************************************** */
-	/* *********************************************************************************** */
-	/* *********************************************************************************** */
-	/* *********************************************************************************** */
-
-
 	/**
 	 */
 	hideEdit() {
@@ -269,55 +261,13 @@ class TrussNode extends Node {
 	}
 
 	/**
-	 * Add a node to the truss and it will be updated at ticks and displayed
-	 * @param  {Node} node
-	 * @return {Node}
-	 *
-	addNode(node) {
-		//this.nodes=node;
-		return node;
-	};
-
-	/**
-	 * Remove a node from the truss so it will not any longer be updated at ticks and displayed
-	 * @param  {Node} node
-	 *
-	removeNode(node) {
-		this.nodeLabel.clearOldReference(node);
-		node.removeFromWorld();
-
-		for (let tensor of node.connectedTensors) {
-			this.removeTensor(tensor);
-		}
-	}; */
-
-	/**
-	 * @param  {Tensor} tensor
-	 * @return {Tensor}
-	 */
-	xremoveTensor(tensor) {
-		removeIfPresent(tensor, this.connectedTensors);
-		tensor.removeFromWorld();
-		return tensor;
-	};
-
-	/**
 	 * Calculate all forces caused by a Nodes position.
 	 * For example, Springs or Fields are position based force appliers.
 	 * @param {number} deltaTime
 	 */
 	calculatePositionBasedForces(deltaTime) {
-		for (let tensor of this.pullSpringLabel.getTensors()) {
-			tensor.calculateForcePull(deltaTime);
-		}
-		for (let tensor of this.pushSpringLabel.getTensors()) {
-			tensor.calculateForcePush(deltaTime);
-		}
-		for (let tensor of this.fieldLabel.getTensors()) {
-			tensor.calculateForceField(deltaTime);
-		}
-		for (let tensor of this.springLabel.getTensors()) {
-			tensor.calculateForceSpring(deltaTime);
+		for (let tensor of this.tensorLabel.getTensors()) {
+			tensor.calculateForce(deltaTime);
 		}
 	};
 
@@ -328,7 +278,7 @@ class TrussNode extends Node {
 	 */
 	calculateVelocityBasedForces(deltaTime) {
 		for (let tensor of this.absorberLabel.getTensors()) {
-			tensor.calculateForceAbsorber(deltaTime);
+			tensor.calculateForce2(deltaTime);
 		}
 	};
 
@@ -347,7 +297,7 @@ class TrussNode extends Node {
 	 * @param {number} deltaTime
 	 */
 	calculateTorques(deltaTime) {
-		for (let node of this.angleLabel.getNodes()) {
+		for (let node of this.angleNodeLabel.getNodes()) {
 			node.calculateTorques(deltaTime);
 		}
 	};
@@ -357,8 +307,8 @@ class TrussNode extends Node {
 	 * @param {number} deltaTime
 	 */
 	calculateRotation(deltaTime) {
-		for (let node of this.moveableLabel.getNodes()) {
-			node.updateFinalRotation(deltaTime);
+		for (let node of this.angleNodeLabel.getNodes()) {
+			node.rotate(deltaTime);
 		}
 	};
 
@@ -367,7 +317,7 @@ class TrussNode extends Node {
 	 * @param {number} deltaTime
 	 */
 	calculateDampenedVelocity(deltaTime) {
-		for (let node of this.absorberLabel.getNodes()) {
+		for (let node of this.moveableLabel.getNodes()) {
 			node.updateFinalVelocity(deltaTime);
 		}
 	};

@@ -21,9 +21,13 @@ class Labels {
 		this.absorberProperty = new NumberProperty('dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameterCategory.CONTENT, 'The absorb constant.');
 		this.positionProperty = new PositionProperty('localPosition', 'localPosition', 'Position', ParameterCategory.CONTENT, 'The position counted from the upper left corner.');
 		this.velocityProperty = new PositionProperty('velocity', 'velocity', 'Velocity', ParameterCategory.CONTENT, 'The velocity.');
-		this.angleProperty = new NumberProperty('degree', 'degree', 'Angle', ParameterCategory.CONTENT, 'The angle of the node.');
+		this.angleProperty = new NumberProperty('angle', 'angle', 'Node angle', ParameterCategory.CONTENT, 'The angle of the node.');
+		this.startAngleProperty = new NumberProperty('angle1', 'angle1', 'Start angle', ParameterCategory.CONTENT, 'The angle of the tensor at the start node.');
+		this.endAngleProperty = new NumberProperty('angle2', 'angle2', 'End angle', ParameterCategory.CONTENT, 'The angle of the tensor at the end node.');
 		this.torqueConstantProperty = new NumberProperty('torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT, 'How stiff the node is with respect to attempts angle differences.');
+		this.turnrateProperty = new NumberProperty('turnrate', 'turnrate', 'Turn rate', ParameterCategory.CONTENT, 'The speed at which the node turns.');
 		this.nodeFrictionProperty = new NumberProperty('velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT, 'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
+		this.turnFrictionProperty = new NumberProperty('turnLoss', 'turnLoss', 'Rotational friction', ParameterCategory.CONTENT, 'How much rotation speed bleeds of the node (0-1, where 1 is no bleed of).');
 		this.colorProperty = new StringProperty('color', 'color', 'Colour', ParameterCategory.CONTENT, 'The colour of the node.');
 		this.positionScriptProperty = new ScriptProperty('positionScript', 'positionScript', 'Position script', ParameterCategory.CONTENT, 'This script should return a new position object where this node will be moved to.');
 		this.showScriptProperty = new ScriptProperty('showScript', 'showScript', 'Show script', ParameterCategory.CONTENT, 'This script is run when the object should be drawn on the screen.');
@@ -71,26 +75,32 @@ class Labels {
 		});
 		let pullLabel = this.addLabel('pullspring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
-		});
+		}, [new PullCalculator()]);
 		let pushLabel = this.addLabel('pushspring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
-		});
+		}, [new PushCalculator()]);
 		let springLabel = this.addLabel('spring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
-		});
-		let fieldLabel = this.addLabel('field', [positionTensorLabel], {});
+		}, [new SpringCalculator()]);
+		let fieldLabel = this.addLabel('field', [positionTensorLabel], {}, [new FieldCalculator()]);
 		let absorbLabel = this.addLabel('absorber', [tensorLabel], {
 			'absorberProperty': 1,
 			'visibilityProperty': 1,
-		});
+		}, [new AbsorbCalculator()]);
 		let moveabelLabel = this.addLabel('moveable', [nodeLabel], {
 			'massProperty': 1,
 			'nodeFrictionProperty': 0.99,
 		});
-		let angleLabel = this.addLabel('angle', [nodeLabel], {
-			'angleProperty': 1,
+		let angleNodeLabel = this.addLabel('anglenode', [nodeLabel], {
+			'angleProperty': 0,
+			'turnrateProperty': 0,
+			'turnFrictionProperty': 0.99,
 			'torqueConstantProperty': 1,
-		});
+		}, [new AngleNode()]);
+		let angleTensorLabel = this.addLabel('angletensor', [tensorLabel], {
+			'startAngleProperty': 0,
+			'endAngleProperty': 0,
+		}, [new AngleTensor()]);
 		let debugtensorLabel = this.addLabel('debugtensor', [], {
 			'degree1Property': 1,
 			'degree2Property': 1,
@@ -107,10 +117,7 @@ class Labels {
 			'sizeProperty': 1,
 			'visibilityProperty': 1,
 		});
-		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], {
-			'angleProperty': 1,
-			'torqueConstantProperty': 1,
-		});
+		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], {});
 		let gravityLabel = this.addLabel('gravitywell', [nodeLabel], {
 			'constantProperty': 6.67e-11,
 			'massProperty': 5.97219e24,

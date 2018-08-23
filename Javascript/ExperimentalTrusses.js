@@ -13,7 +13,7 @@ class GovenorTruss extends TrussNode {
 	 * @param  {View} view
 	 * @param  {number} updatefrequency
 	 */
-	constructor( ...args) {
+	constructor(...args) {
 		super(...args);
 		this.blur = true;
 		// this.governedTruss = governedTruss;
@@ -36,9 +36,9 @@ class GovenorTruss extends TrussNode {
 	 * @param {Node} protagonist
 	 */
 	initiate() {
-		let governedNode=this.parentTrussNode.parentTrussNode;
+		let governedNode = this.parentTrussNode.parentTrussNode;
 		let parent = this.parentTrussNode;
-		let governedTruss=governedNode.truss;
+		let governedTruss = governedNode.truss;
 
 		protagonist = governedTruss.protagonist;
 		parent.selector = this.addNode(new Selector(parent));
@@ -50,11 +50,11 @@ class GovenorTruss extends TrussNode {
 		sensorNode.registerKey(68, new Vector(2, 0));
 		sensorNode.registerKey(32, new Vector(0, 1));
 
-		this.addTensor(new Spring(f1, b1, springconstant*10));
-		this.addTensor(new Spring(f2, b2, springconstant*10));
-		this.addTensor(new Spring(f3, b3, springconstant*10));
-		this.addTensor(new Spring(f4, b4, springconstant*10));
-		this.addTensor(new Spring(f5, b5, springconstant*10));
+		this.addTensor(new Spring(f1, b1, springconstant * 10));
+		this.addTensor(new Spring(f2, b2, springconstant * 10));
+		this.addTensor(new Spring(f3, b3, springconstant * 10));
+		this.addTensor(new Spring(f4, b4, springconstant * 10));
+		this.addTensor(new Spring(f5, b5, springconstant * 10));
 
 		// let fulcrum = this.addNode(new Node(this, new Position(2, 5), NaN, 'fulcrum', undefined, undefined, 1, 5000));
 
@@ -79,7 +79,7 @@ class GovenorTruss extends TrussNode {
 		let downEarth = this.addNode(new Node(parent, new Position(0, 6371e3), 5.97219e24, 'EarthForJump', undefined, undefined, 0));
 		let leftEarth = this.addNode(
 			new Node(parent, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
-		let rightEarth =this.addNode(
+		let rightEarth = this.addNode(
 			new Node(parent, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
 		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
 		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
@@ -114,7 +114,7 @@ class ScrollerTruss extends TrussNode {
 	 * @param  {View} view
 	 * @param  {number} updatefrequency
 	 */
-	constructor( ...args) {
+	constructor(...args) {
 		super(...args);
 		this.blur = true;
 		// this.governedTruss = governedTruss;
@@ -132,16 +132,16 @@ class ScrollerTruss extends TrussNode {
 		return representationObject;
 	}
 
-		// let bounceSensor2 = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor2');
-		// bounceSensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);
+	// let bounceSensor2 = new BounceSensorNode(new Position(6, 1), 0.01, 'BounceSensor2');
+	// bounceSensor2.registerTrussObjectAndActuator(this, protagonist2, lineBreakerActuator2);
 
 	/**
 	 * @param {Node} protagonist
 	 */
 	initiate() {
-		let governedNode=this.parentTrussNode.parentTrussNode;
+		let governedNode = this.parentTrussNode.parentTrussNode;
 		let parent = this.parentTrussNode;
-		let governedTruss=governedNode.truss;
+		let governedTruss = governedNode.truss;
 
 		protagonist = governedTruss.protagonist;
 		parent.selector = this.addNode(new Selector(parent));
@@ -152,7 +152,7 @@ class ScrollerTruss extends TrussNode {
 			0.2, 'ScrollNode', undefined, undefined, 0.9));
 
 		let tensor = this.addTensor(new DampenedSpring(positionNode, scrollNode, 200, 0.2));
-		tensor.equilibriumLength=0;
+		tensor.equilibriumLength = 0;
 	}
 }
 
@@ -166,7 +166,7 @@ class PerformanceTrussNode extends TrussNode {
 	 * @param  {View} view
 	 * @param  {number} updatefrequency
 	 */
-	constructor( ...args) {
+	constructor(...args) {
 		super(...args);
 		this.blur = true;
 	}
@@ -187,20 +187,183 @@ class PerformanceTrussNode extends TrussNode {
 	 * @param {Node} protagonist
 	 */
 	initiate() {
-		let governedNode=this.parentTrussNode.parentTrussNode;
+		let governedNode = this.parentTrussNode.parentTrussNode;
 		let parent = this.parentTrussNode;
 		let world = parent.world;
 
 		this.selector = new Selector(this.world, this, 'selector', {
 			'name': 'Selector ',
 		});
+		
+		let fulcrum = new Node(this.world, this, 'anglenode', {
+			'name': 'Fulcrum',
+			'localPosition': new Position(1, 9),
+			'angle': 0,
+			'torqueConstant': 10,
+		});
 
+		let top = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'Top',
+			'mass': 1,
+			'localPosition': new Position(3, 7),
+			'angle': 0,
+			'torqueConstant': 10,
+		});
+
+		let end = new Node(this.world, this, 'moveable', {
+			'name': 'End',
+			'mass': 1,
+			'localPosition': new Position(5, 9),
+			'torqueConstant': 10,
+		});
+
+		let earth = new Node(this.world, this, 'gravitywell', {});
+
+
+		new Tensor(fulcrum, top,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 5,
+				'angle1': -0.78,
+				'angle2': 2.35,
+			});
+
+		new Tensor(top, end,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 5,
+				'angle1': 0.78,
+				'angle2': -2.35,
+			});
+
+
+		let left = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'left',
+			'mass': 1,
+			'localPosition': new Position(3, 7),
+			'angle': 0,
+			'torqueConstant': 10,
+		});
+
+		let right = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'right',
+			'mass': 1,
+			'localPosition': new Position(7, 7),
+			'angle': 0,
+			'torqueConstant': 10,
+		});
+
+		let bottom = new Node(this.world, this, 'moveable', {
+			'name': 'bottom',
+			'mass': 1,
+			'localPosition': new Position(5, 9),
+		});
+
+
+			
+		new Tensor(end, right,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 5,
+				'angle1': 1,
+				'angle2': -2,
+			});
+			
+		new Tensor(right, bottom,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 5,
+				'angle1': 2,
+				'angle2': -1,
+			}); 
+
+
+		let a = new Node(this.world, this, 'moveable anglenode', {
+				'name': 'a',
+				'mass': 1,
+				'localPosition': new Position(10, 1),
+				'angle': 0,
+				'torqueConstant': 10,
+			});
+			
+		new Tensor(end, left,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 5,
+				'angle1': 2,
+				'angle2': -1,
+			});
+			
+		new Tensor(left, bottom,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 5,
+				'angle1': 1,
+				'angle2': -2,
+			});
+
+		let b = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'b',
+			'mass': 1,
+			'localPosition': new Position(10, 7),
+			'angle': 0,
+			'torqueConstant': 10,
+		});
+
+		let c = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'c',
+			'mass': 1,
+			'localPosition': new Position(6, 4),
+			'angle': 0,
+			'torqueConstant': 10,
+		}); 
+
+		
+		new Tensor(a, b,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 6,
+				'angle1': 0,
+				'angle2': 0,
+			});
+			
+		new Tensor(b, c,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'equilibriumLength': 6,
+				'angle1': 0,
+				'angle2': 0,
+			});
+		new Tensor(c, a,
+				'spring angletensor',
+				{
+					'constant': 100,
+					'equilibriumLength': 6,
+					'angle1': 0,
+					'angle2': 0,
+				});
+		/*		
+		new Tensor(end, earth, 
+				'gravity field', 
+				{
+					'constant': 6.67e-11,
+				}); 
+		/*
+		let x;
 		for (let row=1; row < 2; row++) {
 			for (let column=1; column < 2; column++) {
-				let x = new Node(this.world, this, 'turngridnode node scriptposition', {
+				x = new Node(this.world, this, 'turngridnode node scriptposition', {
 					'name': 'Node '+column+' '+row,
 					'localPosition': new Position(column*3, row*3),
-					'positionScript': "(time) => {return new Position(5, Math.sin(time)+1);}",
+					'positionScript': "(time) => {return new Position(5, Math.sin(time*5)+10);}",
 				});
 
 
@@ -209,41 +372,34 @@ class PerformanceTrussNode extends TrussNode {
 			}
 		}
 
-		new Node(this.world, this, 'turngridnode node scriptshow', {
+		let y = new Node(this.world, this, 'turngridnode node scriptshow moveable', {
 			'name': 'showNode',
-			'localPosition': new Position(2, 4),
+			'mass': 1,
+			'localPosition': new Position(4, 4),
 			'showScript': `(truss, time, graphicDebugLevel = 0) => {
 				let view=truss.view;
-	this.highLight(view.context);
-	if (view.inside(this.getPosition())) {
-		view.context.lineWidth = 5;
-		view.context.beginPath();
-		view.drawCircle(this.getPosition(), 1);
-		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
-			Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
-		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
-			Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
-		view.context.stroke();
-	}
-	return 1; // blocks all other drawing of this node.
+				view.context.strokeStyle = 'red';
+				this.highLight(view.context);
+				if (view.inside(this.getPosition())) {
+					view.context.lineWidth = 2;
+					view.context.beginPath();
+					view.drawCircle(this.getPosition(), .5);
+					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+						Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
+					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+						Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+					view.context.stroke();
+				}
+				return 1; // blocks all other drawing of this node.
 			}`,
 		});
+
+		new Tensor(x, y, 
+			'absorber', 
+			{
+				'dampeningConstant': 100,
+			});*/
 	}
-}
-var a = function(truss, time, graphicDebugLevel = 0) {
-	let view=truss.view;
-	this.highLight(view.context);
-	if (view.inside(this.getPosition())) {
-		view.context.lineWidth = 5;
-		view.context.beginPath();
-		view.drawCircle(this.getPosition(), 1);
-		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
-			Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
-		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
-			Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
-		view.context.stroke();
-	}
-	return 1; // blocks all other drawing of this node.
 }
 
 /**
@@ -297,4 +453,5 @@ class ProtagonistNode extends Node {
 			cxt.stroke();
 		}
 	}
+
 }

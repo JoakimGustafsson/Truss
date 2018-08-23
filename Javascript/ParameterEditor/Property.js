@@ -566,7 +566,10 @@ class PositionProperty extends Property {
 		let _this = this;
 
 		xinputField.addEventListener('input', () => {
-			this.assignValue(parseInt(xinputField.value), 'x');
+			this.assignValue(
+				new Position(parseInt(xinputField.value),
+							parseInt(yinputField.value),
+			), owner);
 		});
 
 		/* function(e) {
@@ -574,8 +577,12 @@ class PositionProperty extends Property {
 		}, false); */
 
 		yinputField.addEventListener('input', () => {
-			this.assignValue(parseInt(yinputField.value), 'y');
+			this.assignValue(
+				new Position(parseInt(xinputField.value),
+							parseInt(yinputField.value),
+			), owner);
 		});
+		
 		/* function(e) {
 			universe.selectedObject[_this.propertyName].y = parseInt(yinputField.value);
 		}, false); */
