@@ -149,10 +149,12 @@ class Node extends StoreableObject {
 	/**
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {Array} args
+	 * @return {number}
 	 */
-	sense(deltaTime, truss) {}
+	sense(...args) {
+		return super.sense(...args);
+	}
 
 	/**
 	* Using a space separated list, list the labels that should be added

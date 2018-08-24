@@ -134,7 +134,7 @@ class Labels {
 			'snapGridProperty': 0,
 		});
 		let sensorLabel = this.addLabel('sensor', [nodeLabel], {});
-		let selectorLabel = this.addLabel('selector', [sensorLabel, moveabelLabel], {});
+		let selectorLabel = this.addLabel('selector', [sensorLabel, moveabelLabel], {}, [new SelectorBehaviour()]);
 		let keySensorLabel = this.addLabel('keysensor', [sensorLabel, moveabelLabel], {
 			'keyProperty': [],
 			'restPositionProperty': new Position(1, 1),

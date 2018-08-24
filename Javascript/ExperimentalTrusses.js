@@ -191,9 +191,7 @@ class PerformanceTrussNode extends TrussNode {
 		let parent = this.parentTrussNode;
 		let world = parent.world;
 
-		this.selector = new Selector(this.world, this, 'selector', {
-			'name': 'Selector ',
-		});
+		this.selector = new Node(this.world, this, 'selector', {'name': 'Selector '});
 		
 		let fulcrum = new Node(this.world, this, 'anglenode', {
 			'name': 'Fulcrum',
@@ -202,7 +200,7 @@ class PerformanceTrussNode extends TrussNode {
 			'torqueConstant': 10,
 		});
 
-		let top = new Node(this.world, this, 'moveable anglenode', {
+		let pinnacle = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'Top',
 			'mass': 1,
 			'localPosition': new Position(3, 7),
@@ -210,17 +208,18 @@ class PerformanceTrussNode extends TrussNode {
 			'torqueConstant': 10,
 		});
 
-		let end = new Node(this.world, this, 'moveable', {
-			'name': 'End',
+		let earth = new Node(this.world, this, 'gravitywell', {});
+
+		let top = new Node(this.world, this, 'moveable', {
+			'name': 'top',
 			'mass': 1,
 			'localPosition': new Position(5, 9),
 			'torqueConstant': 10,
 		});
 
-		let earth = new Node(this.world, this, 'gravitywell', {});
 
 
-		new Tensor(fulcrum, top,
+		new Tensor(fulcrum, pinnacle,
 			'spring angletensor',
 			{
 				'constant': 100,
@@ -229,7 +228,7 @@ class PerformanceTrussNode extends TrussNode {
 				'angle2': 2.35,
 			});
 
-		new Tensor(top, end,
+		new Tensor(pinnacle, top,
 			'spring angletensor',
 			{
 				'constant': 100,
@@ -261,9 +260,7 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(5, 9),
 		});
 
-
-			
-		new Tensor(end, right,
+		new Tensor(top, right,
 			'spring angletensor',
 			{
 				'constant': 100,
@@ -290,7 +287,7 @@ class PerformanceTrussNode extends TrussNode {
 				'torqueConstant': 10,
 			});
 			
-		new Tensor(end, left,
+		new Tensor(top, left,
 			'spring angletensor',
 			{
 				'constant': 100,

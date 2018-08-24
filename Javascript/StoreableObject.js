@@ -14,6 +14,7 @@ class StoreableObject {
 		this.valueObject=valueObject;
 		this.world=world;
 		this.isNode = this instanceof Node;
+		this.senseList=[];
 		this.updatePositionList=[];
 		this.showList=[];
 		this.torqueList=[];
@@ -140,6 +141,9 @@ class StoreableObject {
 	 */
 	registerOverride(type, newFunction) {
 		switch(type) {
+			case BehaviourOverride.SENSE:
+				this.senseList.push(newFunction);
+				break;
 			case BehaviourOverride.UPDATEPOSITION:
 				this.updatePositionList.push(newFunction);
 				break;
@@ -168,6 +172,9 @@ class StoreableObject {
 	 */
 	unregisterOverride(type, newFunction) {
 		switch(type) {
+			case BehaviourOverride.SENSE:
+				removeIfPresent(newFunction, this.senseList);
+				break;
 			case BehaviourOverride.UPDATEPOSITION:
 				removeIfPresent(newFunction, this.updatePositionList);
 				break;
@@ -268,6 +275,21 @@ class StoreableObject {
 	 */
 	rotate(...args) {
 		for (let f of this.rotateList) {
+			let result = f.call(this, ...args);
+			if (result) {
+				return result;
+			}
+		}
+		return 0;
+	}
+	/**
+	 * sense something
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
+	sense(...args) {
+		for (let f of this.senseList) {
 			let result = f.call(this, ...args);
 			if (result) {
 				return result;

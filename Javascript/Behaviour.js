@@ -531,14 +531,141 @@ class AngleTensor extends Behaviour {
 
 		this.torqueForce1 = Vector.subtractVectors(torqueForce1, torqueForce2);
 		this.torqueForce2 = Vector.subtractVectors(torqueForce2, torqueForce1);
-
-		// Force that the torque in node 1 applies to node 2
-		// this.torqueForce1 = supportCalc(this, this.node1, this.torque1, perp)
-		// Force that the torque in node 2 applies to node 1
-		// this.torqueForce2 = supportCalc(this, this.node2, this.torque2, perp)
 	};
 
 }
 
 
 
+/**
+ * @class
+ * @extends Behaviour
+ */
+class SelectorBehaviour extends Behaviour {
+	/**
+	 * This class detects when an object bounces of a tensor or leaves it at the end.
+	 * @param {World} world
+	 * @param {TrussNode} trussNode
+	 * @param {string} initialLabels
+	 * @param  {object} valueObject
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.lastPointedOn;
+		storeableObject.wasPressed=false;
+		storeableObject.cursorPosition = new Position(0, 0);
+
+		storeableObject.registerOverride(BehaviourOverride.SENSE, SelectorBehaviour.prototype.sense);
+		storeableObject.registerOverride(BehaviourOverride.UPDATEPOSITION, SelectorBehaviour.prototype.updatePosition);
+		storeableObject.registerOverride(BehaviourOverride.SHOW, SelectorBehaviour.prototype.show);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.SENSE, SelectorBehaviour.prototype.sense);
+		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, SelectorBehaviour.prototype.updatePosition);
+		storeableObject.unregisterOverride(BehaviourOverride.SHOW, SelectorBehaviour.prototype.show);
+	}
+
+
+	/**
+	 * If the position of the controlled object bounces or leaves on the right or
+	 * left side, disconnect it and restore the tensor to its original.
+	 * @param {number} deltaTime
+	 * @param {Trussnode} trussNode
+	 */
+	sense(deltaTime, trussNode) {
+		if (trussNode!=universe.currentNode) {
+			return;
+		}
+		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
+		let closest = trussNode.getClosestObject(this.cursorPosition, 20*trussNode.view.getDistanceMultiplier(), this);
+
+		if (!mouseSet && !universe.newNode) {
+			if (!closest) {
+				if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
+					this.lastPointedOn.setHighlight(0);
+				}
+				this.lastPointedOn = undefined;
+			} else { // There is a closest object
+				if (closest != universe.selectedObject && this.lastPointedOn != closest) {
+					if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
+						this.lastPointedOn.setHighlight(0);
+					}
+					closest.setHighlight(1);
+					this.lastPointedOn = closest;
+				}
+			}
+		} else if (!this.wasPressed && mouseSet) { // Mouse was just pressed
+			universe.newNode= undefined;
+			if (universe.selectedObject!=closest) {
+				if (universe.selectedObject) {
+					universe.selectedObject.setHighlight(0);
+				}
+				// if (closest) {
+				//	closest.setHighlight(2);
+				// }
+				let previousSelectedObject=universe.selectedObject;
+				universe.selectedObject = closest;
+				let event = new CustomEvent('selectionEvent', {
+					detail: {
+						'selectedObject': universe.selectedObject,
+						'previousSelectedObject': previousSelectedObject,
+						'trussNode': trussNode,
+					},
+					bubbles: true,
+					cancelable: true,
+				});
+				this.parentTrussNode.element.dispatchEvent(event);
+			}
+		} else if (mouseSet || universe.newNode) { // Mouse is continually pressed
+			if (universe.selectedObject && universe.selectedObject.isNode) {
+				universe.selectedObject.resetVelocity();
+				universe.selectedObject.copyPosition(this.cursorPosition);
+			}
+		}
+
+		this.wasPressed=mouseSet;
+	}
+
+	/**
+	 * Update the position based on velocity, then let
+	 * the this.positionFunction (if present) tell where it should actually be
+	 * @param  {number} trussTime
+	 * @param  {number} timeFactor
+	 */
+	updatePosition(trussTime, timeFactor) {
+		this.setPosition(this.cursorPosition);
+		this.velocity=new Vector(0, 0);
+	}
+
+	/**
+	 * Draw the circle representing the node
+	 * @param {Trussnode} truss
+	 * @param {number} time
+	 * @param {number} graphicDebugLevel
+	 */
+	show(truss, time, graphicDebugLevel = 0) {
+		let view=truss.view;
+		this.highLight(view.context);
+		if (view.inside(this.getPosition())) {
+			view.context.strokeStyle = 'Yellow';
+			view.context.lineWidth = 1;
+			view.context.beginPath();
+			view.drawCircle(this.getPosition(), 0.1);
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
+				Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
+				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+			view.context.stroke();
+		}
+	} 
+}
