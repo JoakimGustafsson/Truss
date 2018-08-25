@@ -28,6 +28,16 @@ class View {
 			this.setupAlertVectors(this.element, worldViewSize);
 			this.resize();
 		}
+		
+		Object.defineProperty(this, 'worldViewSize', {
+			get: function() {
+				return this._worldViewSize;
+			},
+			set: function(value) {
+				this._worldViewSize.x = value.x;
+				this._worldViewSize.y = value.y;
+			},
+		});
 	}
 	/**
 	 * @param  {Element} element
@@ -41,16 +51,24 @@ class View {
 			x = element.offsetWidth;
 			y = element.offsetHeight;
 		}
-		this.screenSize = new AlertVector(new Vector(x, y), function(v) {
-			element.offsetWidth = v.x;
-			element.offsetHeight = v.y;
-			_this.recalculate();
-		});
+		this.createAlertScreenSize(x, y, element, _this);
 		if (worldViewSize) {
 			x = worldViewSize.x;
 			y = worldViewSize.y;
 		}
-		this.worldViewSize = new AlertVector(new Vector(x, y), function(x) {
+		this.createAlertWorldSize(x, y, _this);
+	}
+
+	createAlertWorldSize(x, y, _this) {
+		this._worldViewSize = new AlertVector(new Vector(x, y), function (x) {
+			_this.recalculate();
+		});
+	}
+
+	createAlertScreenSize(x, y, element, _this) {
+		this.screenSize = new AlertVector(new Vector(x, y), function (v) {
+			element.offsetWidth = v.x;
+			element.offsetHeight = v.y;
 			_this.recalculate();
 		});
 	}
@@ -66,32 +84,6 @@ class View {
 	resize() {
 		this.screenSize.v = new Vector(this.element.offsetWidth, this.element.offsetHeight);
 		this.recalculate();
-	}
-
-	/**
-	 * @param  {Array} tensorList
-	 * @return {Object}
-	 */
-	serialize(tensorList) {
-		return {
-			'screenSize': this.screenSize.serialize(),
-			'worldViewSize': this.worldViewSize.serialize(),
-			'offset': this.offset.serialize(),
-		};
-	}
-
-	/**
-	 * @param {Object} restoreObject
-	 * @return {View}
-	 */
-	deserialize(restoreObject) {
-		let screenSize = new Vector().deserialize(restoreObject.screenSize);
-		this.element.style.width = screenSize.x + 'px';
-		this.element.style.height = screenSize.y + 'px';
-		this.setupAlertVectors(this.element, new Vector().deserialize(restoreObject.worldViewSize));
-		this.offset = new Vector().deserialize(restoreObject.offset);
-		this.recalculate();
-		return this;
 	}
 
 	/**

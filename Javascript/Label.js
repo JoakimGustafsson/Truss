@@ -39,7 +39,7 @@ class Labels {
 		this.degree2Property = new NumberProperty('degree2', 'degree2', 'Angle 2', ParameterCategory.CONTENT, 'The angle the node connects to the end node.');
 		this.screenSizeProperty = new PositionProperty('screenSize', 'screenSize', 'Screen size', ParameterCategory.CONTENT, 'The size of the displayed screen in pixels.');
 		this.worldSizeProperty = new PositionProperty('worldSize', 'worldSize', 'World display size', ParameterCategory.CONTENT, 'The size of the displayed worldview in that worlds measurement.');
-		this.setWorldOffsetProperty = new PositionProperty('setWorldOffset', 'setWorldOffset', 'View position', ParameterCategory.CONTENT, 'The world coordinates of the upper left corner.');
+		this.setWorldOffsetProperty = new PositionProperty('worldOffset', 'worldOffset', 'View position', ParameterCategory.CONTENT, 'The world coordinates of the upper left corner.');
 		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per Second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 		this.visibilityProperty = new SwitchProperty('visible', 'visible', 'Visible', ParameterCategory.CONTENT, 'Should this be visible on the screen.');

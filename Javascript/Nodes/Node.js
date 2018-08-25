@@ -479,10 +479,12 @@ class Node extends StoreableObject {
 			}
 
 			if (graphicDebugLevel >= 6) {
-				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
-				cxt.stroke();
+				if (this.angle!=undefined) {
+					cxt.beginPath();
+					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
+						new Vector(0.2 * Math.cos(this.angle), 0.2 * Math.sin(this.angle))));
+					cxt.stroke();
+				} 
 
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();

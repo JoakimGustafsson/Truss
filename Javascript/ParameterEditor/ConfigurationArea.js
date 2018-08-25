@@ -326,13 +326,7 @@ function createConfigurationArea(id) {
 
 
 		createOption(nodeSelect, 'Node');
-		createOption(nodeSelect, '--Sensors--');
-		createOption(nodeSelect, 'KeySensorNode');
-		createOption(nodeSelect, 'ProximitySensorNode');
-		createOption(nodeSelect, '--Actuators--');
-		createOption(nodeSelect, 'JumpNodeActuator', 'jumpNode');
-		createOption(nodeSelect, 'LeftRightActuator');
-		createOption(nodeSelect, 'LinebreakerActuator');
+		createOption(nodeSelect, 'Truss node');
 	}
 
 	/**

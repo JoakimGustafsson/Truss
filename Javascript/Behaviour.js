@@ -5,6 +5,7 @@ let BehaviourOverride = {
 	CALCULATE: 3,
 	POSTCALCULATE: 4,
 	TORQUE: 5,
+	SENSE: 6,
 };
 
 /**

@@ -58,6 +58,7 @@ class World {
 		this.trussNode = trussNode;
 		this.governors = governors;
 		this.labels = new Labels();
+		this.debugLevel = 5;
 	}
 
 	/**

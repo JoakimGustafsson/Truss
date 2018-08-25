@@ -19,15 +19,17 @@ class TrussNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(world, parentTrussNode, initialLabels, valueObject,
-		startPosition = new Vector(0, 0), viewSize = new Vector(0, 0), timestep = 0.016,
-		mass = 1, name = 'trussNode', ...args) {
-		super(world, parentTrussNode, initialLabels, valueObject, startPosition, mass, name, ...args);
+	constructor(world, parentTrussNode, initialLabels, valueObject) {
+		super(world, parentTrussNode, initialLabels, valueObject);
 
 		this.world=world;
-		this.sensorNodes=[];
 		this.element = document.createElement('div');
-		this.view= new View(viewSize, this);
+		this.view= new View(this.worldSize, this);
+		
+		if (this.worldOffset) {
+			this.view.offset = this.worldOffset;
+		}
+
 		this.canvas = document.createElement('canvas');
 
 
@@ -98,11 +100,12 @@ class TrussNode extends Node {
 				return this.view.screenSize;
 			},
 			set: function(value) {
+				
 				this.view.screenSize = value;
 			},
 		}
 		);
-		Object.defineProperty(this, 'setWorldOffset', {
+		Object.defineProperty(this, 'worldOffset', {
 			get: function() {
 				return this.view.offset;
 			},
@@ -247,12 +250,12 @@ class TrussNode extends Node {
 	 * @param  {Truss} truss
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
-	 */
+	 *
 	show(truss, time, graphicDebugLevel = 0) {
 		this.highLight(this.view.context);
 		this.canvas.style.left = this.view.x(this.localPosition) + 'px';
 		this.canvas.style.top = this.view.y(this.localPosition) + 'px';
-	};
+	}; */
 
 	/**
 	 */
@@ -332,22 +335,6 @@ class TrussNode extends Node {
 			node.updatePosition(trussTime, deltaTime);
 		}
 	};
-
-	/**
-	 * Add a node to the list of nodes that should be checked if the collide with a tensor
-	 * @param  {Node} sensorNode
-	 *
-	addSensor(sensorNode) {
-		this.sensorNodes.push(sensorNode);
-	};
-
-	/**
-	 * Remove a node to the list of nodes that should be checked if the collide with a tensor
-	 * @param  {Node} sensorNode
-	 *
-	removeSensor(sensorNode) {
-		removeIfPresent(sensorNode, this.sensorNodes);
-	}; */
 
 	/**
 	 * Go through all sensors added by addSensor() and trigger the sense() function
@@ -452,7 +439,7 @@ class TrussNode extends Node {
 		}
 
 		this.clear();
-		this.showTruss(timestamp, 5);
+		this.showTruss(timestamp, universe.currentWorld.debugLevel);
 
 		/* 	if (timestamp > this.lastFpsUpdate + 1) { // update every second
 			this.fps = 0.25 * this.framesThisSecond + (1 - 0.25) * this.fps; // compute the new FPS

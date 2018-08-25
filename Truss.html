@@ -82,9 +82,20 @@
 				// let latestNode = new TrussNode(twoWorld, "Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				// latestNode.truss.initiate();
 
-				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
-					'name': 'MainNode',
-				},  new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode");
+				let latestNode = new PerformanceTrussNode(latestWorld, 
+							undefined, 
+							'truss', {
+								'localPosition': new Position(0,0),
+								'name': 'MainNode',
+								'screenSize': new Position(600,600),
+								'worldSize': new Position(30,35),
+								'fpsTarget': 60,
+								'fps': 60,
+								'gridSize': 0,
+							}
+						);
+
+
 				latestNode.initiate();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
@@ -242,7 +253,21 @@
 					let newNode=new Node(universe.currentWorld, universe.currentNode, 'node added', {
 							'localPosition': new Position(1,1),
 						});
-					// universe.currentNode.addNode(newNode);
+					universe.select(newNode);
+					universe.newNode=newNode;
+				}
+				if (value == 'Truss node') {
+					let newNode=new TrussNode(universe.currentWorld, 
+							universe.currentNode, 
+							'truss', {
+								'localPosition': new Position(1,1),
+								'screenSize': new Position(200,200),
+								'worldSize': new Position(20,30),
+								'fpsTarget': 60,
+								'fps': 60,
+								'gridSize': 0,
+							}
+						);
 					universe.select(newNode);
 					universe.newNode=newNode;
 				}
@@ -318,7 +343,7 @@
 			}
 
 			function changeDebugLevel() {
-				universe.currentNode.debugLevel = universe.currentNode.getElement("#debugLevel").value;
+				universe.currentWorld.debugLevel = universe.currentNode.getElement("#debugLevel").value;
 			}
 
 			function addGravityCheat() {
