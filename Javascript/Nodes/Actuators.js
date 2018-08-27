@@ -1,3 +1,5 @@
+/* global Vector, Position, Velocity, boxClose */
+
 /**
  * An ActuatorNode represents a node that is used to influence the behaviour of another node.
  * The position of this node applies a force or sets a velocity of the obj node.
@@ -46,14 +48,6 @@ class ActuatorNode extends Node {
 		super.deserialize(restoreObject, nodeList, tensorList);
 		this.iO = nodeList[restoreObject.iO];
 		return this;
-	}
-
-	/** Probably not used. Remove
-	 * @param  {Array} nodeList
-	 * @param  {Array} tensorList
-	 */
-	XdeserializeFixLinks(nodeList, tensorList) {
-		this.iO = nodeList[representationObject.iO];
 	}
 }
 
@@ -138,7 +132,7 @@ class BinaryActuatorNode extends ActuatorNode {
 		} else {
 			return 0;
 		}
-	};
+	}
 
 	/**
 	 * Not sure why this is used. What separates this from the Node calculation
@@ -152,7 +146,7 @@ class BinaryActuatorNode extends ActuatorNode {
 		let acceleration = Vector.multiplyVector(Vector.dotProduct(this.vector, tempAcceleration),
 			Vector.divideVector(this.vector, Vector.length2(this.vector)));
 		return acceleration;
-	};
+	}
 
 	/**
 	 * This calculates the position like a normal Node, but then ensures that it lies on the line
@@ -170,7 +164,7 @@ class BinaryActuatorNode extends ActuatorNode {
 			this.setPosition(new Position(this.position2.x, this.position2.y));
 			this.velocity = new Velocity(0, 0);
 		}
-	};
+	}
 }
 
 
@@ -415,7 +409,7 @@ class LineBreakerNode extends ActuatorNode {
 					segments++;
 				});
 
-			let multiplicator = brokenLink.equilibriumLength / newLength;
+			// let multiplicator = brokenLink.equilibriumLength / newLength;
 			let segmentstretch = (newLength-brokenLink.equilibriumLength)/segments;
 
 			// console.log('enter loopOverChain');
@@ -512,10 +506,6 @@ class LineBreakerNode extends ActuatorNode {
 	 */
 	handleFirstBreak(tensor, startNewLink, endNewLink) {
 		tensor.ghostify();
-		let t = this;
-		// tensor.callback = function(c) {
-		//	t.recalcEquilibriumLengths(c);
-		// };
 		tensor.breakStartTensor = startNewLink;
 		tensor.breakEndTensor = endNewLink;
 	}
@@ -588,7 +578,7 @@ class LineBreakerNode extends ActuatorNode {
 	 */
 	clearCollisionmappingForThisNode(connectionNode) {
 		for (let tensor of connectionNode.positionBasedTensors) {
-			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
+			if (!tensor.isGhost()) {
 				tensor.collideDistanceMapping[this.iO.name] = 0;
 			}
 		}

@@ -1,0 +1,19 @@
+{
+  "name": "truss",
+  "version": "1.0.0",
+  "description": "Javascript physics engine for 2D networks.",
+  "main": "Node.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JoakimGustafsson/Truss.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JoakimGustafsson/Truss/issues"
+  },
+  "homepage": "https://github.com/JoakimGustafsson/Truss#readme"
+}

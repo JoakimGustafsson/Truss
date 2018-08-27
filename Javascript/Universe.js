@@ -45,170 +45,7 @@ class Stack {
 	}
 }
 
-/**
- * @class
- */
-class World {
-	/**
-	 * This class is used to represent a truss(node) world and the supporting governor truss(node)s
-	 * @param {TrussNode} trussNode
-	 * @param {List} governors
-	 */
-	constructor(trussNode, governors =[]) {
-		this.trussNode = trussNode;
-		this.governors = governors;
-		this.labels = new Labels();
-		this.debugLevel = 5;
-	}
-
-	/**
-	 * @param {number} timestamp
-	 */
-	tick(timestamp) {
-		this.trussNode.tick(timestamp);
-		if (this.governors) {
-			for (let governor of this.governors) {
-				governor.tick(timestamp);
-			}
-		}
-	}
-
-	/**
-	 * Clean up everything and make sure no event-listeners or similar are left dnagling
-	 */
-	close() {
-		this.trussNode.close();
-		if (this.governors) {
-			for (let governor of this.governors) {
-				governor.close();
-			}
-		}
-	}
-
-	/**
-	 * @param {Function} f
-	 */
-	mapAll(f) {
-		f(this.trussNode);
-		if (this.governors) {
-			for (let governor of this.governors) {
-				f(governor);
-			}
-		}
-	}
-
-	/**
-	 * @return {Object} serialized Json object
-	 */
-	serialize() {
-		let representationObject = {
-			'classname': 'World',
-		};
-
-		let {nodes, tensors} = this.listAllNodesAndTensors();
-		// nodes = [this.trussNode, ...this.governors, ...nodes];
-
-		this.serializeAllNodes(nodes, tensors, representationObject);
-
-		this.serializeAllTensors(tensors, nodes, representationObject);
-
-		representationObject.trussNode = nodes.indexOf(this.trussNode);
-
-		representationObject.governors = [];
-		if (this.governors) {
-			for (let governor of this.governors) {
-				representationObject.governors = [...representationObject.governors, nodes.indexOf(governor)];
-			}
-		}
-
-		return representationObject;
-	}
-
-	/**
-	 * @param  {List} tensors
-	 * @param  {List} nodes
-	 * @param  {Object} representationObject
-	 */
-	serializeAllTensors(tensors, nodes, representationObject) {
-		let tensorList = [];
-		for (let tensor of tensors) {
-			tensorList.push(tensor.serialize(nodes, tensors));
-		}
-		representationObject.tensors = tensorList;
-	}
-
-	/**
-	 * @param  {List} nodes
-	 * @param  {List} tensors
-	 * @param  {Object} representationObject
-	 */
-	serializeAllNodes(nodes, tensors, representationObject) {
-		let nodeList = [];
-		for (let node of nodes) {
-			let nodeSerilization = node.serialize(nodes, tensors);
-			if (nodeSerilization) {
-				nodeList.push(nodeSerilization);
-			}
-		}
-		representationObject.nodes = nodeList;
-	}
-
-	/**
-	 * @return {Object}
-	 */
-	listAllNodesAndTensors() {
-		let nodes = this.labels.findLabel('node').getNodes();
-		let tensors = this.labels.findLabel('tensor').getTensors();
-		return {nodes, tensors};
-	}
-
-
-	/**
-	 * @param  {Object} restoreObject
-	 * @return {Object}
-	 */
-	deserialize(restoreObject) {
-		this.labels = new Labels();
-		let nodeList=[];
-		for (let nodeRestoreObject of restoreObject.nodes) {
-			let node = objectFactory(this, nodeRestoreObject);
-			nodeList.push(node);
-		}
-
-		let tensorList=[];
-		for (let tensorRestoreObject of restoreObject.tensors) {
-			let tensor = objectFactory(this, tensorRestoreObject);
-			tensorList.push(tensor);
-		}
-
-
-		// deserialize them
-		let index=0;
-		for (let node of nodeList) {
-			node.deserialize(restoreObject.nodes[index], nodeList, tensorList);
-			index++;
-		}
-
-		index=0;
-		for (let tensor of tensorList) {
-			tensor.deserialize(restoreObject.tensors[index], nodeList, tensorList);
-			index++;
-		}
-
-		this.trussNode = nodeList[restoreObject.trussNode];
-
-		this.governors=[];
-		if (restoreObject.governors) {
-			for (let governor of restoreObject.governors) {
-				this.governors = [...this.governors, nodeList[governor]];
-			}
-		}
-
-		return this;
-	}
-}
-
-
+/* exported Universe */
 /**
  * @class
  */
@@ -386,5 +223,169 @@ class Universe {
 		this.currentNode.canvas.onmouseup = upMouse;
 		newNodeToShow.resize();
 		this.setupTicks = 3;
+	}
+}
+
+/* exported World */
+/**
+ * @class
+ */
+class World {
+	/**
+	 * This class is used to represent a truss(node) world and the supporting governor truss(node)s
+	 * @param {TrussNode} trussNode
+	 * @param {List} governors
+	 */
+	constructor(trussNode, governors =[]) {
+		this.trussNode = trussNode;
+		this.governors = governors;
+		this.labels = new Labels();
+		this.debugLevel = 5;
+	}
+
+	/**
+	 * @param {number} timestamp
+	 */
+	tick(timestamp) {
+		this.trussNode.tick(timestamp);
+		if (this.governors) {
+			for (let governor of this.governors) {
+				governor.tick(timestamp);
+			}
+		}
+	}
+
+	/**
+	 * Clean up everything and make sure no event-listeners or similar are left dnagling
+	 */
+	close() {
+		this.trussNode.close();
+		if (this.governors) {
+			for (let governor of this.governors) {
+				governor.close();
+			}
+		}
+	}
+
+	/**
+	 * @param {Function} f
+	 */
+	mapAll(f) {
+		f(this.trussNode);
+		if (this.governors) {
+			for (let governor of this.governors) {
+				f(governor);
+			}
+		}
+	}
+
+	/**
+	 * @return {Object} serialized Json object
+	 */
+	serialize() {
+		let representationObject = {
+			'classname': 'World',
+		};
+
+		let {nodes, tensors} = this.listAllNodesAndTensors();
+		// nodes = [this.trussNode, ...this.governors, ...nodes];
+
+		this.serializeAllNodes(nodes, tensors, representationObject);
+
+		this.serializeAllTensors(tensors, nodes, representationObject);
+
+		representationObject.trussNode = nodes.indexOf(this.trussNode);
+
+		representationObject.governors = [];
+		if (this.governors) {
+			for (let governor of this.governors) {
+				representationObject.governors = [...representationObject.governors, nodes.indexOf(governor)];
+			}
+		}
+
+		return representationObject;
+	}
+
+	/**
+	 * @param  {List} tensors
+	 * @param  {List} nodes
+	 * @param  {Object} representationObject
+	 */
+	serializeAllTensors(tensors, nodes, representationObject) {
+		let tensorList = [];
+		for (let tensor of tensors) {
+			tensorList.push(tensor.serialize(nodes, tensors));
+		}
+		representationObject.tensors = tensorList;
+	}
+
+	/**
+	 * @param  {List} nodes
+	 * @param  {List} tensors
+	 * @param  {Object} representationObject
+	 */
+	serializeAllNodes(nodes, tensors, representationObject) {
+		let nodeList = [];
+		for (let node of nodes) {
+			let nodeSerilization = node.serialize(nodes, tensors);
+			if (nodeSerilization) {
+				nodeList.push(nodeSerilization);
+			}
+		}
+		representationObject.nodes = nodeList;
+	}
+
+	/**
+	 * @return {Object}
+	 */
+	listAllNodesAndTensors() {
+		let nodes = this.labels.findLabel('node').getNodes();
+		let tensors = this.labels.findLabel('tensor').getTensors();
+		return {nodes, tensors};
+	}
+
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @return {Object}
+	 */
+	deserialize(restoreObject) {
+		this.labels = new Labels();
+		let nodeList=[];
+		for (let nodeRestoreObject of restoreObject.nodes) {
+			let node = objectFactory(this, nodeRestoreObject);
+			nodeList.push(node);
+		}
+
+		let tensorList=[];
+		for (let tensorRestoreObject of restoreObject.tensors) {
+			let tensor = objectFactory(this, tensorRestoreObject);
+			tensorList.push(tensor);
+		}
+
+
+		// deserialize them
+		let index=0;
+		for (let node of nodeList) {
+			node.deserialize(restoreObject.nodes[index], nodeList, tensorList);
+			index++;
+		}
+
+		index=0;
+		for (let tensor of tensorList) {
+			tensor.deserialize(restoreObject.tensors[index], nodeList, tensorList);
+			index++;
+		}
+
+		this.trussNode = nodeList[restoreObject.trussNode];
+
+		this.governors=[];
+		if (restoreObject.governors) {
+			for (let governor of restoreObject.governors) {
+				this.governors = [...this.governors, nodeList[governor]];
+			}
+		}
+
+		return this;
 	}
 }

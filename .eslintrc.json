@@ -1,0 +1,62 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 2018
+    },
+    "rules": {
+        "no-console": "off",
+        "no-unused-vars": ["error", { "vars": "local", "args": "after-used", "ignoreRestSiblings": false }],
+        "indent": [
+            "error",
+            "tab"
+        ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ]
+    },
+    "globals": {
+        "Vector": false,
+        "Position": false,
+        "Force": false,
+        "getT": false,
+        "getS": false,
+        "removeIfPresent": false,
+        "universe": false,
+        "Labels": false,
+        "NumberProperty": false,
+        "ParameterCategory": false,
+        "StringProperty": false,
+        "PositionProperty": false,
+        "ScriptProperty": false,
+        "LabelProperty": false,
+        "SwitchProperty": false,
+        "TensorListProperty": false,
+        "PropertyListProperty": false,
+        "World": false,
+        "Universe": false,
+        "Stack": false,
+        "mouseSet": false,
+        "upMouse": false,
+        "downMouse": false,
+        "myX": false,
+        "myY": false,
+        "objectFactory": false,
+        "anglify": false,
+        "PullSpring": false,
+        "PushSpring": false,
+        "NodeProperty": false
+    }
+}

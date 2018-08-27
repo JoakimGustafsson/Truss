@@ -431,20 +431,17 @@ class LabelProperty extends Property {
 		parameterValue.appendChild(this.input);
 	}
 
-	
+
 	/** actually assign to the owning object
 	 * @param  {Object} value
 	 * @param  {Object} owner
 	 */
 	assignValue(value, owner) {
-		let supportThis = function myEval(script) {
-			return eval(script);
-		}
 		if (owner) {
 			this.owner=owner;
 		}
 		this.owner[this.propertyName] = value;
-		
+
 		try {
 			this.owner[this.propertyName+'_Label']= owner.world.labels.findLabel(value)
 		}

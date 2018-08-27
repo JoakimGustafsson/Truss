@@ -1,3 +1,5 @@
+/* exported Labels */
+
 /**
  * @class
  */
@@ -6,8 +8,6 @@ class Labels {
 	 */
 	constructor() {
 		this.list = [];
-
-		this.behaviours = new Behaviours();
 
 		this.createProperties();
 
@@ -31,7 +31,7 @@ class Labels {
 		this.colorProperty = new StringProperty('color', 'color', 'Colour', ParameterCategory.CONTENT, 'The colour of the node.');
 		this.positionScriptProperty = new ScriptProperty('positionScript', 'positionScript', 'Position script', ParameterCategory.CONTENT, 'This script should return a new position object where this node will be moved to.');
 		this.showScriptProperty = new ScriptProperty('showScript', 'showScript', 'Show script', ParameterCategory.CONTENT, 'This script is run when the object should be drawn on the screen.');
-		
+
 		this.collisionLabelProperty = new LabelProperty('collisionLabel', 'collisionLabel', 'Collide label', ParameterCategory.CONTENT, 'Collide with tensors having this label.');
 		this.pictureProperty = new StringProperty('pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT, 'The picture filename.');
 		this.sizeProperty = new NumberProperty('size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT, 'The picture size');
@@ -58,75 +58,75 @@ class Labels {
 	}
 
 	createInitialLabels() {
-		let nodeLabel = this.addLabel('node', [], {
+		this.nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
 			'visibilityProperty': 1,
 			'parentTrussNodeProperty': undefined,
 			'connectedTensorsProperty': undefined,
 		});
-		let tensorLabel = this.addLabel('tensor', [], {
+		this.tensorLabel = this.addLabel('tensor', [], {
 			'visibilityProperty': 1,
 			'startNodeProperty': undefined,
 			'endNodeProperty': undefined,
 			'parentTrussNodeProperty': undefined,
 		});
-		let positionTensorLabel = this.addLabel('positiontensor', [tensorLabel], {
+		let positionTensorLabel = this.addLabel('positiontensor', [this.tensorLabel], {
 			'constantProperty': 1,
 		});
-		let pullLabel = this.addLabel('pullspring', [positionTensorLabel], {
+		this.addLabel('pullspring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
 		}, [new PullCalculator()]);
-		let pushLabel = this.addLabel('pushspring', [positionTensorLabel], {
+		this.addLabel('pushspring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
 		}, [new PushCalculator()]);
-		let springLabel = this.addLabel('spring', [positionTensorLabel], {
+		this.springLabel = this.addLabel('spring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
 		}, [new SpringCalculator()]);
-		let fieldLabel = this.addLabel('field', [positionTensorLabel], {}, [new FieldCalculator()]);
-		let absorbLabel = this.addLabel('absorber', [tensorLabel], {
+		this.addLabel('field', [positionTensorLabel], {}, [new FieldCalculator()]);
+		this.absorbLabel = this.addLabel('absorber', [this.tensorLabel], {
 			'absorberProperty': 1,
 			'visibilityProperty': 1,
 		}, [new AbsorbCalculator()]);
-		let moveabelLabel = this.addLabel('moveable', [nodeLabel], {
+		this.moveabelLabel = this.addLabel('moveable', [this.nodeLabel], {
 			'massProperty': 1,
 			'nodeFrictionProperty': 0.99,
 		});
-		let angleNodeLabel = this.addLabel('anglenode', [nodeLabel], {
+		let angleNodeLabel = this.addLabel('anglenode', [this.nodeLabel], {
 			'angleProperty': 0,
 			'turnrateProperty': 0,
 			'turnFrictionProperty': 0.99,
 			'torqueConstantProperty': 1,
 		}, [new AngleNode()]);
-		let angleTensorLabel = this.addLabel('angletensor', [tensorLabel], {
+		this.addLabel('angletensor', [this.tensorLabel], {
 			'startAngleProperty': 0,
 			'endAngleProperty': 0,
 		}, [new AngleTensor()]);
-		let debugtensorLabel = this.addLabel('debugtensor', [], {
+		this.addLabel('debugtensor', [], {
 			'degree1Property': 1,
 			'degree2Property': 1,
 		});
-		let debugnodeLabel = this.addLabel('debugnode', [], {
+		this.addLabel('debugnode', [], {
 			'velocityProperty': undefined,
 		});
-		let colorLabel = this.addLabel('color', [], {
+		this.addLabel('color', [], {
 			'colorProperty': 'red',
 			'visibilityProperty': 1,
 		});
-		let pictureLabel = this.addLabel('picture', [nodeLabel], {
+		this.addLabel('picture', [this.nodeLabel], {
 			'pictureProperty': '/Resources/default.jpg',
 			'sizeProperty': 1,
 			'visibilityProperty': 1,
 		});
-		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], {});
-		let gravityLabel = this.addLabel('gravitywell', [nodeLabel], {
+		this.addLabel('dampenedspring', [this.springLabel, this.absorbLabel], {});
+		this.addLabel('gravitywell', [this.nodeLabel], {
 			'constantProperty': 6.67e-11,
 			'massProperty': 5.97219e24,
 			'nameProperty': 'Earth',
 			'positionProperty': new Position(0, 6371000),
 			'enforcedProperty': true,
 		});
-		let trussLabel = this.addLabel('truss', [nodeLabel], {
+		this.addLabel('truss', [this.nodeLabel], {
 			'screenSizeProperty': new Position(200, 200),
 			'worldSizeProperty': new Position(20, 20),
 			'setWorldOffsetProperty': new Position(0, 0),
@@ -134,27 +134,26 @@ class Labels {
 			'fpsProperty': 60,
 			'snapGridProperty': 0,
 		});
-		let sensorLabel = this.addLabel('sensor', [nodeLabel], {});
-		let selectorLabel = this.addLabel('selector', [sensorLabel, moveabelLabel], {}, [new SelectorBehaviour()]);
-		let keySensorLabel = this.addLabel('keysensor', [sensorLabel, moveabelLabel], {
+		this.sensorLabel = this.addLabel('sensor', [this.nodeLabel], {});
+		this.addLabel('selector', [this.sensorLabel, this.moveabelLabel], {}, [new SelectorBehaviour()]);
+		this.addLabel('keysensor', [this.sensorLabel, this.moveabelLabel], {
 			'keyProperty': [],
 			'restPositionProperty': new Position(1, 1),
-		}, [new KeySensor()]);		
-		
-		let positionScriptLabel = this.addLabel('scriptposition', [moveabelLabel], {
+		}, [new KeySensor()]);
+
+		this.addLabel('scriptposition', [this.moveabelLabel], {
 			'positionScriptProperty': "alert('MyPositionScript');",
 		}, [new ScriptPosition()]);
-		let showScriptLabel = this.addLabel('scriptshow', [], {
+		this.addLabel('scriptshow', [], {
 			'showScriptProperty': "alert('MyShowScript');",
 		}, [new ScriptShow()]);
-		let collideLabel = this.addLabel('collide', [sensorLabel], {
+		this.collideLabel = this.addLabel('collide', [this.sensorLabel], {
 			'collisionLabelProperty': '',
 		}, [new CollisionSensor()]);
 
-		let bounceLabel = this.addLabel('bounceactuator', [moveabelLabel, collideLabel], {}, 
+		this.addLabel('bounceactuator', [this.moveabelLabel, this.collideLabel], {},
 			[new CollisionBounce()]);
 
-		
 	}
 
 	/**
@@ -273,9 +272,8 @@ class Labels {
 
 	/**
 	 * @param {string} divName
-	 * @param {string} filter
 	 */
-	show(divName, filter) {
+	show(divName) {
 		let area = universe.currentNode.getElement('#' + divName);
 		let displayDiv = universe.currentNode.getElement('#labelContentArea');
 		area.innerHTML = '';

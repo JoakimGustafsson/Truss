@@ -1,4 +1,6 @@
 
+/* global PushCalculator PullCalculator SpringCalculator FieldCalculator*/
+
 let BehaviourOverride = {
 	SHOW: 1,
 	UPDATEPOSITION: 2,
@@ -8,17 +10,6 @@ let BehaviourOverride = {
 	SENSE: 6,
 	COLLIDE: 7,
 };
-
-/**
- * @class
- */
-class Behaviours {
-	/**
-	 *
-	 */
-	constructor() {
-	}
-}
 
 /**
  * @class
@@ -81,14 +72,12 @@ class KeySensor extends Behaviour {
 	/**
 	 * Used to poll if a key has been pressed and moves to the corresponding vector
 	 * Note that several keys can be pressed simultaneously
-	 * 
+	 *
 	 * Remember that this function will be attached to a storeable object and thus 
 	 * the 'this' keyword will reference the node or object rather than the behaviour
-	 * 
-	 * @param  {number} trussTime
-	 * @param  {number} timeFactor
+	 *
 	 */
-	updatePosition(trussTime, timeFactor) {
+	updatePosition() {
 		let p = this.restPosition;
 		for (let i = 0; i < this.keyVectors.length; i++) {
 			if (this.keyState[this.keyVectors[i].key]) {
@@ -96,7 +85,7 @@ class KeySensor extends Behaviour {
 			}
 		}
 		this.setPosition(p);
-	};
+	}
 }
 
 
@@ -126,7 +115,7 @@ class ScriptPosition extends Behaviour {
 	}
 
 	/**
-	 * Runs the script to calculate the position 
+	 * Runs the script to calculate the position
 	 * @param  {Object} args
 	 */
 	updatePosition(...args) {
@@ -137,7 +126,7 @@ class ScriptPosition extends Behaviour {
 			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
 			return 1; // blocks all other position updates on this node.
 		}
-	};
+	}
 }
 
 
@@ -177,7 +166,7 @@ class ScriptShow extends Behaviour {
 			func(...args);
 			return 1; // blocks all other position updates on this node.
 		}
-	};
+	}
 
 }
 
@@ -209,22 +198,23 @@ class SpringCalculator extends Behaviour {
 
 	/**
 	 * Calculate spring force
-	 * @param  {Object} args
 	 * @return {number}
 	 */
-	calculate(...args) {
+	calculate() {
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(this.equilibriumLength);
 		let diffVector = Vector.subtractVectors(actualVector, normalized);
 		this.force = Vector.multiplyVector(-this.constant, diffVector);
-	};
+	}
 }
-
 
 /** This calculates force as if it was a linear spring that bends when short
  * @class
  * @extends Node
  */
+
+/*eslint no-class-assign: 2*/
+/*eslint-env es6*/
 class PullCalculator extends Behaviour {
 	/**
 	 */
@@ -248,10 +238,9 @@ class PullCalculator extends Behaviour {
 
 	/**
 	 * Calculate pull force
-	 * @param  {Object} args
 	 * @return {number}
 	 */
-	calculate(...args) {
+	calculate() {
 		let actualVector = this.getActual();
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
 			this.force = new Force(0, 0);
@@ -261,7 +250,7 @@ class PullCalculator extends Behaviour {
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
 			this.force = Vector.multiplyVector(-this.constant, diffVector);
 		}
-	};
+	}
 }
 
 /** This calculates force as if it was a linear spring that only pushes
@@ -291,10 +280,9 @@ class PushCalculator extends Behaviour {
 
 	/**
 	 * Calculate push force
-	 * @param  {Object} args
 	 * @return {number}
 	 */
-	calculate(...args) {
+	calculate() {
 		let actualVector = this.getActual();
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
 			this.force = new Force(0, 0);
@@ -304,7 +292,7 @@ class PushCalculator extends Behaviour {
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
 			this.force = Vector.multiplyVector(-this.constant, diffVector);
 		}
-	};
+	}
 
 }
 
@@ -336,15 +324,14 @@ class FieldCalculator extends Behaviour {
 
 	/**
 	 * Calculate field strength
-	 * @param  {Object} args
 	 * @return {number}
 	 */
-	calculate(...args) {
+	calculate() {
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(1);
 		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
 		this.force = Vector.multiplyVector(-forceSize, normalized);
-	};
+	}
 
 }
 
@@ -377,17 +364,17 @@ class AbsorbCalculator extends Behaviour {
 
 	/**
 	 * Calculate the displacement force based on relative velocitychange a tensor executes
-	 * @param  {Object} args
+
 	 * @return {number}
 	 */
-	calculate(...args) {
+	calculate() {
 		let actualVector = this.getActual();
 		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
 		let parallellVelocity = Vector.multiplyVector(
 			Vector.dotProduct(actualVector, internalSpeed),
 			Vector.divideVector(actualVector, this.getLengthSquare()));
 		this.force = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
-	};
+	}
 
 }
 
@@ -508,10 +495,10 @@ class AngleTensor extends Behaviour {
 
 
 	/**
-	* Returns the force from this tensor resulting from the torque in the opposite node.
-	* @param  {Node} node
-	* @return {number}
-	*/
+	 * Returns the force from this tensor resulting from the torque in the opposite node.
+	 * @param  {Node} node
+	 * @return {number}
+	 */
 	calculateTorqueForce() {
 		function supportCalc(tensor, node, torque, perp) {
 			// if (!node.torqueConstant || node.torqueConstant <= 0) {
@@ -527,13 +514,13 @@ class AngleTensor extends Behaviour {
 
 		let perp = this.getActual().perpendicular();
 		// Force that the torque in node 1 applies to node 2
-		let torqueForce1 = supportCalc(this, this.node1, this.torque1, perp)
+		let torqueForce1 = supportCalc(this, this.node1, this.torque1, perp);
 		// Force that the torque in node 2 applies to node 1
-		let torqueForce2 = supportCalc(this, this.node2, this.torque2, perp)
+		let torqueForce2 = supportCalc(this, this.node2, this.torque2, perp);
 
 		this.torqueForce1 = Vector.subtractVectors(torqueForce1, torqueForce2);
 		this.torqueForce2 = Vector.subtractVectors(torqueForce2, torqueForce1);
-	};
+	}
 
 }
 
@@ -641,10 +628,8 @@ class SelectorBehaviour extends Behaviour {
 	/**
 	 * Update the position based on velocity, then let
 	 * the this.positionFunction (if present) tell where it should actually be
-	 * @param  {number} trussTime
-	 * @param  {number} timeFactor
 	 */
-	updatePosition(trussTime, timeFactor) {
+	updatePosition() {
 		this.setPosition(this.cursorPosition);
 		this.velocity = new Vector(0, 0);
 	}
@@ -652,10 +637,8 @@ class SelectorBehaviour extends Behaviour {
 	/**
 	 * Draw the circle representing the node
 	 * @param {Trussnode} truss
-	 * @param {number} time
-	 * @param {number} graphicDebugLevel
 	 */
-	show(truss, time, graphicDebugLevel = 0) {
+	show(truss) {
 		let view = truss.view;
 		this.highLight(view.context);
 		if (view.inside(this.getPosition())) {
@@ -712,22 +695,6 @@ class CollisionSensor extends Behaviour {
 	 * @param {Truss} truss
 	 */
 	sense(deltaTime, truss) {
-		let collisionFunction = (detail) => {
-
-			let where = detail.where;
-			let from = detail.from;
-			let tensor = detail.tensor;
-			let truss = detail.truss;
-
-			let direction = 'left';
-			if (from > 0) {
-				direction = 'right';
-			};
-			console.log(this.name +
-				' collided from the ' + direction + ' with tensor ' +
-				tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
-			alert(truss, tensor, where, from);
-		};
 		let label = this['collisionLabel_Label'];
 		let detail;
 		for (let tensor of label.getTensors()) {
@@ -775,28 +742,25 @@ class CollisionBounce extends Behaviour {
 		let where = detail.where;
 		let from = detail.from;
 		let tensor = detail.tensor;
-		let truss = detail.truss;
 
 		let direction = 'left';
 		if (from > 0) {
 			direction = 'right';
-		};
+		}
 		console.log(this.name +
 			' collided from the ' + direction + ' with tensor ' +
 			tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
 
-		let nodeStart=collider.localPosition;
-		let nodeEnd=Vector.addVectors(collider.localPosition, collider.velocity);
+		let nodeStart = collider.localPosition;
+		let nodeEnd = Vector.addVectors(collider.localPosition, collider.velocity);
 		let perpendicularVelocityStartDistance = getS(
-				tensor.node1.localPosition, 
-				tensor.node2.localPosition, 
-				nodeStart);
+			tensor.node1.localPosition,
+			tensor.node2.localPosition,
+			nodeStart);
 		let perpendicularVelocityEndDistance = getS(
-			tensor.node1.localPosition, 
-			tensor.node2.localPosition, 
+			tensor.node1.localPosition,
+			tensor.node2.localPosition,
 			nodeEnd);
-		let tensorPointVelocity;
 		let tensorPointVelocity;
 	}
 }
-

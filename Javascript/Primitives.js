@@ -1,12 +1,5 @@
-/** Standard inheritance help function. Hopefully not needed anymore
- * @param  {object} childObject
- * @param  {object} parentObject
- */
-function inheritPrototype(childObject, parentObject) {
-	let copyOfParent = Object.create(parentObject.prototype);
-	copyOfParent.constructor = childObject;
-	childObject.prototype = copyOfParent;
-}
+/* exported removeIfPresent Vector AlertVector Force Velocity getS getT anglify objectFactory */
+/* exported getTInside getTInside2 boxClose */
 
 /**
  * Support function that removes an element from an array the way I expect it to
@@ -51,7 +44,7 @@ class Vector {
 	 */
 	opposite() {
 		return new Vector(-this.x, -this.y);
-	};
+	}
 
 	/**
 	 * Returns the vector pointing in exactly the opposite direction
@@ -62,7 +55,7 @@ class Vector {
 			'x': this.x,
 			'y': this.y,
 		};
-	};
+	}
 
 	/**
 	 * @param  {Object} restoreObject
@@ -72,7 +65,7 @@ class Vector {
 		this.x += restoreObject.x;
 		this.y += restoreObject.y;
 		return this;
-	};
+	}
 
 	/** scale this vector so that the length becomes l
  	* @param  {number} l The length of the resulting vector
@@ -107,7 +100,7 @@ class Vector {
 		this.x += v.x;
 		this.y += v.y;
 		return this;
-	};
+	}
 
 	/**
 	 * Modify the length of this vector by dividing it by c
@@ -118,7 +111,7 @@ class Vector {
 		this.x /= c;
 		this.y /= c;
 		return this;
-	};
+	}
 
 	/** return the vectors angle in the range -PI to PI
 	 * @return {number}
@@ -174,15 +167,6 @@ class Vector {
 	 */
 	static length(v) {
 		return Math.sqrt(Vector.length2(v));
-	}
-
-	/**
-	 * @param  {Vector} v1
-	 * @param  {Vector} v2
-	 * @return {number}
-	 */
-	static dotProduct(v1, v2) {
-		return v1.x * v2.x + v1.y * v2.y;
 	}
 
 	/** returns the distance between two positions
@@ -246,7 +230,7 @@ class AlertVector {
 	 */
 	serialize() {
 		return this.v.serialize();
-	};
+	}
 
 	/**
 	 * @param  {Object} restoreObject
@@ -257,7 +241,7 @@ class AlertVector {
 			this.v=new Position(restoreObject.x, restoreObject.y);
 		}
 		return this;
-	};
+	}
 }
 
 /**
@@ -296,9 +280,22 @@ class Velocity extends Vector {
 		this.x += v.x;
 		this.y += v.y;
 		return this;
-	};
+	}
 }
 
+/** Ensure that an Rad angle is inside the -PI to  PI span
+ * @param  {number} angle
+ * @return {number}
+ */
+function anglify(angle) {
+	while (angle > Math.PI) {
+		angle -= 2 * Math.PI;
+	}
+	while (angle < -Math.PI) {
+		angle += 2 * Math.PI;
+	}
+	return angle;
+}
 
 /** returns the angle given a x and y. The angle range is +PI to -PI
 
@@ -322,50 +319,6 @@ function getAngle(x, y) {
 	}
 	return returnAngle;
 }
-
-/** Ensure that an Rad angle is inside the -PI to  PI span
- * @param  {number} angle
- * @return {number}
- */
-function anglify(angle) {
-	while (angle > Math.PI) {
-		angle -= 2 * Math.PI;
-	}
-	while (angle < -Math.PI) {
-		angle += 2 * Math.PI;
-	}
-	return angle;
-}
-
-/**
- * @param  {number} a
- * @param  {number} b
- * @return {number}
- */
-function angleSubstract(a, b) {
-	return anglify(a - b);
-}
-
-/**
- * @param  {number} a
- * @param  {number} b
- * @return {number}
- */
-function angleAdd(a, b) {
-	return anglify(a + b);
-}
-
-/** returns the distance between two nodes
- * @param  {Node} n1
- * @param  {Node} n2
- * @return {number}
- */
-function nodeDistance(n1, n2) {
-	let p1 = n1.getPosition();
-	let p2 = n2.getPosition();
-	return positionDistance(p1, p2);
-}
-
 
 /**
  * Find multiplier s in L = p3 + perp(p2-p1)s = c where c crosses p1p2
@@ -406,7 +359,7 @@ function getT(p1, p2, p3) {
  * @return {number} This represent where on the p1p2 line P3 is closest
  */
 function getTInside(p1, p2, p3) {
-	t = getT(p1, p2, p3);
+	let t = getT(p1, p2, p3);
 	return ((0 <= t) && (t <= 1));
 }
 
@@ -418,7 +371,7 @@ function getTInside(p1, p2, p3) {
  * @return {number} This represent where on the p1p2 line P3 is closest
  */
 function getTInside2(p1, p2, p3) {
-	t = getT(p1, p2, p3);
+	let t = getT(p1, p2, p3);
 	return ((0.05 <= t) && (t <= 0.95));
 }
 
@@ -436,39 +389,13 @@ function boxClose(p1, p2, distance) {
 }
 
 /**
- * @param  {Array} currentList
- * @param  {Array} allObjects
- * @return {Array}
- */
-function serializeList(currentList, allObjects) {
-	let returnList = [];
-	for (let t of currentList) {
-		returnList.push(allObjects.indexOf(t));
-	}
-	return returnList;
-}
-
-/**
- * @param  {Array} numberList
- * @param  {Array} allObjects
- * @return {Array}
- */
-function deserializeList(numberList, allObjects) {
-	let returnList = [];
-	for (let t of numberList) {
-		returnList.push(allObjects[t]);
-	}
-	return returnList;
-}
-
-/**
  * @param  {World} world
  * @param  {Object} representationObject
  * @param  {Object} nodeList
  * @param  {Object} tensorList
  * @return {Object}
  */
-function objectFactory(world, representationObject, nodeList, tensorList) {
+function objectFactory(world, representationObject) {
 	// let a = Function('return new ' + representationObject.classname+'('+truss+')');
 	// return (a)();
 	// newNode.deserialize(representationObject, nodeList, tensorList);
@@ -481,7 +408,7 @@ function objectFactory(world, representationObject, nodeList, tensorList) {
 /**
 	 * @param  {number} text
 	 * @param  {number} hidden
-	 * */
+	 * *
 function timelog(text, hidden) {
 	return;
 	if (!this.lastTimeTemp) {
@@ -492,4 +419,4 @@ function timelog(text, hidden) {
 		console.log(text+' '+t);
 	}
 	this.lastTimeTemp=Date.now();
-}
+} */
