@@ -2,7 +2,7 @@
  *
  */
 
-let keyState = {};
+// let keyState = {};
 
 /** Abstract sensor class
  * @class
@@ -22,7 +22,7 @@ class SensorNode extends Node {
 }
 
 
-/** This sensor reads key presses and moves the node a given vector associated with each registered key.
+/* This sensor reads key presses and moves the node a given vector associated with each registered key.
  * Example
  *		sensorNode.registerKey(37, new Vector(-1, 0));
  *		sensorNode.registerKey(65, new Vector(-1, 0));
@@ -31,7 +31,7 @@ class SensorNode extends Node {
  *		sensorNode.registerKey(32, new Vector(0, 1));
  * @class
  * @extends Node
- */
+ *
 class KeySensorNode extends SensorNode {
 	/**
 	 * @param  {TrussNode} trussNode
@@ -41,7 +41,7 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Function} positionFunction
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
-	 */
+	 *
 	constructor(trussNode, startPosition, mass = 0.001, name = 'keysensornode', positionFunction, showFunction, velocityLoss = 1) {
 		super(trussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 		this.restPosition = startPosition;
@@ -60,7 +60,7 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
-	 */
+	 *
 	serialize(truss, nodeList, tensorList) {
 		let representationObject = super.serialize(truss, nodeList, tensorList);
 		representationObject.classname = 'KeySensorNode';
@@ -75,7 +75,7 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {KeySensorNode}
-	 */
+	 *
 	deserialize(restoreObject, nodeList, tensorList) {
 		super.deserialize(restoreObject, nodeList, tensorList);
 		this.restPosition = new Position().deserialize(restoreObject.startPosition);
@@ -87,7 +87,7 @@ class KeySensorNode extends SensorNode {
 	 * Used to poll if a key has been pressed and moves to the corresponding vector
 	 * Note that several keys can be pressed simultaneously
 	 * @param  {number} time
-	 */
+	 *
 	updatePosition(time) {
 		let p = this.restPosition;
 		for (let i = 0; i < this.keyVectors.length; i++) {
@@ -99,18 +99,18 @@ class KeySensorNode extends SensorNode {
 	};
 
 
-	/**
+	/*
 	 * Combines a key number with a vecor to move if that key is being pressed
 	 * @param  {number} keyNr
 	 * @param  {Vector} v
-	 */
+	 *
 	registerKey(keyNr, v) {
 		this.keyVectors.push({
 			'key': keyNr,
 			'vector': v,
 		});
 	};
-}
+} */
 
 /** This sensor checks for other nodes close by and moves the node a given vector associated
  * with each registered node.

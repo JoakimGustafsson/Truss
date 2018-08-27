@@ -193,209 +193,34 @@ class PerformanceTrussNode extends TrussNode {
 
 		this.selector = new Node(this.world, this, 'selector', {'name': 'Selector '});
 		
-		let fulcrum = new Node(this.world, this, 'anglenode', {
-			'name': 'Fulcrum',
+		let start = new Node(this.world, this, 'node', {
+			'name': 'start',
 			'localPosition': new Position(1, 9),
-			'angle': 0,
-			'torqueConstant': 10,
 		});
 
-		let pinnacle = new Node(this.world, this, 'moveable anglenode', {
-			'name': 'Top',
-			'mass': 1,
-			'localPosition': new Position(3, 7),
-			'angle': 0,
-			'torqueConstant': 10,
-		});
-
-		let earth = new Node(this.world, this, 'gravitywell', {});
-
-		let top = new Node(this.world, this, 'moveable', {
-			'name': 'top',
-			'mass': 1,
-			'localPosition': new Position(5, 9),
-			'torqueConstant': 10,
+		let end = new Node(this.world, this, 'node', {
+			'name': 'end',
+			'localPosition': new Position(6, 9),
 		});
 
 
-
-		new Tensor(fulcrum, pinnacle,
-			'spring angletensor',
+		new Tensor(start, end,
+			'spring bounce',
 			{
 				'constant': 100,
 				'equilibriumLength': 5,
-				'angle1': -0.78,
-				'angle2': 2.35,
-			});
-
-		new Tensor(pinnacle, top,
-			'spring angletensor',
-			{
-				'constant': 100,
-				'equilibriumLength': 5,
-				'angle1': 0.78,
-				'angle2': -2.35,
 			});
 
 
-		let left = new Node(this.world, this, 'moveable anglenode', {
-			'name': 'left',
+		let ball = new Node(this.world, this, 'bounceactuator debugnode', {
+			'name': 'ball',
 			'mass': 1,
-			'localPosition': new Position(3, 7),
-			'angle': 0,
-			'torqueConstant': 10,
+			'localPosition': new Position(3.5, 1),
+			'velocityLoss': 1,
+			'collisionLabel': 'bounce',
+			'velocity': new Velocity(0, 10),
 		});
 
-		let right = new Node(this.world, this, 'moveable anglenode', {
-			'name': 'right',
-			'mass': 1,
-			'localPosition': new Position(7, 7),
-			'angle': 0,
-			'torqueConstant': 10,
-		});
-
-		let bottom = new Node(this.world, this, 'moveable', {
-			'name': 'bottom',
-			'mass': 1,
-			'localPosition': new Position(5, 9),
-		});
-
-		new Tensor(top, right,
-			'spring angletensor',
-			{
-				'constant': 100,
-				'equilibriumLength': 5,
-				'angle1': 1,
-				'angle2': -2,
-			});
-			
-		new Tensor(right, bottom,
-			'spring angletensor',
-			{
-				'constant': 100,
-				'equilibriumLength': 5,
-				'angle1': 2,
-				'angle2': -1,
-			}); 
-
-
-		let a = new Node(this.world, this, 'moveable anglenode', {
-				'name': 'a',
-				'mass': 1,
-				'localPosition': new Position(10, 1),
-				'angle': 0,
-				'torqueConstant': 10,
-			});
-			
-		new Tensor(top, left,
-			'spring angletensor',
-			{
-				'constant': 100,
-				'equilibriumLength': 5,
-				'angle1': 2,
-				'angle2': -1,
-			});
-			
-		new Tensor(left, bottom,
-			'spring angletensor',
-			{
-				'constant': 100,
-				'equilibriumLength': 5,
-				'angle1': 1,
-				'angle2': -2,
-			});
-
-		let b = new Node(this.world, this, 'moveable anglenode', {
-			'name': 'b',
-			'mass': 1,
-			'localPosition': new Position(10, 7),
-			'angle': 0,
-			'torqueConstant': 10,
-		});
-
-		let c = new Node(this.world, this, 'moveable anglenode', {
-			'name': 'c',
-			'mass': 1,
-			'localPosition': new Position(6, 4),
-			'angle': 0,
-			'torqueConstant': 10,
-		}); 
-
-		
-		new Tensor(a, b,
-			'spring angletensor',
-			{
-				'constant': 100,
-				'equilibriumLength': 6,
-				'angle1': 0,
-				'angle2': 0,
-			});
-			
-		new Tensor(b, c,
-			'spring angletensor',
-			{
-				'constant': 100,
-				'equilibriumLength': 6,
-				'angle1': 0,
-				'angle2': 0,
-			});
-		new Tensor(c, a,
-				'spring angletensor',
-				{
-					'constant': 100,
-					'equilibriumLength': 6,
-					'angle1': 0,
-					'angle2': 0,
-				});
-		/*		
-		new Tensor(end, earth, 
-				'gravity field', 
-				{
-					'constant': 6.67e-11,
-				}); 
-		/*
-		let x;
-		for (let row=1; row < 2; row++) {
-			for (let column=1; column < 2; column++) {
-				x = new Node(this.world, this, 'turngridnode node scriptposition', {
-					'name': 'Node '+column+' '+row,
-					'localPosition': new Position(column*3, row*3),
-					'positionScript': "(time) => {return new Position(5, Math.sin(time*5)+10);}",
-				});
-
-
-			
-				protagonist=x;
-			}
-		}
-
-		let y = new Node(this.world, this, 'turngridnode node scriptshow moveable', {
-			'name': 'showNode',
-			'mass': 1,
-			'localPosition': new Position(4, 4),
-			'showScript': `(truss, time, graphicDebugLevel = 0) => {
-				let view=truss.view;
-				view.context.strokeStyle = 'red';
-				this.highLight(view.context);
-				if (view.inside(this.getPosition())) {
-					view.context.lineWidth = 2;
-					view.context.beginPath();
-					view.drawCircle(this.getPosition(), .5);
-					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
-						Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
-					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
-						Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
-					view.context.stroke();
-				}
-				return 1; // blocks all other drawing of this node.
-			}`,
-		});
-
-		new Tensor(x, y, 
-			'absorber', 
-			{
-				'dampeningConstant': 100,
-			});*/
 	}
 }
 

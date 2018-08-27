@@ -564,6 +564,7 @@ class Tensor extends StoreableObject {
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
 	 * @param  {Node} node
 	 * @param  {Truss} truss
+	 * @return {Object}
 	 */
 	checkCollision(node, truss) {
 		let oldDistance = this.collideDistanceMapping[node.name];
@@ -575,18 +576,20 @@ class Tensor extends StoreableObject {
 		this.collideDistanceMapping[node.name] = newDistance;
 		if (oldDistance * newDistance < 0) {
 			if ((where >= -0) && (where <= 1)) {
+				let detail = {
+					'where': where,
+					'from': oldDistance,
+					'collider': node,
+					'tensor': this,
+					'truss': truss,
+				};
 				let event = new CustomEvent('collisionEvent', {
-					detail: {
-						'where': where,
-						'from': oldDistance,
-						'collider': node,
-						'tensor': this,
-						'truss': truss,
-					},
-					bubbles: true,
-					cancelable: true,
+					'detail': detail,
+					'bubbles': true,
+					'cancelable': true,
 				});
 				document.dispatchEvent(event);
+				return detail;
 			}
 		}
 	};

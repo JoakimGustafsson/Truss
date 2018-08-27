@@ -31,7 +31,8 @@ class Labels {
 		this.colorProperty = new StringProperty('color', 'color', 'Colour', ParameterCategory.CONTENT, 'The colour of the node.');
 		this.positionScriptProperty = new ScriptProperty('positionScript', 'positionScript', 'Position script', ParameterCategory.CONTENT, 'This script should return a new position object where this node will be moved to.');
 		this.showScriptProperty = new ScriptProperty('showScript', 'showScript', 'Show script', ParameterCategory.CONTENT, 'This script is run when the object should be drawn on the screen.');
-	
+		
+		this.collisionLabelProperty = new LabelProperty('collisionLabel', 'collisionLabel', 'Collide label', ParameterCategory.CONTENT, 'Collide with tensors having this label.');
 		this.pictureProperty = new StringProperty('pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT, 'The picture filename.');
 		this.sizeProperty = new NumberProperty('size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT, 'The picture size');
 		this.equilibriumLengthProperty = new NumberProperty('equilibriumLength', 'equilibriumLength', 'Length', ParameterCategory.CONTENT, 'How long should the relaxed spring be.');
@@ -146,7 +147,14 @@ class Labels {
 		let showScriptLabel = this.addLabel('scriptshow', [], {
 			'showScriptProperty': "alert('MyShowScript');",
 		}, [new ScriptShow()]);
+		let collideLabel = this.addLabel('collide', [sensorLabel], {
+			'collisionLabelProperty': '',
+		}, [new CollisionSensor()]);
 
+		let bounceLabel = this.addLabel('bounceactuator', [moveabelLabel, collideLabel], {}, 
+			[new CollisionBounce()]);
+
+		
 	}
 
 	/**

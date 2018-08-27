@@ -6,6 +6,7 @@ let BehaviourOverride = {
 	POSTCALCULATE: 4,
 	TORQUE: 5,
 	SENSE: 6,
+	COLLIDE: 7,
 };
 
 /**
@@ -415,27 +416,27 @@ class AngleNode extends Behaviour {
 	detachFrom(storeableObject) {
 		storeableObject.unregisterOverride(BehaviourOverride.TORQUE, AngleNode.prototype.calculateTorques);
 		storeableObject.unregisterOverride(BehaviourOverride.ROTATE, AngleNode.prototype.updateRotation);
-	}	
+	}
 
 	/** Loop through all springs connected to this node and sum them p
 	 * @return {number}
 	 */
 	calculateTorques() {
-		let getTorque = function(node, tensor) {
-			let idealAngle= tensor.angle2;
+		let getTorque = function (node, tensor) {
+			let idealAngle = tensor.angle2;
 			if (node == tensor.node1) {
-				idealAngle=tensor.angle1;
+				idealAngle = tensor.angle1;
 			}
 			if (isNaN(idealAngle)) {
 				return 0;
 			}
 			let tensorAngle = tensor.getTensorAngle(node);
 			let theNodeShouldHaveAngle = tensorAngle - idealAngle;
-			
+
 			node.angle = anglify(node.angle);
 
 			let correctionAngle = anglify(theNodeShouldHaveAngle - node.angle);
-	
+
 			let torque = node.getTorqueConstant() * correctionAngle;
 			if (node == tensor.node1) {
 				tensor.torque1 = -torque;
@@ -469,9 +470,9 @@ class AngleNode extends Behaviour {
 		} else {
 			this.turnrate = 0; // weightless cannot turn
 		}
-		this.turnrate*= parseFloat(this.turnLoss);
+		this.turnrate *= parseFloat(this.turnLoss);
 		if (this.turnrate.isNaN) {
-			this.turnrate=0;
+			this.turnrate = 0;
 		}
 		this.angle += this.turnrate;
 	}
@@ -559,7 +560,7 @@ class SelectorBehaviour extends Behaviour {
 	 */
 	attachTo(storeableObject) {
 		storeableObject.lastPointedOn;
-		storeableObject.wasPressed=false;
+		storeableObject.wasPressed = false;
 		storeableObject.cursorPosition = new Position(0, 0);
 
 		storeableObject.registerOverride(BehaviourOverride.SENSE, SelectorBehaviour.prototype.sense);
@@ -584,11 +585,11 @@ class SelectorBehaviour extends Behaviour {
 	 * @param {Trussnode} trussNode
 	 */
 	sense(deltaTime, trussNode) {
-		if (trussNode!=universe.currentNode) {
+		if (trussNode != universe.currentNode) {
 			return;
 		}
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
-		let closest = trussNode.getClosestObject(this.cursorPosition, 20*trussNode.view.getDistanceMultiplier(), this);
+		let closest = trussNode.getClosestObject(this.cursorPosition, 20 * trussNode.view.getDistanceMultiplier(), this);
 
 		if (!mouseSet && !universe.newNode) {
 			if (!closest) {
@@ -606,15 +607,15 @@ class SelectorBehaviour extends Behaviour {
 				}
 			}
 		} else if (!this.wasPressed && mouseSet) { // Mouse was just pressed
-			universe.newNode= undefined;
-			if (universe.selectedObject!=closest) {
+			universe.newNode = undefined;
+			if (universe.selectedObject != closest) {
 				if (universe.selectedObject) {
 					universe.selectedObject.setHighlight(0);
 				}
 				// if (closest) {
 				//	closest.setHighlight(2);
 				// }
-				let previousSelectedObject=universe.selectedObject;
+				let previousSelectedObject = universe.selectedObject;
 				universe.selectedObject = closest;
 				let event = new CustomEvent('selectionEvent', {
 					detail: {
@@ -634,7 +635,7 @@ class SelectorBehaviour extends Behaviour {
 			}
 		}
 
-		this.wasPressed=mouseSet;
+		this.wasPressed = mouseSet;
 	}
 
 	/**
@@ -645,7 +646,7 @@ class SelectorBehaviour extends Behaviour {
 	 */
 	updatePosition(trussTime, timeFactor) {
 		this.setPosition(this.cursorPosition);
-		this.velocity=new Vector(0, 0);
+		this.velocity = new Vector(0, 0);
 	}
 
 	/**
@@ -655,7 +656,7 @@ class SelectorBehaviour extends Behaviour {
 	 * @param {number} graphicDebugLevel
 	 */
 	show(truss, time, graphicDebugLevel = 0) {
-		let view=truss.view;
+		let view = truss.view;
 		this.highLight(view.context);
 		if (view.inside(this.getPosition())) {
 			view.context.strokeStyle = 'Yellow';
@@ -668,5 +669,134 @@ class SelectorBehaviour extends Behaviour {
 				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
 			view.context.stroke();
 		}
-	} 
+	}
 }
+
+
+
+/**
+ * @class
+ * @extends Behaviour
+ */
+class CollisionSensor extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+		/*let _this = this;
+		document.addEventListener('collisionEvent',
+			function(e) {
+				_this.collisionFunction.call(_this, e);
+			}, false); */
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.SENSE, CollisionSensor.prototype.sense);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.SENSE, CollisionSensor.prototype.sense);
+	}
+
+	/**
+	 * Has the node collided with any Tensor.
+	 * If so, that will casue a collisionEvent generated from the Tensors
+	 * checkCollision() function.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	sense(deltaTime, truss) {
+		let collisionFunction = (detail) => {
+
+			let where = detail.where;
+			let from = detail.from;
+			let tensor = detail.tensor;
+			let truss = detail.truss;
+
+			let direction = 'left';
+			if (from > 0) {
+				direction = 'right';
+			};
+			console.log(this.name +
+				' collided from the ' + direction + ' with tensor ' +
+				tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
+			alert(truss, tensor, where, from);
+		};
+		let label = this['collisionLabel_Label'];
+		let detail;
+		for (let tensor of label.getTensors()) {
+			if (!tensor.isGhost()) {
+				detail = tensor.checkCollision(this, truss);
+				if (detail) {
+					this.collide(detail);
+				}
+			}
+		}
+	}
+}
+
+/** This assumes a CollisionSensor behaviour already has been added to the node and that
+ * this CollisionSensor calls the collide() function
+ * @class
+ * @extends Behaviour
+ */
+class CollisionBounce extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
+	}
+
+	/**
+	 * @param {Object} details
+	 */
+	collide(detail) {
+		let collider = detail.collider;
+		let where = detail.where;
+		let from = detail.from;
+		let tensor = detail.tensor;
+		let truss = detail.truss;
+
+		let direction = 'left';
+		if (from > 0) {
+			direction = 'right';
+		};
+		console.log(this.name +
+			' collided from the ' + direction + ' with tensor ' +
+			tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
+
+		let nodeStart=collider.localPosition;
+		let nodeEnd=Vector.addVectors(collider.localPosition, collider.velocity);
+		let perpendicularVelocityStartDistance = getS(
+				tensor.node1.localPosition, 
+				tensor.node2.localPosition, 
+				nodeStart);
+		let perpendicularVelocityEndDistance = getS(
+			tensor.node1.localPosition, 
+			tensor.node2.localPosition, 
+			nodeEnd);
+		let tensorPointVelocity;
+		let tensorPointVelocity;
+	}
+}
+

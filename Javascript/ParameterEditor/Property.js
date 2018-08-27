@@ -396,7 +396,63 @@ class ScriptProperty extends Property {
 			this.owner[this.propertyName+'_Evaluated']=undefined;
 		}
 	}
+}
 
+/**
+ * @class ScriptProperty
+ * @extends Property
+ */
+class LabelProperty extends Property {
+	/**
+	 * @param  {string} propertyName
+	 * @param  {string} idHTML
+	 * @param  {string} displayTitle
+	 * @param  {parameterCategory} parameterCategory
+	 * @param  {string} helpText
+	 * @param  {Object} defaultValue
+	 */
+	constructor(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue) {
+		super(propertyName, idHTML, displayTitle, parameterCategory, helpText, defaultValue);
+		this[propertyName+'_Label']=undefined;
+	}
+
+
+	/**
+	 * @param {Element} element
+	 * @param {Object} owner
+	 */
+	populateProperty(element, owner) {
+		this.owner=owner;
+		let parameterValue = this.createNameValuePair(element);
+		this.input = this.makeInputField(this.identity, parameterValue);
+		this.input.addEventListener('input', () => {
+			this.assignValue(this.input.value);
+		});
+		parameterValue.appendChild(this.input);
+	}
+
+	
+	/** actually assign to the owning object
+	 * @param  {Object} value
+	 * @param  {Object} owner
+	 */
+	assignValue(value, owner) {
+		let supportThis = function myEval(script) {
+			return eval(script);
+		}
+		if (owner) {
+			this.owner=owner;
+		}
+		this.owner[this.propertyName] = value;
+		
+		try {
+			this.owner[this.propertyName+'_Label']= owner.world.labels.findLabel(value)
+		}
+		catch(err) {
+			console.log(err);
+			this.owner[this.propertyName+'_Label']=undefined;
+		}
+	}
 }
 
 /**
@@ -890,24 +946,10 @@ class LabelListProperty extends Property {
 				this.owner.properties.populateRest(restArea, this.owner);
 			}
 		});
-		/*
-		function(e) {
-			if (e.key === 'Enter') {
-				finalizelabels(universe.selectedObject, inputField.value);
-				universe.selectedObject.properties.populateRest(_this.HTMLElement, true);
-			}
-		}, true); */
-
 		inputField.addEventListener('blur', () => {
 			finalizelabels(inputField.value);
 			this.owner.properties.populateRest(restArea, this.owner);
 		});
-
-		/*
-		function(e) {
-			finalizelabels(universe.selectedObject, inputField.value);
-			_this.owner.properties.populateRest(restArea, _this.owner);
-		}, true); */
 
 		finalizelabels();
 		return inputField;

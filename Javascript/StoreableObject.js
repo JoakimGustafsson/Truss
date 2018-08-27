@@ -21,6 +21,7 @@ class StoreableObject {
 		this.calcList=[];
 		this.calcList2=[];
 		this.rotateList=[];
+		this.collisionList=[];
 
 		Object.defineProperty(this, 'labels', {
 			get: function() {
@@ -162,6 +163,9 @@ class StoreableObject {
 			case BehaviourOverride.ROTATE:
 				this.rotateList.push(newFunction);
 				break;
+			case BehaviourOverride.COLLIDE:
+				this.collisionList.push(newFunction);
+				break;
 				
 		}
 	}
@@ -192,6 +196,9 @@ class StoreableObject {
 				break;
 			case BehaviourOverride.ROTATE:
 				removeIfPresent(newFunction, this.rotateList);
+				break;
+			case BehaviourOverride.COLLIDE:
+				removeIfPresent(newFunction, this.collisionList);
 				break;
 		}
 	}
@@ -282,14 +289,31 @@ class StoreableObject {
 		}
 		return 0;
 	}
+	
 	/**
-	 * sense something
+	 * Sense something
 	 * @param  {List} args
 	 * @return {number} If the call return value is nonzero, prevent all other registered
 	 * calls to this function. A final answer has been found;
 	 */
 	sense(...args) {
 		for (let f of this.senseList) {
+			let result = f.call(this, ...args);
+			if (result) {
+				return result;
+			}
+		}
+		return 0;
+	}
+	
+	/**
+	 * This object has just collided with something
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
+	collide(...args) {
+		for (let f of this.collisionList) {
 			let result = f.call(this, ...args);
 			if (result) {
 				return result;

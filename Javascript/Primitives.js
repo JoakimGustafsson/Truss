@@ -369,7 +369,7 @@ function nodeDistance(n1, n2) {
 
 /**
  * Find multiplier s in L = p3 + perp(p2-p1)s = c where c crosses p1p2
- * The sign of s will tell if p3 is on the right sight of the p1p2 line. S<0 means right side
+ * The sign of s will tell if p3 is on the right side of the p1p2 line. S<0 means right side
  * @param  {Position} p1
  * @param  {Position} p2
  * @param  {Position} p3
@@ -378,7 +378,7 @@ function nodeDistance(n1, n2) {
 function getS(p1, p2, p3) {
 	let a = Vector.subtractVectors(p2, p1);
 	let b = Vector.subtractVectors(p3, p1);
-	let s = Vector.dotProduct(a, Vector.perpendicular(b)) / Vector.length2(a);
+	let s = Vector.dotProduct(a, b.perpendicular(1)) / Vector.length2(a);
 	return s;
 }
 
