@@ -1,5 +1,5 @@
 
-/* global PushCalculator PullCalculator SpringCalculator FieldCalculator*/
+
 
 let BehaviourOverride = {
 	SHOW: 1,
@@ -753,14 +753,17 @@ class CollisionBounce extends Behaviour {
 
 		let nodeStart = collider.localPosition;
 		let nodeEnd = Vector.addVectors(collider.localPosition, collider.velocity);
+		/* eslint-disable-next-line */
 		let perpendicularVelocityStartDistance = getS(
 			tensor.node1.localPosition,
 			tensor.node2.localPosition,
 			nodeStart);
+			/* eslint-disable-next-line */
 		let perpendicularVelocityEndDistance = getS(
 			tensor.node1.localPosition,
 			tensor.node2.localPosition,
 			nodeEnd);
+			/* eslint-disable-next-line */
 		let tensorPointVelocity;
 	}
 }

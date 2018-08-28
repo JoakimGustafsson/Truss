@@ -117,7 +117,23 @@ class Vector {
 	 * @return {number}
 	 */
 	getAngle() {
-		return getAngle(this.x, this.y);
+		function getAngleSupport(x, y) {
+			if (x == 0) {
+				if (y > 0) {
+					return Math.PI / 2;
+				} else {
+					return -Math.PI / 2;
+				}
+			}
+
+			let ratio = y / x;
+			let returnAngle = Math.atan(ratio);
+			if (x < 0) {
+				returnAngle = Math.PI + returnAngle;
+			}
+			return returnAngle;
+		}
+		return getAngleSupport(this.x, this.y);
 	}
 
 	/** Class method that Returns a new vector that is the sum of two vectors
@@ -295,29 +311,6 @@ function anglify(angle) {
 		angle += 2 * Math.PI;
 	}
 	return angle;
-}
-
-/** returns the angle given a x and y. The angle range is +PI to -PI
-
-	 * @param  {number} x difference in x
-	 * @param  {number} y difference in y
-	 * @return {number} angle
-	 */
-function getAngle(x, y) {
-	if (x == 0) {
-		if (y > 0) {
-			return Math.PI / 2;
-		} else {
-			return -Math.PI / 2;
-		}
-	}
-
-	let ratio = y / x;
-	let returnAngle = Math.atan(ratio);
-	if (x < 0) {
-		returnAngle = Math.PI + returnAngle;
-	}
-	return returnAngle;
 }
 
 /**

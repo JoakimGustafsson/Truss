@@ -1,4 +1,7 @@
 /* exported Labels */
+/* global PushCalculator PullCalculator SpringCalculator FieldCalculator AbsorbCalculator */
+/* global AngleNode AngleTensor SelectorBehaviour KeySensor Scriptposition */
+/* global ScriptShow CollisionSensor CollisionBounce ScriptPosition  */
 
 /**
  * @class
@@ -92,7 +95,7 @@ class Labels {
 			'massProperty': 1,
 			'nodeFrictionProperty': 0.99,
 		});
-		let angleNodeLabel = this.addLabel('anglenode', [this.nodeLabel], {
+		this.addLabel('anglenode', [this.nodeLabel], {
 			'angleProperty': 0,
 			'turnrateProperty': 0,
 			'turnFrictionProperty': 0.99,
@@ -142,10 +145,10 @@ class Labels {
 		}, [new KeySensor()]);
 
 		this.addLabel('scriptposition', [this.moveabelLabel], {
-			'positionScriptProperty': "alert('MyPositionScript');",
+			'positionScriptProperty': 'alert("MyPositionScript");',
 		}, [new ScriptPosition()]);
 		this.addLabel('scriptshow', [], {
-			'showScriptProperty': "alert('MyShowScript');",
+			'showScriptProperty': 'alert("MyShowScript");',
 		}, [new ScriptShow()]);
 		this.collideLabel = this.addLabel('collide', [this.sensorLabel], {
 			'collisionLabelProperty': '',

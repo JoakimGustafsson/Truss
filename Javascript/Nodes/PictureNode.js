@@ -1,9 +1,9 @@
-
+/* global warpMatrix*/
 /**
  * @class
  * @extends CollectionNode
  */
-class PictureNode extends CollectionNode {
+class PictureNode extends Node {
 	/**
 	 * @param  {TrussNode} trussNode
 	 * @param  {Position} startPosition
@@ -20,7 +20,7 @@ class PictureNode extends CollectionNode {
 		...args) {
 		super(trussNode, startPosition, mass, name, nodeCollection, ...args);
 
-		this.addProperty(new Property(pictureFileName, 'pictureFileName', 'pictureFileName', 'Picture filename', ParameteType.STRING,
+		this.addProperty(new StringProperty(pictureFileName, 'pictureFileName', 'pictureFileName', 'Picture filename',
 			ParameterCategory.CONTENT, 'The filename of the picture.'));
 
 		Object.defineProperty(this, 'pictureFileName', {
@@ -113,8 +113,6 @@ class PictureNode extends CollectionNode {
 		super.show(truss, time, graphicDebugLevel);
 		this.highLight(truss.view.context);
 
-		let view = truss.view;
-		let ctx = view.context;
 
 		if (this.stretchElement && this.nodeCollection.length>=3) {
 			warpMatrix(truss, this,
@@ -125,5 +123,5 @@ class PictureNode extends CollectionNode {
 				this.width,
 				this.height);
 		}
-	};
+	}
 }

@@ -1,3 +1,5 @@
+/* global StoreableObject Velocity warpMatrix*/
+
 /**
  * @class
  * @extends StoreableObject
@@ -21,7 +23,7 @@ class Node extends StoreableObject {
 			this.velocity = new Velocity(0, 0);
 		}
 		this.connectedTensors = [];
-	
+
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
 				return this._pictureReference;
@@ -222,35 +224,28 @@ class Node extends StoreableObject {
 			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
 			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
 		}
-	};
+	}
 
 	/** Assign a position object to the node. Also consider use of copyPosition() instead.
 	 * @param  {Position} position
 	 */
 	setPosition(position) {
 		this.localPosition = position;
-	};
+	}
 
 	/**
 	 * @return {Position}
 	 */
 	getPosition() {
 		return this.localPosition;
-	};
-
-	/* return the angle this node has with respect to its initial direction.
-	 * @return {number}
-	 *
-	getAngle() {
-		return this.angle;
-	}; */
+	}
 
 	/** Returns the torque constant
 	 * @return {number}
 	 */
 	getTorqueConstant() {
 		return this.torqueConstant;
-	};
+	}
 
 	/**
 	 * Ensures that this node understands that it will recieve force from thsi tensor
@@ -268,7 +263,7 @@ class Node extends StoreableObject {
 		this.connectedTensors.push(tensor);
 
 		return tensor;
-	};
+	}
 
 	/**
 	 * This node will no longer recieve force from this tensor
@@ -363,7 +358,7 @@ class Node extends StoreableObject {
 	 * @return {number}
 	 */
 	calculateTorques() {
-		return super.calculateTorques()
+		return super.calculateTorques();
 		/*
 		this.sumTorque = 0;
 		if (!this.turnable()) {
@@ -415,7 +410,6 @@ class Node extends StoreableObject {
 	 */
 	sumAllForces(forceAppliers, velocityPhase=0) {
 		let result = new Force(0, 0);
-		let applier;
 		let tempForce;
 		for (let applier of forceAppliers) {
 			if (!velocityPhase || applier.velocityBasedTensors) {
@@ -596,9 +590,8 @@ class Node extends StoreableObject {
 	/**
 	 * Draws a picture on a given Canvas. T
 	 * @param  {truss} truss
-	 * @param  {number} time
 	 */
-	pictureShow(truss, time) {
+	pictureShow(truss) {
 		this.setupScale();
 		let a1 = new Vector(Math.cos(this.pictureCornerAngle+this.angle)*this.pictureCornerLength,
 			Math.sin(this.pictureCornerAngle+this.angle)*this.pictureCornerLength);

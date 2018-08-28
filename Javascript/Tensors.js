@@ -1,3 +1,4 @@
+/* global StoreableObject warpMatrix */
 /**
  * Tensor class
  * @class
@@ -19,15 +20,6 @@ class Tensor extends StoreableObject {
 
 		this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
-
-		/* this.properties = new PropertyList();
-		this.collideDistanceMapping = {};
-		this.force = new Force(0, 0);
-		this.ghost = false;
-		this.isTensor=true;
-		this.color='white';
-		this.labelString=initialLabels;
-		this.visible=true;*/
 
 		Object.defineProperty(this, 'degree2', {
 			get: function() {
@@ -66,7 +58,6 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node1 = value;
-				// this.angle1 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
 			},
 		});
@@ -83,7 +74,6 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node2 = value;
-				// this.angle2 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
 			},
 		});
@@ -146,20 +136,20 @@ class Tensor extends StoreableObject {
 		};
 
 		if (_this.node1 == leftNode) {
-			leftButton.onclick = function(x) {
+			leftButton.onclick = function() {
 				_this.node1=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
-			rightButton.onclick = function(x) {
+			rightButton.onclick = function() {
 				_this.node2=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
 		} else {
-			leftButton.onclick = function(x) {
+			leftButton.onclick = function() {
 				_this.node2=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
-			rightButton.onclick = function(x) {
+			rightButton.onclick = function() {
 				_this.node1=universe.currentNode.selector;
 				document.addEventListener('selectionEvent', _this.attachFunction, false);
 			};
@@ -293,91 +283,21 @@ class Tensor extends StoreableObject {
 			return new Position((p2.x+p1.x)/2, (p2.y+p1.y)/2);
 		}
 		return new Position(0, 0);
-	};
-
-
-	/* Given a node. Return the angle that the tensor wants o have wrt to the node
-	 * @param  {Node} node
-	 * @return {number} wanted angle
-	 *
-	getIdealAngle(node) {
-		if (node==this.node1) {
-			return this.angle1;
-		}
-		return this.angle2;
-	};
-
-
-	/** Given one of the nodes of a tensor node.
-	 * Return the torque.
-	 * @param  {Node} node
-	 * @return {number}
-	 *
-	getTorque(node) {
-		let idealAngle = this.getIdealAngle(node);
-		if (isNaN(idealAngle)) {
-			return 0;
-		}
-		let tensorAngle = this.getTensorAngle(node);
-		let theNodeShouldHaveAngle = tensorAngle-idealAngle;
-
-		let nodeAngle = anglify(node.getAngle());
-		let correctionAngle = anglify(theNodeShouldHaveAngle - nodeAngle);
-
-		let torque= node.getTorqueConstant() * correctionAngle;
-		if (node==this.node1) {
-			this.torque1=-torque;
-		} else {
-			this.torque2=-torque;
-		}
-		return torque;
-	};
-
-	/* This retrieves a torque that has been previously calculated during the calculatetorque step.
-	 * @param  {Node} node
-	 * @return {number}
-	 *
-	getStoredTorque(node) {
-		if (node==this.node1) {
-			return this.torque1;
-		}
-		return this.torque2;
-	} 
-
-	/**
-	 * Returns the force from this tensor resulting from the torque in the opposite node.
-	 * @param  {Node} node
-	 * @return {number}
-	 *
-	calculateTorqueForce(node) {
-		let opposite = this.getOppositeNode(node);
-		if (opposite.getTorqueConstant()==0) {
-			return new Force(0, 0);
-		}
-		let torque = this.getStoredTorque(opposite);
-		if (!torque) {
-			return new Force(0, 0);
-		}
-		let forceLenth = torque * this.getLength();
-		let actual = this.getActual();
-		let perp = actual.perpendicular();
-		let force = perp.normalizeVector(forceLenth);
-		return force.opposite();
-	}; */
+	}
 
 	/**
 	 * @return {number}
 	 */
 	isGhost() {
 		return this.ghost;
-	};
+	}
 
 	/**
 	 * Makes sure the actual nodes will take this tensor into consideration
 	 */
 	ghostify() {
 		this.ghost = true;
-	};
+	}
 
 	/**
 	 *
@@ -385,7 +305,7 @@ class Tensor extends StoreableObject {
 	deGhostify() {
 		this.ghost = false;
 		this.collideDistanceMapping={};
-	};
+	}
 
 	/**
 	 * Makes sure the nodes will NOT take this tensor into consideration
@@ -399,7 +319,7 @@ class Tensor extends StoreableObject {
 			this.node1.removeTensor(this);
 		}
 		this.force = 0;
-	};
+	}
 
 	/**
 	 * Is this a second node to the right of the first node?
@@ -407,7 +327,7 @@ class Tensor extends StoreableObject {
 	 */
 	rightNode() {
 		return (this.node1.getPosition().x >= this.node2.getPosition().x);
-	};
+	}
 
 	/**
 	 * Return the node with the highest x value, ie, the rightmost node of the tensor
@@ -418,7 +338,7 @@ class Tensor extends StoreableObject {
 			return this.node1;
 		}
 		return this.node2;
-	};
+	}
 	/**
 	 * set or replace the node with the highest (rightmost) node
 	 * @param  {Node} node
@@ -428,7 +348,7 @@ class Tensor extends StoreableObject {
 			this.addNode1(node);
 		}
 		this.addNode2(node);
-	};
+	}
 
 	/**
 	 * Return the node with the lowest y value, ie, the topmost node of the tensor
@@ -439,7 +359,7 @@ class Tensor extends StoreableObject {
 			return this.node1;
 		}
 		return this.node2;
-	};
+	}
 
 	/**
 	 * Given a node of the tensor, this will return the opposite tensor
@@ -451,7 +371,7 @@ class Tensor extends StoreableObject {
 			return this.node2;
 		}
 		return this.node1;
-	};
+	}
 
 
 	/**
@@ -464,9 +384,11 @@ class Tensor extends StoreableObject {
 		if (node==this.node2) {
 			modifyIfNode2 = Math.PI;
 		}
-		// let x = this.supportAngle() * 180/Math.PI;
-		return anglify(getAngle(this.getXDifference(), this.getYDifference()) + modifyIfNode2);
-	};
+		let rawAngle =
+			Vector.SubtractVectors(this.node2.localPosition, this.node1.localPosition).getAngle();
+		//getXAngle(this.getXDifference(), this.getYDifference());
+		return anglify(rawAngle + modifyIfNode2);
+	}
 
 	/**
 	 * Returns the vertical difference between the nodes
@@ -474,7 +396,7 @@ class Tensor extends StoreableObject {
 	 */
 	getXDifference() {
 		return (this.node2.getPosition().x - this.node1.getPosition().x);
-	};
+	}
 
 	/**
 	 * Returns the vertical distance between the nodes
@@ -482,7 +404,7 @@ class Tensor extends StoreableObject {
 	 */
 	getXLength() {
 		return Math.abs(this.getXDifference());
-	};
+	}
 
 	/**
 	 * Returns the horizontal difference between the nodes
@@ -490,7 +412,7 @@ class Tensor extends StoreableObject {
 	 */
 	getYDifference() {
 		return this.node2.getPosition().y - this.node1.getPosition().y;
-	};
+	}
 
 	/**
 	 * Returns the horizontal distance between the nodes
@@ -498,7 +420,7 @@ class Tensor extends StoreableObject {
 	 */
 	getYLength() {
 		return Math.abs(this.getYDifference());
-	};
+	}
 
 	/**
 	 * Returns the distance between the nodes
@@ -506,15 +428,15 @@ class Tensor extends StoreableObject {
 	 */
 	getLength() {
 		return Math.sqrt(this.getLengthSquare());
-	};
+	}
 
 	/**
 	 * Returns the Vector representation of the Tensor.
 	 * @return {Vector}
 	 */
 	getActual() {
-		return new Vector(this.getXDifference(), this.getYDifference()); ;
-	};
+		return new Vector(this.getXDifference(), this.getYDifference());
+	}
 
 	/**
 	 * Returns the squared length of the tensor. Used for efficiency reasons in some cases instead of getLength().
@@ -522,7 +444,7 @@ class Tensor extends StoreableObject {
 	 */
 	getLengthSquare() {
 		return Math.pow(this.getXDifference(), 2) + Math.pow(this.getYDifference(), 2);
-	};
+	}
 
 	/**
 	 * Returns the force from this tensor acting on the input node.
@@ -543,7 +465,7 @@ class Tensor extends StoreableObject {
 		if (!torqueForce) {
 			return directedforce;
 		} else return Vector.addVectors(directedforce, torqueForce);
-	};
+	}
 
 	/** Return {string} the HTML color of the tensor
 	 * @return {string} the HTML color of the tensor
@@ -552,14 +474,14 @@ class Tensor extends StoreableObject {
 		if (this.color) {
 			return this.color;
 		} else return 'white';
-	};
+	}
 	/**
 	 * clear a specific node from the list of nodes that have collided with the tensor.
 	 * @param  {Node} node
 	 */
 	resetCollision(node) {
 		delete this.collideDistanceMapping[node.name];
-	};
+	}
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
 	 * @param  {Node} node
@@ -570,12 +492,12 @@ class Tensor extends StoreableObject {
 		let oldDistance = this.collideDistanceMapping[node.name];
 		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
 		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < -0.0) || (1.0 < where)) {
+		if ((where < 0.0) || (1.0 < where)) {
 			newDistance = 0;
 		}
 		this.collideDistanceMapping[node.name] = newDistance;
 		if (oldDistance * newDistance < 0) {
-			if ((where >= -0) && (where <= 1)) {
+			if ((where >= 0) && (where <= 1)) {
 				let detail = {
 					'where': where,
 					'from': oldDistance,
@@ -592,7 +514,7 @@ class Tensor extends StoreableObject {
 				return detail;
 			}
 		}
-	};
+	}
 
 
 	/**
@@ -634,7 +556,7 @@ class Tensor extends StoreableObject {
 				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
 			}
 		}
-	};
+	}
 
 	/**
 	 * @param  {Context} ctx
@@ -673,61 +595,6 @@ class Tensor extends StoreableObject {
 		super.calculateForce(1);
 	}
 
-	/*
-	* Calculate the force in the Spring based on current length
-	*
-	calculateForceSpring() {
-		let actualVector = this.getActual();
-		let normalized = actualVector.normalizeVector(this.equilibriumLength);
-		let diffVector = Vector.subtractVectors(actualVector, normalized);
-		this.force = Vector.multiplyVector(-this.constant, diffVector);
-	}
-
-	/**
-	* Calculate the force in the Spring based on current length
-	*
-	calculateForcePull() {
-		let actualVector = this.getActual();
-		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
-			this.force = new Force(0, 0);
-		} else {
-			this.calculateForceSpring();
-		}
-	}
-
-	/**
-	* Calculate the force in the Spring based on current length
-	*
-	calculateForcePush() {
-		let actualVector = this.getActual();
-		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) > this.equilibriumLength * this.equilibriumLength)) {
-			this.force = new Force(0, 0);
-		} else {
-			this.calculateForceSpring();
-		}
-	}
-
-	/**
-	* Calculate the force in the Field based on distance and mass of the nodes
-	*
-	calculateForceField() {
-		let actualVector = this.getActual();
-		let normalized = actualVector.normalizeVector(1);
-		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
-		this.force = Vector.multiplyVector(-forceSize, normalized);
-	} */
-
-	/**
-	* Calculate the force in the Absorber based on the relative speed between the nodes
-	*
-	calculateForceAbsorber() {
-		let actualVector = this.getActual();
-		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
-		let parallellVelocity = Vector.multiplyVector(
-			Vector.dotProduct(actualVector, internalSpeed),
-			Vector.divideVector(actualVector, this.getLengthSquare()));
-		this.force = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
-	}*/
 
 	/**
 	* Using a space separated list, list the labels that should be added
@@ -762,19 +629,19 @@ class PictureSpring extends Tensor {
 		this.stretch=1;
 		this.length=this.equilibriumLength;
 
-		this.addProperty(new Property(this,
-			'pictureReference', 'pictureReference', 'Picture filename', ParameteType.STRING, ParameterCategory.CONTENT,
+		this.addProperty(new StringProperty(this,
+			'pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT,
 			'The picture filename.'));
-		this.addProperty(new Property(this,
-			'width', 'width', 'Width', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.addProperty(new NumberProperty(this,
+			'width', 'width', 'Width', ParameterCategory.CONTENT,
 			'The picture width out from the tensor'));
 
-		this.addProperty(new Property(this,
-			'length', 'length', 'Picture length', ParameteType.NUMBER, ParameterCategory.CONTENT,
+		this.addProperty(new NumberProperty(this,
+			'length', 'length', 'Picture length', ParameterCategory.CONTENT,
 			'How long should the picture be along the tensor length'));
 
-		this.addProperty(new Property(this,
-			'stretch', 'stretch', 'Stretch', ParameteType.SWITCH, ParameterCategory.CONTENT,
+		this.addProperty(new SwitchProperty(this,
+			'stretch', 'stretch', 'Stretch', ParameterCategory.CONTENT,
 			'If active the picture will stretchout between the nodes, otherwise it '+
 			'will keep its length and be clipped if the tensor gets too short.'));
 
@@ -838,9 +705,8 @@ class PictureSpring extends Tensor {
 	}
 
 	/**
-	* @param {number} on
 	*/
-	setVisible(on) {
+	setVisible() {
 	}
 
 	/**
@@ -871,6 +737,6 @@ class PictureSpring extends Tensor {
 		}
 
 		warpMatrix(truss, this, a, b, c, d, this.width, this.height);
-	};
+	}
 }
 

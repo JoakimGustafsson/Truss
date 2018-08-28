@@ -188,11 +188,11 @@ class ProximitySensorNode extends SensorNode {
 	 * Used to poll if a key has been pressed and moves to the corresponding vector
 	 * Note that several keys can be pressed simultaneously
 	 * @param  {number} trussTime
-	 * @param  {number} timeFactor
 	 */
-	updatePosition(trussTime, timeFactor) {
+	updatePosition(trussTime) {
 		let p = this.startPosition;
 		for (let proximityitem of this.proximityList) {
+			/* eslint-disable-next-line */
 			if (positionDistance(proximityitem.node.getPosition(), this.startPosition) <= proximityitem.distance) {
 				p = Vector.addVectors(p, proximityitem.vector);
 				if (this.triggerFunction) {
@@ -201,15 +201,13 @@ class ProximitySensorNode extends SensorNode {
 			}
 		}
 		this.setPosition(p);
-	};
+	}
 
 	/**
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
 	 */
-	sense(deltaTime, truss) {}
+	sense() {}
 
 	/**
 	 * Combines a node with a vecor to move if that node is close
@@ -223,7 +221,7 @@ class ProximitySensorNode extends SensorNode {
 			'distance': distance,
 			'vector': vector,
 		});
-	};
+	}
 }
 
 /**
@@ -293,7 +291,7 @@ class CollisionSensorNode extends SensorNode {
 	 */
 	sense(deltaTime, truss) {
 		for (let tensor of truss.connectedTensors) {
-			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
+			if (!tensor.isGhost()) {
 				tensor.checkCollision(this.localObject, truss);
 				// the tensor will raise an event that is caught by the collisionFunction()
 			}
@@ -321,7 +319,7 @@ class CollisionSensorNode extends SensorNode {
 			' collided from the ' + direction + ' with tensor ' +
 			tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
 		this.localActuator.attachToTensor(truss, tensor, where, from);
-	};
+	}
 }
 
 /**
@@ -390,9 +388,10 @@ class BounceSensorNode extends SensorNode {
 			let p3 = this.localObject.getPosition();
 			let perpendicularDistance = getS(p1, p2, p3);
 			let above = (perpendicularDistance * lineBreaker.direction > 0.0);
+			/* eslint-disable-next-line */
 			let inside = getTInside(p1, p2, p3);
-			let inside2 = getTInside2(p1, p2, p3);
-			let closeParallell = (Math.abs(perpendicularDistance) < 0.01); // 0.2);
+			// let inside2 = getTInside2(p1, p2, p3);
+			// let closeParallell = (Math.abs(perpendicularDistance) < 0.01); // 0.2);
 
 			if (above && inside) {
 				this.localActuator.bounceExit(truss, lineBreaker);
@@ -429,6 +428,7 @@ class BounceSensorNode extends SensorNode {
 		let p2 = tensor.getOppositeNode(connectionNode).getPosition();
 		let originalVector = new Vector(p2.x - p1.x, p2.y - p1.y);
 		let speed = length(ego.velocity) * deltaTime;
+		/* eslint-disable-next-line */
 		let newShortDisplacementVector = normalizeVector(speed, originalVector);
 		return Vector.addVectors(p1, newShortDisplacementVector);
 	}
@@ -441,6 +441,8 @@ class BounceSensorNode extends SensorNode {
 	 */
 	passCloseBy(startNode, endNode, deltaTime) {
 		let realVelocity = Vector.subtractVectors(startNode.velocity, endNode.velocity);
+
+		/* eslint-disable-next-line */
 		let relativeVelocity = multiplyVector(deltaTime, realVelocity);
 		let p1 = startNode.getPosition();
 		let p2 = endNode.getPosition();
@@ -462,13 +464,16 @@ class BounceSensorNode extends SensorNode {
 	getAngleClosestRight(farNode, closeNode, dir) {
 		let closestAngle = -Math.PI;
 		let closestTensor = undefined;
-		let originalAngle = anglify(getAngle(
+		/* eslint-disable-next-line */
+		let originalAngle = anglify(getXAngle(
 			farNode.getPosition().x - closeNode.getPosition().x,
 			farNode.getPosition().y - closeNode.getPosition().y));
 
 		for (let tensor of closeNode.positionBasedTensors) {
+			/* eslint-disable-next-line */
 			if (tensor.tensorType == TensorType.SPRING && !tensor.isGhost()) {
 				let tempAngle = tensor.getTensorAngle(closeNode);
+				/* eslint-disable-next-line */
 				let tempdiff = angleSubstract(originalAngle, tempAngle);
 				if ((0 > tempdiff * dir) && (tempdiff * dir > closestAngle)) {
 					closestAngle = tempdiff;
@@ -521,10 +526,8 @@ class PositionNode extends SensorNode {
 
 	/**
 	 * Simply mirrors the position of the tracked node.
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
 	 */
-	sense(deltaTime, truss) {
+	sense() {
 		let t = new Position(this.trackedNode.getPosition().x, this.trackedNode.getPosition().y);
 		this.setPosition(t);
 	}
@@ -532,10 +535,8 @@ class PositionNode extends SensorNode {
 	/**
 	 * Draw the circle representing the node
 	 * @param {Truss} truss
-	 * @param {number} time
-	 * @param {number} graphicDebugLevel
 	 */
-	show(truss, time, graphicDebugLevel = 0) {
+	show(truss) {
 		let view=truss.view;
 		this.highLight(view.context);
 		if (view.inside(this.getPosition())) {

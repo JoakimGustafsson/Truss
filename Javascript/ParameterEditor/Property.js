@@ -57,9 +57,8 @@ class PropertyList {
 	/**
 	 * @param {element} element
 	 * @param {Object} ownerObject
-	 * @param {number} ignoreLabels
 	 */
-	populateProperties(element, ownerObject, ignoreLabels) {
+	populateProperties(element, ownerObject) {
 		element.innerHTML = '';
 
 		let labelArea = document.createElement('div');
@@ -123,21 +122,17 @@ class Property {
 
 	/**
 	 * @param  {Object} serializeObject
-	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(serializeObject, localNodeList, tensorList) {
+	serialize(serializeObject) {
 		return serializeObject;
 	}
 
 	/**
 	 * @param  {Object} serializeObject
-	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	deSerialize(serializeObject, localNodeList, tensorList) {
+	deSerialize(serializeObject) {
 		if (serializeObject.constructor === String) {
 			return serializeObject;
 		} else return '';
@@ -263,7 +258,7 @@ class Property {
 			valueObject[this.propertyName]=this.defaultValue;
 		}
 		element.value = valueObject[this.propertyName];
-	};
+	}
 }
 
 /* *********************************************************************************** */
@@ -373,7 +368,7 @@ class ScriptProperty extends Property {
 		parameterValue.appendChild(this.input);
 	}
 
-	
+
 	/** actually assign to the owning object
 	 * @param  {Object} value
 	 * @param  {Object} owner
@@ -381,12 +376,12 @@ class ScriptProperty extends Property {
 	assignValue(value, owner) {
 		let supportThis = function myEval(script) {
 			return eval(script);
-		}
+		};
 		if (owner) {
 			this.owner=owner;
 		}
 		this.owner[this.propertyName] = value;
-		
+
 		try {
 			this.owner[this.propertyName+'_Evaluated']=
 				supportThis.call(this.owner, value);
@@ -443,7 +438,7 @@ class LabelProperty extends Property {
 		this.owner[this.propertyName] = value;
 
 		try {
-			this.owner[this.propertyName+'_Label']= owner.world.labels.findLabel(value)
+			this.owner[this.propertyName+'_Label']= owner.world.labels.findLabel(value);
 		}
 		catch(err) {
 			console.log(err);
@@ -502,8 +497,6 @@ class SwitchProperty extends Property {
 
 		parameterValue.appendChild(inputLabel);
 
-
-		let _this = this;
 		inputField.addEventListener('input', () => {
 			this.assignValue(inputField.checked);
 		});
@@ -547,7 +540,7 @@ class SwitchProperty extends Property {
 			valueObject[this.propertyName]=this.defaultValue;
 		}
 		element.checked = valueObject[this.propertyName];
-	};
+	}
 }
 
 /**
@@ -616,13 +609,12 @@ class PositionProperty extends Property {
 
 		this.yInput = yinputField;
 
-		let _this = this;
 
 		xinputField.addEventListener('input', () => {
 			this.assignValue(
 				new Position(parseInt(xinputField.value),
-							parseInt(yinputField.value),
-			), owner);
+					parseInt(yinputField.value),
+				), owner);
 		});
 
 		/* function(e) {
@@ -632,10 +624,10 @@ class PositionProperty extends Property {
 		yinputField.addEventListener('input', () => {
 			this.assignValue(
 				new Position(parseInt(xinputField.value),
-							parseInt(yinputField.value),
-			), owner);
+					parseInt(yinputField.value),
+				), owner);
 		});
-		
+
 		/* function(e) {
 			universe.selectedObject[_this.propertyName].y = parseInt(yinputField.value);
 		}, false); */
@@ -643,11 +635,9 @@ class PositionProperty extends Property {
 
 	/**
 	 * @param  {Object} serializeObject
-	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(serializeObject, localNodeList, tensorList) {
+	serialize(serializeObject) {
 		return {
 			'x': serializeObject.x,
 			'y': serializeObject.y,
@@ -656,11 +646,9 @@ class PositionProperty extends Property {
 
 	/**
 	 * @param  {Object} serializeObject
-	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Position}
 	 */
-	deSerialize(serializeObject, localNodeList, tensorList) {
+	deSerialize(serializeObject) {
 		return new Position(serializeObject.x, serializeObject.y);
 	}
 
@@ -705,7 +693,6 @@ class NodeProperty extends Property {
 	 */
 	populateProperty(element, owner) {
 		this.owner=owner;
-		let id = this.identity;
 
 		let parameterValue = this.createNameValuePair(element);
 		this.input = document.createElement('div');
@@ -731,7 +718,7 @@ class NodeProperty extends Property {
 
 		changeButton.onclick = () => {
 			this.assignValue(universe.currentNode.selector);
-			this.initialSelectedItem =_this.owner;
+			this.initialSelectedItem =this.owner;
 			this.active=true;
 			document.addEventListener('selectionEvent', this.attachFunction, false);
 		};
@@ -741,20 +728,18 @@ class NodeProperty extends Property {
 	/**
 	 * @param  {Object} serializeObject
 	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(serializeObject, localNodeList, tensorList) {
+	serialize(serializeObject, localNodeList) {
 		return localNodeList.indexOf(serializeObject);
 	}
 
 	/**
 	 * @param  {Object} serializeObject
 	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Position}
 	 */
-	deSerialize(serializeObject, localNodeList, tensorList) {
+	deSerialize(serializeObject, localNodeList) {
 		return localNodeList[serializeObject];
 	}
 
@@ -813,28 +798,26 @@ class TensorListProperty extends Property {
 		this.input={};
 		return;
 
-		let display = '';
-		let addNodeButton;
-		let id = this.identity;
+		// let id = this.identity;
 
-		let parameterValue = this.createNameValuePair(element);
+		// let parameterValue = this.createNameValuePair(element);
 
-		for (let tensor of owner[this.propertyName]) {
-			let tensorButton = document.createElement('button');
-			tensorButton.innerHTML = tensor.getName();
-			tensorButton.classList.add('trussButton');
-			tensorButton.classList.add('tensorButtonMiddle');
+		// for (let tensor of owner[this.propertyName]) {
+		// 	let tensorButton = document.createElement('button');
+		// 	tensorButton.innerHTML = tensor.getName();
+		// 	tensorButton.classList.add('trussButton');
+		// 	tensorButton.classList.add('tensorButtonMiddle');
 
-			tensorButton.style.display = 'inline';
-			parameterValue.appendChild(tensorButton);
-			this.registerOnClick(tensorButton, tensor);
-		}
+		// 	tensorButton.style.display = 'inline';
+		// 	parameterValue.appendChild(tensorButton);
+		// 	this.registerOnClick(tensorButton, tensor);
+		// }
 
-		let inputField = document.createElement('div');
-		inputField.id = id;
-		inputField.style.width = '140px';
-		parameterValue.appendChild(inputField);
-		this.input=inputField;
+		// let inputField = document.createElement('div');
+		// inputField.id = id;
+		// inputField.style.width = '140px';
+		// parameterValue.appendChild(inputField);
+		// this.input=inputField;
 	}
 
 
@@ -1058,6 +1041,7 @@ class PropertyListProperty extends Property {
 			let rowDiv = document.createElement('div');
 			rowDiv.id = 'row';
 			rowDiv.innerHTML='';
+			/* eslint-disable-next-line */
 			for (let [key, property] of Object.entries(row)) {
 				property.populateProperty(rowDiv, val);
 			}
@@ -1068,21 +1052,17 @@ class PropertyListProperty extends Property {
 
 	/**
 	 * @param  {Object} serializeObject
-	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	serialize(serializeObject, localNodeList, tensorList) {
+	serialize(serializeObject) {
 		return JSON.stringify(serializeObject[this.propertyName]);
 	}
 
 	/**
 	 * @param  {Object} serializeObject
-	 * @param  {Array} localNodeList
-	 * @param  {Array} tensorList
 	 * @return {Object}
 	 */
-	deSerialize(serializeObject, localNodeList, tensorList) {
+	deSerialize(serializeObject) {
 		return JSON.parse(serializeObject[this.propertyName]);
 	}
 
@@ -1107,7 +1087,8 @@ class PropertyListProperty extends Property {
 			let rowDiv = document.createElement('div');
 			rowDiv.id = 'row';
 			rowDiv.innerHTML='';
-			for (let [key, property] of Object.entries(row)) {
+			/* eslint-disable-next-line */
+			for (let [key , property] of Object.entries(row)) {
 				property.updatePropertyValue(val);
 			}
 		}
