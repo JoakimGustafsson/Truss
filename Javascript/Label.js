@@ -1,7 +1,7 @@
 /* exported Labels */
 /* global PushCalculator PullCalculator SpringCalculator FieldCalculator AbsorbCalculator */
 /* global AngleNode AngleTensor SelectorBehaviour KeySensor Scriptposition */
-/* global ScriptShow CollisionSensor CollisionBounce ScriptPosition  */
+/* global ScriptShow CollisionSensor CollisionBounce ScriptPosition PropertyList */
 
 /**
  * @class
@@ -18,49 +18,11 @@ class Labels {
 	}
 
 	createProperties() {
-		this.massProperty = new NumberProperty('mass', 'mass', 'Mass', ParameterCategory.CONTENT, 'The mass of the node in Kilograms.');
-		this.nameProperty = new StringProperty('name', 'name', 'Name', ParameterCategory.CONTENT, 'The name of the node.');
-		this.constantProperty = new NumberProperty('constant', 'constant', 'Constant', ParameterCategory.CONTENT, 'The tensor constant.');
-		this.absorberProperty = new NumberProperty('dampeningConstant', 'dampeningConstant', 'Dampening Constant', ParameterCategory.CONTENT, 'The absorb constant.');
-		this.positionProperty = new PositionProperty('localPosition', 'localPosition', 'Position', ParameterCategory.CONTENT, 'The position counted from the upper left corner.');
-		this.velocityProperty = new PositionProperty('velocity', 'velocity', 'Velocity', ParameterCategory.CONTENT, 'The velocity.');
-		this.angleProperty = new NumberProperty('angle', 'angle', 'Node angle', ParameterCategory.CONTENT, 'The angle of the node.');
-		this.startAngleProperty = new NumberProperty('angle1', 'angle1', 'Start angle', ParameterCategory.CONTENT, 'The angle of the tensor at the start node.');
-		this.endAngleProperty = new NumberProperty('angle2', 'angle2', 'End angle', ParameterCategory.CONTENT, 'The angle of the tensor at the end node.');
-		this.torqueConstantProperty = new NumberProperty('torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT, 'How stiff the node is with respect to attempts angle differences.');
-		this.turnrateProperty = new NumberProperty('turnrate', 'turnrate', 'Turn rate', ParameterCategory.CONTENT, 'The speed at which the node turns.');
-		this.nodeFrictionProperty = new NumberProperty('velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT, 'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		this.turnFrictionProperty = new NumberProperty('turnLoss', 'turnLoss', 'Rotational friction', ParameterCategory.CONTENT, 'How much rotation speed bleeds of the node (0-1, where 1 is no bleed of).');
-		this.colorProperty = new StringProperty('color', 'color', 'Colour', ParameterCategory.CONTENT, 'The colour of the node.');
-		this.positionScriptProperty = new ScriptProperty('positionScript', 'positionScript', 'Position script', ParameterCategory.CONTENT, 'This script should return a new position object where this node will be moved to.');
-		this.showScriptProperty = new ScriptProperty('showScript', 'showScript', 'Show script', ParameterCategory.CONTENT, 'This script is run when the object should be drawn on the screen.');
-
-		this.collisionLabelProperty = new LabelProperty('collisionLabel', 'collisionLabel', 'Collide label', ParameterCategory.CONTENT, 'Collide with tensors having this label.');
-		this.pictureProperty = new StringProperty('pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT, 'The picture filename.');
-		this.sizeProperty = new NumberProperty('size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT, 'The picture size');
-		this.equilibriumLengthProperty = new NumberProperty('equilibriumLength', 'equilibriumLength', 'Length', ParameterCategory.CONTENT, 'How long should the relaxed spring be.');
-		this.degree1Property = new NumberProperty('degree1', 'degree1', 'Angle 1', ParameterCategory.CONTENT, 'The angle the node connects to the start node.');
-		this.degree2Property = new NumberProperty('degree2', 'degree2', 'Angle 2', ParameterCategory.CONTENT, 'The angle the node connects to the end node.');
-		this.screenSizeProperty = new PositionProperty('screenSize', 'screenSize', 'Screen size', ParameterCategory.CONTENT, 'The size of the displayed screen in pixels.');
-		this.worldSizeProperty = new PositionProperty('worldSize', 'worldSize', 'World display size', ParameterCategory.CONTENT, 'The size of the displayed worldview in that worlds measurement.');
-		this.setWorldOffsetProperty = new PositionProperty('worldOffset', 'worldOffset', 'View position', ParameterCategory.CONTENT, 'The world coordinates of the upper left corner.');
-		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
-		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per Second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
-		this.visibilityProperty = new SwitchProperty('visible', 'visible', 'Visible', ParameterCategory.CONTENT, 'Should this be visible on the screen.');
-		this.snapGridProperty = new NumberProperty('gridSize', 'gridSize', 'Align to grid', ParameterCategory.CONTENT, 'Aligning all new positions to this grid. (0 for no alignment)');
-		this.enforcedProperty = new NumberProperty('enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT, 'Special parameter that only is used in labels to enforce all parameter values are enforced.');
-		this.startNodeProperty = new NodeProperty('node1', 'node1', 'Start node', ParameterCategory.CONTENT, 'Start node.');
-		this.endNodeProperty = new NodeProperty('node2', 'node2', 'End node', ParameterCategory.CONTENT, 'End node.');
-		this.parentTrussNodeProperty = new NodeProperty('parentTrussNode', 'parentTrussNode', 'Parent node', ParameterCategory.CONTENT, 'Owning truss node.');
-		this.connectedTensorsProperty = new TensorListProperty('connectedTensors', 'connectedTensors', 'Tensors', ParameterCategory.CONTENT, 'All tensors based on node positions.');
-		this.keyProperty = new PropertyListProperty('keyVectors', 'keyVectors', 'KeyVectorList', ParameterCategory.CONTENT, 'All tensors based on node positions.', [
-			() => new StringProperty('key', 'key', 'Trigger key', ParameterCategory.CONTENT, 'The number of the key that triggers the move.'),
-			() => new PositionProperty('vector', 'vector', 'Position change', ParameterCategory.CONTENT, 'The position node moves when the key is pressed.')
-		]);
-		this.restPositionProperty = new PositionProperty('restPosition', 'restPosition', 'Rest position', ParameterCategory.CONTENT, 'The position when no key is pressed.');
+		this.allProperties = new PropertyList();
 	}
 
 	createInitialLabels() {
+		this.allProperties = new PropertyList();
 		this.nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
@@ -153,10 +115,8 @@ class Labels {
 		this.collideLabel = this.addLabel('collide', [this.sensorLabel], {
 			'collisionLabelProperty': '',
 		}, [new CollisionSensor()]);
-
 		this.addLabel('bounceactuator', [this.moveabelLabel, this.collideLabel], {},
 			[new CollisionBounce()]);
-
 	}
 
 	/**
@@ -171,7 +131,7 @@ class Labels {
 			let enforced = properties.enforcedProperty;
 			for (const [key, value] of Object.entries(properties)) {
 				properties[key] = {
-					'propertyObject': this[key],
+					'propertyObject': this.allProperties[key],
 					'defaultValue': value,
 					'enforced': enforced,
 				};

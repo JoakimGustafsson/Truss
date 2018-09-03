@@ -1,3 +1,5 @@
+/* global TrussNode Tensor Velocity */
+
 /**
  *
  */
@@ -36,71 +38,58 @@ class GovenorTruss extends TrussNode {
 	 * @param {Node} protagonist
 	 */
 	initiate() {
-		let governedNode = this.parentTrussNode.parentTrussNode;
-		let parent = this.parentTrussNode;
-		let governedTruss = governedNode.truss;
+		// let governedNode = this.parentTrussNode.parentTrussNode;
+		// let parent = this.parentTrussNode;
+		// let governedTruss = governedNode.truss;
 
-		protagonist = governedTruss.protagonist;
-		parent.selector = this.addNode(new Selector(parent));
-		// Set up a keysensornode and make it sensitive to q, e and space
-		let sensorNode = this.addNode(new KeySensorNode(parent, new Position(2, 1), 0.01, 'myKeySensorNode'));
-		sensorNode.registerKey(37, new Vector(-2, 0));
-		sensorNode.registerKey(65, new Vector(-2, 0));
-		sensorNode.registerKey(39, new Vector(2, 0));
-		sensorNode.registerKey(68, new Vector(2, 0));
-		sensorNode.registerKey(32, new Vector(0, 1));
+		// protagonist = governedTruss.protagonist;
+		// parent.selector = this.addNode(new Selector(parent));
+		// // Set up a keysensornode and make it sensitive to q, e and space
+		// let sensorNode = this.addNode(new KeySensorNode(parent, new Position(2, 1), 0.01, 'myKeySensorNode'));
+		// sensorNode.registerKey(37, new Vector(-2, 0));
+		// sensorNode.registerKey(65, new Vector(-2, 0));
+		// sensorNode.registerKey(39, new Vector(2, 0));
+		// sensorNode.registerKey(68, new Vector(2, 0));
+		// sensorNode.registerKey(32, new Vector(0, 1));
 
-		this.addTensor(new Spring(f1, b1, springconstant * 10));
-		this.addTensor(new Spring(f2, b2, springconstant * 10));
-		this.addTensor(new Spring(f3, b3, springconstant * 10));
-		this.addTensor(new Spring(f4, b4, springconstant * 10));
-		this.addTensor(new Spring(f5, b5, springconstant * 10));
+		// this.addTensor(new Spring(f1, b1, springconstant * 10));
+		// this.addTensor(new Spring(f2, b2, springconstant * 10));
+		// this.addTensor(new Spring(f3, b3, springconstant * 10));
+		// this.addTensor(new Spring(f4, b4, springconstant * 10));
+		// this.addTensor(new Spring(f5, b5, springconstant * 10));
 
-		// let fulcrum = this.addNode(new Node(this, new Position(2, 5), NaN, 'fulcrum', undefined, undefined, 1, 5000));
+		// // let fulcrum = this.addNode(new Node(this, new Position(2, 5), NaN, 'fulcrum', undefined, undefined, 1, 5000));
 
-		// this.addTensor(new Spring(fulcrum, sensorNode, 900));
+		// // this.addTensor(new Spring(fulcrum, sensorNode, 900));
 
-		// Set up a keysensornode and make it sensitive to q, e and space
-		let sensorNode = this.addNode(new KeySensorNode(new Position(2, 1), 0.01, 'myKeySensorNode'));
-		sensorNode.registerKey(37, new Vector(-1, 0));
-		sensorNode.registerKey(65, new Vector(-1, 0));
-		sensorNode.registerKey(39, new Vector(1, 0));
-		sensorNode.registerKey(68, new Vector(1, 0));
-		sensorNode.registerKey(32, new Vector(0, 1));
+		// // Create two gravitywells and two fields towards them that can be used
+		// // by the actuator to pull the protagonist left or right
 
-		// Create two gravitywells and two fields towards them that can be used
-		// by the actuator to pull the protagonist left or right
+		// // Add one actuator that takes care of left - right movement
+		// let leftRightActuatorNode = this.addNode(
+		// 	new LeftRightNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
+		// 		leftField1, rightField1, 0.05, 'myLeftRightNode', 0, 0, 0.99));
 
-		// Add one actuator that takes care of left - right movement
-		let leftRightActuatorNode = this.addNode(
-			new LeftRightNode(protagonist, new Position(1, 0.5), new Position(3, 0.5),
-				leftField1, rightField1, 0.05, 'myLeftRightNode', 0, 0, 0.99));
+		// let downEarth = this.addNode(new Node(parent, new Position(0, 6371e3), 5.97219e24, 'EarthForJump', undefined, undefined, 0));
+		// let leftEarth = this.addNode(
+		// 	new Node(parent, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
+		// let rightEarth = this.addNode(
+		// 	new Node(parent, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
+		// let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
+		// let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
+		// let gravity = this.addTensor(new Field(downEarth, protagonist, 6.67e-11));
+		// // let egoGravityField = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
 
-		let downEarth = this.addNode(new Node(parent, new Position(0, 6371e3), 5.97219e24, 'EarthForJump', undefined, undefined, 0));
-		let leftEarth = this.addNode(
-			new Node(parent, new Position(-6371e3, -6371e1), 5.97219e24, 'leftEarth', undefined, undefined, 0));
-		let rightEarth = this.addNode(
-			new Node(parent, new Position(6371e3, -6371e1), 5.97219e24, 'rightEarth', undefined, undefined, 0));
-		let leftField1 = this.addTensor(new Field(leftEarth, protagonist, 6.67e-11));
-		let rightField1 = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
-		let gravity = this.addTensor(new Field(downEarth, protagonist, 6.67e-11));
-		// let egoGravityField = this.addTensor(new Field(rightEarth, protagonist, 6.67e-11));
+		// // Connect it via a spring to the keysensor node
+		// this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
 
-		// Add one actuator that takes care of left - right movement
-		let leftRightActuatorNode = this.addNode(
-			new LeftRightNode(parent, protagonist, new Position(1, 5), new Position(3, 5),
-				leftField1, rightField1, 2, 'myLeftRightNode', 0, 0, 0.99));
+		// this.addTensor(new Spring(sensorNode, jumpActuator, 500, 0.1));
 
-		// Connect it via a spring to the keysensor node
-		this.addTensor(new Spring(sensorNode, leftRightActuatorNode, 50, 0.1));
+		// let jumpActuator = this.addNode(
+		// 	new JumpNode(parent, protagonist, new Position(0.5, 1), new Position(0.5, 2),
+		// 		gravity, 0.05, 'myJumpNode'));
 
-		this.addTensor(new Spring(sensorNode, jumpActuator, 500, 0.1));
-
-		let jumpActuator = this.addNode(
-			new JumpNode(parent, protagonist, new Position(0.5, 1), new Position(0.5, 2),
-				gravity, 0.05, 'myJumpNode'));
-
-		this.addTensor(new Spring(sensorNode, jumpActuator, 500, 0.1));
+		// this.addTensor(new Spring(sensorNode, jumpActuator, 500, 0.1));
 	}
 }
 
@@ -139,20 +128,20 @@ class ScrollerTruss extends TrussNode {
 	 * @param {Node} protagonist
 	 */
 	initiate() {
-		let governedNode = this.parentTrussNode.parentTrussNode;
-		let parent = this.parentTrussNode;
-		let governedTruss = governedNode.truss;
+		// let governedNode = this.parentTrussNode.parentTrussNode;
+		// let parent = this.parentTrussNode;
+		// let governedTruss = governedNode.truss;
 
-		protagonist = governedTruss.protagonist;
-		parent.selector = this.addNode(new Selector(parent));
+		// let protagonist = governedTruss.protagonist;
+		// parent.selector = this.addNode(new Selector(parent));
 
-		let centrePoint = Vector.divideVector(governedNode.view.worldViewSize, 2);
-		let positionNode = this.addNode(new PositionNode(parent, protagonist));
-		let scrollNode = this.addNode(new ScrollNode(parent, governedNode, centrePoint,
-			0.2, 'ScrollNode', undefined, undefined, 0.9));
+		// let centrePoint = Vector.divideVector(governedNode.view.worldViewSize, 2);
+		// let positionNode = this.addNode(new PositionNode(parent, protagonist));
+		// let scrollNode = this.addNode(new ScrollNode(parent, governedNode, centrePoint,
+		// 	0.2, 'ScrollNode', undefined, undefined, 0.9));
 
-		let tensor = this.addTensor(new DampenedSpring(positionNode, scrollNode, 200, 0.2));
-		tensor.equilibriumLength = 0;
+		// let tensor = this.addTensor(new DampenedSpring(positionNode, scrollNode, 200, 0.2));
+		// tensor.equilibriumLength = 0;
 	}
 }
 
@@ -187,9 +176,9 @@ class PerformanceTrussNode extends TrussNode {
 	 * @param {Node} protagonist
 	 */
 	initiate() {
-		let governedNode = this.parentTrussNode.parentTrussNode;
-		let parent = this.parentTrussNode;
-		let world = parent.world;
+		// let governedNode = this.parentTrussNode.parentTrussNode;
+		// let parent = this.parentTrussNode;
+		// let world = parent.world;
 
 		this.selector = new Node(this.world, this, 'selector', {'name': 'Selector '});
 		
@@ -212,7 +201,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 
-		let ball = new Node(this.world, this, 'bounceactuator debugnode', {
+		new Node(this.world, this, 'bounceactuator debugnode', {
 			'name': 'ball',
 			'mass': 1,
 			'localPosition': new Position(3.5, 1),
@@ -258,10 +247,8 @@ class ProtagonistNode extends Node {
 	/**
 	 * Draw the circle representing the node
 	 * @param {Truss} truss
-	 * @param {number} time
-	 * @param {number} graphicDebugLevel
 	 */
-	show(truss, time, graphicDebugLevel = 0) {
+	show(truss) {
 		let view = truss.view;
 		let cxt = view.context;
 		if (view.inside(this.getPosition())) {

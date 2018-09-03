@@ -581,15 +581,15 @@ class Tensor extends StoreableObject {
 	}
 
 	/**
-	* Calculate the force 
+	* Calculate the force
 	*/
 	calculateForce() {
 		super.calculateForce(0);
 	}
 
 	/**
-	* Calculate the second stage of forces (probably only absorbers based 
-		on velocity rather than position, to make the world 'calmer' ) 
+	* Calculate the second stage of forces (probably only absorbers based
+		on velocity rather than position, to make the world 'calmer' )
 	*/
 	calculateForce2() {
 		super.calculateForce(1);

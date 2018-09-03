@@ -1,4 +1,4 @@
-
+/* global View PropertyEditor */
 /**
  * @class
  * @extends Node
@@ -25,7 +25,7 @@ class TrussNode extends Node {
 		this.world=world;
 		this.element = document.createElement('div');
 		this.view= new View(this.worldSize, this);
-		
+
 		if (this.worldOffset) {
 			this.view.offset = this.worldOffset;
 		}
@@ -100,7 +100,6 @@ class TrussNode extends Node {
 				return this.view.screenSize;
 			},
 			set: function(value) {
-				
 				this.view.screenSize = value;
 			},
 		}
@@ -231,12 +230,12 @@ class TrussNode extends Node {
 		this.canvas.height = this.view.screenSize.y;
 	}
 
-	/**
+	/*
 	 * Pauses the position updates
-	 */
 	togglePause() {
 		this.togglePause();
-	}
+	} */
+
 	/**
 	 * Recursively call tick() on the sub-Truss and then update this nodes position
 	 * @param {number} time
@@ -244,18 +243,7 @@ class TrussNode extends Node {
 	 */
 	updatePosition(time, delta) {
 		super.updatePosition(time, delta); // Call parent in order to update this nodes position
-	};
-
-	/** Displays the Truss's canvas at the correct position
-	 * @param  {Truss} truss
-	 * @param  {number} time
-	 * @param  {number} graphicDebugLevel=0
-	 *
-	show(truss, time, graphicDebugLevel = 0) {
-		this.highLight(this.view.context);
-		this.canvas.style.left = this.view.x(this.localPosition) + 'px';
-		this.canvas.style.top = this.view.y(this.localPosition) + 'px';
-	}; */
+	}
 
 	/**
 	 */
@@ -272,7 +260,7 @@ class TrussNode extends Node {
 		for (let tensor of this.tensorLabel.getTensors()) {
 			tensor.calculateForce(deltaTime);
 		}
-	};
+	}
 
 	/**
 	 * Calculate all forces caused by a Nodes velocity.
@@ -283,7 +271,7 @@ class TrussNode extends Node {
 		for (let tensor of this.absorberLabel.getTensors()) {
 			tensor.calculateForce2(deltaTime);
 		}
-	};
+	}
 
 	/**
 	 * Update all nodes velocities based on Position based forces
@@ -293,7 +281,7 @@ class TrussNode extends Node {
 		for (let node of this.moveableLabel.getNodes()) {
 			node.updatePositionBasedVelocity(deltaTime);
 		}
-	};
+	}
 
 	/**
 	 * Update all nodes velocities based on Velocity based forces
@@ -303,7 +291,7 @@ class TrussNode extends Node {
 		for (let node of this.angleNodeLabel.getNodes()) {
 			node.calculateTorques(deltaTime);
 		}
-	};
+	}
 
 	/**
 	 * Update all nodes rotations
@@ -313,7 +301,7 @@ class TrussNode extends Node {
 		for (let node of this.angleNodeLabel.getNodes()) {
 			node.rotate(deltaTime);
 		}
-	};
+	}
 
 	/**
 	 * Update all nodes velocities based on Velocity based forces
@@ -323,7 +311,7 @@ class TrussNode extends Node {
 		for (let node of this.moveableLabel.getNodes()) {
 			node.updateFinalVelocity(deltaTime);
 		}
-	};
+	}
 
 	/**
 	 * Loop through all nodes and move them according to their velocity
@@ -334,7 +322,7 @@ class TrussNode extends Node {
 		for (let node of this.moveableLabel.getNodes()) {
 			node.updatePosition(trussTime, deltaTime);
 		}
-	};
+	}
 
 	/**
 	 * Go through all sensors added by addSensor() and trigger the sense() function
@@ -374,7 +362,7 @@ class TrussNode extends Node {
 	 */
 	clear() {
 		this.view.context.clearRect(0, 0, this.view.screenSize.x, this.view.screenSize.y);
-	};
+	}
 
 	/**
 	 * @param  {Position} position

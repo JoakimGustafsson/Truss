@@ -1,3 +1,5 @@
+/* global Properties LabelListProperty BehaviourOverride */
+
 /**
  * StoreableObject class
  */
@@ -9,7 +11,7 @@ class StoreableObject {
 	 */
 	constructor(world, initialLabels='', valueObject={}) {
 		this.name='Unnamed';
-		this.properties = new PropertyList();
+		this.properties = new Properties();
 		this.labelString=initialLabels;
 		this.valueObject=valueObject;
 		this.world=world;
@@ -80,16 +82,16 @@ class StoreableObject {
 		this.labels = this.world.labels.parse(this.labelString, this);
 		this.properties.clearProperties(this.labelProperty);
 
-		for (let [key, value] of Object.entries(this.getPropertyObject())) {
+		for (let [, value] of Object.entries(this.getPropertyObject())) {
 			let propertyObject = value.propertyObject;
 			let propertyName = propertyObject.propertyName;
 			this.properties.addProperty(propertyObject, value.defaultValue);
 			if (valueObject[propertyName]) {
 				propertyObject.assignValue(valueObject[propertyName], this);
 			} else if (this[propertyName]==undefined ||
-                this[propertyName]==NaN ||
+                isNaN(this[propertyName]) ||
                 value.enforced) {
-				propertyObject.assignValue(value.defaultValue, this);	
+				propertyObject.assignValue(value.defaultValue, this);
 			}
 		}
 	}
@@ -142,31 +144,30 @@ class StoreableObject {
 	 */
 	registerOverride(type, newFunction) {
 		switch(type) {
-			case BehaviourOverride.SENSE:
-				this.senseList.push(newFunction);
-				break;
-			case BehaviourOverride.UPDATEPOSITION:
-				this.updatePositionList.push(newFunction);
-				break;
-			case BehaviourOverride.SHOW:
-				this.showList.push(newFunction);
-				break;
-			case BehaviourOverride.TORQUE:
-				this.torqueList.push(newFunction);
-				break;
-			case BehaviourOverride.CALCULATE:
-				this.calcList.push(newFunction);
-				break;
-			case BehaviourOverride.POSTCALCULATE:
-				this.calcList2.push(newFunction);
-				break;
-			case BehaviourOverride.ROTATE:
-				this.rotateList.push(newFunction);
-				break;
-			case BehaviourOverride.COLLIDE:
-				this.collisionList.push(newFunction);
-				break;
-				
+		case BehaviourOverride.SENSE:
+			this.senseList.push(newFunction);
+			break;
+		case BehaviourOverride.UPDATEPOSITION:
+			this.updatePositionList.push(newFunction);
+			break;
+		case BehaviourOverride.SHOW:
+			this.showList.push(newFunction);
+			break;
+		case BehaviourOverride.TORQUE:
+			this.torqueList.push(newFunction);
+			break;
+		case BehaviourOverride.CALCULATE:
+			this.calcList.push(newFunction);
+			break;
+		case BehaviourOverride.POSTCALCULATE:
+			this.calcList2.push(newFunction);
+			break;
+		case BehaviourOverride.ROTATE:
+			this.rotateList.push(newFunction);
+			break;
+		case BehaviourOverride.COLLIDE:
+			this.collisionList.push(newFunction);
+			break;
 		}
 	}
 
@@ -176,30 +177,30 @@ class StoreableObject {
 	 */
 	unregisterOverride(type, newFunction) {
 		switch(type) {
-			case BehaviourOverride.SENSE:
-				removeIfPresent(newFunction, this.senseList);
-				break;
-			case BehaviourOverride.UPDATEPOSITION:
-				removeIfPresent(newFunction, this.updatePositionList);
-				break;
-			case BehaviourOverride.SHOW:
-				removeIfPresent(newFunction, this.showList);
-				break;
-			case BehaviourOverride.TORQUE:
-				removeIfPresent(newFunction, this.torqueList);
-				break;
-			case BehaviourOverride.CALCULATE:
-				removeIfPresent(newFunction, this.calcList);
-				break;
-			case BehaviourOverride.POSTCALCULATE:
-				removeIfPresent(newFunction, this.calcList2);
-				break;
-			case BehaviourOverride.ROTATE:
-				removeIfPresent(newFunction, this.rotateList);
-				break;
-			case BehaviourOverride.COLLIDE:
-				removeIfPresent(newFunction, this.collisionList);
-				break;
+		case BehaviourOverride.SENSE:
+			removeIfPresent(newFunction, this.senseList);
+			break;
+		case BehaviourOverride.UPDATEPOSITION:
+			removeIfPresent(newFunction, this.updatePositionList);
+			break;
+		case BehaviourOverride.SHOW:
+			removeIfPresent(newFunction, this.showList);
+			break;
+		case BehaviourOverride.TORQUE:
+			removeIfPresent(newFunction, this.torqueList);
+			break;
+		case BehaviourOverride.CALCULATE:
+			removeIfPresent(newFunction, this.calcList);
+			break;
+		case BehaviourOverride.POSTCALCULATE:
+			removeIfPresent(newFunction, this.calcList2);
+			break;
+		case BehaviourOverride.ROTATE:
+			removeIfPresent(newFunction, this.rotateList);
+			break;
+		case BehaviourOverride.COLLIDE:
+			removeIfPresent(newFunction, this.collisionList);
+			break;
 		}
 	}
 
