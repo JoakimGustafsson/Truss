@@ -19,6 +19,7 @@ class Tensor extends StoreableObject {
 		super(parent, initialLabels, valueObject);
 
 		this.collideDistanceMapping = {};
+		this.intermediateNodeList = [];
 		this.force = new Force(0, 0);
 
 		Object.defineProperty(this, 'degree2', {
@@ -322,7 +323,7 @@ class Tensor extends StoreableObject {
 	}
 
 	/**
-	 * Is this a second node to the right of the first node?
+	 * Is the second node to the right of the first node?
 	 * @return {number}
 	 */
 	rightNode() {
@@ -348,6 +349,21 @@ class Tensor extends StoreableObject {
 			this.addNode1(node);
 		}
 		this.addNode2(node);
+	}
+	/**
+	 * connect an intermediate node
+	 * @param  {Node} node
+	 */
+	addIntermediateNode(node) {
+		this.intermediateNodeList.push(node);
+	}
+
+	/**
+	 * remove an intermediate node
+	 * @param  {Node} node
+	 */
+	removeIntermediateNode(node) {
+		removeIfPresent(node, this.intermediateNodeList);
 	}
 
 	/**
@@ -385,7 +401,7 @@ class Tensor extends StoreableObject {
 			modifyIfNode2 = Math.PI;
 		}
 		let rawAngle =
-			Vector.SubtractVectors(this.node2.localPosition, this.node1.localPosition).getAngle();
+			Vector.subtractVectors(this.node2.localPosition, this.node1.localPosition).getAngle();
 		//getXAngle(this.getXDifference(), this.getYDifference());
 		return anglify(rawAngle + modifyIfNode2);
 	}

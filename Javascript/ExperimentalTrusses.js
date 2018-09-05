@@ -181,7 +181,7 @@ class PerformanceTrussNode extends TrussNode {
 		// let world = parent.world;
 
 		this.selector = new Node(this.world, this, 'selector', {'name': 'Selector '});
-		
+
 		let start = new Node(this.world, this, 'node', {
 			'name': 'start',
 			'localPosition': new Position(1, 9),
@@ -209,6 +209,40 @@ class PerformanceTrussNode extends TrussNode {
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(0, 10),
 		});
+
+		let a = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'a',
+			'torqueconstant': 100,
+			'localPosition': new Position(8, 12),
+		});
+		let b = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'b',
+			'torqueconstant': 100,
+			'localPosition': new Position(10, 12),
+		});
+		let c = new Node(this.world, this, 'moveable anglenode', {
+			'name': 'c',
+			'torqueconstant': 100,
+			'localPosition': new Position(12, 12),
+		});
+
+		new Tensor(a, b,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'angle2': 3,
+				'equilibriumLength': 5,
+			});
+
+		new Tensor(b, c,
+			'spring angletensor',
+			{
+				'constant': 100,
+				'angle1': 0,
+				'equilibriumLength': 5,
+			});
+	
+
 
 	}
 }

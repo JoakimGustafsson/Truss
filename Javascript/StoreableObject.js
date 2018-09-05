@@ -89,9 +89,11 @@ class StoreableObject {
 			if (valueObject[propertyName]) {
 				propertyObject.assignValue(valueObject[propertyName], this);
 			} else if (this[propertyName]==undefined ||
-                isNaN(this[propertyName]) ||
+                (typeof this[propertyName]== 'number' && isNaN(this[propertyName])) ||
                 value.enforced) {
-				propertyObject.assignValue(value.defaultValue, this);
+				if (value.defaultValue) {
+					propertyObject.assignValue(value.defaultValue, this);
+				}
 			}
 		}
 	}

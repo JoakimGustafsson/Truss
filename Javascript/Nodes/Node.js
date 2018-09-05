@@ -13,9 +13,6 @@ class Node extends StoreableObject {
 	 */
 	constructor(world, parentTrussNode, initialLabels, valueObject) {
 		super(world, initialLabels, valueObject);
-		if (parentTrussNode) {
-			this.parentTrussNode= parentTrussNode;
-		}
 		if (!this.localPosition) {
 			this.localPosition = new Position(0, 0);
 		}
@@ -96,6 +93,10 @@ class Node extends StoreableObject {
 		}
 
 		this.initialRefresh();
+
+		if (parentTrussNode) {
+			this.parentTrussNode= parentTrussNode;
+		}
 	}
 
 	/**
@@ -216,8 +217,9 @@ class Node extends StoreableObject {
 	 * @param  {Position} position
 	 */
 	copyPosition(position) {
-		this.localPosition.x = position.x;
-		this.localPosition.y = position.y;
+		// this.localPosition.x = position.x;
+		// this.localPosition.y = position.y;
+		this.localPosition = new Position(position.x, position.y);
 		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
 			let x=position.x + this.parentTrussNode.gridSize/2;
 			let y=position.y + this.parentTrussNode.gridSize/2;

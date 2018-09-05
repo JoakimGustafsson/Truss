@@ -453,13 +453,16 @@ class AngleNode extends Behaviour {
 	 */
 	updateRotation() {
 		if (this.mass) {
-			this.turnrate += this.sumTorque / (this.mass * 1000);
+			this.turnrate += parseFloat(this.sumTorque / (this.mass * 1000));
 		} else {
 			this.turnrate = 0; // weightless cannot turn
 		}
 		this.turnrate *= parseFloat(this.turnLoss);
-		if (this.turnrate.isNaN) {
+		if (isNaN(this.turnrate)) {
 			this.turnrate = 0;
+		}
+		if (isNaN(this.angle)) {
+			this.angle = 0;
 		}
 		this.angle += this.turnrate;
 	}
@@ -732,6 +735,7 @@ class CollisionBounce extends Behaviour {
 	 */
 	detachFrom(storeableObject) {
 		storeableObject.unregisterOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
+		// storeableObject.unregisterOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
 	}
 
 	/**
@@ -743,6 +747,7 @@ class CollisionBounce extends Behaviour {
 		let from = detail.from;
 		let tensor = detail.tensor;
 
+		/*
 		let direction = 'left';
 		if (from > 0) {
 			direction = 'right';
@@ -750,20 +755,51 @@ class CollisionBounce extends Behaviour {
 		console.log(this.name +
 			' collided from the ' + direction + ' with tensor ' +
 			tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
+		*/
+
+		if (!tensor.bounceList) {
+			tensor.bounceList = [detail];
+		} else {
+			tensor.bounceList.push(detail);
+		}
+		tensor.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
+	}
+
+	/**
+	 * Calculate pull force towards the tensor based on that the node should bounce off
+	 * @return {number}
+	 */
+	calculate() {
+		if (!this.bouncelist) {
+			return;
+		}
+		/*
+		for (let bounce of this.bounceList) {
+			let node = bounce.collider;
+			let from = bounce.from;
 
 		let nodeStart = collider.localPosition;
 		let nodeEnd = Vector.addVectors(collider.localPosition, collider.velocity);
-		/* eslint-disable-next-line */
-		let perpendicularVelocityStartDistance = getS(
+		
+		let perpendicularVelocityStartDistance = getT(
 			tensor.node1.localPosition,
 			tensor.node2.localPosition,
 			nodeStart);
-			/* eslint-disable-next-line */
+		let perpendicularVelocityStartDistance = getS(
+				tensor.node1.localPosition,
+				tensor.node2.localPosition,
+				nodeStart);
+			/* eslint-disable-next-line /
 		let perpendicularVelocityEndDistance = getS(
 			tensor.node1.localPosition,
 			tensor.node2.localPosition,
 			nodeEnd);
-			/* eslint-disable-next-line */
+			/* eslint-disable-next-line /
 		let tensorPointVelocity;
+
+		this.getActual();
+		this.force = Vector.multiplyVector(-this.constant, show-actual);
+		}
+		*/
 	}
 }
