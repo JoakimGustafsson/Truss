@@ -412,4 +412,5 @@ function timelog(text, hidden) {
 		console.log(text+' '+t);
 	}
 	this.lastTimeTemp=Date.now(); */
-} 
+}
+

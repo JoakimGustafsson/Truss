@@ -411,8 +411,10 @@ class AngleNode extends Behaviour {
 	calculateTorques() {
 		let getTorque = function (node, tensor) {
 			let idealAngle = tensor.angle2;
+			let torqueConstant = tensor.torqueConstant2;
 			if (node == tensor.node1) {
 				idealAngle = tensor.angle1;
+				torqueConstant = tensor.torqueConstant1;
 			}
 			if (isNaN(idealAngle)) {
 				return 0;
@@ -424,7 +426,7 @@ class AngleNode extends Behaviour {
 
 			let correctionAngle = anglify(theNodeShouldHaveAngle - node.angle);
 
-			let torque = node.getTorqueConstant() * correctionAngle;
+			let torque = torqueConstant * correctionAngle;
 			if (node == tensor.node1) {
 				tensor.torque1 = -torque;
 			} else {
@@ -762,7 +764,19 @@ class CollisionBounce extends Behaviour {
 		} else {
 			tensor.bounceList.push(detail);
 		}
-		tensor.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
+		//tensor.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
+
+		// set the original tensor to ghost, or remove it.
+		// Split the original tensor in 2 with the same constants.
+		// add anglenode to the ball and tensorangle to two tensors
+		// set angle of first tensors end and end tensors start to the correct start values
+		// Find some way to trigger when the angles are the same again
+		// tensor.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
+
+
+
+		// limit
+		// 
 	}
 
 	/**
@@ -780,7 +794,7 @@ class CollisionBounce extends Behaviour {
 
 		let nodeStart = collider.localPosition;
 		let nodeEnd = Vector.addVectors(collider.localPosition, collider.velocity);
-		
+
 		let perpendicularVelocityStartDistance = getT(
 			tensor.node1.localPosition,
 			tensor.node2.localPosition,

@@ -19,7 +19,6 @@ class Tensor extends StoreableObject {
 		super(parent, initialLabels, valueObject);
 
 		this.collideDistanceMapping = {};
-		this.intermediateNodeList = [];
 		this.force = new Force(0, 0);
 
 		Object.defineProperty(this, 'degree2', {
@@ -349,21 +348,6 @@ class Tensor extends StoreableObject {
 			this.addNode1(node);
 		}
 		this.addNode2(node);
-	}
-	/**
-	 * connect an intermediate node
-	 * @param  {Node} node
-	 */
-	addIntermediateNode(node) {
-		this.intermediateNodeList.push(node);
-	}
-
-	/**
-	 * remove an intermediate node
-	 * @param  {Node} node
-	 */
-	removeIntermediateNode(node) {
-		removeIfPresent(node, this.intermediateNodeList);
 	}
 
 	/**

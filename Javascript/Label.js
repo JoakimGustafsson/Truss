@@ -65,7 +65,9 @@ class Labels {
 		}, [new AngleNode()]);
 		this.addLabel('angletensor', [this.tensorLabel], {
 			'startAngleProperty': 0,
+			'torqueConstantProperty1': 0,
 			'endAngleProperty': 0,
+			'torqueConstantProperty2': 0,
 		}, [new AngleTensor()]);
 		this.addLabel('debugtensor', [], {
 			'degree1Property': 1,

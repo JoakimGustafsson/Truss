@@ -309,7 +309,7 @@ class Node extends StoreableObject {
 		}
 		// let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
 		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
-		
+
 		// Handle the thing below as a behaviour instead
 		// if (this.positionFunction) {
 		//	this.setPosition(this.positionFunction(this, trussTime));
@@ -330,22 +330,6 @@ class Node extends StoreableObject {
 	 */
 	updateFinalVelocity(timeFactor) {
 		this.updateVelocity(this.connectedTensors, timeFactor, 1);
-	}
-
-	/**
-	 * Update the rotation speed based on velocity based tensors
-	 * @param {number} timeFactor
-	 */
-	XupdateFinalRotation(timeFactor) {
-		this.updateRotation(this.connectedTensors, timeFactor);
-	}
-
-	/**
-	 * Calculate the final rotation speed
-	 * @param {List} args
-	 */
-	XupdateRotation(...args) {
-		super.updaterotation(...args);
 	}
 
 	/**
@@ -457,6 +441,7 @@ class Node extends StoreableObject {
 		cxt.strokeStyle = this.color;
 
 		if (graphicDebugLevel >= 3) {
+			let multiplier = view.getDistanceMultiplier();
 			if (this.pictureReference) {
 				this.pictureShow(truss, time);
 			}
@@ -478,13 +463,13 @@ class Node extends StoreableObject {
 				if (this.angle!=undefined) {
 					cxt.beginPath();
 					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-						new Vector(0.2 * Math.cos(this.angle), 0.2 * Math.sin(this.angle))));
+						new Vector(20 * multiplier * Math.cos(this.angle), 20* multiplier * Math.sin(this.angle))));
 					cxt.stroke();
 				} 
 
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.multiplyVector(10*multiplier, this.velocity)));
 				cxt.stroke();
 
 				if (graphicDebugLevel >= 7) {
@@ -492,7 +477,7 @@ class Node extends StoreableObject {
 					cxt.beginPath();
 					if (this.acceleration) {
 						view.drawLine(this.getPosition(),
-							Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
+							Vector.addVectors(this.getPosition(), Vector.multiplyVector(multiplier, this.acceleration)));
 					}
 					cxt.stroke();
 				}

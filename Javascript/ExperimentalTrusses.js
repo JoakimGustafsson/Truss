@@ -222,7 +222,7 @@ class PerformanceTrussNode extends TrussNode {
 		});
 		let c = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'c',
-			'torqueconstant': 100,
+			'torqueConstant': 100,
 			'localPosition': new Position(12, 12),
 		});
 
@@ -230,18 +230,20 @@ class PerformanceTrussNode extends TrussNode {
 			'spring angletensor',
 			{
 				'constant': 100,
+				'equilibriumLength': 7,
 				'angle2': 3,
-				'equilibriumLength': 5,
+				'torqueConstant2': 100,
 			});
 
 		new Tensor(b, c,
 			'spring angletensor',
 			{
 				'constant': 100,
+				'equilibriumLength': 7,
 				'angle1': 0,
-				'equilibriumLength': 5,
+				'torqueConstant1': 100,
 			});
-	
+
 
 
 	}

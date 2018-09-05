@@ -23,7 +23,9 @@ class PropertyList {
 		this.angleProperty = new NumberProperty('angle', 'angle', 'Node angle', ParameterCategory.CONTENT, 'The angle of the node.');
 		this.startAngleProperty = new NumberProperty('angle1', 'angle1', 'Start angle', ParameterCategory.CONTENT, 'The angle of the tensor at the start node.');
 		this.endAngleProperty = new NumberProperty('angle2', 'angle2', 'End angle', ParameterCategory.CONTENT, 'The angle of the tensor at the end node.');
-		this.torqueConstantProperty = new NumberProperty('torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT, 'How stiff the node is with respect to attempts angle differences.');
+		// this.torqueConstantProperty = new NumberProperty('torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT, 'How stiff the node is with respect to attempts angle differences.');
+		this.torqueConstantProperty1 = new NumberProperty('torqueConstant1', 'torqueConstant1', 'Start torque constant', ParameterCategory.CONTENT, 'How stiff the tensor attachment is to the start node with respect to the angle.');
+		this.torqueConstantProperty2 = new NumberProperty('torqueConstant2', 'torqueConstant2', 'End torque constant', ParameterCategory.CONTENT, 'How stiff the tensor attachment is to the start node with respect to the angle.');
 		this.turnrateProperty = new NumberProperty('turnrate', 'turnrate', 'Turn rate', ParameterCategory.CONTENT, 'The speed at which the node turns.');
 		this.nodeFrictionProperty = new NumberProperty('velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT, 'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
 		this.turnFrictionProperty = new NumberProperty('turnLoss', 'turnLoss', 'Rotational friction', ParameterCategory.CONTENT, 'How much rotation speed bleeds of the node (0-1, where 1 is no bleed of).');

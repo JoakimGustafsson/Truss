@@ -86,12 +86,12 @@ class StoreableObject {
 			let propertyObject = value.propertyObject;
 			let propertyName = propertyObject.propertyName;
 			this.properties.addProperty(propertyObject, value.defaultValue);
-			if (valueObject[propertyName]) {
+			if (valueObject[propertyName]!=undefined) {
 				propertyObject.assignValue(valueObject[propertyName], this);
 			} else if (this[propertyName]==undefined ||
                 (typeof this[propertyName]== 'number' && isNaN(this[propertyName])) ||
                 value.enforced) {
-				if (value.defaultValue) {
+				if (value.defaultValue!=undefined) {
 					propertyObject.assignValue(value.defaultValue, this);
 				}
 			}
