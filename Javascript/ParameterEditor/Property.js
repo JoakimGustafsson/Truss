@@ -171,7 +171,7 @@ class Property {
 	 * @return {Object}
 	 */
 	deSerialize(serializeObject) {
-		if (serializeObject.constructor === String) {
+		if ((serializeObject.constructor === String) || (serializeObject.constructor === Number)) {
 			return serializeObject;
 		} else return '';
 	}
@@ -198,7 +198,6 @@ class Property {
 			this.owner=owner;
 		}
 		this.owner[this.propertyName] = value;
-	
 	}
 
 	/** Creates the default value editing area. This does not handle any input (see makeinputField)
@@ -769,7 +768,11 @@ class NodeProperty extends Property {
 	 * @return {Object}
 	 */
 	serialize(serializeObject, localNodeList) {
-		return localNodeList.indexOf(serializeObject);
+		if (localNodeList) {
+			return localNodeList.indexOf(serializeObject);
+		} else {
+			return serializeObject;
+		}
 	}
 
 	/**
@@ -778,7 +781,11 @@ class NodeProperty extends Property {
 	 * @return {Position}
 	 */
 	deSerialize(serializeObject, localNodeList) {
-		return localNodeList[serializeObject];
+		if (localNodeList) {
+			return localNodeList[serializeObject];
+		} else {
+			return serializeObject;
+		}
 	}
 
 	// This is called when the screen should be updated by a value change in an object

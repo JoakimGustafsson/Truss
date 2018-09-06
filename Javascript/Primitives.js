@@ -402,7 +402,7 @@ function objectFactory(world, representationObject) {
 	 * @param  {number} text
 	 * @param  {number} hidden
 	 */
-function timelog(text, hidden) {
+function timelog() { // text, hidden) {
 	return;
 	/* if (!this.lastTimeTemp) {
 		this.lastTimeTemp=Date.now();

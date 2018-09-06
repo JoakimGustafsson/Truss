@@ -138,6 +138,16 @@ class StoreableObject {
 		return this;
 	}
 
+	/**
+	 *
+	 */
+	clone() {
+		let serialized = this.serialize();
+		let node = objectFactory(this.world, serialized);
+		node.deserialize(serialized);
+		node.name+=' clone';
+		return node;
+	}
 
 
 	/**

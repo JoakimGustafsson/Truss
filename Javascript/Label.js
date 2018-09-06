@@ -61,7 +61,6 @@ class Labels {
 			'angleProperty': 0,
 			'turnrateProperty': 0,
 			'turnFrictionProperty': 0.99,
-			'torqueConstantProperty': 1,
 		}, [new AngleNode()]);
 		this.addLabel('angletensor', [this.tensorLabel], {
 			'startAngleProperty': 0,

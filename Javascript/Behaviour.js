@@ -768,6 +768,12 @@ class CollisionBounce extends Behaviour {
 
 		// set the original tensor to ghost, or remove it.
 		// Split the original tensor in 2 with the same constants.
+		let startTensor = tensor.clone();
+		startTensor.name='startTensor';
+		startTensor.node2=this;
+
+		let endTensor = tensor.clone();
+
 		// add anglenode to the ball and tensorangle to two tensors
 		// set angle of first tensors end and end tensors start to the correct start values
 		// Find some way to trigger when the angles are the same again
@@ -776,7 +782,7 @@ class CollisionBounce extends Behaviour {
 
 
 		// limit
-		// 
+		//
 	}
 
 	/**

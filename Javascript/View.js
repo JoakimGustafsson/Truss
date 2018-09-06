@@ -1,4 +1,4 @@
-
+/* global AlertVector */
 
 /**
  * @class
@@ -28,7 +28,7 @@ class View {
 			this.setupAlertVectors(this.element, worldViewSize);
 			this.resize();
 		}
-		
+
 		Object.defineProperty(this, 'worldViewSize', {
 			get: function() {
 				return this._worldViewSize;
@@ -60,7 +60,7 @@ class View {
 	}
 
 	createAlertWorldSize(x, y, _this) {
-		this._worldViewSize = new AlertVector(new Vector(x, y), function (x) {
+		this._worldViewSize = new AlertVector(new Vector(x, y), function () {
 			_this.recalculate();
 		});
 	}
@@ -96,7 +96,7 @@ class View {
 			this.x(position) < this.context.canvas.width &&
 			this.y(position) > 0 &&
 			this.y(position) < this.context.canvas.height);
-	};
+	}
 
 	/** Given a position p in the world, return the position on this views display
 	 * @param  {Position} p The inworld position
@@ -104,7 +104,7 @@ class View {
 	 */
 	x(p) {
 		return (p.x - this.offset.x) / this.xScale;
-	};
+	}
 
 	/** Given a position p in the world, return the position on this views display
 	 * @param  {Position} p The inworld position
@@ -112,7 +112,7 @@ class View {
 	 */
 	y(p) {
 		return (p.y - this.offset.y) / this.yScale;
-	};
+	}
 
 	/**
 	 * Given a x and y position on this views display, return the world position
@@ -122,7 +122,7 @@ class View {
 	 */
 	worldPosition(x, y) {
 		return new Position(x * this.xScale + this.offset.x, y * this.yScale + this.offset.y);
-	};
+	}
 
 	/**
 	 * Given a x and y position on screen display, return the world position, taking the HTML elements position into account
@@ -133,7 +133,7 @@ class View {
 	worldPositionWithOffset(x, y) {
 		return new Position((x - this.elemRectleft + this.bodyRectleft) * this.xScale + this.offset.x,
 			(y - this.elemRecttop + this.bodyRecttop) * this.yScale + this.offset.y);
-	};
+	}
 
 	/**
 	 * Given a x and y position in the world, return the screen position
@@ -142,7 +142,7 @@ class View {
 	 */
 	screenPosition(node) {
 		return new Position(this.x(node) + 1, this.y(node) + 1);
-	};
+	}
 
 	/**
 	 * Assuming that the context has been set, draw a line between two in-world positions
@@ -152,7 +152,7 @@ class View {
 	drawLine(position1, position2) {
 		this.context.moveTo(this.x(position1), this.y(position1));
 		this.context.lineTo(this.x(position2), this.y(position2));
-	};
+	}
 
 	/**
 	 * Assuming that the context has been set, draw a circle with 'radius' at 'position'
@@ -161,7 +161,7 @@ class View {
 	 */
 	drawCircle(position, radius) {
 		this.context.arc(this.x(position), this.y(position), radius / this.yScale, 0, 2 * Math.PI);
-	};
+	}
 
 	/**
 	 * @param  {Position} position
@@ -169,7 +169,7 @@ class View {
 	 */
 	drawText(position, text) {
 		this.context.fillText(text, this.x(position), this.y(position));
-	};
+	}
 
 	/**
 	 * Support function to refresh the ratios so. Should not be manually used
@@ -190,7 +190,7 @@ class View {
 		this.elemRectleft = this.elemRect.left;
 		this.bodyRecttop = this.bodyRect.top;
 		this.elemRecttop = this.elemRect.top;
-	};
+	}
 
 	/**
 	 * Set the size of the screen display you want to see
@@ -199,7 +199,7 @@ class View {
 	setScreenSize(screenSize) {
 		this.screenSize = screenSize;
 		this.recalculate();
-	};
+	}
 
 	/**
 	 * Set the size of the area in the world you want to see
@@ -208,7 +208,7 @@ class View {
 	setWorldViewSize(worldViewSize) {
 		this.worldViewSize = worldViewSize;
 		this.recalculate();
-	};
+	}
 
 	/**
 	 * Set where in the world you want to watch
@@ -216,5 +216,5 @@ class View {
 	 */
 	setOffset(offset) {
 		this.offset = offset;
-	};
+	}
 }

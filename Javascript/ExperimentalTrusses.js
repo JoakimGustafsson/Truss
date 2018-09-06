@@ -212,17 +212,14 @@ class PerformanceTrussNode extends TrussNode {
 
 		let a = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'a',
-			'torqueconstant': 100,
 			'localPosition': new Position(8, 12),
 		});
 		let b = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'b',
-			'torqueconstant': 100,
 			'localPosition': new Position(10, 12),
 		});
 		let c = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'c',
-			'torqueConstant': 100,
 			'localPosition': new Position(12, 12),
 		});
 
