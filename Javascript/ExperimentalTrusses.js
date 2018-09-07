@@ -184,12 +184,12 @@ class PerformanceTrussNode extends TrussNode {
 
 		let start = new Node(this.world, this, 'node', {
 			'name': 'start',
-			'localPosition': new Position(1, 9),
+			'localPosition': new Position(9, 1),
 		});
 
 		let end = new Node(this.world, this, 'node', {
 			'name': 'end',
-			'localPosition': new Position(6, 9),
+			'localPosition': new Position(9, 6),
 		});
 
 
@@ -201,15 +201,15 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 
-		new Node(this.world, this, 'bounceactuator debugnode', {
+		new Node(this.world, this, 'bounceactuator debugnode anglenode', {
 			'name': 'ball',
 			'mass': 1,
-			'localPosition': new Position(3.5, 1),
+			'localPosition': new Position(1, 3.5),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
-			'velocity': new Velocity(0, 10),
+			'velocity': new Velocity(10, 0),
 		});
-
+/*
 		let a = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'a',
 			'localPosition': new Position(8, 12),
@@ -241,7 +241,7 @@ class PerformanceTrussNode extends TrussNode {
 				'torqueConstant1': 100,
 			});
 
-
+*/
 
 	}
 }

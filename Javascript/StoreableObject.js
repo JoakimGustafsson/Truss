@@ -216,16 +216,18 @@ class StoreableObject {
 		}
 	}
 
-	
 	/**
-	 * Update the position based on velocity, then let
-	 * the this.positionFunction (if present) tell where it should actually be
+	 * go through the call list and call the right behaviour
+	 * @param  {List} callList
 	 * @param  {List} args
 	 * @return {number} If the call return value is nonzero, prevent all other registered
 	 * calls to this function. A final answer has been found;
 	 */
-	updatePosition(...args) {
-		for (let f of this.updatePositionList) {
+	caller(callList, ...args) {
+		if (this.isGhost && this.isGhost()) {
+			return;
+		}
+		for (let f of callList) {
 			let result = f.call(this, ...args);
 			if (result) {
 				return result;
@@ -241,14 +243,19 @@ class StoreableObject {
 	 * @return {number} If the call return value is nonzero, prevent all other registered
 	 * calls to this function. A final answer has been found;
 	 */
+	updatePosition(...args) {
+		return this.caller(this.updatePositionList, ...args);
+	}
+
+	/**
+	 * Update the position based on velocity, then let
+	 * the this.positionFunction (if present) tell where it should actually be
+	 * @param  {List} args
+	 * @return {number} If the call return value is nonzero, prevent all other registered
+	 * calls to this function. A final answer has been found;
+	 */
 	show(...args) {
-		for (let f of this.showList) {
-			let result = f.call(this, ...args);
-			if (result) {
-				return result;
-			}
-		}
-		return 0;
+		return this.caller(this.showList, ...args);
 	}
 
 	/**
@@ -263,13 +270,8 @@ class StoreableObject {
 		if (stage==1) {
 			list = this.calcList2;
 		}
-		for (let f of list) {
-			let result = f.call(this, ...args);
-			if (result) {
-				return result;
-			}
-		}
-		return 0;
+
+		return this.caller(list, ...args);
 	}
 
 	/**
@@ -279,13 +281,7 @@ class StoreableObject {
 	 * calls to this function. A final answer has been found;
 	 */
 	calculateTorques(...args) {
-		for (let f of this.torqueList) {
-			let result = f.call(this, ...args);
-			if (result) {
-				return result;
-			}
-		}
-		return 0;
+		return this.caller(this.torqueList, ...args);
 	}
 	/**
 	 * rotate the node according to the node according to angular velocity
@@ -294,15 +290,9 @@ class StoreableObject {
 	 * calls to this function. A final answer has been found;
 	 */
 	rotate(...args) {
-		for (let f of this.rotateList) {
-			let result = f.call(this, ...args);
-			if (result) {
-				return result;
-			}
-		}
-		return 0;
+		return this.caller(this.rotateList, ...args);
 	}
-	
+
 	/**
 	 * Sense something
 	 * @param  {List} args
@@ -310,15 +300,9 @@ class StoreableObject {
 	 * calls to this function. A final answer has been found;
 	 */
 	sense(...args) {
-		for (let f of this.senseList) {
-			let result = f.call(this, ...args);
-			if (result) {
-				return result;
-			}
-		}
-		return 0;
+		return this.caller(this.senseList, ...args);
 	}
-	
+
 	/**
 	 * This object has just collided with something
 	 * @param  {List} args
@@ -326,12 +310,6 @@ class StoreableObject {
 	 * calls to this function. A final answer has been found;
 	 */
 	collide(...args) {
-		for (let f of this.collisionList) {
-			let result = f.call(this, ...args);
-			if (result) {
-				return result;
-			}
-		}
-		return 0;
+		return this.caller(this.collisionList, ...args);
 	}
 }

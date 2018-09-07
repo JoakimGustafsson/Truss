@@ -416,7 +416,7 @@ class AngleNode extends Behaviour {
 				idealAngle = tensor.angle1;
 				torqueConstant = tensor.torqueConstant1;
 			}
-			if (isNaN(idealAngle)) {
+			if (!torqueConstant || Number.isNaN(idealAngle)) {
 				return 0;
 			}
 			let tensorAngle = tensor.getTensorAngle(node);
@@ -436,9 +436,7 @@ class AngleNode extends Behaviour {
 		};
 
 		this.sumTorque = 0;
-		if (!this.torqueConstant && this.torqueConstant != 0) {
-			return;
-		}
+
 		for (let tensor of this.connectedTensors) {
 			if (tensor.angleTensor) {
 				this.sumTorque += getTorque(this, tensor);
@@ -466,7 +464,7 @@ class AngleNode extends Behaviour {
 		if (isNaN(this.angle)) {
 			this.angle = 0;
 		}
-		this.angle += this.turnrate;
+		this.angle += parseFloat(this.turnrate);
 	}
 
 }
@@ -730,6 +728,8 @@ class CollisionBounce extends Behaviour {
 	 */
 	attachTo(storeableObject) {
 		storeableObject.registerOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
+		storeableObject.registerOverride(BehaviourOverride.UPDATEPOSITION, CollisionBounce.prototype.updatePosition);
+		// storeableObject.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
 	}
 
 	/**
@@ -737,16 +737,16 @@ class CollisionBounce extends Behaviour {
 	 */
 	detachFrom(storeableObject) {
 		storeableObject.unregisterOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
-		// storeableObject.unregisterOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
+		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, CollisionBounce.prototype.updatePosition);
 	}
 
 	/**
 	 * @param {Object} details
 	 */
 	collide(detail) {
-		let collider = detail.collider;
+		// let collider = detail.collider;
 		let where = detail.where;
-		let from = detail.from;
+		// let from = detail.from;
 		let tensor = detail.tensor;
 
 		/*
@@ -759,21 +759,39 @@ class CollisionBounce extends Behaviour {
 			tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
 		*/
 
-		if (!tensor.bounceList) {
-			tensor.bounceList = [detail];
-		} else {
-			tensor.bounceList.push(detail);
-		}
 		//tensor.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
 
 		// set the original tensor to ghost, or remove it.
 		// Split the original tensor in 2 with the same constants.
 		let startTensor = tensor.clone();
-		startTensor.name='startTensor';
+		startTensor.name='startTensor-'+startTensor.name;
 		startTensor.node2=this;
+		if (tensor.equilibriumLength!=undefined) {
+			startTensor.equilibriumLength=tensor.equilibriumLength*where;
+		}
+		startTensor.addLabel('angletensor');
+		startTensor.angle2=tensor.getTensorAngle(this)+Math.PI;
+		startTensor.torqueConstant2=100;
 
 		let endTensor = tensor.clone();
+		endTensor.name='endTensor-'+endTensor.name;
+		endTensor.node1=this;
+		if (tensor.equilibriumLength!=undefined) {
+			endTensor.equilibriumLength=tensor.equilibriumLength*(1-where);
+		}
+		endTensor.addLabel('angletensor');
+		endTensor.angle1=tensor.getTensorAngle(this);
+		endTensor.torqueConstant1=100;
 
+		tensor.ghostify();
+
+		detail.startTensor=startTensor;
+		detail.endTensor=endTensor;
+		if (!this.bounceList) {
+			this.bounceList = [detail];
+		} else {
+			this.bounceList.push(detail);
+		}
 		// add anglenode to the ball and tensorangle to two tensors
 		// set angle of first tensors end and end tensors start to the correct start values
 		// Find some way to trigger when the angles are the same again
@@ -789,37 +807,25 @@ class CollisionBounce extends Behaviour {
 	 * Calculate pull force towards the tensor based on that the node should bounce off
 	 * @return {number}
 	 */
-	calculate() {
-		if (!this.bouncelist) {
+	updatePosition() {
+		if (!this.bounceList) {
 			return;
 		}
-		/*
+
 		for (let bounce of this.bounceList) {
 			let node = bounce.collider;
 			let from = bounce.from;
+			let startTensor=bounce.startTensor;
+			let endTensor=bounce.endTensor;
 
-		let nodeStart = collider.localPosition;
-		let nodeEnd = Vector.addVectors(collider.localPosition, collider.velocity);
-
-		let perpendicularVelocityStartDistance = getT(
-			tensor.node1.localPosition,
-			tensor.node2.localPosition,
-			nodeStart);
-		let perpendicularVelocityStartDistance = getS(
-				tensor.node1.localPosition,
-				tensor.node2.localPosition,
-				nodeStart);
-			/* eslint-disable-next-line /
-		let perpendicularVelocityEndDistance = getS(
-			tensor.node1.localPosition,
-			tensor.node2.localPosition,
-			nodeEnd);
-			/* eslint-disable-next-line /
-		let tensorPointVelocity;
-
-		this.getActual();
-		this.force = Vector.multiplyVector(-this.constant, show-actual);
+			let startangle = startTensor.getTensorAngle(node);
+			let endangle = endTensor.getTensorAngle(node);
+			let angle=anglify(startangle-endangle);
+			// console.log(angle);
+			let dir=angle*from;
+			if (dir<0) {
+				console.log('Loosen');
+			}
 		}
-		*/
 	}
 }

@@ -259,7 +259,9 @@ class Tensor extends StoreableObject {
 	 * @return {string} The name of the tensor
 	 */
 	getName() {
-		if (this.labels && this.labels.length>0) {
+		if (this.name) {
+			return this.name;
+		} else if (this.labels && this.labels.length>0) {
 			return this.labels[0].name;
 		}
 		return this.constructor.name;
@@ -601,7 +603,7 @@ class Tensor extends StoreableObject {
 	* @param  {string} labels
 	*/
 	addLabel(labels) {
-		this.labelString+=labels+' ';
+		this.labelString+=' '+labels+' ';
 		this.labels =
 				this.world.labels.parse(this.labelString, this);
 	}
