@@ -744,25 +744,9 @@ class CollisionBounce extends Behaviour {
 	 * @param {Object} details
 	 */
 	collide(detail) {
-		// let collider = detail.collider;
 		let where = detail.where;
-		// let from = detail.from;
 		let tensor = detail.tensor;
 
-		/*
-		let direction = 'left';
-		if (from > 0) {
-			direction = 'right';
-		}
-		console.log(this.name +
-			' collided from the ' + direction + ' with tensor ' +
-			tensor.getName() + ' at ' + Math.round(where * 100) + '% along its length.');
-		*/
-
-		//tensor.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
-
-		// set the original tensor to ghost, or remove it.
-		// Split the original tensor in 2 with the same constants.
 		let startTensor = tensor.clone();
 		startTensor.name='startTensor-'+startTensor.name;
 		startTensor.node2=this;
@@ -771,7 +755,7 @@ class CollisionBounce extends Behaviour {
 		}
 		startTensor.addLabel('angletensor');
 		startTensor.angle2=tensor.getTensorAngle(this)+Math.PI;
-		startTensor.torqueConstant2=100;
+		startTensor.torqueConstant2=0;
 
 		let endTensor = tensor.clone();
 		endTensor.name='endTensor-'+endTensor.name;
@@ -781,7 +765,7 @@ class CollisionBounce extends Behaviour {
 		}
 		endTensor.addLabel('angletensor');
 		endTensor.angle1=tensor.getTensorAngle(this);
-		endTensor.torqueConstant1=100;
+		endTensor.torqueConstant1=0;
 
 		tensor.ghostify();
 
@@ -792,40 +776,48 @@ class CollisionBounce extends Behaviour {
 		} else {
 			this.bounceList.push(detail);
 		}
-		// add anglenode to the ball and tensorangle to two tensors
-		// set angle of first tensors end and end tensors start to the correct start values
-		// Find some way to trigger when the angles are the same again
-		// tensor.registerOverride(BehaviourOverride.CALCULATE, CollisionBounce.prototype.calculate);
-
-
-
-		// limit
-		//
 	}
 
 	/**
-	 * Calculate pull force towards the tensor based on that the node should bounce off
+	 * If the angle between the tensors is more than 180 degrees, cut the node free.
 	 * @return {number}
 	 */
 	updatePosition() {
-		if (!this.bounceList) {
+		if (!this.bounceList || this.bounceList.length==0) {
 			return;
 		}
-
+		let newCleanList = [];
 		for (let bounce of this.bounceList) {
 			let node = bounce.collider;
 			let from = bounce.from;
 			let startTensor=bounce.startTensor;
 			let endTensor=bounce.endTensor;
+			let tensor=bounce.tensor;
 
+			// Length
+			let startLength = startTensor.getLength();
+			let endLength = endTensor.getLength();
+
+			let lengthProportion = startLength/(endLength+startLength);
+			let sumEquilibriumLength = startTensor.equilibriumLength+endTensor.equilibriumLength;
+
+			startTensor.equilibriumLength = lengthProportion * sumEquilibriumLength;
+			endTensor.equilibriumLength = (1- lengthProportion) * sumEquilibriumLength;
+
+			// Angle
 			let startangle = startTensor.getTensorAngle(node);
 			let endangle = endTensor.getTensorAngle(node);
 			let angle=anglify(startangle-endangle);
-			// console.log(angle);
 			let dir=angle*from;
 			if (dir<0) {
 				console.log('Loosen');
+				tensor.deGhostify();
+				startTensor.destroy();
+				endTensor.destroy();
+			} else {
+				newCleanList.push(bounce);
 			}
 		}
+		this.bounceList=newCleanList;
 	}
 }

@@ -92,6 +92,14 @@ class Tensor extends StoreableObject {
 	}
 
 	/**
+	 */
+	destroy() {
+		this.unreference()
+		this.node1=undefined;
+		this.node2=undefined;
+	}
+
+	/**
 	 * @param {Node} leftNode
 	 * @return {Element}
 	 */
