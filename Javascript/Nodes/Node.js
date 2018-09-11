@@ -100,6 +100,12 @@ class Node extends StoreableObject {
 	}
 
 	/**
+	 */
+	destroy() {
+		super.destroy();
+	}
+
+	/**
 	 * @return {Element}
 	 */
 	generateHTML() {

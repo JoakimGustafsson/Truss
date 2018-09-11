@@ -60,17 +60,30 @@ class View {
 	}
 
 	createAlertWorldSize(x, y, _this) {
-		this._worldViewSize = new AlertVector(new Vector(x, y), function () {
-			_this.recalculate();
-		});
+		let handlers = {
+			set(target, key, value, context) {
+				let returnValue= Reflect.set(target, key, value, context);
+				if (key=='x' || key=='y') {
+					_this.recalculate();
+				}
+				return returnValue;
+			}
+		};
+		this._worldViewSize = new Proxy(new Vector(x, y), handlers);
 	}
 
 	createAlertScreenSize(x, y, element, _this) {
-		this.screenSize = new AlertVector(new Vector(x, y), function (v) {
-			element.offsetWidth = v.x;
-			element.offsetHeight = v.y;
-			_this.recalculate();
-		});
+		let handlers = {
+			set(target, key, value) {
+				if (key=='v') {
+					target.x=value.x;
+					target.y=value.y;
+					_this.recalculate();
+				}
+				return true;
+			}
+		};
+		this.screenSize = new Proxy(new Vector(x, y), handlers);
 	}
 
 	/** Multiply this number with a screen distance in pixels to get the world distance

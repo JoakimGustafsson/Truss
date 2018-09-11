@@ -798,7 +798,15 @@ class CollisionBounce extends Behaviour {
 			let startLength = startTensor.getLength();
 			let endLength = endTensor.getLength();
 
-			let lengthProportion = startLength/(endLength+startLength);
+			// use getT to calculate parallell fraction for lengthProportion.
+			// Ideally, the rubberband should give no sideways force wrt bandlength
+
+			let lengthProportion = getT(
+				startTensor.node1.getPosition(),
+				endTensor.node2.getPosition(),
+				node.getPosition());
+
+			let x = startLength/(endLength+startLength);
 			let sumEquilibriumLength = startTensor.equilibriumLength+endTensor.equilibriumLength;
 
 			startTensor.equilibriumLength = lengthProportion * sumEquilibriumLength;

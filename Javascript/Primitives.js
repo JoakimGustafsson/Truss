@@ -1,4 +1,4 @@
-/* exported removeIfPresent Vector AlertVector Force Velocity getS getT anglify objectFactory */
+/* exported removeIfPresent Vector Force Velocity getS getT anglify objectFactory */
 /* exported getTInside getTInside2 boxClose */
 
 /**
@@ -206,57 +206,6 @@ class Position extends Vector {
 	 */
 	constructor(x, y) {
 		super(x, y);
-	}
-}
-
-/**
- * @class
- */
-class AlertVector {
-	/** Create a two dimensional position
-	 * @param  {Vector} v The horizontal position
-	 * @param  {Function} f The vertical position
-	 */
-	constructor(v, f) {
-		this.v = v;
-
-		Object.defineProperty(this, 'x', {
-			get: function() {
-				return this.v.x;
-			},
-			set: function(value) {
-				this.v.x = value;
-				f(this.v);
-			},
-		});
-		Object.defineProperty(this, 'y', {
-			get: function() {
-				return this.v.y;
-			},
-			set: function(value) {
-				this.v.y = value;
-				f(this.v);
-			},
-		});
-	}
-
-	/**
-	 * Returns the vector pointing in exactly the opposite direction
-	 * @return {Vector} The vector pointing in exactly the oposite direction
-	 */
-	serialize() {
-		return this.v.serialize();
-	}
-
-	/**
-	 * @param  {Object} restoreObject
-	 * @return {Vector}
-	 */
-	deserialize(restoreObject) {
-		if (!this.v) {
-			this.v=new Position(restoreObject.x, restoreObject.y);
-		}
-		return this;
 	}
 }
 

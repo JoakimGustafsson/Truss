@@ -94,7 +94,7 @@ class Tensor extends StoreableObject {
 	/**
 	 */
 	destroy() {
-		this.unreference()
+		super.destroy();
 		this.node1=undefined;
 		this.node2=undefined;
 	}

@@ -42,6 +42,12 @@ class StoreableObject {
 			'The comma-separated list of labels'));
 	}
 
+	/**
+	 */
+	destroy() {
+		this.unreference();
+	}
+	
 	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
      *
      */
