@@ -755,7 +755,7 @@ class CollisionBounce extends Behaviour {
 		}
 		startTensor.addLabel('angletensor');
 		startTensor.angle2=tensor.getTensorAngle(this)+Math.PI;
-		startTensor.torqueConstant2=0;
+		startTensor.torqueConstant2=1000;
 
 		let endTensor = tensor.clone();
 		endTensor.name='endTensor-'+endTensor.name;
@@ -765,7 +765,7 @@ class CollisionBounce extends Behaviour {
 		}
 		endTensor.addLabel('angletensor');
 		endTensor.angle1=tensor.getTensorAngle(this);
-		endTensor.torqueConstant1=0;
+		endTensor.torqueConstant1=1000;
 
 		tensor.ghostify();
 
@@ -801,7 +801,7 @@ class CollisionBounce extends Behaviour {
 			// use getT to calculate parallell fraction for lengthProportion.
 			// Ideally, the rubberband should give no sideways force wrt bandlength
 
-			let lengthProportion = getT(
+		/* 	let lengthProportion = getT(
 				startTensor.node1.getPosition(),
 				endTensor.node2.getPosition(),
 				node.getPosition());
@@ -811,6 +811,13 @@ class CollisionBounce extends Behaviour {
 
 			startTensor.equilibriumLength = lengthProportion * sumEquilibriumLength;
 			endTensor.equilibriumLength = (1- lengthProportion) * sumEquilibriumLength;
+ */
+			let elongation = ((startLength+endLength)-tensor.getLength())/2;
+
+
+
+			startTensor.equilibriumLength = startLength - elongation;
+			endTensor.equilibriumLength = endLength - elongation;
 
 			// Angle
 			let startangle = startTensor.getTensorAngle(node);
