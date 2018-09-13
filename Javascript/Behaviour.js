@@ -510,7 +510,7 @@ class AngleTensor extends Behaviour {
 			if (!torque) {
 				return new Force(0, 0);
 			}
-			let forceLenth = torque * tensor.getLength();
+			let forceLenth = torque/tensor.getLength();
 			let force = perp.normalizeVector(forceLenth);
 			return force.opposite();
 		}

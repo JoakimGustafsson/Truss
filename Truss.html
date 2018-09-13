@@ -36,7 +36,7 @@
 </head>
 
 <body style="background-color: #343f48; margin:0px;" onresize="updateResize()">
-<a href="https://github.com/JoakimGustafsson/Truss/wiki">Wiki</a>
+
 	<section>
 		<div id="mainArea"></div>
 
@@ -82,20 +82,9 @@
 				// let latestNode = new TrussNode(twoWorld, "Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				// latestNode.truss.initiate();
 
-				let latestNode = new PerformanceTrussNode(latestWorld,
-							undefined,
-							'truss', {
-								'localPosition': new Position(0,0),
-								'name': 'MainNode',
-								'screenSize': new Position(600,600),
-								'worldSize': new Position(30,35),
-								'fpsTarget': 60,
-								'fps': 60,
-								'gridSize': 0,
-							}
-						);
-
-
+				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
+					'name': 'MainNode',
+				},  new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode");
 				latestNode.initiate();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
@@ -253,21 +242,7 @@
 					let newNode=new Node(universe.currentWorld, universe.currentNode, 'node added', {
 							'localPosition': new Position(1,1),
 						});
-					universe.select(newNode);
-					universe.newNode=newNode;
-				}
-				if (value == 'Truss node') {
-					let newNode=new TrussNode(universe.currentWorld, 
-							universe.currentNode, 
-							'truss', {
-								'localPosition': new Position(1,1),
-								'screenSize': new Position(200,200),
-								'worldSize': new Position(20,30),
-								'fpsTarget': 60,
-								'fps': 60,
-								'gridSize': 0,
-							}
-						);
+					// universe.currentNode.addNode(newNode);
 					universe.select(newNode);
 					universe.newNode=newNode;
 				}
@@ -286,49 +261,28 @@
 				connectionTensor=undefined;
 
 				if (value == 'Spring') {
-					connectionTensor = new Tensor(
-						universe.selectedObject, 
-						universe.currentNode.selector,
-						'spring',
-						{
-							'equilibriumLength': 6,
-							'constant': 100,
-							'color': 'white',
-						});
+					connectionTensor = new Spring(universe.selectedObject, universe.currentNode.selector, 100);
 				} else if (value == 'DampenedSpring') {
 					connectionTensor =
-						new Tensor(universe.selectedObject, 
-						universe.currentNode.selector, 
-						'spring absorber', 
-						{
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber', {
 							'equilibriumLength': 6,
 							'dampeningConstant': 1,
 							'constant': 100,
-							'color': 'lightgray',
+							'color': 'white',
 						});
 				} else if (value == 'PullSpring') {
 					connectionTensor =
-						new Tensor(universe.selectedObject, 
-							universe.currentNode.selector, 
-							'pullspring', 
-							{
-								'equilibriumLength': 6,
-								'constant': 100,
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'pullspring', {
+							'equilibriumLength': 6,
+							'constant': 100,
 						});
 				} else if (value == 'Absorber') {
-					connectionTensor =
-						new Tensor(universe.selectedObject, 
-						universe.currentNode.selector, 
-						'absorber', 
-						{
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
 							'dampeningConstant': 1,
 						});
 				} else if (value == 'Field') {
 					connectionTensor =
-						new Tensor(universe.selectedObject, 
-						universe.currentNode.selector, 
-						'field',
-						{
+						new Tensor(universe.selectedObject, universe.currentNode.selector, 'field', {
 							'constant': 0.0001,
 						});
 				}
@@ -343,7 +297,7 @@
 			}
 
 			function changeDebugLevel() {
-				universe.currentWorld.debugLevel = universe.currentNode.getElement("#debugLevel").value;
+				universe.currentNode.debugLevel = universe.currentNode.getElement("#debugLevel").value;
 			}
 
 			function addGravityCheat() {
