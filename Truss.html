@@ -36,24 +36,28 @@
 </head>
 
 <body style="background-color: #343f48; margin:0px;" onresize="updateResize()">
-
 	<section>
 		<div id="mainArea"></div>
+		<div style="border:1px solid yellow; position:absolute; left:10px; bottom: 10px;">
+			<div id="FPSdisplay" style="display: inline-block; color: white;"></div>
+			<button type="button" class="simpleButton" onclick="location.href='https://github.com/JoakimGustafsson/Truss/wiki'">Wiki</button>
+			<button type="button" class="simpleButton" onclick="if (universe) {universe.select()}">Configuration</button>
+			<button type="button" class="simpleButton" onclick="">Other</button>
 
-		<div id="FPSdisplay" style="position: absolute; left:10px; bottom:10px; color: white;"></div>
-
+	
+		</div>
 		<script type="text/javascript">
 			var savedState = 0;
 
 			var protagonist;
 			var universe = new Universe(document.getElementById('mainArea'));
 
-			var setupTicks=3;
+			var setupTicks = 3;
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
 
-	//timestamp= Date.now();
+				//timestamp= Date.now();
 				universe.tick(timestamp / 1000);
 				requestAnimationFrame(mainLoop);
 
@@ -64,19 +68,19 @@
 				FPSdisplay = document.getElementById("FPSdisplay");
 
 				trussBackground = document.getElementById("temp");
-				let latestWorld =  universe.push(new World());
+				let latestWorld = universe.push(new World());
 
-/*
+				/*
 
-				let oneWorld = universe.push(new World();
-				let mainNode2 = new TrussNode(oneWorld, "Prime", new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
-				mainNode2.truss.initiate();
-				mainNode2.resize();
+								let oneWorld = universe.push(new World();
+								let mainNode2 = new TrussNode(oneWorld, "Prime", new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode", WalkTruss);
+								mainNode2.truss.initiate();
+								mainNode2.resize();
 
-				let mainNode3 = new TrussNode(oneWorld, mainNode2, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode2", WalkTruss);
+								let mainNode3 = new TrussNode(oneWorld, mainNode2, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "StackNode2", WalkTruss);
 
-				mainNode3.truss.initiate();
-				mainNode3.resize(); */
+								mainNode3.truss.initiate();
+								mainNode3.resize(); */
 
 				// let twoWorld = universe.push(new World(mainNode3),[]);
 				// let latestNode = new TrussNode(twoWorld, "Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
@@ -84,23 +88,23 @@
 
 				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 					'name': 'MainNode',
-				},  new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode");
+				}, new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode");
 				latestNode.initiate();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
 				latestNode.resize();
 
-/*
-				let egoMoveGovernor =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
-				egoMoveGovernor.truss.initiate(protagonist);
-				egoMoveGovernor.resize();
+				/*
+								let egoMoveGovernor =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
+								egoMoveGovernor.truss.initiate(protagonist);
+								egoMoveGovernor.resize();
 
-				let scroller =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(50, 50), 1 / 60, 1, "ScrollerTruss", ScrollerTruss)
-				scroller.truss.initiate(protagonist);
-				scroller.resize();
+								let scroller =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(50, 50), 1 / 60, 1, "ScrollerTruss", ScrollerTruss)
+								scroller.truss.initiate(protagonist);
+								scroller.resize();
 
-				let governorList= [egoMoveGovernor, scroller];
-				*/
+								let governorList= [egoMoveGovernor, scroller];
+								*/
 
 
 				universe.setCurrentWorld(latestWorld);
@@ -108,9 +112,9 @@
 
 				// universe.showUniverse(document.getElementById('mainArea'));
 
-	window.requestAnimationFrame(mainLoop);
+				window.requestAnimationFrame(mainLoop);
 
-	//setInterval(mainLoop, 16);
+				//setInterval(mainLoop, 16);
 
 				document.getElementById('mainArea').onmousemove = myMove;
 
@@ -131,17 +135,17 @@
 
 			}
 
-		window.addEventListener('keydown', function(e) {
-			if (!universe.currentWorld.fastEdit) {
-				return;
-			}
-			console.log(e.keyCode);
-			if (e.keyCode==78) {
-				makeNode();
-			} else if (e.keyCode==84) {
-				makeTensor();
-			}
-		}, true);
+			window.addEventListener('keydown', function (e) {
+				if (!universe.currentWorld.fastEdit) {
+					return;
+				}
+				console.log(e.keyCode);
+				if (e.keyCode == 78) {
+					makeNode();
+				} else if (e.keyCode == 84) {
+					makeTensor();
+				}
+			}, true);
 
 
 			let myX = 3;
@@ -190,12 +194,12 @@
 				}
 
 				// Show the current tab, and add an "active" class to the button that opened the tab
-				universe.currentNode.getElement('#'+divName).style.display = "block";
+				universe.currentNode.getElement('#' + divName).style.display = "block";
 
 				if (evt)
 					evt.currentTarget.classList.add("active");
 				else
-				universe.currentNode.getElement('#'+"propertiesButton").classList.add("active");
+					universe.currentNode.getElement('#' + "propertiesButton").classList.add("active");
 			}
 
 
@@ -204,7 +208,7 @@
 			 */
 			function highlightAndModifyPropertyButtons(selectionEvent) {
 				let select = selectionEvent.detail.selectedObject;
-				let connectionDiv= universe.currentNode.getElement("#connectionDiv");
+				let connectionDiv = universe.currentNode.getElement("#connectionDiv");
 
 				if (!select) {
 					connectionDiv.innerHTML = '';
@@ -220,8 +224,8 @@
 				connectionDiv.innerHTML = '';
 				connectionDiv.appendChild(select.generateconnectionHTML());
 
-				let gravityButton= universe.currentNode.getElement("#gravityButton");
-				let tensorAdder= universe.currentNode.getElement("#tensorAdder");
+				let gravityButton = universe.currentNode.getElement("#gravityButton");
+				let tensorAdder = universe.currentNode.getElement("#tensorAdder");
 
 				if (select.isNode) {
 					gravityButton.style.display = 'inline';
@@ -239,12 +243,12 @@
 				let selector = document.getElementById('nodeType');
 				let value = selector.value;
 				if (value == 'Node') {
-					let newNode=new Node(universe.currentWorld, universe.currentNode, 'node added', {
-							'localPosition': new Position(1,1),
-						});
+					let newNode = new Node(universe.currentWorld, universe.currentNode, 'node added', {
+						'localPosition': new Position(1, 1),
+					});
 					// universe.currentNode.addNode(newNode);
 					universe.select(newNode);
-					universe.newNode=newNode;
+					universe.newNode = newNode;
 				}
 			}
 
@@ -258,7 +262,7 @@
 					// Some tensor is already currently being drawn
 					universe.currentNode.removeTensor(connectionTensor);
 				}
-				connectionTensor=undefined;
+				connectionTensor = undefined;
 
 				if (value == 'Spring') {
 					connectionTensor = new Spring(universe.selectedObject, universe.currentNode.selector, 100);
@@ -277,9 +281,9 @@
 							'constant': 100,
 						});
 				} else if (value == 'Absorber') {
-						new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
-							'dampeningConstant': 1,
-						});
+					new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
+						'dampeningConstant': 1,
+					});
 				} else if (value == 'Field') {
 					connectionTensor =
 						new Tensor(universe.selectedObject, universe.currentNode.selector, 'field', {
@@ -306,7 +310,7 @@
 					return;
 				}
 				let nodes = gravityWellLabel.getNodes();
-				if (!nodes || nodes.length==0) {
+				if (!nodes || nodes.length == 0) {
 					return;
 				}
 				let gravityWell = nodes[0];
@@ -316,14 +320,14 @@
 					return;
 				}
 				universe.currentNode.addTensor(
-						new Tensor(universe.selectedObject, gravityWell, 'gravity field', {
-							'constant': constant,
-							'visible': 0,
-						}));
+					new Tensor(universe.selectedObject, gravityWell, 'gravity field', {
+						'constant': constant,
+						'visible': 0,
+					}));
 			}
 
 			function deleteSelected() {
-					universe.selectedObject.unreference();
+				universe.selectedObject.unreference();
 			}
 
 			function selectMainNode() {
@@ -350,15 +354,16 @@
 					selectMainNode();
 				}
 				let view = universe.currentNode.getElement("#configview");
-				let container =universe.currentNode.getElement("#"+configAreaName);
+				let container = universe.currentNode.getElement("#" + configAreaName);
 				container.appendChild(view);
 			}
 
-			function getlabel(label) {return universe.currentWorld.labels.findLabel(label);}
+			function getlabel(label) {
+				return universe.currentWorld.labels.findLabel(label);
+			}
 
 
 			init();
-
 		</script>
 
 	</section>

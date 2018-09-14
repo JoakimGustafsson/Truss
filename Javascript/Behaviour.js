@@ -528,7 +528,6 @@ class AngleTensor extends Behaviour {
 }
 
 
-
 /**
  * @class
  * @extends Behaviour
@@ -754,7 +753,7 @@ class CollisionBounce extends Behaviour {
 			startTensor.equilibriumLength=tensor.equilibriumLength*where;
 		}
 		startTensor.addLabel('angletensor');
-		startTensor.angle2=tensor.getTensorAngle(this)+Math.PI;
+		startTensor.angle2=anglify(tensor.getTensorAngle(this)+Math.PI-this.angle);
 		startTensor.torqueConstant2=1000;
 
 		let endTensor = tensor.clone();
@@ -764,7 +763,7 @@ class CollisionBounce extends Behaviour {
 			endTensor.equilibriumLength=tensor.equilibriumLength*(1-where);
 		}
 		endTensor.addLabel('angletensor');
-		endTensor.angle1=tensor.getTensorAngle(this);
+		endTensor.angle1=anglify(tensor.getTensorAngle(this)-this.angle);
 		endTensor.torqueConstant1=1000;
 
 		tensor.ghostify();

@@ -224,6 +224,29 @@ class Universe {
 		newNodeToShow.resize();
 		this.setupTicks = 3;
 	}
+	/**
+	 * @param {object} object
+	 */
+	select(object) {
+		let previousSelectedObject = universe.selectedObject;
+		if (!this.currentNode) {
+			throw 'No world available for selection';
+		}
+		if (!object) {
+			object = this.currentNode;
+		}
+		let event = new CustomEvent('selectionEvent', {
+			detail: {
+				'selectedObject': object,
+				'previousSelectedObject': previousSelectedObject,
+				'trussNode': this.currentNode,
+			},
+			bubbles: true,
+			cancelable: true,
+		});
+		this.currentNode.element.dispatchEvent(event);
+
+	}
 }
 
 /* exported World */
