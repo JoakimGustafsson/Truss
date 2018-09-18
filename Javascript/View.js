@@ -149,12 +149,23 @@ class View {
 	}
 
 	/**
-	 * Given a x and y position in the world, return the screen position
-	 * @param  {Position} node
+	 * Given a position in the world, return the screen position
+	 * @param  {Position} position
 	 * @return {Position}
 	 */
-	screenPosition(node) {
-		return new Position(this.x(node) + 1, this.y(node) + 1);
+	screenPosition(position) {
+		return new Position(this.x(position) + 1, this.y(position) + 1);
+	}
+
+	/**
+	 * Put an HTML element with world position on the screen
+	 * @param  {Position} position
+	 * @param  {Element} element
+	 */
+	putElementOnScreen(position, element) {
+		element.style.left= this.x(position)+'px';
+		element.style.top= this.y(position)+'px';
+		// return new Position(this.x(position) + 1, this.y(position) + 1);
 	}
 
 	/**

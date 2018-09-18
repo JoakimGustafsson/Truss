@@ -53,7 +53,7 @@ class Labels {
 			'absorberProperty': 1,
 			'visibilityProperty': 1,
 		}, [new AbsorbCalculator()]);
-		this.moveabelLabel = this.addLabel('moveable', [this.nodeLabel], {
+		this.moveableLabel = this.addLabel('moveable', [this.nodeLabel], {
 			'massProperty': 1,
 			'nodeFrictionProperty': 0.99,
 		});
@@ -101,23 +101,28 @@ class Labels {
 			'snapGridProperty': 0,
 		});
 		this.sensorLabel = this.addLabel('sensor', [this.nodeLabel], {});
-		this.addLabel('selector', [this.sensorLabel, this.moveabelLabel], {}, [new SelectorBehaviour()]);
-		this.addLabel('keysensor', [this.sensorLabel, this.moveabelLabel], {
+		this.addLabel('selector', [this.sensorLabel, this.moveableLabel], {}, [new SelectorBehaviour()]);
+		this.addLabel('keysensor', [this.sensorLabel, this.moveableLabel], {
 			'keyProperty': [],
 			'restPositionProperty': new Position(1, 1),
 		}, [new KeySensor()]);
 
-		this.addLabel('scriptposition', [this.moveabelLabel], {
-			'positionScriptProperty': 'alert("MyPositionScript");',
+		this.addLabel('scriptposition', [this.moveableLabel], {
+			'positionScriptProperty': '() => {alert("MyPositionScript");}',
 		}, [new ScriptPosition()]);
 		this.addLabel('scriptshow', [], {
-			'showScriptProperty': 'alert("MyShowScript");',
+			'showScriptProperty': '() => {alert("MyShowScript");}',
 		}, [new ScriptShow()]);
 		this.collideLabel = this.addLabel('collide', [this.sensorLabel], {
 			'collisionLabelProperty': '',
 		}, [new CollisionSensor()]);
-		this.addLabel('bounceactuator', [this.moveabelLabel, this.collideLabel], {},
+		this.addLabel('bounceactuator', [this.moveableLabel, this.collideLabel], {},
 			[new CollisionBounce()]);
+		this.addLabel('button', [this.nodeLabel, this.moveableLabel], {
+			'buttonScriptProperty': '() => {alert("MyButtonScript");}',
+			'nameProperty': 'Button',
+		},
+			[new ButtonBehaviour()]);
 	}
 
 	/**

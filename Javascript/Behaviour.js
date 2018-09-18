@@ -835,3 +835,58 @@ class CollisionBounce extends Behaviour {
 		this.bounceList=newCleanList;
 	}
 }
+
+
+/** This behaviour draws a button next to the object and trigger a script
+ * @class
+ * @extends Behaviour
+ */
+class ButtonBehaviour extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		let button = document.createElement('button');
+		button.id = 'propertiesButton';
+		button.style.position='absolute';
+		button.classList.add('simpleButton');
+		button.innerHTML = storeableObject.name;
+		button.addEventListener('click', (...args) => {
+			let func = storeableObject.buttonScript_Evaluated;
+			if (func) {
+				func(...args);
+			}
+		}, false);
+		storeableObject.parentTrussNode.element.appendChild(button);
+		storeableObject.buttonReference=button;
+
+		storeableObject.registerOverride(
+			BehaviourOverride.UPDATEPOSITION, 
+			ButtonBehaviour.prototype.updateXPosition);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, ButtonBehaviour.prototype.updateXPosition);
+		
+		if (storeableObject.buttonReference) {
+			storeableObject.parentTrussNode.element.removeChild(storeableObject.buttonReference);
+		}
+	}
+
+	/**
+	 * If the angle between the tensors is more than 180 degrees, cut the node free.
+	 * @return {number}
+	 */
+	updateXPosition() {
+		this.parentTrussNode.view.putElementOnScreen(this.localPosition, this.buttonReference);
+	}
+}

@@ -92,6 +92,9 @@ class Node extends StoreableObject {
 			this.createHTMLPicture(this.pictureReference);
 		}
 
+		if (parentTrussNode) {
+			this.parentTrussNode= parentTrussNode;
+		}
 		this.initialRefresh();
 
 		if (parentTrussNode) {

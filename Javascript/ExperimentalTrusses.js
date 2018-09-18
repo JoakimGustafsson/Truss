@@ -227,6 +227,13 @@ class PerformanceTrussNode extends TrussNode {
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(10, 0),
 		});
+
+		
+		new Node(this.world, this, 'button', {
+			'name': 'button',
+			'localPosition': new Position(2, 7),
+		});
+		
 		/*
 		let a = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'a',
