@@ -25,10 +25,138 @@ class BannerNode extends Node {
 
 	/**
 	 * @param  {Truss} truss
-	 * @param  {Position} topScreenPos
+	 * @param  {Position} topLeft
 	 * @return {Node}
 	 */
-	create(truss, topScreenPos) {
+	create(truss, topLeft) {
+		this.element.style.display = 'block';
+		this.truss = truss;
+		this.width = truss.view.xScale*this.element.offsetWidth;
+		this.height = truss.view.yScale*this.element.offsetHeight;
+
+		let screenWidth = truss.view.xScale*truss.view.screenSize.x;
+		let screenHeight = truss.view.yScale*truss.view.screenSize.y;
+
+		let windowWidth = Math.max(this.width, screenWidth/3);
+		let windowHeight = windowWidth*this.height/this.width;
+
+		let origin = truss.view.worldPosition(0,0);
+
+		if (!topLeft) {
+			topLeft = new Position(origin.x + screenWidth - windowWidth, 0);
+		}
+
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner anglenode', {
+			'localPosition': new Position(topLeft.x + windowWidth / 2, topLeft.y / 2),
+			'name': 'nail',
+			'mass': NaN,
+		});
+
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': new Position(topLeft.x, topLeft.y),
+			'name': 'leftTop',
+			'mass': 1,
+			'velocityLoss': 0.9,
+		});
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': new Position(topLeft.x + windowWidth, topLeft.y),
+			'name': 'rightTop',
+			'mass': 1,
+			'velocityLoss': 0.9,
+		});
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
+			'localPosition': new Position(topLeft.x + windowWidth / 2, screenHeight * 1000),
+			'name': 'bannerGravityWell',
+		});
+
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': new Position(topLeft.x , topLeft.y + windowHeight),
+			'name': 'leftBottomNode',
+			'mass': 3,
+			'color': 'transparent',
+			'velocityLoss': 0.9,
+		});
+
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
+			'localPosition': new Position(topLeft.x + windowWidth , topLeft.y + windowHeight),
+			'name': 'rightBottomNode',
+			'mass': 3,
+			'color': 'transparent',
+			'velocityLoss': 0.9,
+		});
+/*
+		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
+			'equilibriumLength': 0,
+			'dampeningConstant': 10,
+			'constant': 5000,
+			'visible': 1,
+		});
+
+		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
+			'equilibriumLength': 0,
+			'dampeningConstant': 10,
+			'constant': 5000,
+			'visible': 1,
+		});
+
+		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
+			'equilibriumLength': windowWidth ,
+			'dampeningConstant': 10,
+			'constant': 3000,
+		});
+*/
+
+this.leftBand = new Tensor(this.leftTopNode, this.nail, 'angletensor absorber spring banner', {
+	'equilibriumLength': windowWidth/2,
+	'dampeningConstant': 10,
+	'constant': 5000,
+	'angle2': Math.PI,
+	'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
+	'visible': 1,
+});
+
+this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullspring absorber banner', {
+	'equilibriumLength': windowWidth/2,
+	'dampeningConstant': 10,
+	'constant': 5000,
+	'angle2': 0,
+	'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
+	'visible': 1,
+});
+
+		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
+			'equilibriumLength': windowHeight,
+			'dampeningConstant': 10,
+			'name': 'abc',
+			'constant': 6000,
+			'color': 'transparent',
+		});
+
+		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
+			'equilibriumLength': windowHeight,
+			'dampeningConstant': 10,
+			'constant': 6000,
+			'color': 'transparent',
+		});
+
+		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
+			'equilibriumLength': 0,
+			'dampeningConstant': 10,
+			'constant': 0.1,
+			'color': 'transparent',
+		});
+
+		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
+			'equilibriumLength': 0,
+			'dampeningConstant': 10,
+			'constant': 0.1,
+			'color': 'transparent',
+		});
+
+		this.visible = true;
+		return this.nail;
+
+		/*
 		this.element.style.display = 'block';
 		this.truss = truss;
 		this.width = this.element.offsetWidth;
@@ -128,7 +256,8 @@ class BannerNode extends Node {
 		});
 
 		this.visible = true;
-		return this.nail;
+		return this.nail; 
+		*/
 	}
 
 	/**

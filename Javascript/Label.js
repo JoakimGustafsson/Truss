@@ -27,6 +27,7 @@ class Labels {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
 			'visibilityProperty': 1,
+			'colorProperty': 'white',
 			'parentTrussNodeProperty': undefined,
 			'connectedTensorsProperty': undefined,
 		});
@@ -34,6 +35,7 @@ class Labels {
 			'visibilityProperty': 1,
 			'startNodeProperty': undefined,
 			'endNodeProperty': undefined,
+			'colorProperty': 'white',
 			'parentTrussNodeProperty': undefined,
 		});
 		let positionTensorLabel = this.addLabel('positiontensor', [this.tensorLabel], {
@@ -57,7 +59,7 @@ class Labels {
 			'massProperty': 1,
 			'nodeFrictionProperty': 0.99,
 		});
-		this.addLabel('anglenode', [this.nodeLabel], {
+		this.angleNode = this.addLabel('anglenode', [this.nodeLabel], {
 			'angleProperty': 0,
 			'turnrateProperty': 0,
 			'turnFrictionProperty': 0.99,
@@ -76,9 +78,9 @@ class Labels {
 			'velocityProperty': undefined,
 		});
 		this.addLabel('color', [], {
-			'colorProperty': 'red',
-			'visibilityProperty': 1,
-		});
+		 	'colorProperty': 'red',
+		 	'visibilityProperty': 1,
+		 });
 		this.addLabel('picture', [this.nodeLabel], {
 			'pictureProperty': '/Resources/default.jpg',
 			'sizeProperty': 1,
@@ -116,7 +118,7 @@ class Labels {
 		this.collideLabel = this.addLabel('collide', [this.sensorLabel], {
 			'collisionLabelProperty': '',
 		}, [new CollisionSensor()]);
-		this.addLabel('bounceactuator', [this.moveableLabel, this.collideLabel], {},
+		this.addLabel('bounceactuator', [this.angleNode, this.moveableLabel, this.collideLabel], {},
 			[new CollisionBounce()]);
 		this.addLabel('button', [this.nodeLabel, this.moveableLabel], {
 			'buttonScriptProperty': '() => {alert("MyButtonScript");}',

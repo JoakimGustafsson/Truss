@@ -38,13 +38,13 @@
 <body style="background-color: #343f48; margin:0px;" onresize="updateResize()">
 	<section>
 		<div id="mainArea"></div>
-		<div style="border:1px solid yellow; position:absolute; left:10px; bottom: 10px;">
+		<div id="footer" style="border:1px solid yellow; position:absolute; left:10px; bottom: 10px;">
 			<div id="FPSdisplay" style="display: inline-block; color: white;"></div>
 			<button type="button" class="simpleButton" onclick="location.href='https://github.com/JoakimGustafsson/Truss/wiki'">Wiki</button>
 			<button type="button" class="simpleButton" onclick="if (universe) {universe.select()}">Configuration</button>
 			<button type="button" class="simpleButton" onclick="">Other</button>
 
-	
+
 		</div>
 		<script type="text/javascript">
 			var savedState = 0;
@@ -53,6 +53,8 @@
 			var universe = new Universe(document.getElementById('mainArea'));
 
 			var setupTicks = 3;
+
+			// let parentElement = document.getElementById('footer');
 
 			//Main Draw loop
 			function mainLoop(timestamp) {
@@ -86,9 +88,20 @@
 				// let latestNode = new TrussNode(twoWorld, "Prime", new Position(0, 0), new Vector(20, 20), 1 / 60, 1, "MainNode", WalkTruss);
 				// latestNode.truss.initiate();
 
+				let scale =
+							// 0.74E-10;	// Molecule
+							// 0.01;		// Cm 
+							// 1;			// Meter
+							 10;			// House
+							// 500;			// Complex
+							// 12500000;	// Earth
+							// 9000000000;	// Solar system
+							// 200000E16;	// Galaxy
+
 				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 					'name': 'MainNode',
-				}, new Position(0, 0), new Vector(30, 35), 1 / 60, 1, "MainNode");
+					'worldSize': new Position(scale, scale),
+				}, new Position(0, 0), new Vector(scale, scale), 1 / 60, 1, "MainNode");
 				latestNode.initiate();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
@@ -108,19 +121,10 @@
 
 
 				universe.setCurrentWorld(latestWorld);
-				// latestNode.addLabel('truss');
-
-				// universe.showUniverse(document.getElementById('mainArea'));
 
 				window.requestAnimationFrame(mainLoop);
 
-				//setInterval(mainLoop, 16);
-
 				document.getElementById('mainArea').onmousemove = myMove;
-
-				//	document.getElementById('mainArea').onmousedown = downMouse;
-				//	document.getElementById('mainArea').onmouseup = upMouse;
-
 
 				document.addEventListener('selectionEvent',
 					function (e) {
@@ -133,6 +137,7 @@
 				universe.currentNode.element.display = "none";
 				updateResize();
 
+				setupFooter(document.getElementById('footer'));
 			}
 
 			window.addEventListener('keydown', function (e) {
@@ -202,7 +207,6 @@
 					universe.currentNode.getElement('#' + "propertiesButton").classList.add("active");
 			}
 
-
 			/**
 			 * @param  {Event} selectionEvent
 			 */
@@ -219,7 +223,6 @@
 				if (previousSelectedObject) {
 					previousSelectedObject.setHighlight(0);
 				}
-
 
 				connectionDiv.innerHTML = '';
 				connectionDiv.appendChild(select.generateconnectionHTML());
@@ -241,12 +244,16 @@
 
 			function makeNode() {
 				let selector = document.getElementById('nodeType');
-				let value = selector.value;
+				let value;
+				if (!selector) {
+					value='Node';
+				} else {
+					value = selector.value;
+				}
 				if (value == 'Node') {
 					let newNode = new Node(universe.currentWorld, universe.currentNode, 'node added', {
 						'localPosition': new Position(1, 1),
 					});
-					// universe.currentNode.addNode(newNode);
 					universe.select(newNode);
 					universe.newNode = newNode;
 				}
@@ -301,7 +308,7 @@
 			}
 
 			function changeDebugLevel() {
-				universe.currentNode.debugLevel = universe.currentNode.getElement("#debugLevel").value;
+				universe.currentWorld.debugLevel = document.getElementById("debugLevel").value;
 			}
 
 			function addGravityCheat() {
@@ -362,6 +369,60 @@
 				return universe.currentWorld.labels.findLabel(label);
 			}
 
+			/**
+			 * @param  {Element} backgroundDiv
+			 * @param  {String} text
+			 * @param  {String} value
+			 */
+			function createOption(backgroundDiv, text, value) {
+				let optionDebug = document.createElement('option');
+				if (value) {
+					optionDebug.value = value;
+				} else {
+					optionDebug.value = text;
+				}
+				optionDebug.innerHTML = text;
+				backgroundDiv.appendChild(optionDebug);
+			}
+
+			/**
+			 * @param  {Element} parentElement
+			 */
+			function createDebugDropdown(parentElement) {
+				let debugLevelSelect = document.createElement('select');
+				debugLevelSelect.id = 'debugLevel';
+				debugLevelSelect.classList.add('inputcss');
+				debugLevelSelect.addEventListener('change', function () {
+					changeDebugLevel();
+				}, false);
+				parentElement.appendChild(debugLevelSelect);
+
+				createOption(debugLevelSelect, 'Debug level', '1');
+				createOption(debugLevelSelect, 'Nothing', '0');
+				createOption(debugLevelSelect, 'Only web parts', '1');
+				createOption(debugLevelSelect, 'Only lines', '2');
+				createOption(debugLevelSelect, 'Only nodes', '3');
+				createOption(debugLevelSelect, 'Lines and Nodes', '5');
+				createOption(debugLevelSelect, 'Add speeds', '6');
+				createOption(debugLevelSelect, 'Add acceleration', '7');
+				createOption(debugLevelSelect, 'Add numbers', '10');
+			}
+
+			/**
+			 * @param {Element} parentElement
+			 */
+			function setupFooter(parentElement) {
+				createDebugDropdown(parentElement);
+				let fastEditButton = createSimpleButton(parentElement, 'FastEdit',
+					function () {
+						universe.currentWorld.fastEdit = !universe.currentWorld.fastEdit;
+						if (universe.currentWorld.fastEdit) {
+							this.classList.add('activebutton');
+						} else {
+							this.classList.remove('activebutton');
+						}
+					});
+			}
 
 			init();
 		</script>

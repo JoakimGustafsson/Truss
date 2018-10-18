@@ -31,17 +31,6 @@ function createConfigurationArea(id) {
 		}, false);
 		tabArea.appendChild(propertiesButton);
 
-		/*
-		let trussButton = document.createElement('button');
-		trussButton.classList.add('tabsectionbuttons');
-		trussButton.classList.add('active');
-		trussButton.innerHTML = 'TRUSS';
-		trussButton.addEventListener('click', function() {
-			movePropertyEdit('trussConfigArea');
-			openBottomPanel(event, 'trussDiv');
-		}, false);
-		tabArea.appendChild(trussButton); */
-
 		let labelButton = document.createElement('button');
 		labelButton.classList.add('tabsectionbuttons');
 		labelButton.classList.add('active');
@@ -128,7 +117,7 @@ function createConfigurationArea(id) {
 				createSimpleButton(propertyButtons, 'Pause', () => universe.currentNode.togglePause());
 				createSimpleButton(propertyButtons, 'Gravity', () => addGravityCheat(), 'gravityButton');
 				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
-				let fastEditButton = createSimpleButton(propertyButtons, 'FastEdit',
+				/*let fastEditButton = createSimpleButton(propertyButtons, 'FastEdit',
 					function() {
 						universe.currentWorld.fastEdit=!universe.currentWorld.fastEdit;
 						if (universe.currentWorld.fastEdit) {
@@ -141,9 +130,9 @@ function createConfigurationArea(id) {
 					fastEditButton.classList.add('activebutton');
 				} else {
 					fastEditButton.classList.remove('activebutton');
-				}
+				}*/
 
-				createDebugDropdown(propertyButtons);
+				// createDebugDropdown(propertyButtons);
 			}
 		}
 
@@ -256,64 +245,6 @@ function createConfigurationArea(id) {
 	}
 
 	return configArea;
-
-	/**
-	 * @param  {Element} backgroundDiv
-	 * @param  {String} text
-	 * @param  {Function} f
-	 * @param  {String} id
-	 * @return {Button}
-	 */
-	function createSimpleButton(backgroundDiv, text, f, id) {
-		let newButton = document.createElement('button');
-		newButton.classList.add('simpleButton');
-		if (id) {
-			newButton.id=id;
-		}
-		newButton.innerHTML = text;
-		backgroundDiv.appendChild(newButton);
-		newButton.addEventListener('click', f, false);
-		return newButton;
-	}
-
-	/**
-	 * @param  {Element} backgroundDiv
-	 * @param  {String} text
-	 * @param  {String} value
-	 */
-	function createOption(backgroundDiv, text, value) {
-		let optionDebug = document.createElement('option');
-		if (value) {
-			optionDebug.value = value;
-		} else {
-			optionDebug.value = text;
-		}
-		optionDebug.innerHTML = text;
-		backgroundDiv.appendChild(optionDebug);
-	}
-
-	/**
-     * @param  {Element} propertyButtons
-     */
-	function createDebugDropdown(propertyButtons) {
-		let debugLevelSelect = document.createElement('select');
-		debugLevelSelect.id = 'debugLevel';
-		debugLevelSelect.classList.add('inputcss');
-		debugLevelSelect.addEventListener('change', function() {
-			changeDebugLevel();
-		}, false);
-		propertyButtons.appendChild(debugLevelSelect);
-
-		createOption(debugLevelSelect, 'Debug level', '1');
-		createOption(debugLevelSelect, 'Nothing', '0');
-		createOption(debugLevelSelect, 'Only web parts', '1');
-		createOption(debugLevelSelect, 'Only lines', '2');
-		createOption(debugLevelSelect, 'Only nodes', '3');
-		createOption(debugLevelSelect, 'Lines and Nodes', '5');
-		createOption(debugLevelSelect, 'Add speeds', '6');
-		createOption(debugLevelSelect, 'Add acceleration', '7');
-		createOption(debugLevelSelect, 'Add numbers', '10');
-	}
 
 	/**
      * @param  {Element} surroundingDiv

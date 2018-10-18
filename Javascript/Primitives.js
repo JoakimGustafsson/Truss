@@ -363,3 +363,22 @@ function timelog() { // text, hidden) {
 	this.lastTimeTemp=Date.now(); */
 }
 
+	/**
+	 * @param  {Element} backgroundDiv
+	 * @param  {String} text
+	 * @param  {Function} f
+	 * @param  {String} id
+	 * @return {Button}
+	 */
+	function createSimpleButton(backgroundDiv, text, f, id) {
+		let newButton = document.createElement('button');
+		newButton.classList.add('simpleButton');
+		if (id) {
+			newButton.id=id;
+		}
+		newButton.innerHTML = text;
+		backgroundDiv.appendChild(newButton);
+		newButton.addEventListener('click', f, false);
+		return newButton;
+	}
+

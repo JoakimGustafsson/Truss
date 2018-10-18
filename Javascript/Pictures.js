@@ -19,6 +19,9 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	let c = truss.view.screenPosition(cr);
 	let d = truss.view.screenPosition(dr);
 
+	width = element.offsetWidth;
+	height = element.offsetHeight;
+
 	timelog('warpMatrix AB');
 	let m = [];
 	// Handle when some angle > 180

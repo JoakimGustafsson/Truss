@@ -207,7 +207,7 @@ class PerformanceTrussNode extends TrussNode {
 
 		let end2 = new Node(this.world, this, 'node', {
 			'name': 'end',
-			'localPosition': new Position(1, 6),
+			'localPosition': new Position(1, 14),
 		});
 
 
@@ -215,11 +215,11 @@ class PerformanceTrussNode extends TrussNode {
 			'spring bounce',
 			{
 				'constant': 100,
-				'equilibriumLength': 5,
+				'equilibriumLength': 13,
 			});
 
 
-		new Node(this.world, this, 'bounceactuator debugnode anglenode', {
+		new Node(this.world, this, 'bounceactuator debugnode', {
 			'name': 'ball',
 			'mass': 1,
 			'localPosition': new Position(2, 3),
@@ -233,7 +233,7 @@ class PerformanceTrussNode extends TrussNode {
 			'name': 'button',
 			'localPosition': new Position(2, 7),
 		});
-		
+
 		/*
 		let a = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'a',
