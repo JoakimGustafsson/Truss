@@ -271,18 +271,6 @@ class Property {
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
 			universe.select(node1);
-			/*let previousSelectedObject = universe.selectedObject;
-			universe.selectedObject = node1;
-			let event = new CustomEvent('selectionEvent', {
-				detail: {
-					'selectedObject': universe.selectedObject,
-					'previousSelectedObject': previousSelectedObject,
-					'trussNode': undefined,
-				},
-				bubbles: true,
-				cancelable: true,
-			});
-			universe.currentNode.element.dispatchEvent(event);*/
 		});
 	}
 
@@ -406,6 +394,10 @@ class ScriptProperty extends Property {
 		this.input = this.makeViewOfInputFieldMultiline(this.identity, parameterValue, 5);
 		this.input.addEventListener('input', () => {
 			this.assignValue(this.input.value);
+		});
+		
+		this.input.addEventListener('dblclick', function() {
+			alert('here');
 		});
 		parameterValue.appendChild(this.input);
 	}
