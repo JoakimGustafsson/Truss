@@ -1,3 +1,4 @@
+/*jshint esversion:6*/
 /**
  * @class
  */
@@ -68,8 +69,12 @@ class Universe {
 
 	/**
 	 * @param {Object} newSelectedObject
+	 * @param {Object} frameElement
 	 */
-	select(newSelectedObject) {
+	select(newSelectedObject, frameElement) {
+		if (!this.currentNode) {
+			throw 'No world available for selection';
+		}
 		let previousSelectedObject = this.selectedObject;
 		this.selectedObject = newSelectedObject;
 		let event = new CustomEvent('selectionEvent', {
@@ -85,7 +90,11 @@ class Universe {
 			alert('No element in currentNode for selection purposes.');
 			return;
 		}
-		this.currentNode.element.dispatchEvent(event);
+		if (frameElement) {
+			frameElement.dispatchEvent(event);
+		} else {
+			this.currentNode.element.dispatchEvent(event);
+		}
 	}
 
 	/**
@@ -223,29 +232,6 @@ class Universe {
 		this.currentNode.canvas.onmouseup = upMouse;
 		newNodeToShow.resize();
 		this.setupTicks = 3;
-	}
-	/**
-	 * @param {object} object
-	 */
-	select(object) {
-		let previousSelectedObject = universe.selectedObject;
-		if (!this.currentNode) {
-			throw 'No world available for selection';
-		}
-		if (!object) {
-			object = this.currentNode;
-		}
-		let event = new CustomEvent('selectionEvent', {
-			detail: {
-				'selectedObject': object,
-				'previousSelectedObject': previousSelectedObject,
-				'trussNode': this.currentNode,
-			},
-			bubbles: true,
-			cancelable: true,
-		});
-		this.currentNode.element.dispatchEvent(event);
-
 	}
 }
 

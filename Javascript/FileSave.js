@@ -1,3 +1,5 @@
+/*jshint esversion:6*/
+
 /** Support function that returns the filename from a filepath
  * @param  {string} filename
  * @return {string}
@@ -109,7 +111,6 @@ function unhighLightFile(element) {
  * @param  {string} extension
  */
 function displaySaves(text) {
-	let fullPath;
 	let element;
 
 	let fileListElement = universe.currentNode.getElement('#fileList');
@@ -125,7 +126,7 @@ function displaySaves(text) {
 	for (let i = 0; i < fileList.length; i++) {
 		fileName = fileList[i];
 		if (getFileExtension(fileName) == 'json') {
-			fullPath = '../Saves/' + fileName;
+			// fullPath = '../Saves/' + fileName;
 			element = document.createElement('div');
 			element.className = 'filename';
 			element.innerHTML = fileName;

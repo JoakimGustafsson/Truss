@@ -143,6 +143,8 @@ class Node extends StoreableObject {
 	 */
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
+			universe.select(node1);
+			/*
 			let previousSelectedObject = universe.selectedObject;
 			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
@@ -154,7 +156,7 @@ class Node extends StoreableObject {
 				bubbles: true,
 				cancelable: true,
 			});
-			universe.currentNode.element.dispatchEvent(event);
+			universe.currentNode.element.dispatchEvent(event);*/
 		});
 	}
 

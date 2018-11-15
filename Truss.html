@@ -255,7 +255,7 @@
 						'localPosition': new Position(1, 1),
 					});
 					universe.select(newNode);
-					universe.newNode = newNode;
+					//universe.newNode = newNode;
 				}
 			}
 
@@ -338,6 +338,8 @@
 			}
 
 			function selectMainNode() {
+			universe.select(node1);
+			/*
 				let previousSelectedObject = universe.selectedObject;
 				universe.selectedObject = universe.currentNode;
 				let event = new CustomEvent('selectionEvent', {
@@ -349,7 +351,7 @@
 					bubbles: true,
 					cancelable: true,
 				});
-				universe.currentNode.element.dispatchEvent(event);
+				universe.currentNode.element.dispatchEvent(event);*/
 			}
 
 			function updateResize() {

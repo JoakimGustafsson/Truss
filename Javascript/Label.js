@@ -1,7 +1,8 @@
+/*jshint esversion:6 */
 /* exported Labels */
 /* global PushCalculator PullCalculator SpringCalculator FieldCalculator AbsorbCalculator */
 /* global AngleNode AngleTensor SelectorBehaviour KeySensor Scriptposition */
-/* global ScriptShow CollisionSensor CollisionBounce ScriptPosition PropertyList */
+/* global ButtonBehaviour ScriptShow CollisionSensor CollisionBounce ScriptPosition PropertyList */
 
 /**
  * @class
@@ -78,9 +79,9 @@ class Labels {
 			'velocityProperty': undefined,
 		});
 		this.addLabel('color', [], {
-		 	'colorProperty': 'red',
-		 	'visibilityProperty': 1,
-		 });
+			'colorProperty': 'red',
+			'visibilityProperty': 1,
+		});
 		this.addLabel('picture', [this.nodeLabel], {
 			'pictureProperty': '/Resources/default.jpg',
 			'sizeProperty': 1,
@@ -124,7 +125,7 @@ class Labels {
 			'buttonScriptProperty': '() => {alert("MyButtonScript");}',
 			'nameProperty': 'Button',
 		},
-			[new ButtonBehaviour()]);
+		[new ButtonBehaviour()]);
 	}
 
 	/**

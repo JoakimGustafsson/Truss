@@ -1,4 +1,5 @@
-/* global TrussNode Tensor Velocity */
+/*jshint esversion:6 */
+/*global TrussNode Tensor Velocity */
 
 /**
  *
@@ -285,8 +286,8 @@ class ProtagonistNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(truss, startPosition, mass = 70, name = 'ProtagonistNode', positionFunction, showFunction, velocityLoss = 1) {
-		super(truss, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
+	constructor(truss, startPosition, mass = 70, name = 'ProtagonistNode', velocityLoss = 1) {
+		super(truss, startPosition, mass, name, velocityLoss);
 		this.color = 'yellow';
 	}
 

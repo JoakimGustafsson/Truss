@@ -1,3 +1,4 @@
+/*jshint esversion:6*/
 /* exported removeIfPresent Vector Force Velocity getS getT anglify objectFactory */
 /* exported getTInside getTInside2 boxClose */
 
@@ -338,9 +339,6 @@ function boxClose(p1, p2, distance) {
  * @return {Object}
  */
 function objectFactory(world, representationObject) {
-	// let a = Function('return new ' + representationObject.classname+'('+truss+')');
-	// return (a)();
-	// newNode.deserialize(representationObject, nodeList, tensorList);
 	let newObject = (Function('return new ' + representationObject.classname))();
 	newObject.world=world;
 	return newObject;
@@ -363,22 +361,22 @@ function timelog() { // text, hidden) {
 	this.lastTimeTemp=Date.now(); */
 }
 
-	/**
+/**
 	 * @param  {Element} backgroundDiv
 	 * @param  {String} text
 	 * @param  {Function} f
 	 * @param  {String} id
 	 * @return {Button}
 	 */
-	function createSimpleButton(backgroundDiv, text, f, id) {
-		let newButton = document.createElement('button');
-		newButton.classList.add('simpleButton');
-		if (id) {
-			newButton.id=id;
-		}
-		newButton.innerHTML = text;
-		backgroundDiv.appendChild(newButton);
-		newButton.addEventListener('click', f, false);
-		return newButton;
+function createSimpleButton(backgroundDiv, text, f, id) {
+	let newButton = document.createElement('button');
+	newButton.classList.add('simpleButton');
+	if (id) {
+		newButton.id=id;
 	}
+	newButton.innerHTML = text;
+	backgroundDiv.appendChild(newButton);
+	newButton.addEventListener('click', f, false);
+	return newButton;
+}
 

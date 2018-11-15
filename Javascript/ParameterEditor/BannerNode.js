@@ -1,3 +1,6 @@
+/*jshint esversion:6 */
+/*global Tensor warpMatrix */
+
 /**
  * @class
  * @extends Node
@@ -84,7 +87,7 @@ class BannerNode extends Node {
 			'color': 'transparent',
 			'velocityLoss': 0.9,
 		});
-/*
+		/*
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
@@ -106,23 +109,23 @@ class BannerNode extends Node {
 		});
 */
 
-this.leftBand = new Tensor(this.leftTopNode, this.nail, 'angletensor absorber spring banner', {
-	'equilibriumLength': windowWidth/2,
-	'dampeningConstant': 10,
-	'constant': 5000,
-	'angle2': Math.PI,
-	'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
-	'visible': 1,
-});
+		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'angletensor absorber spring banner', {
+			'equilibriumLength': windowWidth/2,
+			'dampeningConstant': 10,
+			'constant': 5000,
+			'angle2': Math.PI,
+			'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
+			'visible': 1,
+		});
 
-this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullspring absorber banner', {
-	'equilibriumLength': windowWidth/2,
-	'dampeningConstant': 10,
-	'constant': 5000,
-	'angle2': 0,
-	'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
-	'visible': 1,
-});
+		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullspring absorber banner', {
+			'equilibriumLength': windowWidth/2,
+			'dampeningConstant': 10,
+			'constant': 5000,
+			'angle2': 0,
+			'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
+			'visible': 1,
+		});
 
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
 			'equilibriumLength': windowHeight,
@@ -278,10 +281,8 @@ this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullsprin
 
 
 	/**
-	 * @param  {Array} superNodeList
-	 * @param  {Array} superTensorList
 	 */
-	serialize(superNodeList, superTensorList) {
+	serialize() {
 		alert('The BannerNode should never be stored.');
 		return;
 	}
@@ -307,7 +308,7 @@ this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullsprin
 					this.height);
 			}
 		}
-	};
+	}
 
 	/**
 	 * @param  {Event} selectionEvent
@@ -341,7 +342,7 @@ this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullsprin
 	 * @param {number} deltaTime
 	 * @param {Truss} truss
 	 */
-	sense(deltaTime, truss) {
+	sense(/*deltaTime, truss*/) {
 		// super.updatePosition(time, deltaTime);
 		if (this.iO) {
 			this.iO.properties.updatePropertyValues(this.iO);

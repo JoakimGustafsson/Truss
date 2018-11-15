@@ -267,7 +267,8 @@ class Property {
 	 */
 	registerOnClick(but, node1) {
 		but.addEventListener('click', function() {
-			let previousSelectedObject = universe.selectedObject;
+			universe.select(node1);
+			/*let previousSelectedObject = universe.selectedObject;
 			universe.selectedObject = node1;
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
@@ -278,7 +279,7 @@ class Property {
 				bubbles: true,
 				cancelable: true,
 			});
-			universe.currentNode.element.dispatchEvent(event);
+			universe.currentNode.element.dispatchEvent(event);*/
 		});
 	}
 

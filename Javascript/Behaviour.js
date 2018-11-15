@@ -1,5 +1,5 @@
-
-
+/*jshint esversion:6 */
+/* global Tensor */
 
 let BehaviourOverride = {
 	SHOW: 1,
@@ -510,8 +510,8 @@ class AngleTensor extends Behaviour {
 			if (!torque) {
 				return new Force(0, 0);
 			}
-			let forceLenth = torque/tensor.getLength();
-			let force = perp.normalizeVector(forceLenth);
+			let forceLength = torque/tensor.getLength();
+			let force = perp.normalizeVector(forceLength);
 			return force.opposite();
 		}
 
@@ -548,7 +548,7 @@ class SelectorBehaviour extends Behaviour {
 	 * @param {StoreableObject} storeableObject
 	 */
 	attachTo(storeableObject) {
-		storeableObject.lastPointedOn;
+		storeableObject.lastPointedOn=undefined;
 		storeableObject.wasPressed = false;
 		storeableObject.cursorPosition = new Position(0, 0);
 
@@ -580,7 +580,7 @@ class SelectorBehaviour extends Behaviour {
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
 		let closest = trussNode.getClosestObject(this.cursorPosition, 20 * trussNode.view.getDistanceMultiplier(), this);
 
-		if (!mouseSet && !universe.newNode) {
+		if (!mouseSet) {
 			if (!closest) {
 				if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
 					this.lastPointedOn.setHighlight(0);
@@ -596,28 +596,13 @@ class SelectorBehaviour extends Behaviour {
 				}
 			}
 		} else if (!this.wasPressed && mouseSet) { // Mouse was just pressed
-			universe.newNode = undefined;
 			if (universe.selectedObject != closest) {
 				if (universe.selectedObject) {
 					universe.selectedObject.setHighlight(0);
 				}
-				// if (closest) {
-				//	closest.setHighlight(2);
-				// }
-				let previousSelectedObject = universe.selectedObject;
-				universe.selectedObject = closest;
-				let event = new CustomEvent('selectionEvent', {
-					detail: {
-						'selectedObject': universe.selectedObject,
-						'previousSelectedObject': previousSelectedObject,
-						'trussNode': trussNode,
-					},
-					bubbles: true,
-					cancelable: true,
-				});
-				this.parentTrussNode.element.dispatchEvent(event);
+				universe.select(closest,this.parentTrussNode.element);
 			}
-		} else if (mouseSet || universe.newNode) { // Mouse is continually pressed
+		} else if (mouseSet) { // Mouse is continually pressed
 			if (universe.selectedObject && universe.selectedObject.isNode) {
 				universe.selectedObject.resetVelocity();
 				universe.selectedObject.copyPosition(this.cursorPosition);
@@ -697,7 +682,7 @@ class CollisionSensor extends Behaviour {
 	 * @param {Truss} truss
 	 */
 	sense(deltaTime, truss) {
-		let label = this['collisionLabel_Label'];
+		let label = this.collisionLabel_Label;
 		let detail;
 		for (let tensor of label.getTensors()) {
 			if (!tensor.isGhost()) {
@@ -800,7 +785,7 @@ class CollisionBounce extends Behaviour {
 			// use getT to calculate parallell fraction for lengthProportion.
 			// Ideally, the rubberband should give no sideways force wrt bandlength
 
-		/* 	let lengthProportion = getT(
+			/* 	let lengthProportion = getT(
 				startTensor.node1.getPosition(),
 				endTensor.node2.getPosition(),
 				node.getPosition());
