@@ -42,9 +42,15 @@ option {
 div.tab button,
 .trussButton,
 .simpleButton,
+.worldButton,
 .textbox {
 	background-color: #cdaf95;
 
+}
+
+.debug {
+	background-color: red;
+	color:yellow;
 }
 
 .ogbutton,
@@ -52,17 +58,26 @@ div.tab button,
 div.tab button,
 .trussButton,
 .simpleButton,
+.worldButton
 .textbox {
 	color: black;
 	border: none;
 	outline: none;
 	cursor: pointer;
+}
+
+.ogbutton,
+.tabsectionbuttons,
+div.tab button,
+.trussButton,
+.textbox {
 	transition: 0.3s;
 }
 
 .trussButton:hover,
 div.tab button:hover,
 .simpleButton:hover,
+.worldButton:hover,
 .selectedfilename {
 	background-color: #eecbad;
 }
@@ -70,6 +85,7 @@ div.tab button:hover,
 .trussButton:active,
 div.tab button:active,
 .simpleButton:active,
+.worldButton:active,
 div.tab button.active {
 	background-color: #ffdab9;
 }
@@ -403,7 +419,8 @@ div.tab button.active {
 	border-top: none;
 }
 
-.simpleButton {
+.simpleButton,
+.worldButton {
 	border: none;
 	border-radius: 5px;
 	padding: 5px 5px 5px 5px;
@@ -523,4 +540,16 @@ div.tab button.active {
 
   .slider.round:before {
 	border-radius: 50%;
+  }
+
+  .noselect,
+  .tabsectionbuttons,
+  .smallLabel {
+	-webkit-touch-callout: none; /* iOS Safari */
+	  -webkit-user-select: none; /* Safari */
+	   -khtml-user-select: none; /* Konqueror HTML */
+		 -moz-user-select: none; /* Firefox */
+		  -ms-user-select: none; /* Internet Explorer/Edge */
+			  user-select: none; /* Non-prefixed version, currently
+									supported by Chrome and Opera */
   }

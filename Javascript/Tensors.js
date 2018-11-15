@@ -1,3 +1,4 @@
+/*jshint esversion:6*/
 /* global StoreableObject warpMatrix */
 /**
  * Tensor class
@@ -12,7 +13,7 @@ class Tensor extends StoreableObject {
 	 * @param  {object} valueObject
 	 */
 	constructor(node1, node2, initialLabels, valueObject) {
-		let parent = undefined;
+		let parent;
 		if (node1) {
 			parent = node1.world;
 		}
@@ -630,11 +631,11 @@ class PictureSpring extends Tensor {
 	 * @constructor
 	 * @param  {Node} node1
 	 * @param  {Node} node2
-	 * @param  {number} constant
 	 * @param  {String} pictureReference
 	 * @param  {number} width
+	 * @param  {number} constant
 	 */
-	constructor(node1, node2, constant = 1, pictureReference, width) {
+	constructor(node1, node2, pictureReference, width, constant = 1) {
 		super(node1, node2, constant);
 		this.pictureReference=pictureReference;
 		this.width=width;

@@ -371,6 +371,7 @@ function timelog() { // text, hidden) {
 function createSimpleButton(backgroundDiv, text, f, id) {
 	let newButton = document.createElement('button');
 	newButton.classList.add('simpleButton');
+	newButton.classList.add('noselect');
 	if (id) {
 		newButton.id=id;
 	}

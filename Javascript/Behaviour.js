@@ -840,7 +840,7 @@ class ButtonBehaviour extends Behaviour {
 		let button = document.createElement('button');
 		button.id = 'propertiesButton';
 		button.style.position='absolute';
-		button.classList.add('simpleButton');
+		button.classList.add('worldButton');
 		button.innerHTML = storeableObject.name;
 		button.addEventListener('click', (...args) => {
 			let func = storeableObject.buttonScript_Evaluated;

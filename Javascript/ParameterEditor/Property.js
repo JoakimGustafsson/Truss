@@ -1,4 +1,5 @@
 
+/*jshint esversion:6*/
 let ParameterCategory = {
 	APPEARANCE: 1,
 	TRIGGER: 2,
@@ -212,6 +213,7 @@ class Property {
 		inputField.value = 'Default';
 		inputField.classList.add('text');
 		inputField.classList.add('inputcss');
+		inputField.classList.add('lname');
 		inputField.id = id;
 		inputField.style.width = '140px';
 		parameterValue.appendChild(inputField);
@@ -231,7 +233,7 @@ class Property {
 		inputField.classList.add('text');
 		inputField.classList.add('inputcss');
 		inputField.id = id;
-		inputField.style.width = '140px';
+		inputField.style.width = '135px';
 		parameterValue.appendChild(inputField);
 		return inputField;
 	}
@@ -251,6 +253,7 @@ class Property {
 		outerDiv.appendChild(valuePair);
 		let parameterName = document.createElement('div');
 		parameterName.classList.add('lname');
+		parameterName.classList.add('noselect');
 		parameterName.title = this.help;
 		parameterName.innerHTML = this.title;
 		valuePair.appendChild(parameterName);
@@ -433,7 +436,7 @@ class ScriptProperty extends Property {
 }
 
 /**
- * @class ScriptProperty
+ * @class LabelProperty
  * @extends Property
  */
 class LabelProperty extends Property {
@@ -616,6 +619,7 @@ class PositionProperty extends Property {
 		parameterValue.appendChild(xValuePair);
 		let parameterName = document.createElement('div');
 		parameterName.classList.add('lname');
+		parameterName.classList.add('noselect');
 		parameterName.innerHTML = 'X';
 		xValuePair.appendChild(parameterName);
 		let xparameterValue = document.createElement('div');
@@ -635,6 +639,7 @@ class PositionProperty extends Property {
 		parameterValue.appendChild(yValuePair);
 		let yparameterName = document.createElement('div');
 		yparameterName.classList.add('lname');
+		yparameterName.classList.add('noselect');
 		yparameterName.innerHTML = 'Y';
 		yValuePair.appendChild(yparameterName);
 		let yparameterValue = document.createElement('div');
@@ -652,7 +657,7 @@ class PositionProperty extends Property {
 		xinputField.addEventListener('input', () => {
 			this.assignValue(
 				new Position(parseInt(xinputField.value),
-					parseInt(yinputField.value),
+					parseInt(yinputField.value)
 				), owner);
 		});
 
@@ -663,7 +668,7 @@ class PositionProperty extends Property {
 		yinputField.addEventListener('input', () => {
 			this.assignValue(
 				new Position(parseInt(xinputField.value),
-					parseInt(yinputField.value),
+					parseInt(yinputField.value)
 				), owner);
 		});
 
