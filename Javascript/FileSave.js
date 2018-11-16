@@ -80,7 +80,7 @@ function directory(folderName) {
 
 /** @param  {string} fileName
 */
-function loadFile(fileName) {
+function loadWorld(fileName) {
 	// mainNode.truss.hideEdit();
 	httpGetAsync('/load/' + fileName, function(x) {
 		console.log('Server reported: ' + x);
@@ -91,6 +91,13 @@ function loadFile(fileName) {
 		universe.push(newWorld);
 		universe.setCurrentWorld(newWorld);
 	});
+}
+
+/** @param  {string} fileName
+*/
+function loadScript(fileName, f) {
+	// mainNode.truss.hideEdit();
+	httpGetAsync('/load/' + fileName, f);
 }
 
 /**
@@ -133,7 +140,7 @@ function displaySaves(text) {
 			fileListElement.appendChild(element);
 			// fileListElement.appendChild(document.createElement('br'));
 			element.title = fileName;
-			element.setAttribute('onclick', 'loadFile(\'' + fileName + '\');');
+			element.setAttribute('onclick', 'loadWorld(\'' + fileName + '\');');
 			element.setAttribute('onmouseover', 'highLightFile(this);');
 			element.setAttribute('onmouseout', 'unhighLightFile(this);');
 		}

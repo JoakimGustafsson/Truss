@@ -1,5 +1,6 @@
 
 /*jshint esversion:6*/
+/*global loadScript */
 let ParameterCategory = {
 	APPEARANCE: 1,
 	TRIGGER: 2,
@@ -389,6 +390,19 @@ class ScriptProperty extends Property {
 	 * @param {Object} owner
 	 */
 	populateProperty(element, owner) {
+		function getFileName(content) {
+			let regex = /\/\*.+?\*\/|\/\/.*(?=[\n\r])/g;
+			var value = content.match(regex);
+
+			for(let comment of value) {
+				let innards = comment.replace(/(^\/\*\ *|\ *\*\/$)/mg,'');
+				let words = innards.split(' ');
+				if (words.length>1 && words[0].match('sourcepath')) {
+					return words[1];
+				}
+			}
+			return 'template.js';
+		}
 		this.owner=owner;
 		let parameterValue = this.createNameValuePair(element);
 		this.input = this.makeViewOfInputFieldMultiline(this.identity, parameterValue, 5);
@@ -396,8 +410,16 @@ class ScriptProperty extends Property {
 			this.assignValue(this.input.value);
 		});
 		
-		this.input.addEventListener('dblclick', function() {
-			alert('here');
+		let this_ = this;
+		this.input.addEventListener('dblclick', () => {
+			/*sourcepath test.js */
+			//var str = '#anotherdata=226885#id=101&start=1';
+			
+			let filename = getFileName(this.input.value);
+
+			loadScript(filename, (content) => {
+				this_.assignValue(content);
+			});
 		});
 		parameterValue.appendChild(this.input);
 	}
