@@ -1,1 +1,4 @@
 Saves/*
+node_modules/*
+*/node_modules/*
+!*/node_modules/internal-*
