@@ -739,7 +739,7 @@ class CollisionBounce extends Behaviour {
 		}
 		startTensor.addLabel('angletensor');
 		startTensor.angle2=anglify(tensor.getTensorAngle(this)+Math.PI-this.angle);
-		startTensor.torqueConstant2=1000;
+		startTensor.torqueConstant2=0;
 
 		let endTensor = tensor.clone();
 		endTensor.name='endTensor-'+endTensor.name;
@@ -749,12 +749,28 @@ class CollisionBounce extends Behaviour {
 		}
 		endTensor.addLabel('angletensor');
 		endTensor.angle1=anglify(tensor.getTensorAngle(this)-this.angle);
-		endTensor.torqueConstant1=1000;
+		endTensor.torqueConstant1=0;
 
 		tensor.ghostify();
 
 		detail.startTensor=startTensor;
 		detail.endTensor=endTensor;
+
+
+
+		let shortage = tensor.getLength()-tensor.equilibriumLength;
+		if (tensor.equilibriumLength!=undefined) {
+			startTensor.equilibriumLength=startTensor.getLength()-shortage/2;
+		}
+		if (tensor.equilibriumLength!=undefined) {
+			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
+		}
+
+
+
+
+
+
 		if (!this.bounceList) {
 			this.bounceList = [detail];
 		} else {
@@ -767,42 +783,10 @@ class CollisionBounce extends Behaviour {
 	 * @return {number}
 	 */
 	updatePosition() {
-		if (!this.bounceList || this.bounceList.length==0) {
-			return;
-		}
-		let newCleanList = [];
-		for (let bounce of this.bounceList) {
+
+		function loosen(tensor, startTensor, endTensor, bounce) {
 			let node = bounce.collider;
 			let from = bounce.from;
-			let startTensor=bounce.startTensor;
-			let endTensor=bounce.endTensor;
-			let tensor=bounce.tensor;
-
-			// Length
-			let startLength = startTensor.getLength();
-			let endLength = endTensor.getLength();
-
-			// use getT to calculate parallell fraction for lengthProportion.
-			// Ideally, the rubberband should give no sideways force wrt bandlength
-
-			/* 	let lengthProportion = getT(
-				startTensor.node1.getPosition(),
-				endTensor.node2.getPosition(),
-				node.getPosition());
-
-			let x = startLength/(endLength+startLength);
-			let sumEquilibriumLength = startTensor.equilibriumLength+endTensor.equilibriumLength;
-
-			startTensor.equilibriumLength = lengthProportion * sumEquilibriumLength;
-			endTensor.equilibriumLength = (1- lengthProportion) * sumEquilibriumLength;
- */
-			let elongation = ((startLength+endLength)-tensor.getLength())/2;
-
-
-
-			startTensor.equilibriumLength = startLength - elongation;
-			endTensor.equilibriumLength = endLength - elongation;
-
 			// Angle
 			let startangle = startTensor.getTensorAngle(node);
 			let endangle = endTensor.getTensorAngle(node);
@@ -811,11 +795,38 @@ class CollisionBounce extends Behaviour {
 			if (dir<0) {
 				console.log('Loosen');
 				tensor.deGhostify();
+
+				// Här kan man inte bara deghostifya. 
+				// Måste recreatea kombinationen av end och start utifrån vilka som används null. de gamla kan ha blivit splittade
+				
+
 				startTensor.destroy();
 				endTensor.destroy();
 			} else {
 				newCleanList.push(bounce);
 			}
+
+		}
+		if (!this.bounceList || this.bounceList.length==0) {
+			return;
+		}
+		let newCleanList = [];
+		for (let bounce of this.bounceList) {
+			// Handle tensor equilibrium lengths
+			let startTensor=bounce.startTensor;
+			let endTensor=bounce.endTensor;
+			let tensor=bounce.tensor;
+
+			let startLength = startTensor.getLength();
+			let endLength = endTensor.getLength();
+
+			let elongation = ((startLength+endLength)-tensor.getLength())/2;
+
+			startTensor.equilibriumLength = startLength - elongation;
+			endTensor.equilibriumLength = endLength - elongation;
+
+			//Check if node should bounce off the tensor
+			loosen(tensor, startTensor, endTensor, bounce);
 		}
 		this.bounceList=newCleanList;
 	}

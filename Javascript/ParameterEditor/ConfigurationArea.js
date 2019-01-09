@@ -56,6 +56,15 @@ function createConfigurationArea(id) {
 		}, false);
 		tabArea.appendChild(fileButton);
 
+		let settingsButton = document.createElement('button');
+		settingsButton.classList.add('tabsectionbuttons');
+		settingsButton.classList.add('active');
+		settingsButton.innerHTML = 'GLOBAL';
+		settingsButton.addEventListener('click', function() {
+			openBottomPanel(event, 'globalDiv');
+		}, false);
+		tabArea.appendChild(settingsButton);
+
 		// The tab area at the top
 		let propertyArea = document.createElement('div');
 		propertyArea.id = 'propertiesDiv';
@@ -243,6 +252,20 @@ function createConfigurationArea(id) {
 		fileNameInput.value = 'myFile';
 		fileDiv.appendChild(fileNameInput);
 
+		// The tab area at the top
+		let globalArea = document.createElement('div');
+		globalArea.classList.add('footerbackgroundarea');
+		globalArea.classList.add('tabcontent');
+		globalArea.id = 'globalDiv';
+		configAreaInner.appendChild(globalArea);
+
+		let globalDiv = document.createElement('div');
+		globalDiv.classList.add('sectionbase');
+		globalDiv.align = 'right';
+		globalArea.appendChild(globalDiv);
+
+		globalDiv.innerHTML='time, debug, gravity, ';
+		
 
 		createSimpleButton(fileDiv, 'Save',
 			() => saveFile(universe.currentNode.getElement('.fileNameInput').value), 'saveButton,');

@@ -46,7 +46,8 @@ class PropertyList {
 		this.worldSizeProperty = new PositionProperty('worldSize', 'worldSize', 'World display size', ParameterCategory.CONTENT, 'The size of the displayed worldview in that worlds measurement.');
 		this.setWorldOffsetProperty = new PositionProperty('worldOffset', 'worldOffset', 'View position', ParameterCategory.CONTENT, 'The world coordinates of the upper left corner.');
 		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
-		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per Second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+		this.timeMultiplierProperty = new NumberProperty('timeMultiplier', 'timeMultiplier', 'Time multiplier', ParameterCategory.CONTENT, 'Truss time multiplier.');
+		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 		this.visibilityProperty = new SwitchProperty('visible', 'visible', 'Visible', ParameterCategory.CONTENT, 'Should this be visible on the screen.');
 		this.snapGridProperty = new NumberProperty('gridSize', 'gridSize', 'Align to grid', ParameterCategory.CONTENT, 'Aligning all new positions to this grid. (0 for no alignment)');
 		this.enforcedProperty = new NumberProperty('enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT, 'Special parameter that only is used in labels to enforce all parameter values are enforced.');
@@ -174,7 +175,9 @@ class Property {
 	 * @return {Object}
 	 */
 	deSerialize(serializeObject) {
-		if ((serializeObject.constructor === String) || (serializeObject.constructor === Number)) {
+		if (!serializeObject) {
+			return undefined;
+		} else if ((serializeObject.constructor === String) || (serializeObject.constructor === Number)) {
 			return serializeObject;
 		} else return '';
 	}
@@ -395,7 +398,7 @@ class ScriptProperty extends Property {
 			var value = content.match(regex);
 
 			for(let comment of value) {
-				let innards = comment.replace(/(^\/\*\ *|\ *\*\/$)/mg,'');
+				let innards = comment.replace(/(^\/\* *| *\*\/$)/mg,'');
 				let words = innards.split(' ');
 				if (words.length>1 && words[0].match('sourcepath')) {
 					return words[1];

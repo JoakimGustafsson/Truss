@@ -407,9 +407,13 @@ class TrussNode extends Node {
 	 * a timestep in which the modelled world moves slightly forward.
 	 *
 	 * This also contains a debuging part that displays time in the console window.
-	 * @param {number} timestamp
+	 * @param {number} externalTimestamp
 	 */
-	tick(timestamp) {
+	tick(externalTimestamp) {
+		if (!this.timeMultiplier) {
+			this.timeMultiplier=1;
+		}
+		let timestamp = externalTimestamp*this.timeMultiplier;
 		// Track the accumulated time that hasn't been simulated yet
 		this.delta += timestamp - this.lastFrameTimeMs; // note += here
 		this.lastFrameTimeMs = timestamp;

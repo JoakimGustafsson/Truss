@@ -87,27 +87,7 @@ class BannerNode extends Node {
 			'color': 'transparent',
 			'velocityLoss': 0.9,
 		});
-		/*
-		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
-			'equilibriumLength': 0,
-			'dampeningConstant': 10,
-			'constant': 5000,
-			'visible': 1,
-		});
-
-		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
-			'equilibriumLength': 0,
-			'dampeningConstant': 10,
-			'constant': 5000,
-			'visible': 1,
-		});
-
-		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
-			'equilibriumLength': windowWidth ,
-			'dampeningConstant': 10,
-			'constant': 3000,
-		});
-*/
+	
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'angletensor absorber spring banner', {
 			'equilibriumLength': windowWidth/2,

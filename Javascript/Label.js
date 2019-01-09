@@ -101,6 +101,7 @@ class Labels {
 			'setWorldOffsetProperty': new Position(0, 0),
 			'fpsTargetProperty': 60,
 			'fpsProperty': 60,
+			'timeMultiplierProperty': 1,
 			'snapGridProperty': 0,
 		});
 		this.sensorLabel = this.addLabel('sensor', [this.nodeLabel], {});

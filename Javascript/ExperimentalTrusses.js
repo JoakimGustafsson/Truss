@@ -190,15 +190,15 @@ class PerformanceTrussNode extends TrussNode {
 
 		let end = new Node(this.world, this, 'node', {
 			'name': 'end',
-			'localPosition': new Position(9, 15),
+			'localPosition': new Position(9, 9),
 		});
 
 
 		new Tensor(start, end,
 			'spring bounce',
 			{
-				'constant': 100,
-				'equilibriumLength': 14,
+				'constant': 10000,
+				'equilibriumLength': 1,
 			});
 
 		let start2 = new Node(this.world, this, 'node', {
@@ -223,16 +223,43 @@ class PerformanceTrussNode extends TrussNode {
 		new Node(this.world, this, 'bounceactuator debugnode', {
 			'name': 'ball',
 			'mass': 1,
+			'localPosition': new Position(2.6, 3),
+			'velocityLoss': 1,
+			'collisionLabel': 'bounce',
+			'velocity': new Velocity(1, 0),
+		});
+
+		new Node(this.world, this, 'bounceactuator debugnode', {
+			'name': 'ball',
+			'mass': 1,
+			'localPosition': new Position(2.3, 3),
+			'velocityLoss': 1,
+			'collisionLabel': 'bounce',
+			'velocity': new Velocity(1, 0.1),
+		});
+
+		new Node(this.world, this, 'bounceactuator debugnode', {
+			'name': 'ball',
+			'mass': 1,
 			'localPosition': new Position(2, 3),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
-			'velocity': new Velocity(10, 0),
+			'velocity': new Velocity(1, 0.2),
 		});
-
+			
 		
 		new Node(this.world, this, 'button', {
 			'name': 'button',
 			'localPosition': new Position(2, 7),
+			'buttonScript':  '/*sourcepath template.js*/ () => {'+
+				'new Node(this.world, this, \'bounceactuator debugnode\', {'+
+				'\'name\': \'ball\','+
+				'\'mass\': 1,'+
+				'\'localPosition\': new Position(2, 3),'+
+				'\'velocityLoss\': 1,'+
+				'\'collisionLabel\': \'bounce\','+
+				'\'velocity\': new Velocity(1, 1.5*Math.random()-0.5),'+
+			'});}'
 		});
 
 		/*
