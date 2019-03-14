@@ -59,6 +59,13 @@ class Vector {
 	}
 
 	/**
+	 * @return {string} Returns a simple textual representation of the vector
+	 */
+	toString() {
+		return '[x'+ this.x+' y:'+ this.y+']';
+	}
+
+	/**
 	 * @param  {Object} restoreObject
 	 * @return {Vector}
 	 */

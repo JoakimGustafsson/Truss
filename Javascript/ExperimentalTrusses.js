@@ -183,77 +183,92 @@ class PerformanceTrussNode extends TrussNode {
 
 		this.selector = new Node(this.world, this, 'selector', {'name': 'Selector '});
 
-		let start = new Node(this.world, this, 'node', {
-			'name': 'start',
-			'localPosition': new Position(9, 1),
-		});
-
-		let end = new Node(this.world, this, 'node', {
-			'name': 'end',
-			'localPosition': new Position(9, 9),
-		});
-
-
-		new Tensor(start, end,
-			'spring bounce',
-			{
-				'constant': 10000,
-				'equilibriumLength': 1,
-			});
-
 		let start2 = new Node(this.world, this, 'node', {
-			'name': 'start',
+			'name': 'startleft',
 			'localPosition': new Position(1, 1),
 		});
 
 		let end2 = new Node(this.world, this, 'node', {
-			'name': 'end',
-			'localPosition': new Position(1, 14),
+			'name': 'endleft',
+			'localPosition': new Position(1, 10),
 		});
 
-
 		new Tensor(start2, end2,
-			'spring bounce',
+			'spring bounce rubberbounceactuator',
 			{
-				'constant': 100,
-				'equilibriumLength': 13,
+				'name': 'right',
+				'constant': 909,
+				'equilibriumLength': 8,
 			});
 
 
-		new Node(this.world, this, 'bounceactuator debugnode', {
-			'name': 'ball',
+
+		let start = new Node(this.world, this, 'node', {
+			'name': 'startright',
+			'localPosition': new Position(9, 1),
+		});
+
+		let end = new Node(this.world, this, 'node', {
+			'name': 'endright',
+			'localPosition': new Position(9, 9),
+		});
+
+		new Tensor(start, end,
+			'spring bounce rubberbounceactuator',
+			{
+				'name': 'left',
+				'constant': 10,
+				'equilibriumLength': 1,
+			});
+
+
+		new Node(this.world, this, 'collide moveable debugnode', {
+			'name': 'blueball',
 			'mass': 1,
-			'localPosition': new Position(2.6, 3),
+			'color': 'blue',
+			'localPosition': new Position(4, 3),
+			'velocityLoss': 1,
+			'collisionLabel': 'bounce',
+			'velocity': new Velocity(1, -0.08),
+		});
+
+		new Node(this.world, this, 'collide moveable debugnode', {
+			'name': 'brownball',
+			'mass': 1,
+			'color': 'brown',
+			'localPosition': new Position(3.99, 3),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(1, 0),
 		});
 
-		new Node(this.world, this, 'bounceactuator debugnode', {
-			'name': 'ball',
+		new Node(this.world, this, 'collide moveable debugnode', {
+			'name': 'greenball',
 			'mass': 1,
-			'localPosition': new Position(2.3, 3),
+			'color': 'green',
+			'localPosition': new Position(3.98, 3),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
-			'velocity': new Velocity(1, 0.1),
+			'velocity': new Velocity(1, -0.04),
 		});
 
-		new Node(this.world, this, 'bounceactuator debugnode', {
-			'name': 'ball',
+		/*
+		new Node(this.world, this, 'collide moveable debugnode', {
+			'name': 'ball3',
 			'mass': 1,
 			'localPosition': new Position(2, 3),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
-			'velocity': new Velocity(1, 0.2),
+			'velocity': new Velocity(1, 0.1),
 		});
-			
+		*/
 		
 		new Node(this.world, this, 'button', {
 			'name': 'button',
 			'localPosition': new Position(2, 7),
 			'buttonScript':  '/*sourcepath template.js*/ () => {'+
-				'new Node(this.world, this, \'bounceactuator debugnode\', {'+
-				'\'name\': \'ball\','+
+				'new Node(this.world, this, \'collide moveable debugnode\', {'+
+				'\'name\': \'ball\'+1000*Math.random(),'+
 				'\'mass\': 1,'+
 				'\'localPosition\': new Position(2, 3),'+
 				'\'velocityLoss\': 1,'+

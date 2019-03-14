@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang=en>
+<!--
+  This application demonstrates using Pointer Events for simple 2-pointer
+  pinch/zoom gesture recognition.
+-->
+
+<head>
+  <title>Pointer Events pinch/zoom example</title>
+  <meta name="viewport" content="width=device-width">
+  <style>
+    #target {
+      background: white;
+      border: 1px solid black;
+      height: 800px;
+    }
+  </style>
+</head>
+
+<script>
+  // Log events flag
+  var logEvents = false;
+  // Global vars to cache event state
+  var evCache = new Array();
+  var prevDiff = -1;
+  var keepRatio = true;
+
+
+  let lastScreenPosition = undefined;
+
+  let view = {
+    worldViewScale: {
+      x: 10,
+      y: 10
+    },
+    offset: {
+      x: 0,
+      y: 0
+    }
+  }
+  let mouseDown = false;
+
+  // Logging/debugging functions
+  function enableLog(ev) {
+    logEvents = logEvents ? false : true;
+  }
+
+  function log(prefix, ev) {
+    if (!logEvents) return;
+    var o = document.getElementsByTagName('output')[0];
+    var s = prefix + ": pointerID = " + ev.pointerId +
+      " ; pointerType = " + ev.pointerType +
+      " ; isPrimary = " + ev.isPrimary;
+    o.innerHTML += s + " <br>";
+  }
+
+  function clearLog(event) {
+    var o = document.getElementsByTagName('output')[0];
+    o.innerHTML = "";
+  }
+
+
+  function pointerdown_handler(ev) {
+    // The pointerdown event signals the start of a touch interaction.
+    // This event is cached to support 2-finger gestures
+    evCache.push(ev);
+
+    mouseDown = true;
+    lastScreenPosition = undefined;
+    lastScreenScale = undefined;
+    log("pointerDown", ev);
+  }
+
+  var screenPointerPositionX = 0;
+  var screenPointerPositionY = 0;
+  var graphicObjects = [];
+
+  //returns the screenposition of a world object
+  function viewScreenPosition(objectWorldPosition) {
+    return [(objectWorldPosition.x - view.offset.x) * view.worldViewScale.x, (objectWorldPosition.y - view.offset.y) *
+      view.worldViewScale.y
+    ];
+  }
+  //returns the world position of screen cordinates
+  function worldPosition(screenPosition) {
+    return {
+      x:screenPosition.x/view.worldViewScale.x + view.offset.x,
+      y:screenPosition.y/view.worldViewScale.y + view.offset.y};
+  }
+  // after scale size change the offset should be updated
+  function updateOffset(mouseScreenPanning) {
+    view.offset.x += mouseScreenPanning.x / view.worldViewScale.x;
+    view.offset.y += mouseScreenPanning.y / view.worldViewScale.y;
+  }
+  // after panning the offset should be updated
+  function updateScale(deltaScaleOnScreen,center) {
+    view.worldViewScale.x -= deltaScaleOnScreen.x * view.worldViewScale.x;
+    view.worldViewScale.y -= deltaScaleOnScreen.y * view.worldViewScale.y;
+    
+    view.offset.x -=  (center.x-view.offset.x)*deltaScaleOnScreen.x;
+    view.offset.y -=  (center.y-view.offset.y)*deltaScaleOnScreen.y;
+  }
+
+  function HandleView() {
+    let targetWidth = el.offsetWidth;
+    let targetHeight = el.offsetHeight;
+    for (let graphicObject of graphicObjects) {
+      let [newX, newY] = viewScreenPosition(graphicObject)
+      graphicObject.object.style.left = newX + 'px';
+      graphicObject.object.style.top = newY + 'px';
+      graphicObject.object.style.width = graphicObject.width * view.worldViewScale.x + 'px';
+      graphicObject.object.style.height = graphicObject.height * view.worldViewScale.y + 'px';
+    }
+
+  }
+
+
+
+  function pointermove_handler(ev) {
+    // This function implements a 2-pointer horizontal pinch/zoom gesture. 
+    //
+    // If the distance between the two pointers has increased (zoom in), 
+    // the taget element's background is changed to "pink" and if the 
+    // distance is decreasing (zoom out), the color is changed to "lightblue".
+    //
+    // This function sets the target element's border to "dashed" to visually
+    // indicate the pointer's target received a move event.
+
+    // log("pointerMove", ev);
+    ev.target.style.border = "dashed";
+    // Find this event in the cache and update its record with this event
+    for (var i = 0; i < evCache.length; i++) {
+      if (ev.pointerId == evCache[i].pointerId) {
+        evCache[i] = ev;
+        break;
+      }
+    }
+    let top;
+    let left;
+    // If two pointers are down, check for pinch gestures
+    if (evCache.length == 2) {
+      // Calculate the distance between the two pointers
+      var curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
+      if (prevDiff > 0) {
+        if (curDiff > prevDiff) {
+          // The distance between the two pointers has increased
+          log("Pinch moving OUT -> Zoom in", ev);
+         // ev.target.style.background = "pink";
+        }
+        if (curDiff < prevDiff) {
+          // The distance between the two pointers has decreased
+          log("Pinch moving IN -> Zoom out", ev);
+          //ev.target.style.background = "lightblue";
+        }
+      }
+      // Cache the distance for the next move event 
+      prevDiff = curDiff;
+      top = Math.min(evCache[1].pageY, evCache[0].pageY);
+      let bottom = Math.max(evCache[1].pageY, evCache[0].pageY);
+      left = Math.min(evCache[1].pageX, evCache[0].pageX);
+      let right = Math.max(evCache[1].pageX, evCache[0].pageX);
+
+      /*
+      redSquare.style.left = evCache[1].pageX + 'px';
+      redSquare.style.top = evCache[1].pageY + 'px';
+
+      greenSquare.style.left = left + 'px';
+      greenSquare.style.top = top + 'px';
+      greenSquare.style.width = right - left + 'px';
+      greenSquare.style.height = bottom - top + 'px';
+*/
+
+      widthPosition = right - left;
+      heightPosition = bottom - top;
+      screenPointerPositionX = left+widthPosition/2;
+      screenPointerPositionY = top+heightPosition/2;
+    } else {
+      top = ev.pageY;
+      left = ev.pageX;
+      screenPointerPositionX = left;
+      screenPointerPositionY = top;
+    }
+
+    greenSquare.style.left = screenPointerPositionX+ 'px';
+    greenSquare.style.top =screenPointerPositionY + 'px';
+   // screenPointerPositionX = left;
+   // screenPointerPositionY = top;
+
+    if (mouseDown) {
+      if (lastScreenPosition) {
+        updateOffset({
+          x: lastScreenPosition.x - screenPointerPositionX,
+          y: lastScreenPosition.y - screenPointerPositionY
+        });
+      }
+      lastScreenPosition = {
+        x: screenPointerPositionX,
+        y: screenPointerPositionY
+      }
+
+      // If two pointers are down, check for pinch gestures
+      if (evCache.length == 2) {
+        if (mouseDown) {
+          if (lastScreenScale) {
+            let xValue=(lastScreenScale.width - widthPosition) / lastScreenScale.width;
+            let yValue=(lastScreenScale.height - heightPosition) / lastScreenScale.height;
+            if (keepRatio) {
+              xValue=Math.max(xValue,yValue);
+              yValue=xValue;
+            }
+            updateScale({
+              x: xValue,
+              y: yValue,
+            }, worldPosition({x:screenPointerPositionX, y:screenPointerPositionY}));
+          }
+          lastScreenScale = {
+            width: widthPosition,
+            height: heightPosition
+          }
+        }
+      }
+    }
+
+    HandleView();
+    //console.log('move: ' + screenPointerPositionX + ', ' + screenPointerPositionY);
+  }
+
+  function pointerup_handler(ev) {
+    log(ev.type, ev);
+    // Remove this pointer from the cache and reset the target's
+    // background and border
+    remove_event(ev);
+    ev.target.style.background = "white";
+    ev.target.style.border = "1px solid black";
+
+    // If the number of pointers down is less than two then reset diff tracker
+    if (evCache.length < 2) prevDiff = -1;
+    if (evCache.length == 0) {
+      mouseDown = false;
+    }
+
+    //view.offset.x=screenPointerPositionX+view.offset.x;
+    //view.offset.y=screenPointerPositionY+view.offset.y;
+
+    screenPointerPositionX = 0;
+    screenPointerPositionY = 0;
+
+    lastScreenPosition = undefined;
+    console.log('offset: ' + view.offset.x + ', ' + view.offset.y);
+  }
+
+  function remove_event(ev) {
+    // Remove this event from the target's cache
+    for (var i = 0; i < evCache.length; i++) {
+      if (evCache[i].pointerId == ev.pointerId) {
+        evCache.splice(i, 1);
+        break;
+      }
+    }
+  }
+
+  function addGraphicObject(newObject) {
+    graphicObjects.push({
+      x: newObject.offsetLeft / view.worldViewScale.x,
+      y: newObject.offsetTop / view.worldViewScale.y,
+      width: newObject.offsetWidth / view.worldViewScale.x,
+      height: newObject.offsetHeight / view.worldViewScale.y,
+      object: newObject
+    })
+  }
+
+  var greenSquare;
+  var redSquare;
+  var el;
+
+  function init() {
+    // Install event handlers for the pointer target
+    el = document.getElementById("target");
+    el.onpointerdown = pointerdown_handler;
+    el.onpointermove = pointermove_handler;
+    // Use same handler for pointer{up,cancel,out,leave} events since
+    // the semantics for these events - in this app - are the same.
+    el.onpointerup = pointerup_handler;
+    el.onpointercancel = pointerup_handler;
+    el.onpointerout = pointerup_handler;
+    el.onpointerleave = pointerup_handler;
+    greenSquare = document.getElementById('greensquare');
+    redSquare = document.getElementById('redsquare');
+    pic = document.getElementById('pic');
+    addGraphicObject(pic);
+    pic2 = document.getElementById('pic2');
+    addGraphicObject(pic2);
+  }
+</script>
+
+<body onload="init();" style="touch-action:none">
+  <!-- <h1>Pointer Event pinch/zoom gesture</h1>
+ Create element for pointer gestures. -->
+
+  <div id="target">
+
+    <div id="greensquare" style="position:absolute; left:30px; top:10px; width:10px; height:10px; background:green;">
+    </div>
+    <div id="redsquare" style="position:absolute; left:130px; top:110px; width:10px; height:10px;">
+    </div>
+
+    <img id="pic" style="position:absolute; left:200px; top:200px; width:100px; height:100px;" src='\Resources\BlueYellow.jpg'>
+    <img id="pic2" style="position:absolute; left:300px; top:300px; width:150px; height:150px;" src='\Resources\BlueYellow.jpg'>
+
+    <!-- UI for logging/debugging -->
+    <button id="log" onclick="enableLog(event);">Start/Stop event logging</button>
+    <button id="clearlog" onclick="clearLog(event);">Clear the log</button>
+    <p></p>
+    <output></output>
+</body>
+
+</html>

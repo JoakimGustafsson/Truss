@@ -110,6 +110,13 @@ class Node extends StoreableObject {
 	}
 
 	/**
+	 * @return {string}
+	 */
+	toString() {
+		return 'Name: '+this.name+' Pos: '+this.localPosition.toString()+'Vel: '+this.velocity.toString();
+	}
+
+	/**
 	 * @return {Element}
 	 */
 	generateHTML() {

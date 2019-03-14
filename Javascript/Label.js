@@ -33,6 +33,7 @@ class Labels {
 			'connectedTensorsProperty': undefined,
 		});
 		this.tensorLabel = this.addLabel('tensor', [], {
+			'nameProperty': '',
 			'visibilityProperty': 1,
 			'startNodeProperty': undefined,
 			'endNodeProperty': undefined,
@@ -117,15 +118,16 @@ class Labels {
 		this.addLabel('scriptshow', [], {
 			'showScriptProperty': '() => {alert("MyShowScript");}',
 		}, [new ScriptShow()]);
+
 		this.collideLabel = this.addLabel('collide', [this.sensorLabel], {
 			'collisionLabelProperty': '',
 		}, [new CollisionSensor()]);
-		this.addLabel('bounceactuator', [this.angleNode, this.moveableLabel, this.collideLabel], {},
+		this.addLabel('rubberbounceactuator', [this.tensorLabel], {},
 			[new CollisionBounce()]);
+			
 		this.addLabel('button', [this.nodeLabel, this.moveableLabel], {
 			'buttonScriptProperty': '/*sourcepath template.js*/ () => {alert("MyButtonScript");}',
-			'nameProperty': 'Button',
-		},
+			'nameProperty': 'Button',},
 		[new ButtonBehaviour()]);
 	}
 

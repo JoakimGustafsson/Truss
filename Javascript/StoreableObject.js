@@ -22,6 +22,7 @@ class StoreableObject {
 		this.torqueList=[];
 		this.calcList=[];
 		this.calcList2=[];
+		this.ghostCalcList=[];
 		this.rotateList=[];
 		this.collisionList=[];
 
@@ -116,8 +117,15 @@ class StoreableObject {
 
 		for (let propertyContainer of Object.values(properties)) {
 			let property = propertyContainer.propertyObject;
-			representation[property.propertyName] =
-				property.serialize(this[property.propertyName], localNodeList, tensorList);
+			try {
+				representation[property.propertyName] =
+					property.serialize(this[property.propertyName], localNodeList, tensorList);
+			}
+			catch(error) {
+				console.log(error);
+				console.log('Object name: '+this.name);
+				console.log('Property name: '+property.propertyName);
+			}
 		}
 		return representation;
 	}
@@ -156,6 +164,7 @@ class StoreableObject {
 	}
 
 
+
 	/**
 	 * @param  {number} type
 	 * @param  {Function} newFunction
@@ -176,6 +185,9 @@ class StoreableObject {
 			break;
 		case BehaviourOverride.CALCULATE:
 			this.calcList.push(newFunction);
+			break;
+		case BehaviourOverride.GHOSTCALCULATE:
+			this.ghostCalcList.push(newFunction);
 			break;
 		case BehaviourOverride.POSTCALCULATE:
 			this.calcList2.push(newFunction);
@@ -210,6 +222,9 @@ class StoreableObject {
 		case BehaviourOverride.CALCULATE:
 			removeIfPresent(newFunction, this.calcList);
 			break;
+		case BehaviourOverride.GHOSTCALCULATE:
+			removeIfPresent(newFunction, this.ghostCalcList);
+			break;
 		case BehaviourOverride.POSTCALCULATE:
 			removeIfPresent(newFunction, this.calcList2);
 			break;
@@ -231,7 +246,12 @@ class StoreableObject {
 	 */
 	caller(callList, ...args) {
 		if (this.isGhost && this.isGhost()) {
-			return;
+			if (this.ghostCalcList && callList==this.calcList ) {
+				callList = this.ghostCalcList;
+			}
+			else {
+				return;
+			}
 		}
 		for (let f of callList) {
 			let result = f.call(this, ...args);

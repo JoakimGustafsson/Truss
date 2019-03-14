@@ -101,6 +101,27 @@ class Tensor extends StoreableObject {
 	}
 
 	/**
+	 * @param {number} level
+	 * @return {string}
+	 */
+	toString(level=5) {
+		let s = 'Name: '+this.name;
+		if (level>3) {
+			s+=' Start: '+this.node1.toString();
+			s+=' End: '+this.node2.toString();
+		}
+		if (level>2) {
+			s+=' Length: '+this.getLength();
+		}
+		
+		if (this.equilibriumLength && level>2) {
+			s+='  Pull: '+(this.getLength()- this.equilibriumLength);
+		}
+		return s;
+	}
+
+
+	/**
 	 * @param {Node} leftNode
 	 * @return {Element}
 	 */

@@ -22,7 +22,6 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	width = element.offsetWidth;
 	height = element.offsetHeight;
 
-	timelog('warpMatrix AB');
 	let m = [];
 	// Handle when some angle > 180
 	let bcv= (((b.y-d.y)*(a.x-d.x)) - ((b.x-d.x)*(a.y-d.y))) / (((c.x-b.x)*(a.y-d.y)) - ((c.y-b.y)*(a.x-d.x)));
@@ -34,7 +33,6 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 		obj.setVisible(true);
 	}
 
-	timelog('warpMatrix AC');
 	if (bcv<0) {
 		bcv-=0.01;
 		b.x= b.x+bcv*(c.x- b.x);
@@ -54,7 +52,6 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	}
 	// End of 180 handling
 
-	timelog('warpMatrix A');
 	m[41] = a.x;
 	m[42] = a.y;
 
@@ -79,7 +76,6 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	m[21] = m[24] * c.x + (c.x - a.x) / height;
 	m[22] = m[24] * c.y + (c.y - a.y) / height;
 
-	timelog('warpMatrix B');
 	let text = 'matrix3d(' +
         m[11] + ',' + m[12] + ',0,' + m[14] + ', ' +
         m[21] + ',' + m[22] + ',0,' + m[24] + ', ' +

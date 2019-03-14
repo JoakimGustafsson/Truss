@@ -91,7 +91,8 @@
 							// 0.74E-10;	// Molecule
 							// 0.01;		// Cm 
 							// 1;			// Meter
-							 10;			// House
+							 2;			// Meter
+							// 10;			// House
 							// 500;			// Complex
 							// 12500000;	// Earth
 							// 9000000000;	// Solar system
@@ -100,7 +101,8 @@
 				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 					'name': 'MainNode',
 					'worldSize': new Position(scale, scale),
-				}, new Position(0, 0), new Vector(scale, scale), 1 / 60, 1, "MainNode");
+					'worldOffset': new Position(8, 2),
+				});
 				latestNode.initiate();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
