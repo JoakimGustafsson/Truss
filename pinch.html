@@ -205,8 +205,11 @@
             let xValue=(lastScreenScale.width - widthPosition) / lastScreenScale.width;
             let yValue=(lastScreenScale.height - heightPosition) / lastScreenScale.height;
             if (keepRatio) {
-              xValue=Math.max(xValue,yValue);
-              yValue=xValue;
+              if (widthPosition>heightPosition) {
+                yValue=xValue;
+              } else {
+                xValue=yValue;
+              }
             }
             updateScale({
               x: xValue,
