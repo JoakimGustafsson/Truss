@@ -5,7 +5,9 @@
   pinch/zoom gesture recognition.
 -->
 
-<head>
+<link rel="stylesheet" type="text/css" href="../Stylefiles/Truss.css">
+
+<head >
   <title>Pointer Events pinch/zoom example</title>
   <meta name="viewport" content="width=device-width">
   <style>
@@ -117,6 +119,7 @@
 
 
   function pointermove_handler(ev) {
+    log(ev.type, ev);
     // This function implements a 2-pointer horizontal pinch/zoom gesture. 
     //
     // If the distance between the two pointers has increased (zoom in), 
@@ -181,8 +184,8 @@
       screenPointerPositionY = top;
     }
 
-    greenSquare.style.left = screenPointerPositionX+ 'px';
-    greenSquare.style.top =screenPointerPositionY + 'px';
+    //greenSquare.style.left = screenPointerPositionX+ 'px';
+    //greenSquare.style.top =screenPointerPositionY + 'px';
    // screenPointerPositionX = left;
    // screenPointerPositionY = top;
 
@@ -228,6 +231,18 @@
     //console.log('move: ' + screenPointerPositionX + ', ' + screenPointerPositionY);
   }
 
+  
+  function mousewheel_handler(ev) {
+    let e = window.event || e; // old IE support
+    let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    console.log(delta);
+    updateScale({
+              x: delta*0.1,
+              y: delta*0.1,
+            }, worldPosition({x:screenPointerPositionX, y:screenPointerPositionY}));
+    HandleView();
+  }
+  
   function pointerup_handler(ev) {
     log(ev.type, ev);
     // Remove this pointer from the cache and reset the target's
@@ -249,7 +264,7 @@
     screenPointerPositionY = 0;
 
     lastScreenPosition = undefined;
-    console.log('offset: ' + view.offset.x + ', ' + view.offset.y);
+    console.log('up offset: ' + view.offset.x + ', ' + view.offset.y);
   }
 
   function remove_event(ev) {
@@ -287,6 +302,9 @@
     el.onpointercancel = pointerup_handler;
     el.onpointerout = pointerup_handler;
     el.onpointerleave = pointerup_handler;
+    el.onmousewheel = mousewheel_handler;
+    el.mousewheel = mousewheel_handler;
+    el.dommousewheel = mousewheel_handler;
     greenSquare = document.getElementById('greensquare');
     redSquare = document.getElementById('redsquare');
     pic = document.getElementById('pic');
@@ -300,7 +318,7 @@
   <!-- <h1>Pointer Event pinch/zoom gesture</h1>
  Create element for pointer gestures. -->
 
-  <div id="target">
+  <div id="target" class="noselect">
 
     <div id="greensquare" style="position:absolute; left:30px; top:10px; width:10px; height:10px; background:green;">
     </div>
