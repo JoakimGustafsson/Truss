@@ -12,8 +12,8 @@
   <meta name="viewport" content="width=device-width">
   <style>
     .zoomArea {
-      position:relative; 
-      overflow:hidden; 
+      position: relative;
+      overflow: hidden;
       border: 1px solid grey;
     }
 
@@ -33,8 +33,80 @@
 </head>
 
 <script>
-  // Log events flag
-  var logEvents = false;
+
+  class View {
+    constructor(scale) {
+      this.view = {
+        worldViewScale: {
+          x: scale,
+          y: scale
+        },
+        offset: {
+          x: 0,
+          y: 0
+        }
+      }
+
+      this.screenPointerPositionX = 0;
+      this.screenPointerPositionY = 0;
+      this.graphicObjects = [];
+    }
+    //returns the screenposition of a world object
+    viewScreenPosition(objectWorldPosition) {
+      return [(objectWorldPosition.x - this.view.offset.x) * this.view.worldViewScale.x, (objectWorldPosition.y - this
+          .view.offset.y) *
+        this.view.worldViewScale.y
+      ];
+    }
+    //returns the world position of screen cordinates
+    worldPosition(screenPosition) {
+      return {
+        x: screenPosition.x / this.view.worldViewScale.x + this.view.offset.x,
+        y: screenPosition.y / this.view.worldViewScale.y + this.view.offset.y
+      };
+    }
+    // after scale size change the offset should be updated
+    updateOffset(mouseScreenPanning) {
+      this.view.offset.x += mouseScreenPanning.x / this.view.worldViewScale.x;
+      this.view.offset.y += mouseScreenPanning.y / this.view.worldViewScale.y;
+    }
+    // after panning the offset should be updated
+    updateScale(deltaScaleOnScreen, center) {
+      this.view.worldViewScale.x -= deltaScaleOnScreen.x * this.view.worldViewScale.x;
+      this.view.worldViewScale.y -= deltaScaleOnScreen.y * this.view.worldViewScale.y;
+
+      this.view.offset.x -= (center.x - this.view.offset.x) * deltaScaleOnScreen.x;
+      this.view.offset.y -= (center.y - this.view.offset.y) * deltaScaleOnScreen.y;
+    }
+
+    HandleView() {
+      let targetWidth = el.offsetWidth;
+      let targetHeight = el.offsetHeight;
+      for (let graphicObject of this.graphicObjects) {
+        let [newX, newY] = this.viewScreenPosition(graphicObject)
+        graphicObject.object.style.left = newX + 'px';
+        graphicObject.object.style.top = newY + 'px';
+        graphicObject.object.style.width = graphicObject.width * this.view.worldViewScale.x + 'px';
+        graphicObject.object.style.height = graphicObject.height * this.view.worldViewScale.y + 'px';
+      }
+    }
+
+
+    addGraphicObject(newObject) {
+      this.graphicObjects.push({
+        x: newObject.offsetLeft / this.view.worldViewScale.x,
+        y: newObject.offsetTop / this.view.worldViewScale.y,
+        width: newObject.offsetWidth / this.view.worldViewScale.x,
+        height: newObject.offsetHeight / this.view.worldViewScale.y,
+        object: newObject
+      })
+    }
+
+  }
+
+
+
+
   // Global vars to cache event state
   var evCache = new Array();
   var prevDiff = -1;
@@ -43,36 +115,7 @@
 
   let lastScreenPosition = undefined;
 
-  let view = {
-    worldViewScale: {
-      x: 10,
-      y: 10
-    },
-    offset: {
-      x: 0,
-      y: 0
-    }
-  }
   let mouseDown = false;
-
-  // Logging/debugging functions
-  function enableLog(ev) {
-    logEvents = logEvents ? false : true;
-  }
-
-  function log(prefix, ev) {
-    if (!logEvents) return;
-    var o = document.getElementsByTagName('output')[0];
-    var s = prefix + ": pointerID = " + ev.pointerId +
-      " ; pointerType = " + ev.pointerType +
-      " ; isPrimary = " + ev.isPrimary;
-    o.innerHTML += s + " <br>";
-  }
-
-  function clearLog(event) {
-    var o = document.getElementsByTagName('output')[0];
-    o.innerHTML = "";
-  }
 
 
   function pointerdown_handler(ev) {
@@ -83,57 +126,9 @@
     mouseDown = true;
     lastScreenPosition = undefined;
     lastScreenScale = undefined;
-    log("pointerDown", ev);
   }
-
-  var screenPointerPositionX = 0;
-  var screenPointerPositionY = 0;
-  var graphicObjects = [];
-
-  //returns the screenposition of a world object
-  function viewScreenPosition(objectWorldPosition) {
-    return [(objectWorldPosition.x - view.offset.x) * view.worldViewScale.x, (objectWorldPosition.y - view.offset.y) *
-      view.worldViewScale.y
-    ];
-  }
-  //returns the world position of screen cordinates
-  function worldPosition(screenPosition) {
-    return {
-      x: screenPosition.x / view.worldViewScale.x + view.offset.x,
-      y: screenPosition.y / view.worldViewScale.y + view.offset.y
-    };
-  }
-  // after scale size change the offset should be updated
-  function updateOffset(mouseScreenPanning) {
-    view.offset.x += mouseScreenPanning.x / view.worldViewScale.x;
-    view.offset.y += mouseScreenPanning.y / view.worldViewScale.y;
-  }
-  // after panning the offset should be updated
-  function updateScale(deltaScaleOnScreen, center) {
-    view.worldViewScale.x -= deltaScaleOnScreen.x * view.worldViewScale.x;
-    view.worldViewScale.y -= deltaScaleOnScreen.y * view.worldViewScale.y;
-
-    view.offset.x -= (center.x - view.offset.x) * deltaScaleOnScreen.x;
-    view.offset.y -= (center.y - view.offset.y) * deltaScaleOnScreen.y;
-  }
-
-  function HandleView() {
-    let targetWidth = el.offsetWidth;
-    let targetHeight = el.offsetHeight;
-    for (let graphicObject of graphicObjects) {
-      let [newX, newY] = viewScreenPosition(graphicObject)
-      graphicObject.object.style.left = newX + 'px';
-      graphicObject.object.style.top = newY + 'px';
-      graphicObject.object.style.width = graphicObject.width * view.worldViewScale.x + 'px';
-      graphicObject.object.style.height = graphicObject.height * view.worldViewScale.y + 'px';
-    }
-
-  }
-
-
 
   function pointermove_handler(ev) {
-    log(ev.type, ev);
     // This function implements a 2-pointer horizontal pinch/zoom gesture. 
     //
     // If the distance between the two pointers has increased (zoom in), 
@@ -143,8 +138,6 @@
     // This function sets the target element's border to "dashed" to visually
     // indicate the pointer's target received a move event.
 
-    // log("pointerMove", ev);
-    // ev.target.style.border = "dashed";
     // Find this event in the cache and update its record with this event
     for (var i = 0; i < evCache.length; i++) {
       if (ev.pointerId == evCache[i].pointerId) {
@@ -178,7 +171,7 @@
 
     if (mouseDown) {
       if (lastScreenPosition) {
-        updateOffset({
+        newView.updateOffset({
           x: lastScreenPosition.x - screenPointerPositionX,
           y: lastScreenPosition.y - screenPointerPositionY
         });
@@ -201,10 +194,10 @@
                 xValue = yValue;
               }
             }
-            updateScale({
+            newView.updateScale({
               x: xValue,
               y: yValue,
-            }, worldPosition({
+            }, newView.worldPosition({
               x: screenPointerPositionX,
               y: screenPointerPositionY
             }));
@@ -216,9 +209,7 @@
         }
       }
     }
-
-    HandleView();
-    //console.log('move: ' + screenPointerPositionX + ', ' + screenPointerPositionY);
+    newView.HandleView();
   }
 
 
@@ -226,24 +217,20 @@
     let e = window.event || ev; // old IE support
     e.preventDefault();
     let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-    console.log(delta);
-    updateScale({
+    newView.updateScale({
       x: delta * -0.1,
       y: delta * -0.1,
-    }, worldPosition({
+    }, newView.worldPosition({
       x: screenPointerPositionX,
       y: screenPointerPositionY
     }));
-    HandleView();
+    newView.HandleView();
   }
 
   function pointerup_handler(ev) {
-    log(ev.type, ev);
     // Remove this pointer from the cache and reset the target's
     // background and border
     remove_event(ev);
-    //ev.target.style.background = "white";
-    //ev.target.style.border = "1px solid black";
 
     // If the number of pointers down is less than two then reset diff tracker
     if (evCache.length < 2) prevDiff = -1;
@@ -251,14 +238,11 @@
       mouseDown = false;
     }
 
-    //view.offset.x=screenPointerPositionX+view.offset.x;
-    //view.offset.y=screenPointerPositionY+view.offset.y;
-
     screenPointerPositionX = 0;
     screenPointerPositionY = 0;
 
     lastScreenPosition = undefined;
-    console.log('up offset: ' + view.offset.x + ', ' + view.offset.y);
+    //console.log('up offset: ' + view.offset.x + ', ' + view.offset.y);
   }
 
   function remove_event(ev) {
@@ -271,23 +255,13 @@
     }
   }
 
-  function addGraphicObject(newObject) {
-    graphicObjects.push({
-      x: newObject.offsetLeft / view.worldViewScale.x,
-      y: newObject.offsetTop / view.worldViewScale.y,
-      width: newObject.offsetWidth / view.worldViewScale.x,
-      height: newObject.offsetHeight / view.worldViewScale.y,
-      object: newObject
-    })
-  }
 
-  var greenSquare;
-  var redSquare;
   var el;
+  var newView;
 
   function init() {
     // Install event handlers for the pointer target
-    el = document.getElementById("target");
+    el = document.getElementById("targetZoom");
     el.onpointerdown = pointerdown_handler;
     el.onpointermove = pointermove_handler;
     // Use same handler for pointer{up,cancel,out,leave} events since
@@ -300,20 +274,22 @@
     el.mousewheel = mousewheel_handler;
     el.dommousewheel = mousewheel_handler;
 
-    for(let el of document.getElementsByClassName("zoomable")) {
-      addGraphicObject(el);
+    newView = new View(10);
+
+    for (let elZoom of document.getElementsByClassName("zoomable")) {
+      newView.addGraphicObject(elZoom);
     }
-   
+
   }
 </script>
 
 <body onload="init();" style="touch-action:none">
   Zoom and Pan using mouse or touch
   <div id="limiter" class="zoomArea" style="height:800px; width:500px;">
-    <div id="target" class="noselect selectorScreen">
-  
+    <div id="targetZoom" class="noselect selectorScreen">
+
     </div>
-    <img id="pic" class="zoomable" style="left:0px; top:0px; width:100px; height:100px;"
+    <img id="pic" class="zoomable" style="left:10px; top:10px; width:100px; height:100px;"
       src='\Resources\BlueYellow.jpg'>
     <img id="pic2" class="zoomable" style="left:100px; top:100px;  width:150px; height:150px;"
       src='\Resources\BlueYellow.jpg'>
