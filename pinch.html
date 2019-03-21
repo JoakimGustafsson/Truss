@@ -7,7 +7,7 @@
 
 <link rel="stylesheet" type="text/css" href="../Stylefiles/Truss.css">
 
-<head >
+<head>
   <title>Pointer Events pinch/zoom example</title>
   <meta name="viewport" content="width=device-width">
   <style>
@@ -15,6 +15,13 @@
       background: white;
       border: 1px solid black;
       height: 800px;
+      overflow: hidden;
+    }
+
+    div {
+      border-color: brown;
+      border-width: 2px;
+      border-style: solid;
     }
   </style>
 </head>
@@ -86,8 +93,9 @@
   //returns the world position of screen cordinates
   function worldPosition(screenPosition) {
     return {
-      x:screenPosition.x/view.worldViewScale.x + view.offset.x,
-      y:screenPosition.y/view.worldViewScale.y + view.offset.y};
+      x: screenPosition.x / view.worldViewScale.x + view.offset.x,
+      y: screenPosition.y / view.worldViewScale.y + view.offset.y
+    };
   }
   // after scale size change the offset should be updated
   function updateOffset(mouseScreenPanning) {
@@ -95,12 +103,12 @@
     view.offset.y += mouseScreenPanning.y / view.worldViewScale.y;
   }
   // after panning the offset should be updated
-  function updateScale(deltaScaleOnScreen,center) {
+  function updateScale(deltaScaleOnScreen, center) {
     view.worldViewScale.x -= deltaScaleOnScreen.x * view.worldViewScale.x;
     view.worldViewScale.y -= deltaScaleOnScreen.y * view.worldViewScale.y;
-    
-    view.offset.x -=  (center.x-view.offset.x)*deltaScaleOnScreen.x;
-    view.offset.y -=  (center.y-view.offset.y)*deltaScaleOnScreen.y;
+
+    view.offset.x -= (center.x - view.offset.x) * deltaScaleOnScreen.x;
+    view.offset.y -= (center.y - view.offset.y) * deltaScaleOnScreen.y;
   }
 
   function HandleView() {
@@ -130,7 +138,7 @@
     // indicate the pointer's target received a move event.
 
     // log("pointerMove", ev);
-    ev.target.style.border = "dashed";
+   // ev.target.style.border = "dashed";
     // Find this event in the cache and update its record with this event
     for (var i = 0; i < evCache.length; i++) {
       if (ev.pointerId == evCache[i].pointerId) {
@@ -148,7 +156,7 @@
         if (curDiff > prevDiff) {
           // The distance between the two pointers has increased
           log("Pinch moving OUT -> Zoom in", ev);
-         // ev.target.style.background = "pink";
+          // ev.target.style.background = "pink";
         }
         if (curDiff < prevDiff) {
           // The distance between the two pointers has decreased
@@ -175,8 +183,8 @@
 
       widthPosition = right - left;
       heightPosition = bottom - top;
-      screenPointerPositionX = left+widthPosition/2;
-      screenPointerPositionY = top+heightPosition/2;
+      screenPointerPositionX = left + widthPosition / 2;
+      screenPointerPositionY = top + heightPosition / 2;
     } else {
       top = ev.pageY;
       left = ev.pageX;
@@ -186,8 +194,8 @@
 
     //greenSquare.style.left = screenPointerPositionX+ 'px';
     //greenSquare.style.top =screenPointerPositionY + 'px';
-   // screenPointerPositionX = left;
-   // screenPointerPositionY = top;
+    // screenPointerPositionX = left;
+    // screenPointerPositionY = top;
 
     if (mouseDown) {
       if (lastScreenPosition) {
@@ -205,19 +213,22 @@
       if (evCache.length == 2) {
         if (mouseDown) {
           if (lastScreenScale) {
-            let xValue=(lastScreenScale.width - widthPosition) / lastScreenScale.width;
-            let yValue=(lastScreenScale.height - heightPosition) / lastScreenScale.height;
+            let xValue = (lastScreenScale.width - widthPosition) / lastScreenScale.width;
+            let yValue = (lastScreenScale.height - heightPosition) / lastScreenScale.height;
             if (keepRatio) {
-              if (widthPosition>heightPosition) {
-                yValue=xValue;
+              if (widthPosition > heightPosition) {
+                yValue = xValue;
               } else {
-                xValue=yValue;
+                xValue = yValue;
               }
             }
             updateScale({
               x: xValue,
               y: yValue,
-            }, worldPosition({x:screenPointerPositionX, y:screenPointerPositionY}));
+            }, worldPosition({
+              x: screenPointerPositionX,
+              y: screenPointerPositionY
+            }));
           }
           lastScreenScale = {
             width: widthPosition,
@@ -231,25 +242,28 @@
     //console.log('move: ' + screenPointerPositionX + ', ' + screenPointerPositionY);
   }
 
-  
+
   function mousewheel_handler(ev) {
     let e = window.event || e; // old IE support
     let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     console.log(delta);
     updateScale({
-              x: delta*0.1,
-              y: delta*0.1,
-            }, worldPosition({x:screenPointerPositionX, y:screenPointerPositionY}));
+      x: delta * -0.1,
+      y: delta * -0.1,
+    }, worldPosition({
+      x: screenPointerPositionX,
+      y: screenPointerPositionY
+    }));
     HandleView();
   }
-  
+
   function pointerup_handler(ev) {
     log(ev.type, ev);
     // Remove this pointer from the cache and reset the target's
     // background and border
     remove_event(ev);
-    ev.target.style.background = "white";
-    ev.target.style.border = "1px solid black";
+    //ev.target.style.background = "white";
+    //ev.target.style.border = "1px solid black";
 
     // If the number of pointers down is less than two then reset diff tracker
     if (evCache.length < 2) prevDiff = -1;
@@ -316,23 +330,32 @@
 
 <body onload="init();" style="touch-action:none">
   <!-- <h1>Pointer Event pinch/zoom gesture</h1>
- Create element for pointer gestures. -->
+ Create element for pointer gestures. 
 
-  <div id="target" class="noselect">
-
+ <div id="dummy" class="noselect" style="overflow:hidden; width:200px; height:200px; border: 2px red solid;">
+  <img id="picdummy" class="noselect" style="position:relative; left:100px; top:100px; width:300px; height:300px;" src='\Resources\BlueYellow.jpg'>
+ </div>-->
+ABC
+  <div id="limiter" style="position:relative; overflow:hidden; height:600px; width:500px;">
+    <div id="target" class="noselect" 
+    style="height:100%; width:100%; position:absolute; z-index:100; background-color:transparent; ">
+      <!--
     <div id="greensquare" style="position:absolute; left:30px; top:10px; width:10px; height:10px; background:green;">
     </div>
     <div id="redsquare" style="position:absolute; left:130px; top:110px; width:10px; height:10px;">
+    </div> -->
     </div>
+      <img id="pic" class="noselect" style="z-index:99; position:absolute; left:0px; top:0px; width:100px; height:100px;"
+        src='\Resources\BlueYellow.jpg' onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false">
+      <img id="pic2" style="z-index:99; position:absolute; left:100px; top:100px;  width:150px; height:150px;"
+        src='\Resources\BlueYellow.jpg'>
 
-    <img id="pic" style="position:absolute; left:200px; top:200px; width:100px; height:100px;" src='\Resources\BlueYellow.jpg'>
-    <img id="pic2" style="position:absolute; left:300px; top:300px; width:150px; height:150px;" src='\Resources\BlueYellow.jpg'>
-
-    <!-- UI for logging/debugging -->
+      <!-- UI for logging/debugging
     <button id="log" onclick="enableLog(event);">Start/Stop event logging</button>
     <button id="clearlog" onclick="clearLog(event);">Clear the log</button>
-    <p></p>
-    <output></output>
+    <p></p> -->
+    </div>
+  <output></output>
 </body>
 
 </html>
