@@ -11,17 +11,23 @@
   <title>Pointer Events pinch/zoom example</title>
   <meta name="viewport" content="width=device-width">
   <style>
-    #target {
-      background: white;
-      border: 1px solid black;
-      height: 800px;
-      overflow: hidden;
+    .zoomArea {
+      position:relative; 
+      overflow:hidden; 
+      border: 1px solid grey;
     }
 
-    div {
-      border-color: brown;
-      border-width: 2px;
-      border-style: solid;
+    .zoomable {
+      z-index: 99;
+      position: absolute;
+    }
+
+    .selectorScreen {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      z-index: 100;
+      background-color: transparent;
     }
   </style>
 </head>
@@ -138,7 +144,7 @@
     // indicate the pointer's target received a move event.
 
     // log("pointerMove", ev);
-   // ev.target.style.border = "dashed";
+    // ev.target.style.border = "dashed";
     // Find this event in the cache and update its record with this event
     for (var i = 0; i < evCache.length; i++) {
       if (ev.pointerId == evCache[i].pointerId) {
@@ -152,34 +158,12 @@
     if (evCache.length == 2) {
       // Calculate the distance between the two pointers
       var curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
-      if (prevDiff > 0) {
-        if (curDiff > prevDiff) {
-          // The distance between the two pointers has increased
-          log("Pinch moving OUT -> Zoom in", ev);
-          // ev.target.style.background = "pink";
-        }
-        if (curDiff < prevDiff) {
-          // The distance between the two pointers has decreased
-          log("Pinch moving IN -> Zoom out", ev);
-          //ev.target.style.background = "lightblue";
-        }
-      }
       // Cache the distance for the next move event 
       prevDiff = curDiff;
       top = Math.min(evCache[1].pageY, evCache[0].pageY);
       let bottom = Math.max(evCache[1].pageY, evCache[0].pageY);
       left = Math.min(evCache[1].pageX, evCache[0].pageX);
       let right = Math.max(evCache[1].pageX, evCache[0].pageX);
-
-      /*
-      redSquare.style.left = evCache[1].pageX + 'px';
-      redSquare.style.top = evCache[1].pageY + 'px';
-
-      greenSquare.style.left = left + 'px';
-      greenSquare.style.top = top + 'px';
-      greenSquare.style.width = right - left + 'px';
-      greenSquare.style.height = bottom - top + 'px';
-*/
 
       widthPosition = right - left;
       heightPosition = bottom - top;
@@ -191,11 +175,6 @@
       screenPointerPositionX = left;
       screenPointerPositionY = top;
     }
-
-    //greenSquare.style.left = screenPointerPositionX+ 'px';
-    //greenSquare.style.top =screenPointerPositionY + 'px';
-    // screenPointerPositionX = left;
-    // screenPointerPositionY = top;
 
     if (mouseDown) {
       if (lastScreenPosition) {
@@ -244,7 +223,8 @@
 
 
   function mousewheel_handler(ev) {
-    let e = window.event || e; // old IE support
+    let e = window.event || ev; // old IE support
+    e.preventDefault();
     let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     console.log(delta);
     updateScale({
@@ -319,42 +299,25 @@
     el.onmousewheel = mousewheel_handler;
     el.mousewheel = mousewheel_handler;
     el.dommousewheel = mousewheel_handler;
-    greenSquare = document.getElementById('greensquare');
-    redSquare = document.getElementById('redsquare');
-    pic = document.getElementById('pic');
-    addGraphicObject(pic);
-    pic2 = document.getElementById('pic2');
-    addGraphicObject(pic2);
+
+    for(let el of document.getElementsByClassName("zoomable")) {
+      addGraphicObject(el);
+    }
+   
   }
 </script>
 
 <body onload="init();" style="touch-action:none">
-  <!-- <h1>Pointer Event pinch/zoom gesture</h1>
- Create element for pointer gestures. 
-
- <div id="dummy" class="noselect" style="overflow:hidden; width:200px; height:200px; border: 2px red solid;">
-  <img id="picdummy" class="noselect" style="position:relative; left:100px; top:100px; width:300px; height:300px;" src='\Resources\BlueYellow.jpg'>
- </div>-->
-ABC
-  <div id="limiter" style="position:relative; overflow:hidden; height:600px; width:500px;">
-    <div id="target" class="noselect" 
-    style="height:100%; width:100%; position:absolute; z-index:100; background-color:transparent; ">
-      <!--
-    <div id="greensquare" style="position:absolute; left:30px; top:10px; width:10px; height:10px; background:green;">
+  Zoom and Pan using mouse or touch
+  <div id="limiter" class="zoomArea" style="height:800px; width:500px;">
+    <div id="target" class="noselect selectorScreen">
+  
     </div>
-    <div id="redsquare" style="position:absolute; left:130px; top:110px; width:10px; height:10px;">
-    </div> -->
-    </div>
-      <img id="pic" class="noselect" style="z-index:99; position:absolute; left:0px; top:0px; width:100px; height:100px;"
-        src='\Resources\BlueYellow.jpg' onmousedown="event.preventDefault ? event.preventDefault() : event.returnValue = false">
-      <img id="pic2" style="z-index:99; position:absolute; left:100px; top:100px;  width:150px; height:150px;"
-        src='\Resources\BlueYellow.jpg'>
-
-      <!-- UI for logging/debugging
-    <button id="log" onclick="enableLog(event);">Start/Stop event logging</button>
-    <button id="clearlog" onclick="clearLog(event);">Clear the log</button>
-    <p></p> -->
-    </div>
+    <img id="pic" class="zoomable" style="left:0px; top:0px; width:100px; height:100px;"
+      src='\Resources\BlueYellow.jpg'>
+    <img id="pic2" class="zoomable" style="left:100px; top:100px;  width:150px; height:150px;"
+      src='\Resources\BlueYellow.jpg'>
+  </div>
   <output></output>
 </body>
 
