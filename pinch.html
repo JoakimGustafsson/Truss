@@ -33,7 +33,6 @@
 </head>
 
 <script>
-
   class View {
     constructor(scale) {
       this.view = {
@@ -80,8 +79,8 @@
     }
 
     HandleView() {
-      let targetWidth = el.offsetWidth;
-      let targetHeight = el.offsetHeight;
+      //let targetWidth = el.offsetWidth;
+      //let targetHeight = el.offsetHeight;
       for (let graphicObject of this.graphicObjects) {
         let [newX, newY] = this.viewScreenPosition(graphicObject)
         graphicObject.object.style.left = newX + 'px';
@@ -105,30 +104,48 @@
   }
 
 
+  class PanZoomHandler {
+    constructor(sensorElement, view) {
+      this.view = view;
+
+      // Install event handlers for the pointer target
+      sensorElement.onpointerdown = (ev) => {this.pointerdown_handler(ev);};
+      sensorElement.onpointermove = (ev) => {this.pointermove_handler(ev);};
+      // Use same handler for pointer{up,cancel,out,leave} events since
+      // the semantics for these events - in this app - are the same.
+      sensorElement.onpointerup = (ev) => {this.pointerup_handler(ev);};
+      sensorElement.onpointercancel = (ev) => {this.pointerup_handler(ev);};
+      sensorElement.onpointerout = (ev) => {this.pointerup_handler(ev);};
+      sensorElement.onpointerleave = (ev) => {this.pointerup_handler(ev);};
+      sensorElement.onmousewheel = (ev) => {this.mousewheel_handler(ev);};
+      sensorElement.mousewheel = (ev) => {this.mousewheel_handler(ev);};
+      sensorElement.dommousewheel = (ev) => {this.mousewheel_handler(ev);};
 
 
-  // Global vars to cache event state
-  var evCache = new Array();
-  var prevDiff = -1;
-  var keepRatio = true;
+      // Global vars to cache event state
+      this.evCache = new Array();
+      this.prevDiff = -1;
+      this.keepRatio = true;
+
+      this.lastScreenPosition = undefined;
+
+      this.mouseDown = false;
+    }
 
 
-  let lastScreenPosition = undefined;
 
-  let mouseDown = false;
-
-
-  function pointerdown_handler(ev) {
+  pointerdown_handler(ev) {
     // The pointerdown event signals the start of a touch interaction.
     // This event is cached to support 2-finger gestures
-    evCache.push(ev);
+    this.evCache.push(ev);
 
-    mouseDown = true;
-    lastScreenPosition = undefined;
-    lastScreenScale = undefined;
+    this.mouseDown = true;
+    this.lastScreenPosition = undefined;
+    this.lastScreenScale = undefined;
   }
 
-  function pointermove_handler(ev) {
+
+  pointermove_handler(ev) {
     // This function implements a 2-pointer horizontal pinch/zoom gesture. 
     //
     // If the distance between the two pointers has increased (zoom in), 
@@ -139,143 +156,128 @@
     // indicate the pointer's target received a move event.
 
     // Find this event in the cache and update its record with this event
-    for (var i = 0; i < evCache.length; i++) {
-      if (ev.pointerId == evCache[i].pointerId) {
-        evCache[i] = ev;
+    for (var i = 0; i < this.evCache.length; i++) {
+      if (ev.pointerId == this.evCache[i].pointerId) {
+        this.evCache[i] = ev;
         break;
       }
     }
     let top;
     let left;
+    let widthPosition;
+    let heightPosition;
     // If two pointers are down, check for pinch gestures
-    if (evCache.length == 2) {
+    if (this.evCache.length == 2) {
       // Calculate the distance between the two pointers
-      var curDiff = Math.abs(evCache[0].clientX - evCache[1].clientX);
+      var curDiff = Math.abs(this.evCache[0].clientX - this.evCache[1].clientX);
       // Cache the distance for the next move event 
-      prevDiff = curDiff;
-      top = Math.min(evCache[1].pageY, evCache[0].pageY);
-      let bottom = Math.max(evCache[1].pageY, evCache[0].pageY);
-      left = Math.min(evCache[1].pageX, evCache[0].pageX);
-      let right = Math.max(evCache[1].pageX, evCache[0].pageX);
+      this.prevDiff = curDiff;
+      top = Math.min(this.evCache[1].pageY, this.evCache[0].pageY);
+      let bottom = Math.max(this.evCache[1].pageY, this.evCache[0].pageY);
+      left = Math.min(this.evCache[1].pageX, this.evCache[0].pageX);
+      let right = Math.max(this.evCache[1].pageX, this.evCache[0].pageX);
 
-      widthPosition = right - left;
-      heightPosition = bottom - top;
-      screenPointerPositionX = left + widthPosition / 2;
-      screenPointerPositionY = top + heightPosition / 2;
+       widthPosition = right - left;
+       heightPosition = bottom - top;
+      this.screenPointerPositionX = left + widthPosition / 2;
+      this.screenPointerPositionY = top + heightPosition / 2;
     } else {
       top = ev.pageY;
       left = ev.pageX;
-      screenPointerPositionX = left;
-      screenPointerPositionY = top;
+      this.screenPointerPositionX = left;
+      this.screenPointerPositionY = top;
     }
 
-    if (mouseDown) {
-      if (lastScreenPosition) {
-        newView.updateOffset({
-          x: lastScreenPosition.x - screenPointerPositionX,
-          y: lastScreenPosition.y - screenPointerPositionY
+    if (this.mouseDown) {
+      if (this.lastScreenPosition) {
+        this.view.updateOffset({
+          x: this.lastScreenPosition.x - this.screenPointerPositionX,
+          y: this.lastScreenPosition.y - this.screenPointerPositionY
         });
       }
-      lastScreenPosition = {
-        x: screenPointerPositionX,
-        y: screenPointerPositionY
+      this.lastScreenPosition = {
+        x: this.screenPointerPositionX,
+        y: this.screenPointerPositionY
       }
 
       // If two pointers are down, check for pinch gestures
-      if (evCache.length == 2) {
-        if (mouseDown) {
-          if (lastScreenScale) {
-            let xValue = (lastScreenScale.width - widthPosition) / lastScreenScale.width;
-            let yValue = (lastScreenScale.height - heightPosition) / lastScreenScale.height;
-            if (keepRatio) {
+      if (this.evCache.length == 2) {
+        if (this.mouseDown) {
+          if (this.lastScreenScale) {
+            let xValue = (this.lastScreenScale.width - widthPosition) / this.lastScreenScale.width;
+            let yValue = (this.lastScreenScale.height - heightPosition) / this.lastScreenScale.height;
+            if (this.keepRatio) {
               if (widthPosition > heightPosition) {
                 yValue = xValue;
               } else {
                 xValue = yValue;
               }
             }
-            newView.updateScale({
+            this.view.updateScale({
               x: xValue,
               y: yValue,
-            }, newView.worldPosition({
-              x: screenPointerPositionX,
-              y: screenPointerPositionY
+            }, this.view.worldPosition({
+              x: this.screenPointerPositionX,
+              y: this.screenPointerPositionY
             }));
           }
-          lastScreenScale = {
+          this.lastScreenScale = {
             width: widthPosition,
             height: heightPosition
           }
         }
       }
     }
-    newView.HandleView();
+    this.view.HandleView();
   }
 
 
-  function mousewheel_handler(ev) {
+  mousewheel_handler(ev) {
     let e = window.event || ev; // old IE support
     e.preventDefault();
     let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-    newView.updateScale({
+    this.view.updateScale({
       x: delta * -0.1,
       y: delta * -0.1,
-    }, newView.worldPosition({
-      x: screenPointerPositionX,
-      y: screenPointerPositionY
+    }, this.view.worldPosition({
+      x: this.screenPointerPositionX,
+      y: this.screenPointerPositionY
     }));
-    newView.HandleView();
+    this.view.HandleView();
   }
 
-  function pointerup_handler(ev) {
+  pointerup_handler(ev) {
     // Remove this pointer from the cache and reset the target's
     // background and border
-    remove_event(ev);
+    this.remove_event(ev);
 
     // If the number of pointers down is less than two then reset diff tracker
-    if (evCache.length < 2) prevDiff = -1;
-    if (evCache.length == 0) {
-      mouseDown = false;
+    if (this.evCache.length < 2) this.prevDiff = -1;
+    if (this.evCache.length == 0) {
+      this.mouseDown = false;
     }
 
-    screenPointerPositionX = 0;
-    screenPointerPositionY = 0;
+    this.screenPointerPositionX = 0;
+    this.screenPointerPositionY = 0;
 
-    lastScreenPosition = undefined;
+    this.lastScreenPosition = undefined;
     //console.log('up offset: ' + view.offset.x + ', ' + view.offset.y);
   }
 
-  function remove_event(ev) {
+  remove_event(ev) {
     // Remove this event from the target's cache
-    for (var i = 0; i < evCache.length; i++) {
-      if (evCache[i].pointerId == ev.pointerId) {
-        evCache.splice(i, 1);
+    for (var i = 0; i < this.evCache.length; i++) {
+      if (this.evCache[i].pointerId == ev.pointerId) {
+        this.evCache.splice(i, 1);
         break;
       }
     }
   }
-
-
-  var el;
-  var newView;
+}
 
   function init() {
-    // Install event handlers for the pointer target
-    el = document.getElementById("targetZoom");
-    el.onpointerdown = pointerdown_handler;
-    el.onpointermove = pointermove_handler;
-    // Use same handler for pointer{up,cancel,out,leave} events since
-    // the semantics for these events - in this app - are the same.
-    el.onpointerup = pointerup_handler;
-    el.onpointercancel = pointerup_handler;
-    el.onpointerout = pointerup_handler;
-    el.onpointerleave = pointerup_handler;
-    el.onmousewheel = mousewheel_handler;
-    el.mousewheel = mousewheel_handler;
-    el.dommousewheel = mousewheel_handler;
-
-    newView = new View(10);
-
+   let newView = new View(10);
+    newPanZoomHandler = new PanZoomHandler(document.getElementById("targetZoom"), newView);
     for (let elZoom of document.getElementsByClassName("zoomable")) {
       newView.addGraphicObject(elZoom);
     }
