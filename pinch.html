@@ -50,7 +50,23 @@
       this.screenPointerPositionY = 0;
       this.graphicObjects = [];
     }
-    //returns the screenposition of a world object
+
+
+    // after scale size change the offset should be updated
+    updateOffset(mouseScreenPanning) {
+      this.view.offset.x += mouseScreenPanning.x / this.view.worldViewScale.x;
+      this.view.offset.y += mouseScreenPanning.y / this.view.worldViewScale.y;
+    }
+    // after panning the offset should be updated
+    updateScale(deltaScaleOnScreen, screenCenter) {
+      let center = this.worldPosition(screenCenter);
+      this.view.worldViewScale.x -= deltaScaleOnScreen.x * this.view.worldViewScale.x;
+      this.view.worldViewScale.y -= deltaScaleOnScreen.y * this.view.worldViewScale.y;
+
+      this.view.offset.x -= (center.x - this.view.offset.x) * deltaScaleOnScreen.x;
+      this.view.offset.y -= (center.y - this.view.offset.y) * deltaScaleOnScreen.y;
+    }
+
     viewScreenPosition(objectWorldPosition) {
       return [(objectWorldPosition.x - this.view.offset.x) * this.view.worldViewScale.x, (objectWorldPosition.y - this
           .view.offset.y) *
@@ -63,19 +79,6 @@
         x: screenPosition.x / this.view.worldViewScale.x + this.view.offset.x,
         y: screenPosition.y / this.view.worldViewScale.y + this.view.offset.y
       };
-    }
-    // after scale size change the offset should be updated
-    updateOffset(mouseScreenPanning) {
-      this.view.offset.x += mouseScreenPanning.x / this.view.worldViewScale.x;
-      this.view.offset.y += mouseScreenPanning.y / this.view.worldViewScale.y;
-    }
-    // after panning the offset should be updated
-    updateScale(deltaScaleOnScreen, center) {
-      this.view.worldViewScale.x -= deltaScaleOnScreen.x * this.view.worldViewScale.x;
-      this.view.worldViewScale.y -= deltaScaleOnScreen.y * this.view.worldViewScale.y;
-
-      this.view.offset.x -= (center.x - this.view.offset.x) * deltaScaleOnScreen.x;
-      this.view.offset.y -= (center.y - this.view.offset.y) * deltaScaleOnScreen.y;
     }
 
     HandleView() {
@@ -216,10 +219,10 @@
             this.view.updateScale({
               x: xValue,
               y: yValue,
-            }, this.view.worldPosition({
+            }, {
               x: this.screenPointerPositionX,
               y: this.screenPointerPositionY
-            }));
+            });
           }
           this.lastScreenScale = {
             width: widthPosition,
@@ -239,10 +242,10 @@
     this.view.updateScale({
       x: delta * -0.1,
       y: delta * -0.1,
-    }, this.view.worldPosition({
+    }, {
       x: this.screenPointerPositionX,
       y: this.screenPointerPositionY
-    }));
+    });
     this.view.HandleView();
   }
 
@@ -277,20 +280,20 @@
 
   function init() {
    let newView = new View(10);
+
     newPanZoomHandler = new PanZoomHandler(document.getElementById("targetZoom"), newView);
+
     for (let elZoom of document.getElementsByClassName("zoomable")) {
       newView.addGraphicObject(elZoom);
     }
-
   }
 </script>
 
 <body onload="init();" style="touch-action:none">
   Zoom and Pan using mouse or touch
   <div id="limiter" class="zoomArea" style="height:800px; width:500px;">
-    <div id="targetZoom" class="noselect selectorScreen">
+    <div id="targetZoom" class="noselect selectorScreen"></div>
 
-    </div>
     <img id="pic" class="zoomable" style="left:10px; top:10px; width:100px; height:100px;"
       src='\Resources\BlueYellow.jpg'>
     <img id="pic2" class="zoomable" style="left:100px; top:100px;  width:150px; height:150px;"

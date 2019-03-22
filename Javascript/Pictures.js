@@ -13,7 +13,7 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	// restoreMatrix(element);
 	// return;
 	let element = obj.element;
-	timelog('inside warpMatrix', 1);
+	//timelog('inside warpMatrix', 1);
 	let a = truss.view.screenPosition(ar);
 	let b = truss.view.screenPosition(br);
 	let c = truss.view.screenPosition(cr);
@@ -82,10 +82,10 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
         '0,0,1,0, ' +
         m[41] + ',' + m[42] + ',0,1)';
 
-	timelog('warpMatrix C');
+	//('warpMatrix C');
 	element.style['transform-origin'] = 'left top 0px';
 	element.style.transform = text;
-	timelog('warpMatrix D');
+	//timelog('warpMatrix D');
 
 	// element.style['-webkit-transform-origin'] = 'left top 0px';
 	// element.style.webkitTransform = text;

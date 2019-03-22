@@ -24,6 +24,7 @@
 	<script src="Javascript/Pictures.js" type="text/javascript"></script>
 	<script src="Javascript/Behaviour.js" type="text/javascript"></script>
 	<script src="Javascript/ExperimentalTrusses.js" type="text/javascript"></script>
+	<script src="Javascript/PanZoomHandler.js" type="text/javascript"></script>
 
 	<link rel="stylesheet" type="text/css" href="../Stylefiles/Truss.css">
 
@@ -127,6 +128,7 @@
 
 				document.getElementById('mainArea').onmousemove = myMove;
 
+
 				document.addEventListener('selectionEvent',
 					function (e) {
 						highlightAndModifyPropertyButtons.call(this, e);
@@ -137,6 +139,9 @@
 
 				universe.currentNode.element.display = "none";
 				updateResize();
+
+				
+				let newPanZoomHandler = new PanZoomHandler(universe.currentNode);
 
 				setupFooter(document.getElementById('footer'));
 			}

@@ -17,7 +17,7 @@ class View {
 		// this.element=element;
 		this.parentNode = parentNode;
 		Object.defineProperty(this, 'element', {
-			get: function() {
+			get: function () {
 				return this.parentNode.element;
 			},
 		});
@@ -30,10 +30,10 @@ class View {
 		}
 
 		Object.defineProperty(this, 'worldViewSize', {
-			get: function() {
+			get: function () {
 				return this._worldViewSize;
 			},
-			set: function(value) {
+			set: function (value) {
 				this._worldViewSize.x = value.x;
 				this._worldViewSize.y = value.y;
 			},
@@ -62,8 +62,8 @@ class View {
 	createAlertWorldSize(x, y, _this) {
 		let handlers = {
 			set(target, key, value, context) {
-				let returnValue= Reflect.set(target, key, value, context);
-				if (key=='x' || key=='y') {
+				let returnValue = Reflect.set(target, key, value, context);
+				if (key == 'x' || key == 'y') {
 					_this.recalculate();
 				}
 				return returnValue;
@@ -75,9 +75,9 @@ class View {
 	createAlertScreenSize(x, y, element, _this) {
 		let handlers = {
 			set(target, key, value) {
-				if (key=='v') {
-					target.x=value.x;
-					target.y=value.y;
+				if (key == 'v') {
+					target.x = value.x;
+					target.y = value.y;
 					_this.recalculate();
 				}
 				return true;
@@ -163,8 +163,8 @@ class View {
 	 * @param  {Element} element
 	 */
 	putElementOnScreen(position, element) {
-		element.style.left= this.x(position)+'px';
-		element.style.top= this.y(position)+'px';
+		element.style.left = this.x(position) + 'px';
+		element.style.top = this.y(position) + 'px';
 		// return new Position(this.x(position) + 1, this.y(position) + 1);
 	}
 
@@ -241,4 +241,30 @@ class View {
 	setOffset(offset) {
 		this.offset = offset;
 	}
+
+	/**
+	 * Set where in the world you want to watch
+	 * TODO rewrite
+	 * @param  {Vector} mouseScreenPanning
+	 */
+	updateOffset(mouseScreenPanning) {
+		this.offset.x += mouseScreenPanning.x / this.worldViewSize.x;
+		this.offset.y += mouseScreenPanning.y / this.worldViewSize.y;
+	}
+
+	/**
+	 * Set where in the world you want to watch
+	 * TODO rewrite
+	 * @param  {Vector} deltaScaleOnScreen
+	 * @param  {Vector} screenCenter
+	 */
+	updateScale(deltaScaleOnScreen, screenCenter) {
+		let center = this.worldPosition(screenCenter.x, screenCenter.y);
+		this.xScale -= deltaScaleOnScreen.x * this.worldViewScale.x;
+		this.yScale -= deltaScaleOnScreen.y * this.worldViewScale.y;
+
+		this.offset.x -= (center.x - this.offset.x) * deltaScaleOnScreen.x;
+		this.offset.y -= (center.y - this.offset.y) * deltaScaleOnScreen.y;
+	}
+
 }
