@@ -1,4 +1,3 @@
-
 /*jshint esversion:6*/
 /**This class handles how to interpret mouse or touch events in order to pan or zoom in the current view
  * PanZoomHandler class
@@ -6,23 +5,45 @@
  */
 class PanZoomHandler {
 	/** This class handles how to interpret mouse or touch events in order to pan or zoom in the current view
-	 * @param  {Node} currentNode
-	 */
+     * @param  {Node} currentNode
+     */
 	constructor(currentNode) {
 		let sensorElement = currentNode.element;
+		this.sensorElement = sensorElement;
 		this.view = currentNode.view;
 		// Install event handlers for the pointer target
-		sensorElement.onpointerdown = (ev) => {this.pointerdown_handler(ev);};
-		sensorElement.onpointermove = (ev) => {this.pointermove_handler(ev);};
+		sensorElement.onpointerdown = (ev) => {
+			this.pointerdown_handler(ev);
+		};
+		sensorElement.onpointermove = (ev) => {
+			this.pointermove_handler(ev);
+		};
 		// Use same handler for pointer{up,cancel,out,leave} events since
 		// the semantics for these events - in this app - are the same.
-		sensorElement.onpointerup = (ev) => {this.pointerup_handler(ev);};
-		sensorElement.onpointercancel = (ev) => {this.pointerup_handler(ev);};
-		sensorElement.onpointerout = (ev) => {this.pointerup_handler(ev);};
-		sensorElement.onpointerleave = (ev) => {this.pointerup_handler(ev);};
-		sensorElement.onmousewheel = (ev) => {this.mousewheel_handler(ev);};
-		sensorElement.mousewheel = (ev) => {this.mousewheel_handler(ev);};
-		sensorElement.dommousewheel = (ev) => {this.mousewheel_handler(ev);};
+		sensorElement.onpointerup = (ev) => {
+			this.pointerup_handler(ev);
+		};
+		sensorElement.onpointercancel = (ev) => {
+			this.pointerup_handler(ev);
+		};
+		sensorElement.onpointerout = (ev) => {
+			this.pointerup_handler(ev);
+		};
+		sensorElement.onpointerleave = (ev) => {
+			this.pointerup_handler(ev);
+		};
+		sensorElement.onmousewheel = (ev) => {
+			this.mousewheel_handler(ev);
+		};
+		sensorElement.mousewheel = (ev) => {
+			this.mousewheel_handler(ev);
+		};
+		sensorElement.dommousewheel = (ev) => {
+			this.mousewheel_handler(ev);
+		};
+
+		sensorElement.classList.add('selectorScreen');
+		//sensorElement.classList.add('noselect');
 
 		// Global vars to cache event state
 		this.evCache = new Array();
@@ -37,8 +58,8 @@ class PanZoomHandler {
 
 
 	/** Defines how zoom and panning works when the mouse button is pressed or touching the screen work
-	 * @param  {Event} ev
-	 */
+     * @param  {Event} ev
+     */
 	pointerdown_handler(ev) {
 		// The pointerdown event signals the start of a touch interaction.
 		// This event is cached to support 2-finger gestures
@@ -51,8 +72,8 @@ class PanZoomHandler {
 
 
 	/** Defines how zoom and panning works when moving the mouse or draging the finger the screen work
-	 * @param  {Event} ev
-	 */
+     * @param  {Event} ev
+     */
 	pointermove_handler(ev) {
 		// This function implements a 2-pointer horizontal pinch/zoom gesture. 
 		//
@@ -87,14 +108,17 @@ class PanZoomHandler {
 
 			widthPosition = right - left;
 			heightPosition = bottom - top;
-			this.screenPointerPositionX = left + widthPosition / 2;
-			this.screenPointerPositionY = top + heightPosition / 2;
+			this.screenPointerPositionX = (left + widthPosition / 2) - this.elementOffset(this.sensorElement).x;
+			this.screenPointerPositionY = (top + heightPosition / 2) - this.elementOffset(this.sensorElement).y;
 		} else {
 			top = ev.pageY;
 			left = ev.pageX;
-			this.screenPointerPositionX = left;
-			this.screenPointerPositionY = top;
+			this.screenPointerPositionX = left - this.elementOffset(this.sensorElement).x;
+			this.screenPointerPositionY = top - this.elementOffset(this.sensorElement).y;
 		}
+
+		//console.log(this.screenPointerPositionX+' '+this.screenPointerPositionY);
+
 
 		if (this.mouseDown) {
 			if (this.lastScreenPosition) {
@@ -122,8 +146,8 @@ class PanZoomHandler {
 							}
 						}
 						this.view.updateScale({
-							x: xValue,
-							y: yValue,
+							x: -xValue,
+							y: -yValue,
 						}, {
 							x: this.screenPointerPositionX,
 							y: this.screenPointerPositionY
@@ -141,8 +165,8 @@ class PanZoomHandler {
 
 
 	/** Defines how zoom works when moving the mousewheel is used
-	 * @param  {Event} ev
-	 */
+     * @param  {Event} ev
+     */
 	mousewheel_handler(ev) {
 		let e = window.event || ev; // old IE support
 		e.preventDefault();
@@ -158,8 +182,8 @@ class PanZoomHandler {
 	}
 
 	/** Defines how zoom and panning works when the mouse button is released or stop touching the screen work
-	 * @param  {Event} ev
-	 */
+     * @param  {Event} ev
+     */
 	pointerup_handler(ev) {
 		// Remove this pointer from the cache and reset the target's
 		// background and border
@@ -179,8 +203,8 @@ class PanZoomHandler {
 	}
 
 	/** Support function handling the list of events
-	 * @param  {Event} ev
-	 */
+     * @param  {Event} ev
+     */
 	remove_event(ev) {
 		// Remove this event from the target's cache
 		for (var i = 0; i < this.evCache.length; i++) {
@@ -189,5 +213,18 @@ class PanZoomHandler {
 				break;
 			}
 		}
+	}
+
+	/** Support function to compensate for the position of the element on the whole screen
+     * TODO: Cache this value instead to avoid repeated calculations
+     * @param  {Element} el
+     */
+	elementOffset(el) {
+		// yay readability
+		for (var lx = 0, ly = 0; el != null; lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+		return {
+			x: lx,
+			y: ly
+		};
 	}
 }

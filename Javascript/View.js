@@ -248,8 +248,8 @@ class View {
 	 * @param  {Vector} mouseScreenPanning
 	 */
 	updateOffset(mouseScreenPanning) {
-		this.offset.x += mouseScreenPanning.x / this.worldViewSize.x;
-		this.offset.y += mouseScreenPanning.y / this.worldViewSize.y;
+		this.offset.x += mouseScreenPanning.x * this.xScale;
+		this.offset.y += mouseScreenPanning.y * this.yScale;
 	}
 
 	/**
@@ -260,11 +260,12 @@ class View {
 	 */
 	updateScale(deltaScaleOnScreen, screenCenter) {
 		let center = this.worldPosition(screenCenter.x, screenCenter.y);
-		this.xScale -= deltaScaleOnScreen.x * this.worldViewScale.x;
-		this.yScale -= deltaScaleOnScreen.y * this.worldViewScale.y;
 
-		this.offset.x -= (center.x - this.offset.x) * deltaScaleOnScreen.x;
-		this.offset.y -= (center.y - this.offset.y) * deltaScaleOnScreen.y;
+		this.xScale -= deltaScaleOnScreen.x * this.xScale;
+		this.yScale -= deltaScaleOnScreen.y * this.yScale;
+
+		this.offset.x += (center.x - this.offset.x) * deltaScaleOnScreen.x;
+		this.offset.y += (center.y - this.offset.y) * deltaScaleOnScreen.y;
 	}
 
 }

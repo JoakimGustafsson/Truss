@@ -110,6 +110,7 @@
   class PanZoomHandler {
     constructor(sensorElement, view) {
       this.view = view;
+      this.sensorElement = sensorElement;
 
       // Install event handlers for the pointer target
       sensorElement.onpointerdown = (ev) => {this.pointerdown_handler(ev);};
@@ -182,15 +183,17 @@
 
        widthPosition = right - left;
        heightPosition = bottom - top;
-      this.screenPointerPositionX = left + widthPosition / 2;
-      this.screenPointerPositionY = top + heightPosition / 2;
+      this.screenPointerPositionX = (left + widthPosition / 2)-this.elementOffset(this.sensorElement).x;
+      this.screenPointerPositionY = (top + heightPosition / 2)-this.elementOffset(this.sensorElement).y;
     } else {
       top = ev.pageY;
       left = ev.pageX;
-      this.screenPointerPositionX = left;
-      this.screenPointerPositionY = top;
+      this.screenPointerPositionX = left-this.elementOffset(this.sensorElement).x;
+      this.screenPointerPositionY = top-this.elementOffset(this.sensorElement).y;
     }
 
+
+    console.log(this.screenPointerPositionX+' '+this.screenPointerPositionY)
     if (this.mouseDown) {
       if (this.lastScreenPosition) {
         this.view.updateOffset({
@@ -276,6 +279,14 @@
       }
     }
   }
+
+  elementOffset(el) {
+    // yay readability
+    for (var lx=0, ly=0;
+         el != null;
+         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+    return {x: lx,y: ly};
+}
 }
 
   function init() {

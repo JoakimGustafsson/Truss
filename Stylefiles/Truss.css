@@ -552,4 +552,22 @@ div.tab button.active {
 		  -ms-user-select: none; /* Internet Explorer/Edge */
 			  user-select: none; /* Non-prefixed version, currently
 									supported by Chrome and Opera */
-  }
+	}
+	
+	.zoomArea {
+		position: relative;
+		overflow: hidden;
+		border: 1px solid grey;
+	}
+
+	.zoomable {
+		z-index: 99;
+		position: absolute;
+	}
+
+	.selectorScreen {
+		touch-action:none;
+		position: absolute;
+		z-index: 100;
+		background-color: transparent;
+	}
