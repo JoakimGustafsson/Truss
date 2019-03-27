@@ -1,4 +1,4 @@
-/* global View PropertyEditor */
+/* global TrussView PropertyEditor */
 /**
  * @class
  * @extends Node
@@ -24,7 +24,7 @@ class TrussNode extends Node {
 
 		this.world=world;
 		this.element = document.createElement('div');
-		this.view= new View(this.worldSize, this);
+		this.view= new TrussView(this.worldSize, this);
 
 		if (this.worldOffset) {
 			this.view.offset = this.worldOffset;
@@ -136,7 +136,7 @@ class TrussNode extends Node {
 	}
 
 	/**
-	 * @param  {View} view
+	 * @param  {TrussView} view
 	 */
 	setView() {
 		this.view.context = this.canvas.getContext('2d');

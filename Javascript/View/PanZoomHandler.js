@@ -120,7 +120,7 @@ class PanZoomHandler {
 		//console.log(this.screenPointerPositionX+' '+this.screenPointerPositionY);
 
 
-		if (this.mouseDown) {
+		if (this.mouseDown && !universe.selectedObject) {
 			if (this.lastScreenPosition) {
 				this.view.updateOffset({
 					x: this.lastScreenPosition.x - this.screenPointerPositionX,

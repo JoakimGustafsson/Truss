@@ -13,7 +13,7 @@ let EarthCenter = new Position(0, 6371e3);
 class GovenorTruss extends TrussNode {
 	/**
 	 * @constructor
-	 * @param  {View} view
+	 * @param  {TrussView} view
 	 * @param  {number} updatefrequency
 	 */
 	constructor(...args) {
@@ -153,7 +153,7 @@ class ScrollerTruss extends TrussNode {
 class PerformanceTrussNode extends TrussNode {
 	/**
 	 * @constructor
-	 * @param  {View} view
+	 * @param  {TrussView} view
 	 * @param  {number} updatefrequency
 	 */
 	constructor(...args) {
