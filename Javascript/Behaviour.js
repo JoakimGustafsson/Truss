@@ -1,5 +1,5 @@
 /*jshint esversion:6 */
-/* global Tensor */
+/* global control Tensor */
 
 let BehaviourOverride = {
 	SHOW: 1,
@@ -577,10 +577,10 @@ class SelectorBehaviour extends Behaviour {
 		if (trussNode != universe.currentNode) {
 			return;
 		}
-		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
+		this.cursorPosition = trussNode.view.worldPositionWithOffset(control.myX, control.myY);
 		let closest = trussNode.getClosestObject(this.cursorPosition, 20 * trussNode.view.getDistanceMultiplier(), this);
 
-		if (!mouseSet) {
+		if (!control.mouseSet) {
 			if (!closest) {
 				if (this.lastPointedOn && this.lastPointedOn != universe.selectedObject) {
 					this.lastPointedOn.setHighlight(0);
@@ -595,21 +595,21 @@ class SelectorBehaviour extends Behaviour {
 					this.lastPointedOn = closest;
 				}
 			}
-		} else if (!this.wasPressed && mouseSet) { // Mouse was just pressed
+		} else if (!this.wasPressed && control.mouseSet) { // Mouse was just pressed
 			if (universe.selectedObject != closest) {
 				if (universe.selectedObject) {
 					universe.selectedObject.setHighlight(0);
 				}
 				universe.select(closest,this.parentTrussNode.element);
 			}
-		} else if (mouseSet) { // Mouse is continually pressed
+		} else if (control.mouseSet) { // Mouse is continually pressed
 			if (universe.selectedObject && universe.selectedObject.isNode) {
 				universe.selectedObject.resetVelocity();
 				universe.selectedObject.copyPosition(this.cursorPosition);
 			}
 		}
 
-		this.wasPressed = mouseSet;
+		this.wasPressed = control.mouseSet;
 	}
 
 	/**
@@ -633,10 +633,10 @@ class SelectorBehaviour extends Behaviour {
 			view.context.lineWidth = 1;
 			view.context.beginPath();
 			view.drawCircle(this.getPosition(), 0.1);
-			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
-				Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
-			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
-				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 1)),
+				Vector.addVectors(this.getPosition(), new Position(0, 1)));
+			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(1, 0)),
+				Vector.addVectors(this.getPosition(), new Position(1, 0)));
 			view.context.stroke();
 		}
 	}

@@ -1,4 +1,5 @@
 /*jshint esversion:6*/
+/* global control */
 /**
  * @class
  */
@@ -228,8 +229,8 @@ class Universe {
 		this.currentNode=newNodeToShow;
 		this.selectedObject = undefined;
 		this.show();
-		this.currentNode.canvas.onmousedown = downMouse;
-		this.currentNode.canvas.onmouseup = upMouse;
+		this.currentNode.canvas.onmousedown = (e) => {control.downMouse(e);};
+		this.currentNode.canvas.onmouseup = (e) => {control.upMouse(e);};
 		newNodeToShow.resize();
 		this.setupTicks = 3;
 	}

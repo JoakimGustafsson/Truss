@@ -92,6 +92,12 @@ class TrussView {
 	getDistanceMultiplier() {
 		return this.distanceMultiplier;
 	}
+	/** Multiply this number with a screen distance in pixels to get the world distance
+	 * @return {number}
+	 */
+	setDistanceMultiplier() {
+		this.distanceMultiplier = Math.max(this.xScale, this.yScale);
+	}
 	/**
 	 */
 	resize() {
@@ -197,6 +203,7 @@ class TrussView {
 
 	/**
 	 * Support function to refresh the ratios so. Should not be manually used
+	 * Most likely called by screen size changes
 	 */
 	recalculate() {
 		if (!this.worldViewSize || !this.screenSize) {
@@ -205,7 +212,7 @@ class TrussView {
 		this.xScale = this.worldViewSize.x / this.screenSize.x;
 		this.yScale = this.worldViewSize.y / this.screenSize.y;
 
-		this.distanceMultiplier = Math.max(this.xScale, this.yScale);
+		this.setDistanceMultiplier();
 
 		// Do the following to avoid reading element properties that slows down rendering
 		this.bodyRect = document.body.getBoundingClientRect();
@@ -244,7 +251,7 @@ class TrussView {
 
 	/**
 	 * Set where in the world you want to watch
-	 * TODO rewrite
+	 * Most likely called by user input such as mouse movement or touch
 	 * @param  {Vector} mouseScreenPanning
 	 */
 	updateOffset(mouseScreenPanning) {
@@ -253,8 +260,8 @@ class TrussView {
 	}
 
 	/**
-	 * Set where in the world you want to watch
-	 * TODO rewrite
+	 * Set where in the world you want to watch. 
+	 * Most likely called by user input such as mousewheel, pinch or similar
 	 * @param  {Vector} deltaScaleOnScreen
 	 * @param  {Vector} screenCenter
 	 */
@@ -263,6 +270,8 @@ class TrussView {
 
 		this.xScale -= deltaScaleOnScreen.x * this.xScale;
 		this.yScale -= deltaScaleOnScreen.y * this.yScale;
+
+		this.setDistanceMultiplier();
 
 		this.offset.x += (center.x - this.offset.x) * deltaScaleOnScreen.x;
 		this.offset.y += (center.y - this.offset.y) * deltaScaleOnScreen.y;

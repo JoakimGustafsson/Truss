@@ -1,3 +1,5 @@
+/* global control BannerNode createConfigurationArea*/
+
 /**
  * @class
  */
@@ -8,7 +10,7 @@ class PropertyEditor {
 	 * @param  {number} screenWidth
 	 * @param  {number} screenHeight
 	 */
-	constructor(parentTrussNode, topScreenPos, screenWidth, screenHeight) {
+	constructor(parentTrussNode) {
 		this.outerElement = createConfigurationArea('EditParameterElement');
 		this.propertyArea = this.outerElement.querySelectorAll('#configview')[0];
 		this.parentTrussNode = parentTrussNode;
@@ -23,8 +25,8 @@ class PropertyEditor {
 			if ((universe.currentNode==_this.parentTrussNode) || (e.detail.trussNode==_this.parentTrussNode)) {
 				_this.createOrRemoveBanner.call(_this, e);
 
-				movePropertyEdit('propertyConfigArea');
-				openBottomPanel(e, 'propertiesDiv');
+				control.movePropertyEdit('propertyConfigArea');
+				control.openBottomPanel(e, 'propertiesDiv');
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
@@ -65,7 +67,7 @@ class PropertyEditor {
 	/**
 	 */
 	removeBanner() {
-		let trussNode = this.parentTrussNode;
+		//let trussNode = this.parentTrussNode;
 		this.bannerNode.hide();
 		this.bannerNode.close(); // Remove the event listener
 		this.banner=undefined;

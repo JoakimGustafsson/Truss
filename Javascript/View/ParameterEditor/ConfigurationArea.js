@@ -128,7 +128,7 @@ function createConfigurationArea(id) {
 
 			{
 				createSimpleButton(propertyButtons, 'Pause', () => universe.currentNode.togglePause());
-				createSimpleButton(propertyButtons, 'Gravity', () => addGravityCheat(), 'gravityButton');
+				createSimpleButton(propertyButtons, 'Gravity', () => control.addGravityCheat(), 'gravityButton');
 				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
 				/*let fastEditButton = createSimpleButton(propertyButtons, 'FastEdit',
 					function() {
