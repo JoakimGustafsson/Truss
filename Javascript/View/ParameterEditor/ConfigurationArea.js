@@ -1,6 +1,6 @@
 /*jshint esversion:6 */
 /*global movePropertyEdit openBottomPanel directory createSimpleButton makeNode makeTensor saveFile createOption */
-/*global addGravityCheat deleteSelected */
+/*global control addGravityCheat deleteSelected */
 
 /**
  * @param {string} id

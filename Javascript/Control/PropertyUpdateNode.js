@@ -1,3 +1,5 @@
+/* global SensorNode */
+
 /**
  *
  * @class
@@ -56,7 +58,7 @@ class PropertyUpdateNode extends SensorNode {
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 */
-	serialize(nodeList, tensorList) {
+	serialize() {
 		alert('HTMLEditNode should never be serialized');
 	}
 
@@ -65,7 +67,7 @@ class PropertyUpdateNode extends SensorNode {
 	 * @param {number} deltaTime
 	 * @param {Truss} truss
 	 */
-	sense(deltaTime, truss) {
+	sense() {
 		// super.updatePosition(time, deltaTime);
 		if (this.iO) {
 			this.iO.properties.updatePropertyValues(this.iO);

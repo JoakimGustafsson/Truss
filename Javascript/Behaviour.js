@@ -758,6 +758,7 @@ class CollisionBounce extends Behaviour {
 			original = tensor;
 		} else { 
 			original = tensor.brokendata.parentTensor;
+			endTensor.broken=true;
 		}
 
 		endTensor.brokendata = tensor.brokendata;
@@ -811,15 +812,15 @@ class CollisionBounce extends Behaviour {
 			let node = thisTensor.node2;
 			let from =  thisTensor.brokendata.from;
 
-			console.group();
-			console.log('List broken tensors');
+			//console.group();
+			//console.log('List broken tensors');
 			let start=thisTensor.brokendata.parentTensor.brokendata.startTensor;
 			while (start) {
-				console.log(start.toString());
+				//console.log(start.toString());
 				start=start.brokendata.nextTensor;
 			}
 
-			console.groupEnd();
+			//console.groupEnd();
 
 			// Angle
 			let startangle = thisTensor.getTensorAngle(node);
@@ -840,7 +841,7 @@ class CollisionBounce extends Behaviour {
 					thisTensor.node2=nextTensor.node2;
 					nextTensor.destroy();
 				}
-				console.log('Loosen:'+node.toString());
+				//console.log('Loosen:'+node.toString());
 			}
 		}
 
@@ -853,7 +854,7 @@ class CollisionBounce extends Behaviour {
 
 		for (let i = startTensor ; i && i.brokendata && i.brokendata.nextTensor!=undefined ; i=i.brokendata.nextTensor) {
 			loosen(originalTensor, i); //startTensor, i.brokendata.nextTensor);
-		} 
+		}
 		
 		let totalStretchedLength = 0;
 		let numberOfTensors=0;
@@ -873,6 +874,47 @@ class CollisionBounce extends Behaviour {
 
 	}
 
+}
+
+function debugBounce(tensor) {
+	
+	let originalTensor= tensor.brokendata.parentTensor;
+	if (originalTensor==tensor) {
+		console.log('This is the original tensor');
+	}
+
+	console.group();
+	console.log('ORIGINAL: Name: ' + originalTensor.name);
+	console.log('ORIGINAL: EquilibriumLength: '+ originalTensor.equilibriumLength);
+	console.log('ORIGINAL: Length: '+ originalTensor.getLength());
+	console.log('ORIGINAL: startTensor: '+ originalTensor.brokendata.startTensor.name);
+	console.groupEnd();
+
+	let i =0;
+	let currentTensor=originalTensor.brokendata.startTensor;
+	let sumLength = 0;
+	let sumEq = 0;
+
+	while (currentTensor) {
+
+		console.group();
+		console.log(i+' Name: '+ currentTensor.name);
+		console.log(i+' EquilibriumLength: '+ currentTensor.equilibriumLength);
+		console.log(i+' Length: '+ currentTensor.getLength());
+		console.log(i+' Tension: '+ (currentTensor.equilibriumLength-currentTensor.getLength()));
+		console.log(i+' StartNode: '+ currentTensor.node1.name);
+		console.log(i+' EndNode: '+ currentTensor.node2.name);
+		console.log(i+' Parent: '+ currentTensor.brokendata.parentTensor.name);
+		console.log(i+' Broken from: '+ (currentTensor.brokendata.from<0? 'left':'right'));
+		console.groupEnd();
+
+		i++;
+		sumEq+=currentTensor.equilibriumLength;
+		sumLength+=currentTensor.getLength();
+		currentTensor=currentTensor.brokendata.nextTensor;
+	}
+	console.log('SUM EquilibriumLength: '+ sumEq);
+	console.log('SUM Length: '+ sumLength);
 }
 
 

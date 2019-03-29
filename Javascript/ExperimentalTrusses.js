@@ -196,7 +196,7 @@ class PerformanceTrussNode extends TrussNode {
 		new Tensor(start2, end2,
 			'spring bounce rubberbounceactuator',
 			{
-				'name': 'right',
+				'name': 'left',
 				'constant': 909,
 				'equilibriumLength': 8,
 			});
@@ -216,7 +216,7 @@ class PerformanceTrussNode extends TrussNode {
 		new Tensor(start, end,
 			'spring bounce rubberbounceactuator',
 			{
-				'name': 'left',
+				'name': 'right',
 				'constant': 10,
 				'equilibriumLength': 1,
 			});
