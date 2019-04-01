@@ -30,7 +30,7 @@ function createConfigurationArea(id) {
 		propertiesButton.classList.add('tabsectionbuttons');
 		propertiesButton.innerHTML = 'PROPERTIES';
 		propertiesButton.addEventListener('click', function() {
-			movePropertyEdit('propertyConfigArea');
+			control.movePropertyEdit('propertyConfigArea');
 			openBottomPanel(event, 'propertiesDiv');
 		}, false);
 		tabArea.appendChild(propertiesButton);
@@ -39,8 +39,8 @@ function createConfigurationArea(id) {
 		labelButton.classList.add('tabsectionbuttons');
 		labelButton.classList.add('active');
 		labelButton.innerHTML = 'LABELS';
-		labelButton.addEventListener('click', function() {
-			openBottomPanel(event, 'labelDiv');
+		labelButton.addEventListener('click', () => {
+			control.openBottomPanel(event, 'labelDiv');
 			universe.currentWorld.labels.show('labelConfigArea');
 		}, false);
 		tabArea.appendChild(labelButton);
@@ -50,7 +50,7 @@ function createConfigurationArea(id) {
 		fileButton.classList.add('active');
 		fileButton.innerHTML = 'FILE';
 		fileButton.addEventListener('click', function() {
-			openBottomPanel(event, 'fileDiv');
+			control.openBottomPanel(event, 'fileDiv');
 			directory('Saves');
 			universe.currentNode.getElement('.fileNameInput').value=universe.currentNode.name;
 		}, false);
@@ -107,7 +107,7 @@ function createConfigurationArea(id) {
 
 					createNodeDropdown(nodeAdder);
 
-					createSimpleButton(nodeAdder, 'Create', () => makeNode());
+					createSimpleButton(nodeAdder, 'Create', () => control.makeNode());
 				}
 
 				{
@@ -118,7 +118,7 @@ function createConfigurationArea(id) {
 					// TODO: tensorDropdown;
 					createTensorDropdown(tensorAdder);
 
-					createSimpleButton(tensorAdder, 'Create', () => makeTensor());
+					createSimpleButton(tensorAdder, 'Create', () => control.makeTensor());
 				}
 			}
 
@@ -129,7 +129,7 @@ function createConfigurationArea(id) {
 			{
 				createSimpleButton(propertyButtons, 'Pause', () => universe.currentNode.togglePause());
 				createSimpleButton(propertyButtons, 'Gravity', () => control.addGravityCheat(), 'gravityButton');
-				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
+				createSimpleButton(propertyButtons, 'Delete', () => control.deleteSelected());
 				/*let fastEditButton = createSimpleButton(propertyButtons, 'FastEdit',
 					function() {
 						universe.currentWorld.fastEdit=!universe.currentWorld.fastEdit;

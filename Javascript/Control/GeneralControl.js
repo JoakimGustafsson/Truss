@@ -184,7 +184,7 @@ class GeneralControl {
 				});
 		}
 		if (this.connectionTensor && !this.connectionEventListener) {
-			this.connectionEventListener = document.addEventListener('selectionEvent', function () {
+			this.connectionEventListener = document.addEventListener('selectionEvent', () =>{
 				if (this.connectionTensor && universe.selectedObject && universe.selectedObject.isNode) {
 					this.connectionTensor.sensorAttach();
 					this.connectionTensor = undefined;
@@ -226,19 +226,6 @@ class GeneralControl {
 
 	selectMainNode() {
 		universe.select();
-		/*
-        let previousSelectedObject = universe.selectedObject;
-        universe.selectedObject = universe.currentNode;
-        let event = new CustomEvent('selectionEvent', {
-            detail: {
-                'selectedObject': universe.selectedObject,
-                'previousSelectedObject': previousSelectedObject,
-                'trussNode': universe.selectedObject.parentObject,
-            },
-            bubbles: true,
-            cancelable: true,
-        });
-        universe.currentNode.element.dispatchEvent(event);*/
 	}
 
 	updateResize() {

@@ -814,18 +814,21 @@ class CollisionBounce extends Behaviour {
 
 			//console.group();
 			//console.log('List broken tensors');
-			let start=thisTensor.brokendata.parentTensor.brokendata.startTensor;
-			while (start) {
-				//console.log(start.toString());
-				start=start.brokendata.nextTensor;
-			}
+			//let start=thisTensor.brokendata.parentTensor.brokendata.startTensor;
+			//while (start) {
+			//console.log(start.toString());
+			//start=start.brokendata.nextTensor;
+			//}
 
 			//console.groupEnd();
 
 			// Angle
 			let startangle = thisTensor.getTensorAngle(node);
 			let endangle = thisTensor.brokendata.nextTensor.getTensorAngle(node);
-			let angle=Math.abs(startangle-endangle)-Math.PI;
+			// tt > 180 (PI) degrees if bending towards right 
+			let tt=startangle-endangle;
+			let angle=anglify(startangle-endangle); //-Math.PI;
+			// from is plus if comming from right
 			let dir=angle*from;
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
