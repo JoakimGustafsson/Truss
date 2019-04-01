@@ -733,12 +733,6 @@ class CollisionBounce extends Behaviour {
 		let tensor = detail.tensor;
 		let collider = detail.collider;
 
-		//console.group();
-		//console.log('Collide:');
-		//console.log('Node:'+collider.toString());
-		//console.log('OriginalTensor:'+tensor.toString());
-
-
 		let shortage = tensor.getLength()-tensor.equilibriumLength;
 
 		// Tensor 1
@@ -796,9 +790,6 @@ class CollisionBounce extends Behaviour {
 			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
 		}
 
-		//console.log('StartTensor:'+startTensor.toString());
-		//console.log('EndTensor:'+endTensor.toString());
-		//console.groupEnd();
 	}
 
 	
@@ -812,22 +803,9 @@ class CollisionBounce extends Behaviour {
 			let node = thisTensor.node2;
 			let from =  thisTensor.brokendata.from;
 
-			//console.group();
-			//console.log('List broken tensors');
-			//let start=thisTensor.brokendata.parentTensor.brokendata.startTensor;
-			//while (start) {
-			//console.log(start.toString());
-			//start=start.brokendata.nextTensor;
-			//}
-
-			//console.groupEnd();
-
-			// Angle
 			let startangle = thisTensor.getTensorAngle(node);
 			let endangle = thisTensor.brokendata.nextTensor.getTensorAngle(node);
-			// tt > 180 (PI) degrees if bending towards right 
-			let tt=startangle-endangle;
-			let angle=anglify(startangle-endangle); //-Math.PI;
+			let angle=anglify(startangle-endangle); 
 			// from is plus if comming from right
 			let dir=angle*from;
 			if (dir<0.000000000) {
@@ -845,7 +823,6 @@ class CollisionBounce extends Behaviour {
 					nextTensor.destroy();
 					thisTensor.setSide(node, from);
 				}
-				//console.log('Loosen:'+node.toString());
 			}
 		}
 

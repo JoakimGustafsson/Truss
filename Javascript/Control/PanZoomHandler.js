@@ -172,8 +172,8 @@ class PanZoomHandler {
 		e.preventDefault();
 		let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 		this.view.updateScale({
-			x: delta * -0.1,
-			y: delta * -0.1,
+			x: delta * 0.1,
+			y: delta * 0.1,
 		}, {
 			x: this.screenPointerPositionX,
 			y: this.screenPointerPositionY

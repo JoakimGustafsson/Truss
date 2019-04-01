@@ -146,6 +146,8 @@ class ScrollerTruss extends TrussNode {
 	}
 }
 
+var cheatCounter=0;
+
 /**
  * @class
  * @extends Truss
@@ -221,6 +223,22 @@ class PerformanceTrussNode extends TrussNode {
 				'equilibriumLength': 1,
 			});
 
+		new Tensor(start, start2,
+			'spring bounce rubberbounceactuator',
+			{
+				'name': 'right',
+				'constant': 10,
+				'equilibriumLength': 0.1,
+			});
+	
+		new Tensor(end2, end,
+			'spring bounce rubberbounceactuator',
+			{
+				'name': 'right',
+				'constant': 10,
+				'equilibriumLength': 0.1,
+			});
+		
 
 		new Node(this.world, this, 'collide moveable debugnode', {
 			'name': 'blueball',
@@ -265,10 +283,10 @@ class PerformanceTrussNode extends TrussNode {
 		
 		new Node(this.world, this, 'button', {
 			'name': 'button',
-			'localPosition': new Position(2, 7),
+			'localPosition': new Position(4, 1),
 			'buttonScript':  '/*sourcepath template.js*/ () => {'+
 				'new Node(this.world, this, \'collide moveable debugnode\', {'+
-				'\'name\': \'ball\'+1000*Math.random(),'+
+				'\'name\': \'ball\'+cheatCounter++,'+
 				'\'mass\': 1,'+
 				'\'localPosition\': new Position(2, 3),'+
 				'\'velocityLoss\': 1,'+
