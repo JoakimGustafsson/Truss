@@ -516,6 +516,17 @@ class Tensor extends StoreableObject {
 	resetCollision(node) {
 		delete this.collideDistanceMapping[node.name];
 	}
+
+
+	/**
+	 * Ensures that a node is set to be considered to be on a specific side of a tensor.
+	 * @param  {Node} node
+	 * @param  {Node} from direction (>0 right side. <0 Left side)
+	 */
+	setSide(node, from){
+		this.collideDistanceMapping[node.name]= from;
+	}
+
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
 	 * @param  {Node} node
@@ -549,7 +560,6 @@ class Tensor extends StoreableObject {
 			}
 		}
 	}
-
 
 	/**
 	 * @param  {number} type Where 0 is unselect, 1 means its pointed on and 2 is selected

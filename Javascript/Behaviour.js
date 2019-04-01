@@ -733,10 +733,10 @@ class CollisionBounce extends Behaviour {
 		let tensor = detail.tensor;
 		let collider = detail.collider;
 
-		console.group();
-		console.log('Collide:');
-		console.log('Node:'+collider.toString());
-		console.log('OriginalTensor:'+tensor.toString());
+		//console.group();
+		//console.log('Collide:');
+		//console.log('Node:'+collider.toString());
+		//console.log('OriginalTensor:'+tensor.toString());
 
 
 		let shortage = tensor.getLength()-tensor.equilibriumLength;
@@ -796,9 +796,9 @@ class CollisionBounce extends Behaviour {
 			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
 		}
 
-		console.log('StartTensor:'+startTensor.toString());
-		console.log('EndTensor:'+endTensor.toString());
-		console.groupEnd();
+		//console.log('StartTensor:'+startTensor.toString());
+		//console.log('EndTensor:'+endTensor.toString());
+		//console.groupEnd();
 	}
 
 	
@@ -827,7 +827,7 @@ class CollisionBounce extends Behaviour {
 			let endangle = thisTensor.brokendata.nextTensor.getTensorAngle(node);
 			let angle=Math.abs(startangle-endangle)-Math.PI;
 			let dir=angle*from;
-			if (dir<0) {
+			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
 				{
@@ -837,9 +837,10 @@ class CollisionBounce extends Behaviour {
 					thisTensor.brokendata.nextTensor.destroy();
 				} else {
 					let nextTensor=thisTensor.brokendata.nextTensor;
-					thisTensor.brokendata.nextTensor = nextTensor.brokendata.nextTensor;
+					thisTensor.brokendata = nextTensor.brokendata;
 					thisTensor.node2=nextTensor.node2;
 					nextTensor.destroy();
+					thisTensor.setSide(node, from);
 				}
 				//console.log('Loosen:'+node.toString());
 			}

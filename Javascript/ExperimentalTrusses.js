@@ -205,12 +205,12 @@ class PerformanceTrussNode extends TrussNode {
 
 		let start = new Node(this.world, this, 'node', {
 			'name': 'startright',
-			'localPosition': new Position(9, 1),
+			'localPosition': new Position(3, 1),
 		});
 
 		let end = new Node(this.world, this, 'node', {
 			'name': 'endright',
-			'localPosition': new Position(9, 9),
+			'localPosition': new Position(3, 10),
 		});
 
 		new Tensor(start, end,
@@ -226,7 +226,7 @@ class PerformanceTrussNode extends TrussNode {
 			'name': 'blueball',
 			'mass': 1,
 			'color': 'blue',
-			'localPosition': new Position(4, 3),
+			'localPosition': new Position(2, 3),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(1, -0.08),
@@ -236,7 +236,7 @@ class PerformanceTrussNode extends TrussNode {
 			'name': 'brownball',
 			'mass': 1,
 			'color': 'brown',
-			'localPosition': new Position(3.99, 3),
+			'localPosition': new Position(1.995, 3),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(1, 0),
@@ -246,7 +246,7 @@ class PerformanceTrussNode extends TrussNode {
 			'name': 'greenball',
 			'mass': 1,
 			'color': 'green',
-			'localPosition': new Position(3.98, 3),
+			'localPosition': new Position(1.993, 3),
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(1, -0.04),
