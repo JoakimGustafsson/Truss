@@ -805,6 +805,9 @@ class CollisionBounce extends Behaviour {
 
 			let startangle = thisTensor.getTensorAngle(node);
 			let endangle = thisTensor.brokendata.nextTensor.getTensorAngle(node);
+			if (isNaN(startangle) || isNaN(endangle)) {
+				return;
+			}
 			let angle=anglify(startangle-endangle); 
 			// from is plus if comming from right
 			let dir=angle*from;
@@ -820,6 +823,7 @@ class CollisionBounce extends Behaviour {
 					let nextTensor=thisTensor.brokendata.nextTensor;
 					thisTensor.brokendata = nextTensor.brokendata;
 					thisTensor.node2=nextTensor.node2;
+					thisTensor.joinCollision(nextTensor);
 					nextTensor.destroy();
 					thisTensor.setSide(node, from);
 				}

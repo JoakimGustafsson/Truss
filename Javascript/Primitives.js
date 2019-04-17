@@ -36,9 +36,36 @@ class Vector {
 	 * @param  {number} y=0
 	 */
 	constructor(x = 0, y = 0) {
-		this.x = x;
-		this.y = y;
+		this._x = x;
+		this._y = y;
+
+
+		Object.defineProperty(this, 'x', {
+			get: function() {
+				return this._x;
+			},
+			set: function(value) {
+				this._x=value;
+			},
+		});
+
+
+		Object.defineProperty(this, 'y', {
+			get: function() {
+				return this._y;
+			},
+			set: function(value) {
+				this._y=value;
+			},
+		});
+
+
 	}
+
+
+
+
+
 	/**
 	 * Returns the vector pointing in exactly the opposite direction
 	 * @return {Vector} The vector pointing in exactly the oposite direction
@@ -81,7 +108,10 @@ class Vector {
 	 */
 	normalizeVector(l) {
 		let length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-		return Vector.multiplyVector(l / length, this);
+		if (length!=0) {
+			return Vector.multiplyVector(l / length, this);
+		}
+		return new Vector(0,0);
 	}
 
 	/**

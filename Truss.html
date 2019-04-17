@@ -85,6 +85,7 @@
 				let scale =
 							// 0.74E-10;	// Molecule
 							// 0.01;		// Cm 
+							// .2;			// Dm
 							// 1;			// Meter
 							// 2;			// Meter
 							// 10;			// House
@@ -97,7 +98,7 @@
 				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 					'name': 'MainNode',
 					'worldSize': new Position(scale, scale),
-					'worldOffset': new Position(0.5, 0.5),
+					'worldOffset': new Position(0.9, 0.9),
 				});
 				latestNode.initiate();
 				latestWorld.trussNode = latestNode;

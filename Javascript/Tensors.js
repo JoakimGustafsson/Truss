@@ -283,7 +283,22 @@ class Tensor extends StoreableObject {
 	serialize(nodeList, tensorList) {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Tensor';
+		//representation.collideDistanceMapping= this.collideDistanceMapping;
+		representation.collideDistanceMapping={};
+		Object.assign(representation.collideDistanceMapping,this.collideDistanceMapping);
 		return representation;
+	}
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {Spring}
+	 */
+	deserialize(restoreObject, nodeList, tensorList) {
+		super.deserialize(restoreObject, nodeList, tensorList);
+		//this.originalParent = tensorList[restoreObject.originalParent];
+		this.collideDistanceMapping=restoreObject.collideDistanceMapping;
+		return this;
 	}
 
 
@@ -418,8 +433,11 @@ class Tensor extends StoreableObject {
 		if (node==this.node2) {
 			modifyIfNode2 = Math.PI;
 		}
-		let rawAngle =
-			Vector.subtractVectors(this.node2.localPosition, this.node1.localPosition).getAngle();
+		let distance=Vector.subtractVectors(this.node2.localPosition, this.node1.localPosition);
+		if (Vector.length2(distance)==0) {
+			return NaN; // No angle on vector of length 0;
+		}
+		let rawAngle = distance.getAngle();
 		//getXAngle(this.getXDifference(), this.getYDifference());
 		return anglify(rawAngle + modifyIfNode2);
 	}
@@ -517,6 +535,14 @@ class Tensor extends StoreableObject {
 		delete this.collideDistanceMapping[node.name];
 	}
 
+	/**
+	 * join another list of collition distances.
+	 * @param  {Tensor} otherTensor
+	 */
+	joinCollision(otherTensor) {
+		this.collideDistanceMapping={...this.collideDistanceMapping, ...otherTensor.collideDistanceMapping};
+	}
+
 
 	/**
 	 * Ensures that a node is set to be considered to be on a specific side of a tensor.
@@ -534,15 +560,18 @@ class Tensor extends StoreableObject {
 	 * @return {Object}
 	 */
 	checkCollision(node, truss) {
+		if (this.node1==node || this.node2==node) {
+			return false;
+		}
 		let oldDistance = this.collideDistanceMapping[node.name];
 		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
 		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < 0.0) || (1.0 < where)) {
-			newDistance = 0;
+		if ((where < -0.01) || (1.01 < where)) {
+			newDistance = undefined;
 		}
 		this.collideDistanceMapping[node.name] = newDistance;
-		if (oldDistance * newDistance < 0) {
-			if ((where >= 0) && (where <= 1)) {
+		if ((oldDistance!=0 && newDistance==0) || oldDistance * newDistance < 0) {
+			if ((where >= 0.0) && (where <= 1.0)) {
 				let detail = {
 					'where': where,
 					'from': oldDistance,
@@ -725,6 +754,9 @@ class PictureSpring extends Tensor {
 		representationObject.width=this.width;
 		representationObject.stretch=this.stretch;
 		representationObject.length=this.length;
+		//for(let property of Object.getOwnPropertyNames()) {
+		//this.collideDistanceMapping;
+
 		return representationObject;
 	}
 
@@ -741,6 +773,7 @@ class PictureSpring extends Tensor {
 		this.width=restoreObject.width;
 		this.stretch=restoreObject.stretch;
 		this.length=restoreObject.length;
+		this.collideDistanceMapping=restoreObject.collideDistanceMapping;
 
 
 		this.createHTMLPicture(this.pictureReference);
