@@ -202,28 +202,6 @@ class TrussView {
 	}
 
 	/**
-	 * Support function to refresh the ratios so. Should not be manually used
-	 * Most likely called by screen size changes
-	 */
-	recalculate() {
-		if (!this.worldViewSize || !this.screenSize) {
-			return;
-		}
-		this.xScale = this.worldViewSize.x / this.screenSize.x;
-		this.yScale = this.worldViewSize.y / this.screenSize.y;
-
-		this.setDistanceMultiplier();
-
-		// Do the following to avoid reading element properties that slows down rendering
-		this.bodyRect = document.body.getBoundingClientRect();
-		this.elemRect = this.element.getBoundingClientRect();
-		this.bodyRectleft = this.bodyRect.left;
-		this.elemRectleft = this.elemRect.left;
-		this.bodyRecttop = this.bodyRect.top;
-		this.elemRecttop = this.elemRect.top;
-	}
-
-	/**
 	 * Set the size of the screen display you want to see
 	 * @param  {Vector} screenSize
 	 */
@@ -268,13 +246,97 @@ class TrussView {
 	updateScale(deltaScaleOnScreen, screenCenter) {
 		let center = this.worldPosition(screenCenter.x, screenCenter.y);
 
+		//this.xScale -= deltaScaleOnScreen.x * this.xScale;
+		//this.yScale -= deltaScaleOnScreen.y * this.yScale;
+
+		this._worldViewSize.x -= deltaScaleOnScreen.x * this._worldViewSize.x;
+		this._worldViewSize.y -= deltaScaleOnScreen.y * this._worldViewSize.y;
+		this.recalculate();
+
+		// consider using recalc instead
+
+		// this.setDistanceMultiplier();
+
+		this.offset.x += (center.x - this.offset.x) * deltaScaleOnScreen.x;
+		this.offset.y += (center.y - this.offset.y) * deltaScaleOnScreen.y;
+
+		
+		//this._worldViewSize.x = this.xScale * this.screenSize.x;
+		//this._worldViewSize.y = this.yScale * this.screenSize.y;
+	}
+
+	/**
+	 * Support function to refresh the ratios so. Should not be manually used
+	 * Most likely called by screen size changes
+	 */
+	recalculate() {
+		if (!this.worldViewSize || !this.screenSize) {
+			return;
+		}
+		this.xScale = this.worldViewSize.x / this.screenSize.x;
+		this.yScale = this.worldViewSize.y / this.screenSize.y;
+
+		this.setDistanceMultiplier();
+
+		// Do the following to avoid reading element properties that slows down rendering
+		this.bodyRect = document.body.getBoundingClientRect();
+		this.elemRect = this.element.getBoundingClientRect();
+		this.bodyRectleft = this.bodyRect.left;
+		this.elemRectleft = this.elemRect.left;
+		this.bodyRecttop = this.bodyRect.top;
+		this.elemRecttop = this.elemRect.top;
+	}
+
+}
+
+
+
+
+/*
+	/**
+	 * Set where in the world you want to watch. 
+	 * Most likely called by user input such as mousewheel, pinch or similar
+	 * @param  {Vector} deltaScaleOnScreen
+	 * @param  {Vector} screenCenter
+	 *
+	updateScale(deltaScaleOnScreen, screenCenter) {
+		let center = this.worldPosition(screenCenter.x, screenCenter.y);
+
 		this.xScale -= deltaScaleOnScreen.x * this.xScale;
 		this.yScale -= deltaScaleOnScreen.y * this.yScale;
+
+// consider using recalc instead
 
 		this.setDistanceMultiplier();
 
 		this.offset.x += (center.x - this.offset.x) * deltaScaleOnScreen.x;
 		this.offset.y += (center.y - this.offset.y) * deltaScaleOnScreen.y;
+
+		
+		//this._worldViewSize.x = this.xScale * this.screenSize.x;
+		//this._worldViewSize.y = this.yScale * this.screenSize.y;
 	}
 
-}
+	/**
+	 * Support function to refresh the ratios so. Should not be manually used
+	 * Most likely called by screen size changes
+	 *
+	recalculate() {
+		if (!this.worldViewSize || !this.screenSize) {
+			return;
+		}
+		this.xScale = this.worldViewSize.x / this.screenSize.x;
+		this.yScale = this.worldViewSize.y / this.screenSize.y;
+
+		this.setDistanceMultiplier();
+
+		// Do the following to avoid reading element properties that slows down rendering
+		this.bodyRect = document.body.getBoundingClientRect();
+		this.elemRect = this.element.getBoundingClientRect();
+		this.bodyRectleft = this.bodyRect.left;
+		this.elemRectleft = this.elemRect.left;
+		this.bodyRecttop = this.bodyRect.top;
+		this.elemRecttop = this.elemRect.top;
+	}
+
+} */

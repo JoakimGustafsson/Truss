@@ -315,7 +315,7 @@ class PerformanceTrussNode extends TrussNode {
 		
 
 
-		for (let a = 0; a<5; a++) {
+		for (let a = 0; a<1; a++) {
 			new Node(this.world, this, 'collide moveable debugnode', {
 				'name': 'newball_'+a,
 				'mass': 1,
