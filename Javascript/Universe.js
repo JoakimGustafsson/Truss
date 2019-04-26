@@ -66,6 +66,7 @@ class Universe {
 		this.background = background;
 		this.selectedObject = undefined;
 		this.setupTicks = 0; // Initiated in SetCurrent
+		this.debugHaltCounter=0; // number of ticks until halt
 	}
 
 	/**
@@ -75,6 +76,9 @@ class Universe {
 	select(newSelectedObject, frameElement) {
 		if (!this.currentNode) {
 			throw 'No world available for selection';
+		}
+		if (!newSelectedObject) {
+			//newSelectedObject = this.currentNode;
 		}
 		let previousSelectedObject = this.selectedObject;
 		this.selectedObject = newSelectedObject;
@@ -117,6 +121,23 @@ class Universe {
 	 * @param {number} timestamp
 	 */
 	tick(timestamp) {
+
+		if (this.debugHaltFunction) {
+			this.debugHaltCounter = this.debugHaltFunction(this.debugHaltCounter);
+			if (!this.debugHaltCounter) {
+				this.debugHaltFunction=undefined;
+			}
+		}
+
+		/*if (this.debugHaltTicks>=0) {
+			if (this.debugHaltTicks==0) {
+				this.currentNode.togglePause();
+			}
+			this.debugHaltTicks--;
+		}*/
+
+
+
 		if (!this.universeStack || this.universeStack.getLength() == 0 || !this.currentWorld) {
 			console.log('Error in Universe. No current truss.');
 		}

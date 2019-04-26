@@ -459,7 +459,7 @@ class Node extends StoreableObject {
 				this.highLight(cxt);
 				cxt.beginPath();
 				if (this.mass) {
-					view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
+					view.drawCircle(this.getPosition(), 0.03 * this.massRadius/100);
 				} else {
 					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
 						Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
@@ -499,8 +499,13 @@ class Node extends StoreableObject {
 				cxt.font = '10px Arial';
 				cxt.textAlign = 'left';
 				let textPos = this.getPosition();
+				let name='';
+				if (this.name) { 
+					name=this.name; 
+				}
 				view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
-						Math.trunc(this.getPosition().y * 100) / 100 + ')');
+						Math.trunc(this.getPosition().y * 100) / 100 + ')' +name);
+				
 			}
 		}
 		if (graphicDebugLevel >= 1) {

@@ -46,11 +46,11 @@ class BannerNode extends Node {
 		let origin = truss.view.worldPosition(0,0);
 
 		if (!topLeft) {
-			topLeft = new Position(origin.x + screenWidth - windowWidth, 0);
+			topLeft = new Position(origin.x + screenWidth - windowWidth, origin.y);
 		}
 
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner anglenode', {
-			'localPosition': new Position(topLeft.x + windowWidth / 2, topLeft.y / 2),
+			'localPosition': new Position(topLeft.x + windowWidth / 2, topLeft.y),
 			'name': 'nail',
 			'mass': NaN,
 		});

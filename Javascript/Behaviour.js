@@ -811,6 +811,10 @@ class CollisionBounce extends Behaviour {
 			let angle=anglify(startangle-endangle); 
 			// from is plus if comming from right
 			let dir=angle*from;
+			debugdummy++;
+			if (debugdummy==771) {
+				smallnodezoom(node);
+			}
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
@@ -902,6 +906,7 @@ function debugBounce(tensor) {
 	console.log('SUM Length: '+ sumLength);
 }
 
+var debugdummy =0;
 
 /** This behaviour draws a button next to the object and trigger a script
  * @class

@@ -359,9 +359,10 @@ class TrussNode extends Node {
 
 	/**
 	 * Clear the screen
+	 * @param {number} fullClear The transparency (0-1.0)
 	 */
 	clear() {
-		this.view.context.clearRect(0, 0, this.view.screenSize.x, this.view.screenSize.y);
+		this.view.clear();
 	}
 
 	/**
@@ -391,7 +392,7 @@ class TrussNode extends Node {
 		return closest;
 	}
 
-	/**
+	/** This toggle if the forces (and inertia) generates movement
 	 */
 	togglePause() {
 		if (!this.paused) {
@@ -400,6 +401,12 @@ class TrussNode extends Node {
 		} else {
 			this.paused = false;
 		}
+	}
+
+	/** Are the forces (and inertia) generating movement
+	 */
+	isPaused() {
+		return this.paused;
 	}
 
 	/**
