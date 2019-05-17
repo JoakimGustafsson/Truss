@@ -1,5 +1,5 @@
 /*jshint esversion:6 */
-/* global control Tensor */
+/* global control Tensor smallnodezoom*/
 
 let BehaviourOverride = {
 	SHOW: 1,

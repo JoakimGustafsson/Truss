@@ -1,5 +1,5 @@
 /*jshint esversion:6 */
-/*global TrussNode Tensor Velocity */
+/*global TrussNode Tensor Velocity Planet*/
 
 /**
  *
@@ -352,6 +352,14 @@ class PerformanceTrussNode extends TrussNode {
 			'});}'
 		});
 
+		new Node(this.world, this, 'button', {
+			'name': 'generate',
+			'localPosition': new Position(4, 3),
+			'buttonScript':  '/*sourcepath generate.js*/ () => {'+
+				'generate();'+
+			'}'
+		});
+
 		/*
 		let a = new Node(this.world, this, 'moveable anglenode', {
 			'name': 'a',
@@ -388,6 +396,22 @@ class PerformanceTrussNode extends TrussNode {
 
 	}
 }
+
+function generate() {
+	let div = document.createElement('div');
+	div.style.position='absolute';
+	div.style.top='0px';
+	div.style.left='0px';
+	div.style.position='absolute';
+	div.style.width = '600px';
+	div.style.height = '600px';
+	div.style.background = 'rgba(0.5, 0.5, 0.5, 0.5)';
+	div.style.color = 'white';
+	document.getElementById('mainArea').appendChild(div);
+	new Planet(div);
+}
+
+
 /**
  * @class
  * @extends Node
