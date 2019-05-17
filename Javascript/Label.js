@@ -126,8 +126,7 @@ class Labels {
 			[new CollisionBounce()]);
 			
 		this.addLabel('button', [this.nodeLabel, this.moveableLabel], {
-			'buttonScriptProperty': '/*sourcepath template.js*/ () => {alert("MyButtonScript");}',
-			'nameProperty': 'Button',},
+			'buttonScriptProperty': '/*sourcepath template.js*/ () => {alert("MyButtonScript");}',},
 		[new ButtonBehaviour()]);
 	}
 

@@ -29,7 +29,7 @@
 	<script src="Javascript/View/Pictures.js" type="text/javascript"></script>
 	<script src="Javascript/View/TrussView.js" type="text/javascript"></script>
 	<script src="Javascript/View/GeneralView.js" type="text/javascript"></script>
-	
+
 	<script src="Javascript/Control/Debug.js" type="text/javascript"></script>
 
 	<link rel="stylesheet" type="text/css" href="../Stylefiles/Truss.css">
@@ -46,8 +46,10 @@
 		<div id="mainArea"></div>
 		<div id="footer" style="border:1px solid yellow; position:absolute; left:10px; bottom: 10px;">
 			<div id="FPSdisplay" style="display: inline-block; color: white;"></div>
-			<button type="button" class="simpleButton" onclick="location.href='https://github.com/JoakimGustafsson/Truss/wiki'">Wiki</button>
-			<button type="button" class="simpleButton" onclick="if (universe) {universe.select(universe.currentNode)}">Configuration</button>
+			<button type="button" class="simpleButton"
+				onclick="location.href='https://github.com/JoakimGustafsson/Truss/wiki'">Wiki</button>
+			<button type="button" class="simpleButton"
+				onclick="if (universe) {universe.select(universe.currentNode)}">Configuration</button>
 			<button type="button" class="simpleButton" onclick="">Other</button>
 		</div>
 		<script type="text/javascript">
@@ -87,17 +89,17 @@
 				// latestNode.truss.initiate();
 
 				let scale =
-							// 0.74E-10;	// Molecule
-							// 0.01;		// Cm 
-							// .2;			// Dm
-							// 1;			// Meter
-							// 2;			// Meter
-							// 10;			// House
-							15;
-							// 500;			// Complex
-							// 12500000;	// Earth
-							// 9000000000;	// Solar system
-							// 200000E16;	// Galaxy
+					// 0.74E-10;	// Molecule
+					// 0.01;		// Cm 
+					// .2;			// Dm
+					// 1;			// Meter
+					// 2;			// Meter
+					// 10;			// House
+					15;
+				// 500;			// Complex
+				// 12500000;	// Earth
+				// 9000000000;	// Solar system
+				// 200000E16;	// Galaxy
 
 				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 					'name': 'MainNode',
@@ -131,12 +133,26 @@
 				universe.currentNode.element.display = "none";
 				control.updateResize();
 
-				
+
 				let newPanZoomHandler = new PanZoomHandler(universe.currentNode);
 
 				setupFooter(document.getElementById('footer'));
+				lastDebug();
 			}
 
+			function lastDebug() {
+				let n1 = new Node(universe.currentWorld, universe.currentNode, 'a node', {
+					'name': 'node1',
+					'localPosition': new Position(1, 1),
+				});
+
+				let n2 = new Node(universe.currentWorld, universe.currentNode, 'a node', {
+					'name': 'node1',
+					'localPosition': new Position(2, 2),
+				});
+
+				let g1 = new Grid([n1, n2]);
+			}
 
 			init();
 		</script>

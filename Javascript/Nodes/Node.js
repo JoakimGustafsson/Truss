@@ -2,92 +2,12 @@
 /* global StoreableObject Velocity warpMatrix*/
 
 
-/** This is the basis for nodes having a position in 2D space
- * @class
- * @extends StoreableObject
- */
-class SimpleNode extends StoreableObject {
-	/**
-	 * @param  {World} world
-	 * @param  {string} initialLabels
-	 * @param  {object} valueObject
-	 */
-	constructor(world, initialLabels, valueObject) {
-		super(world, initialLabels, valueObject);
-		if (!this.localPosition) {
-			this.localPosition = new Position(0, 0);
-		}
-
-	}
-
-	
-	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
-	 * @param  {Position} position
-	 */
-	copyPosition(position) {
-		// this.localPosition.x = position.x;
-		// this.localPosition.y = position.y;
-		this.localPosition = new Position(position.x, position.y);
-		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
-			let x=position.x + this.parentTrussNode.gridSize/2;
-			let y=position.y + this.parentTrussNode.gridSize/2;
-			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
-			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
-		}
-	}
-
-	/** Assign a position object to the node. Also consider use of copyPosition() instead.
-	 * @param  {Position} position
-	 */
-	setPosition(position) {
-		this.localPosition = position;
-	}
-
-	/**
-	 * @return {Position}
-	 */
-	getPosition() {
-		return this.localPosition;
-	}
-
-	/**
-	 * Draw the circle representing the node
-	 * @param {Truss} truss
-	 * @param {number} time
-	 * @param {number} graphicDebugLevel
-	 */
-	show(truss, time, graphicDebugLevel = 0) {
-		let result = super.show(truss, time, graphicDebugLevel);
-		if (result) {
-			return result;
-		}
-
-		let view = truss.view;
-		let cxt = view.context;
-		if (!this.visible || this.visible=='0') {
-			return;
-		}
-		if (!this.color) {
-			this.color='red';
-		}
-		cxt.strokeStyle = this.color;
-		cxt.beginPath();
-		
-		view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
-			Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
-		view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
-			Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
-		
-		cxt.stroke();
-			
-	}
-}
 
 /** This is the basis for all physical nodes
  * @class
  * @extends StoreableObject
  */
-class Node extends SimpleNode {
+class Node extends StoreableObject {
 	/**
 	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
@@ -182,6 +102,34 @@ class Node extends SimpleNode {
 		}
 	}
 
+	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
+	 * @param  {Position} position
+	 */
+	copyPosition(position) {
+		// this.localPosition.x = position.x;
+		// this.localPosition.y = position.y;
+		this.localPosition = new Position(position.x, position.y);
+		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
+			let x=position.x + this.parentTrussNode.gridSize/2;
+			let y=position.y + this.parentTrussNode.gridSize/2;
+			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
+			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
+		}
+	}
+
+	/** Assign a position object to the node. Also consider use of copyPosition() instead.
+	 * @param  {Position} position
+	 */
+	setPosition(position) {
+		this.localPosition = position;
+	}
+
+	/**
+	 * @return {Position}
+	 */
+	getPosition() {
+		return this.localPosition;
+	}
 	/**
 	 */
 	destroy() {

@@ -286,17 +286,19 @@ class TrussView {
 
 	/**
 	 */
-	resize() {
+	resize(scale) {
 		let oldWidth = this.screenSize.x;
 		let oldHeight = this.screenSize.y;
 		this.screenSize.v = new Vector(this.element.offsetWidth, this.element.offsetHeight);
 
-		if (oldWidth) {
-			this._worldViewSize.x = this._worldViewSize.x*(this.element.offsetWidth/oldWidth);
-		}
+		if(!scale) {
+			if (oldWidth) {
+				this._worldViewSize.x = this._worldViewSize.x*(this.element.offsetWidth/oldWidth);
+			}
 		
-		if (oldHeight) {
-			this._worldViewSize.y = this._worldViewSize.y*(this.element.offsetHeight/oldHeight);
+			if (oldHeight) {
+				this._worldViewSize.y = this._worldViewSize.y*(this.element.offsetHeight/oldHeight);
+			}
 		}
 		this.recalculate();
 	}

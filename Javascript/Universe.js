@@ -212,7 +212,6 @@ class Universe {
 			stackDiv.initiated = 'true';
 			stackDiv.style.top = topPosition + 'px';
 			topPosition = topPosition + 110;
-			stackTruss.resize();
 			if (!stackDiv.selectTrussListener) {
 				stackDiv.selectTrussListener = clickSetWorld(world);
 				stackDiv.addEventListener('click', stackDiv.selectTrussListener);
@@ -228,6 +227,7 @@ class Universe {
 		mainDiv.classList.add('mainTruss');
 		mainDiv.style.top = '10px';
 		mainDiv.id = 'TrussBackground';
+		universe.currentNode.resize(1);
 	}
 
 	/**

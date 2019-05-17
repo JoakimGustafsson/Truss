@@ -17,15 +17,3 @@ class Grid {
 }
 
 
-
-var node1 = new SimpleNode(undefined, undefined, 'node', {
-	'name': 'node1',
-	'localPosition': new Position(1, 1),
-});
-
-var node2 = new SimpleNode(undefined, undefined, 'node', {
-	'name': 'node2',
-	'localPosition': new Position(2, 22),
-});
-
-var test = new Grid([node1, node2]);

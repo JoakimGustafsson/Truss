@@ -338,8 +338,8 @@ class PerformanceTrussNode extends TrussNode {
 		});
 		*/
 		
-		new Node(this.world, this, 'button', {
-			'name': 'button',
+		new Node(this.world, this, 'node button', {
+			'name': 'new Ball',
 			'localPosition': new Position(4, 1),
 			'buttonScript':  '/*sourcepath template.js*/ () => {'+
 				'new Node(this.world, this, \'collide moveable debugnode\', {'+

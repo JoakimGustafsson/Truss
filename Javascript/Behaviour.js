@@ -811,10 +811,10 @@ class CollisionBounce extends Behaviour {
 			let angle=anglify(startangle-endangle); 
 			// from is plus if comming from right
 			let dir=angle*from;
-			debugdummy++;
+			/*debugdummy++;
 			if (debugdummy==771) {
 				smallnodezoom(node);
-			}
+			}*/
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
@@ -927,7 +927,6 @@ class ButtonBehaviour extends Behaviour {
 		button.id = 'propertiesButton';
 		button.style.position='absolute';
 		button.classList.add('worldButton');
-		button.innerHTML = storeableObject.name;
 		button.addEventListener('click', (...args) => {
 			let func = storeableObject.buttonScript_Evaluated;
 			if (func) {
@@ -958,6 +957,7 @@ class ButtonBehaviour extends Behaviour {
 	 * @return {number}
 	 */
 	updateXPosition() {
+		this.buttonReference.innerHTML = this.name;
 		this.parentTrussNode.view.putElementOnScreen(this.localPosition, this.buttonReference);
 	}
 }

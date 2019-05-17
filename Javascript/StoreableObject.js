@@ -86,18 +86,20 @@ class StoreableObject {
      *
      */
 	refreshPropertiesAfterLabelChange(valueObject = {}) {
+		//Attach the labels
 		this.labels = this.world.labels.parse(this.labelString, this);
 		this.properties.clearProperties(this.labelProperty);
 
+		//Set the properties by looping over all properties listed by all labels
 		for (let [, value] of Object.entries(this.getPropertyObject())) {
 			let propertyObject = value.propertyObject;
 			let propertyName = propertyObject.propertyName;
 			this.properties.addProperty(propertyObject, value.defaultValue);
-			if (valueObject[propertyName]!=undefined) {
+			if (valueObject[propertyName]!=undefined) {	//setting default value
 				propertyObject.assignValue(valueObject[propertyName], this);
 			} else if (this[propertyName]==undefined ||
                 (typeof this[propertyName]== 'number' && isNaN(this[propertyName])) ||
-                value.enforced) {
+                value.enforced) { //handle NaN numbers and enforced defaultvalues
 				if (value.defaultValue!=undefined) {
 					propertyObject.assignValue(value.defaultValue, this);
 				}
