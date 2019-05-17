@@ -60,6 +60,9 @@ class PropertyList {
 			() => new PositionProperty('vector', 'vector', 'Position change', ParameterCategory.CONTENT, 'The position node moves when the key is pressed.')
 		]);
 		this.restPositionProperty = new PositionProperty('restPosition', 'restPosition', 'Rest position', ParameterCategory.CONTENT, 'The position when no key is pressed.');
+
+		this.firstEdgeNodeProperty = new NodeProperty('firstEdgeNode', 'firstEdgeNode', 'First cell node', ParameterCategory.CONTENT, 'The first node in the cell edge.');
+
 	}
 }
 

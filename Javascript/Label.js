@@ -32,6 +32,10 @@ class Labels {
 			'parentTrussNodeProperty': undefined,
 			'connectedTensorsProperty': undefined,
 		});
+		this.seedLabel = this.addLabel('seed', [this.nodeLabel], {
+			'firstEdgeNodeProperty': undefined,
+		});
+		this.cellNodeLabel = this.addLabel('cellnode', [this.nodeLabel], {});
 		this.tensorLabel = this.addLabel('tensor', [], {
 			'nameProperty': '',
 			'visibilityProperty': 1,
@@ -39,6 +43,10 @@ class Labels {
 			'endNodeProperty': undefined,
 			'colorProperty': 'white',
 			'parentTrussNodeProperty': undefined,
+		});
+		this.cellEdgeLabel = this.addLabel('celledge', [this.tensorLabel], {
+			'startSeedProperty': undefined,
+			'endSeedProperty': undefined,
 		});
 		let positionTensorLabel = this.addLabel('positiontensor', [this.tensorLabel], {
 			'constantProperty': 1,

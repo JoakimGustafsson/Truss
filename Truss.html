@@ -141,17 +141,20 @@
 			}
 
 			function lastDebug() {
-				let n1 = new Node(universe.currentWorld, universe.currentNode, 'a node', {
-					'name': 'node1',
-					'localPosition': new Position(1, 1),
-				});
 
-				let n2 = new Node(universe.currentWorld, universe.currentNode, 'a node', {
-					'name': 'node1',
-					'localPosition': new Position(2, 2),
-				});
+				let seeds = [];
+				let rng = new RNG(20);
 
-				let g1 = new Grid([n1, n2]);
+				for(let i=0; i<10;i++){
+					let n = new Node(universe.currentWorld, universe.currentNode, 'seed', {
+					'name': 'seed'+i,
+					'localPosition': new Position(rng.nextRange(1,15), rng.nextRange(1,15)),
+				});
+					seeds.push(n);
+				}
+				
+				let grid = new Grid(universe.currentWorld.labels.findLabel('seed'));
+				//grid.show()
 			}
 
 			init();
