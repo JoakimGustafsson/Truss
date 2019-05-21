@@ -29,6 +29,7 @@
 	<script src="Javascript/View/Pictures.js" type="text/javascript"></script>
 	<script src="Javascript/View/TrussView.js" type="text/javascript"></script>
 	<script src="Javascript/View/GeneralView.js" type="text/javascript"></script>
+	<script src="Javascript/Voronoi.js" type="text/javascript"></script>
 
 	<script src="Javascript/Control/Debug.js" type="text/javascript"></script>
 
@@ -143,19 +144,90 @@
 			function lastDebug() {
 
 				let seeds = [];
+				let sites = [];
 				let rng = new RNG(20);
 
-				for(let i=0; i<10;i++){
-					let n = new Node(universe.currentWorld, universe.currentNode, 'seed', {
-					'name': 'seed'+i,
-					'localPosition': new Position(rng.nextRange(1,15), rng.nextRange(1,15)),
-				});
+				for (let i = 0; i < 200; i++) {
+					let n = new Node(universe.currentWorld, universe.currentNode, 'seed color', {
+						'name': 'seed' + i,
+						'color': 'transparent',
+						'localPosition': new Position(rng.nextRange(1, 15)+rng.nextFloat(), rng.nextRange(1, 15)+rng.nextFloat()),
+					});
 					seeds.push(n);
+					sites.push(n.localPosition);
 				}
-				
-				let grid = new Grid(universe.currentWorld.labels.findLabel('seed'));
-				//grid.show()
+
+				// xl, xr means x left, x right
+
+				// yt, yb means y top, y bottom
+
+				var bbox = {
+					xl: 0,
+					xr: 20,
+					yt: 0,
+					yb: 20
+				};
+
+				var voronoi = new Voronoi();
+
+				// pass an object which exhibits xl, xr, yt, yb properties. The bounding
+
+				// box will be used to connect unbound edges, and to close open cells
+
+				result = voronoi.compute(sites, bbox);
+
+				let tempVertices = {};
+				for (let vertice of result.vertices) {
+					let n = new Node(universe.currentWorld, universe.currentNode, 'seed color moveable', {
+						'name': 'vertice',
+				'mass': 10,
+				'velocityLoss': 1,
+						'color': 'transparent',
+						'localPosition': new Position(vertice.x, vertice.y),
+					});
+					tempVertices[vertice.x+vertice.y*3.14] = n;
+				}
+
+				for (let edge of result.edges) {
+						new Tensor(tempVertices[edge.va.x+edge.va.y*3.14], tempVertices[edge.vb.x+edge.vb.y*3.14],
+							'pullspring color', {
+								'name': 'bottom',
+								'color': 'grey',
+								'constant': 10,
+								'equilibriumLength': 1
+							});
+					
+				}
 			}
+			// render, further analyze, etc.
+
+
+			/*
+							Return value:
+
+								An object with the following properties:
+
+
+
+								result.vertices = an array of unordered, unique Voronoi.Vertex objects making
+
+							up the Voronoi diagram.
+
+							result.edges = an array of unordered, unique Voronoi.Edge objects making up
+
+							the Voronoi diagram.
+
+							result.cells = an array of Voronoi.Cell object making up the Voronoi diagram.
+
+							A Cell object might have an empty array of halfedges, meaning no Voronoi
+
+							cell could be computed
+							for a particular cell.
+
+							result.execTime = the time it took to compute the Voronoi diagram, in
+
+								milliseconds. */
+
 
 			init();
 		</script>
