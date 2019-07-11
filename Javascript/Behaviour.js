@@ -284,8 +284,9 @@ class PushCalculator extends Behaviour {
 	 */
 	calculate() {
 		let actualVector = this.getActual();
-		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
+		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) > this.equilibriumLength * this.equilibriumLength)) {
 			this.force = new Force(0, 0);
+			return;
 		} else {
 			let actualVector = this.getActual();
 			let normalized = actualVector.normalizeVector(this.equilibriumLength);
@@ -296,6 +297,56 @@ class PushCalculator extends Behaviour {
 
 }
 
+/** This calculates force as if it was a linear spring that only pushes
+ * @class
+ * @extends Node
+ */
+class ImpulseCalculator extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.CALCULATE, ImpulseCalculator.prototype.calculate);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.CALCULATE, ImpulseCalculator.prototype.calculate);
+	}
+
+	/**
+	 * Calculate impulse force when the distance between two nodes is less than their size1/2+size2/2
+	 * @return {number}
+	 */
+	calculate() {
+		let snugDistance = this.node1.size+this.node2.size;
+		let actualVector = this.getActual();
+		let actualVectorLength = Vector.length(actualVector);
+		if (snugDistance < actualVectorLength) {
+			this.force = new Force(0, 0);
+			return;
+		} else {
+			let elasticModulus = 1/(1/this.node1.elasticModulus+1/this.node2.elasticModulus);
+			let normalized = actualVector.normalizeVector(snugDistance);
+			let diffVector = Vector.subtractVectors(actualVector, normalized);
+			this.force = Vector.multiplyVector(-elasticModulus, diffVector);
+		}
+	}
+}
+
+
+ok, we need to let each calculator generate its own force, return it and then add them together
+in for example the calculateForce function
+
+rewrite the caller function to have another verson that adds together the results
 
 /** This calculates force as if it was a field
  * @class
@@ -735,9 +786,16 @@ class CollisionBounce extends Behaviour {
 
 		let shortage = tensor.getLength()-tensor.equilibriumLength;
 
+		let impulseSpringLabel = universe.currentWorld.labels.findLabel('impulsespring');
+
 		// Tensor 1
 		let startTensor = tensor;
 		let endTensor = tensor.clone();
+		
+		endTensor.addLabel('impulsespring');
+		startTensor.addLabel('impulsespring');
+
+
 		let original;
 		if (!tensor.broken) { // The first break of a tensor
 			tensor.broken=true;
@@ -790,6 +848,10 @@ class CollisionBounce extends Behaviour {
 			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
 		}
 
+		debugdummy++;
+		if (debugdummy==14) {
+			smallnodezoom(collider);
+		}
 	}
 
 	
@@ -811,10 +873,7 @@ class CollisionBounce extends Behaviour {
 			let angle=anglify(startangle-endangle); 
 			// from is plus if comming from right
 			let dir=angle*from;
-			/*debugdummy++;
-			if (debugdummy==771) {
-				smallnodezoom(node);
-			}*/
+			
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break

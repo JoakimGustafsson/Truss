@@ -1,6 +1,6 @@
 /*jshint esversion:6 */
 /* exported Labels */
-/* global PushCalculator PullCalculator SpringCalculator FieldCalculator AbsorbCalculator */
+/* global PushCalculator PullCalculator ImpulseCalculator SpringCalculator FieldCalculator AbsorbCalculator */
 /* global AngleNode AngleTensor SelectorBehaviour KeySensor Scriptposition */
 /* global ButtonBehaviour ScriptShow CollisionSensor CollisionBounce ScriptPosition PropertyList */
 
@@ -32,8 +32,13 @@ class Labels {
 			'parentTrussNodeProperty': undefined,
 			'connectedTensorsProperty': undefined,
 		});
+
 		this.seedLabel = this.addLabel('seed', [this.nodeLabel], {
 			'firstEdgeNodeProperty': undefined,
+		});
+		this.hardBall = this.addLabel('hardball', [this.nodeLabel], {
+			'elasticModulusProperty': 1,
+			'sizeProperty': 1,
 		});
 		this.cellNodeLabel = this.addLabel('cellnode', [this.nodeLabel], {});
 		this.tensorLabel = this.addLabel('tensor', [], {
@@ -57,6 +62,7 @@ class Labels {
 		this.addLabel('pushspring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
 		}, [new PushCalculator()]);
+		this.addLabel('impulsespring', [positionTensorLabel], {}, [new ImpulseCalculator()]);
 		this.springLabel = this.addLabel('spring', [positionTensorLabel], {
 			'equilibriumLengthProperty': 1,
 		}, [new SpringCalculator()]);
@@ -108,6 +114,7 @@ class Labels {
 			'screenSizeProperty': new Position(200, 200),
 			'worldSizeProperty': new Position(20, 20),
 			'setWorldOffsetProperty': new Position(0, 0),
+			'lockedRatioProperty': 1,
 			'fpsTargetProperty': 60,
 			'fpsProperty': 60,
 			'timeMultiplierProperty': 1,

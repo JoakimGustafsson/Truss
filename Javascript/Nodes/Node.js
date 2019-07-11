@@ -20,6 +20,7 @@ class Node extends StoreableObject {
 			this.velocity = new Velocity(0, 0);
 		}
 		this.connectedTensors = [];
+		this._size=1;
 
 		Object.defineProperty(this, 'pictureReference', {
 			get: function() {
@@ -40,12 +41,12 @@ class Node extends StoreableObject {
 				return this._size;
 			},
 			set: function(value) {
-				if (!value ||value == '' || value == 'NaN' || value == 0) {
+				if (!value || value == '' || value == 'NaN' || value == 0) {
 					this._size = 1;
 				} else {
 					this._size = value;
-					this.pictureCornerLength=0;
-					this.setupScale();
+					//this.pictureCornerLength=0;
+					//this.setupScale();
 				}
 			},
 		});
@@ -458,7 +459,8 @@ class Node extends StoreableObject {
 				this.highLight(cxt);
 				cxt.beginPath();
 				if (this.mass) {
-					view.drawCircle(this.getPosition(), 0.03 * this.massRadius/100);
+					view.drawCircle(this.getPosition(), this.size);
+					//view.drawCircle(this.getPosition(), 0.03 * this.massRadius/100);
 				} else {
 					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
 						Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));

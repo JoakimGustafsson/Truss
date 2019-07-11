@@ -273,6 +273,10 @@ class TrussView {
 		this.xScale = this.worldViewSize.x / this.screenSize.x;
 		this.yScale = this.worldViewSize.y / this.screenSize.y;
 
+		if (this.parentNode.lockedRatio) 
+		{
+			this.xScale=this.yScale;
+		}
 		this.setDistanceMultiplier();
 
 		// Do the following to avoid reading element properties that slows down rendering

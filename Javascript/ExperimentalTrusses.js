@@ -314,18 +314,43 @@ class PerformanceTrussNode extends TrussNode {
 			});
 		
 
-
+		
 		for (let a = 0; a<5; a++) {
-			new Node(this.world, this, 'collide moveable debugnode', {
+			new Node(this.world, this, 'collide moveable hardball debugnode', {
 				'name': 'newball_'+a,
 				'mass': 1,
+				'elasticModulus': 1000,
+				'size': 0.02,
 				'color': 'white',
 				'localPosition': new Position(2, 3+0.05*a),
 				'velocityLoss': 1,
 				'collisionLabel': 'bounce',
 				'velocity': new Velocity(1,0),
 			});
-		}
+		} 
+
+		/*
+		let alpha = new Node(this.world, this, 'moveable hardball', {
+			'name': 'alpha',
+			'size': 2,
+			'localPosition': new Position(6, 5),
+			'elasticModulus': 1000,
+		});
+
+		
+		let beta = new Node(this.world, this, 'moveable hardball', {
+			'name': 'beta',
+			'localPosition': new Position(6, 9),
+			'size': 1,
+			'elasticModulus': 1000,
+		});
+		new Tensor(alpha, beta,
+			'pullspring impulsespring',
+			{
+				'name': 'bottom',
+				'constant': 10,
+				'equilibriumLength': 1,
+			});*/
 
 		/*
 		new Node(this.world, this, 'collide moveable debugnode', {
@@ -336,12 +361,13 @@ class PerformanceTrussNode extends TrussNode {
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(1, 0.1),
 		});
-		*/
 		
+		
+
 		new Node(this.world, this, 'node button', {
 			'name': 'new Ball',
 			'localPosition': new Position(4, 1),
-			'buttonScript':  '/*sourcepath template.js*/ () => {'+
+			'buttonScript':  ' () => {'+
 				'new Node(this.world, this, \'collide moveable debugnode\', {'+
 				'\'name\': \'ball\'+cheatCounter++,'+
 				'\'mass\': 1,'+
@@ -355,7 +381,7 @@ class PerformanceTrussNode extends TrussNode {
 		new Node(this.world, this, 'button', {
 			'name': 'generate',
 			'localPosition': new Position(4, 3),
-			'buttonScript':  '/*sourcepath generate.js*/ () => {'+
+			'buttonScript':  ' () => {'+
 				'generate();'+
 			'}'
 		});

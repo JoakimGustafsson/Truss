@@ -31,6 +31,7 @@ class PropertyList {
 		this.turnrateProperty = new NumberProperty('turnrate', 'turnrate', 'Turn rate', ParameterCategory.CONTENT, 'The speed at which the node turns.');
 		this.nodeFrictionProperty = new NumberProperty('velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT, 'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
 		this.turnFrictionProperty = new NumberProperty('turnLoss', 'turnLoss', 'Rotational friction', ParameterCategory.CONTENT, 'How much rotation speed bleeds of the node (0-1, where 1 is no bleed of).');
+		this.elasticModulusProperty = new NumberProperty('elasticModulus', 'elasticModulus', 'Hardness', ParameterCategory.CONTENT, 'How hard is the node (considered as a spring).');
 		this.colorProperty = new StringProperty('color', 'color', 'Colour', ParameterCategory.CONTENT, 'The colour of the node.');
 		this.positionScriptProperty = new ScriptProperty('positionScript', 'positionScript', 'Position script', ParameterCategory.CONTENT, 'This script should return a new position object where this node will be moved to.');
 		this.showScriptProperty = new ScriptProperty('showScript', 'showScript', 'Show script', ParameterCategory.CONTENT, 'This script is run when the object should be drawn on the screen.');
@@ -38,7 +39,7 @@ class PropertyList {
 		
 		this.collisionLabelProperty = new LabelProperty('collisionLabel', 'collisionLabel', 'Collide label', ParameterCategory.CONTENT, 'Collide with tensors having this label.');
 		this.pictureProperty = new StringProperty('pictureReference', 'pictureReference', 'Picture filename', ParameterCategory.CONTENT, 'The picture filename.');
-		this.sizeProperty = new NumberProperty('size', 'size', 'Size (1=normal)', ParameterCategory.CONTENT, 'The picture size');
+		this.sizeProperty = new NumberProperty('size', 'size', 'Size', ParameterCategory.CONTENT, 'The size of the object.');
 		this.equilibriumLengthProperty = new NumberProperty('equilibriumLength', 'equilibriumLength', 'Length', ParameterCategory.CONTENT, 'How long should the relaxed spring be.');
 		this.degree1Property = new NumberProperty('degree1', 'degree1', 'Angle 1', ParameterCategory.CONTENT, 'The angle the node connects to the start node.');
 		this.degree2Property = new NumberProperty('degree2', 'degree2', 'Angle 2', ParameterCategory.CONTENT, 'The angle the node connects to the end node.');
@@ -49,6 +50,7 @@ class PropertyList {
 		this.timeMultiplierProperty = new NumberProperty('timeMultiplier', 'timeMultiplier', 'Time multiplier', ParameterCategory.CONTENT, 'Truss time multiplier.');
 		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 		this.visibilityProperty = new SwitchProperty('visible', 'visible', 'Visible', ParameterCategory.CONTENT, 'Should this be visible on the screen.');
+		this.lockedRatioProperty = new SwitchProperty('lockedRatio', 'lockedRatio', 'Locked Ratio', ParameterCategory.CONTENT, 'The display ratio between x and y axis is locked.');
 		this.snapGridProperty = new NumberProperty('gridSize', 'gridSize', 'Align to grid', ParameterCategory.CONTENT, 'Aligning all new positions to this grid. (0 for no alignment)');
 		this.enforcedProperty = new NumberProperty('enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT, 'Special parameter that only is used in labels to enforce all parameter values are enforced.');
 		this.startNodeProperty = new NodeProperty('node1', 'node1', 'Start node', ParameterCategory.CONTENT, 'Start node.');
@@ -198,6 +200,19 @@ class Property {
 		return inputField;
 	}
 
+	/** creates the default value editing area and handles input updates
+	 * @param  {String} id
+	 * @param  {Element} parameterValue
+	 * @return {Element}
+	 */
+	makeNumberInputField(id, parameterValue) {
+		let inputField = this.makeViewOfInputField(id, parameterValue);
+		inputField.addEventListener('input', () => {
+			this.assignValue(parseFloat(inputField.value));
+		});
+		return inputField;
+	}
+
 	/** actually assign to the owning object
 	 * @param  {Object} value
 	 * @param  {Object} owner
@@ -337,7 +352,7 @@ class NumberProperty extends Property {
 		this.owner=owner;
 
 		let parameterValue = this.createNameValuePair(element);
-		this.input = this.makeInputField(this.identity, parameterValue);
+		this.input = this.makeNumberInputField(this.identity, parameterValue);
 		parameterValue.appendChild(this.input);
 	}
 }
