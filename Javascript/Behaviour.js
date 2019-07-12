@@ -204,7 +204,7 @@ class SpringCalculator extends Behaviour {
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(this.equilibriumLength);
 		let diffVector = Vector.subtractVectors(actualVector, normalized);
-		this.force = Vector.multiplyVector(-this.constant, diffVector);
+		return Vector.multiplyVector(-this.constant, diffVector);
 	}
 }
 
@@ -243,12 +243,12 @@ class PullCalculator extends Behaviour {
 	calculate() {
 		let actualVector = this.getActual();
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
-			this.force = new Force(0, 0);
+			return;
 		} else {
 			let actualVector = this.getActual();
 			let normalized = actualVector.normalizeVector(this.equilibriumLength);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
-			this.force = Vector.multiplyVector(-this.constant, diffVector);
+			return Vector.multiplyVector(-this.constant, diffVector);
 		}
 	}
 }
@@ -285,13 +285,12 @@ class PushCalculator extends Behaviour {
 	calculate() {
 		let actualVector = this.getActual();
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) > this.equilibriumLength * this.equilibriumLength)) {
-			this.force = new Force(0, 0);
 			return;
 		} else {
 			let actualVector = this.getActual();
 			let normalized = actualVector.normalizeVector(this.equilibriumLength);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
-			this.force = Vector.multiplyVector(-this.constant, diffVector);
+			return Vector.multiplyVector(-this.constant, diffVector);
 		}
 	}
 
@@ -331,22 +330,20 @@ class ImpulseCalculator extends Behaviour {
 		let actualVector = this.getActual();
 		let actualVectorLength = Vector.length(actualVector);
 		if (snugDistance < actualVectorLength) {
-			this.force = new Force(0, 0);
 			return;
 		} else {
 			let elasticModulus = 1/(1/this.node1.elasticModulus+1/this.node2.elasticModulus);
 			let normalized = actualVector.normalizeVector(snugDistance);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
-			this.force = Vector.multiplyVector(-elasticModulus, diffVector);
+			return Vector.multiplyVector(-elasticModulus, diffVector);
 		}
 	}
 }
 
 
-ok, we need to let each calculator generate its own force, return it and then add them together
-in for example the calculateForce function
-
-rewrite the caller function to have another verson that adds together the results
+//ok, we need to let each calculator generate its own force, return it and then add them together
+//in for example the calculateForce function
+//rewrite the caller function to have another verson that adds together the results
 
 /** This calculates force as if it was a field
  * @class
@@ -381,7 +378,7 @@ class FieldCalculator extends Behaviour {
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(1);
 		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
-		this.force = Vector.multiplyVector(-forceSize, normalized);
+		return Vector.multiplyVector(-forceSize, normalized);
 	}
 
 }
@@ -424,7 +421,7 @@ class AbsorbCalculator extends Behaviour {
 		let parallellVelocity = Vector.multiplyVector(
 			Vector.dotProduct(actualVector, internalSpeed),
 			Vector.divideVector(actualVector, this.getLengthSquare()));
-		this.force = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
+		return Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
 	}
 
 }
@@ -848,10 +845,10 @@ class CollisionBounce extends Behaviour {
 			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
 		}
 
-		debugdummy++;
-		if (debugdummy==14) {
-			smallnodezoom(collider);
-		}
+		//debugdummy++;
+		//if (debugdummy==14) {
+		//	smallnodezoom(collider);
+		//}
 	}
 
 	

@@ -329,7 +329,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 		} 
 
-		/*
+		
 		let alpha = new Node(this.world, this, 'moveable hardball', {
 			'name': 'alpha',
 			'size': 2,
@@ -345,12 +345,12 @@ class PerformanceTrussNode extends TrussNode {
 			'elasticModulus': 1000,
 		});
 		new Tensor(alpha, beta,
-			'pullspring impulsespring',
+			'pullspring pushspring',
 			{
-				'name': 'bottom',
+				'name': 'experimetalstring',
 				'constant': 10,
 				'equilibriumLength': 1,
-			});*/
+			});
 
 		/*
 		new Node(this.world, this, 'collide moveable debugnode', {

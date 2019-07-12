@@ -265,6 +265,31 @@ class StoreableObject {
 	}
 
 	/**
+	 * go through the call list and call the right behaviour, but cumulatively add the results together
+	 * @param  {List} callList
+	 * @param {function} additionFunction
+	 * @param  {List} args
+	 * @return {Object} An object that is the sum (according to the addFunction) of all calls in the callList
+	 */
+	cumulativeCaller(callList, additionFunction,...args) {
+		if (this.isGhost && this.isGhost()) {
+			if (this.ghostCalcList && callList==this.calcList ) {
+				callList = this.ghostCalcList;
+			}
+			else {
+				return;
+			}
+		}
+
+		let cumulative=undefined;
+		for (let f of callList) {
+			let result = f.call(this, ...args);
+			cumulative = additionFunction(cumulative,result);
+		}
+		return cumulative;
+	}
+
+	/**
 	 * Update the position based on velocity, then let
 	 * the this.positionFunction (if present) tell where it should actually be
 	 * @param  {List} args
@@ -290,8 +315,7 @@ class StoreableObject {
 	 * Calculate the forces acting on the object
 	 * @param  {number} stage 0 for normal calculations, 1 for absorbers and other calculations that 'calms down' the world
 	 * @param  {List} args
-	 * @return {number} If the call return value is nonzero, prevent all other registered
-	 * calls to this function. A final answer has been found;
+	 * @return {Force} returns the resultant force of all the applied force calculations on a tensor
 	 */
 	calculateForce(stage=0, ...args) {
 		let list = this.calcList;
@@ -299,7 +323,17 @@ class StoreableObject {
 			list = this.calcList2;
 		}
 
-		return this.caller(list, ...args);
+		let addVectorFunction = function (a,b) {
+			if (!a) {
+				return b;
+			}
+			if (!b) {
+				return a;
+			}
+			return Vector.addVectors(a,b);
+		};
+
+		return this.cumulativeCaller(list, addVectorFunction, ...args);
 	}
 
 	/**

@@ -657,7 +657,7 @@ class Tensor extends StoreableObject {
 	* Calculate the force
 	*/
 	calculateForce() {
-		super.calculateForce(0);
+		this.force = super.calculateForce(0);
 	}
 
 	/**
@@ -665,7 +665,7 @@ class Tensor extends StoreableObject {
 		on velocity rather than position, to make the world 'calmer' )
 	*/
 	calculateForce2() {
-		super.calculateForce(1);
+		this.force = super.calculateForce(1);
 	}
 
 
