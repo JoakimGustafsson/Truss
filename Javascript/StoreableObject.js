@@ -284,6 +284,10 @@ class StoreableObject {
 		let cumulative=undefined;
 		for (let f of callList) {
 			let result = f.call(this, ...args);
+			
+			if (result && isNaN(result.x)) {
+				console.log('ERROR: Illegal Spring Force: '+this.name);
+			}
 			cumulative = additionFunction(cumulative,result);
 		}
 		return cumulative;

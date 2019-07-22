@@ -14,7 +14,7 @@
  * Zoom in on a node such that all the smallest tensor connected to it are shown
  * @param  {node} node
  */
-function smallnodezoom(node, halt=1) {
+function smallnodezoom(node, halt=1, counter=-1) {
 	function mapply(func, dim, ...list) {
 		let l =[];
 		for(let e of list) {
@@ -29,6 +29,10 @@ function smallnodezoom(node, halt=1) {
 	let minLength = Infinity;
 	let index=0;
 	let length=0;
+
+	if (counter>0) {
+		console.log('counter: '+counter);
+	}
 
 	for(let i=0; i<node.connectedTensors.length; i++) {
 		let tensor=node.connectedTensors[i];
@@ -95,8 +99,8 @@ function smallnodezoom(node, halt=1) {
 		
 		console.log(maxY);
 	}
-	universe.currentNode.worldOffset = new Vector(minX, minY) ;
-	universe.currentNode.worldSize = new Vector(length*2.2, length*2.2);
+	universe.currentNode.view.setOffset( new Vector(minX, minY)) ;
+	universe.currentNode.view.setWorldViewSize( new Vector(length*4.2, length*4.2));
 	//universe.currentNode.view.resize();
 	//universe.show();
 	//universe.currentNode.resize();

@@ -506,6 +506,12 @@ class Tensor extends StoreableObject {
 	getForce(node) {
 		let directedforce;
 		let torqueForce;
+		if (!this.force) {
+			this.force=new Force(0,0);
+		}
+		if (!this.force) {
+			this.force=new Force(0,0);
+		}
 		if (node == this.node2) {
 			directedforce = this.force;
 			torqueForce = this.torqueForce1;
@@ -569,7 +575,11 @@ class Tensor extends StoreableObject {
 		if ((where < -0.01) || (1.01 < where)) {
 			newDistance = undefined;
 		}
-		this.collideDistanceMapping[node.name] = newDistance;
+		if (!newDistance) {
+			delete this.collideDistanceMapping[node.name];
+		} else {
+			this.collideDistanceMapping[node.name] = newDistance;
+		}
 		if ((oldDistance!=0 && newDistance==0) || oldDistance * newDistance < 0) {
 			if ((where >= 0.0) && (where <= 1.0)) {
 				let detail = {

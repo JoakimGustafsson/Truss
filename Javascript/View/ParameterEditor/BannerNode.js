@@ -59,12 +59,14 @@ class BannerNode extends Node {
 			'localPosition': new Position(topLeft.x, topLeft.y),
 			'name': 'leftTop',
 			'mass': 1,
+			'visible': 0,
 			'velocityLoss': 0.9,
 		});
 		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topLeft.x + windowWidth, topLeft.y),
 			'name': 'rightTop',
 			'mass': 1,
+			'visible': 0,
 			'velocityLoss': 0.9,
 		});
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
@@ -76,7 +78,7 @@ class BannerNode extends Node {
 			'localPosition': new Position(topLeft.x , topLeft.y + windowHeight),
 			'name': 'leftBottomNode',
 			'mass': 3,
-			'color': 'transparent',
+			'visible': 0,
 			'velocityLoss': 0.9,
 		});
 
@@ -84,7 +86,7 @@ class BannerNode extends Node {
 			'localPosition': new Position(topLeft.x + windowWidth , topLeft.y + windowHeight),
 			'name': 'rightBottomNode',
 			'mass': 3,
-			'color': 'transparent',
+			'visible': 0,
 			'velocityLoss': 0.9,
 		});
 	
@@ -112,7 +114,7 @@ class BannerNode extends Node {
 			'dampeningConstant': 10,
 			'name': 'abc',
 			'constant': 6000,
-			'color': 'transparent',
+			'visible': 0,
 		});
 
 		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {

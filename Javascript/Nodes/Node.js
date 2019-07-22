@@ -386,6 +386,9 @@ class Node extends StoreableObject {
 		}
 		this.velocity = Vector.addVectors(Vector.multiplyVector(this.velocityLoss, this.velocity),
 			Vector.multiplyVector(timeFactor, acceleration));
+		if (!this.velocity || isNaN(this.velocity.x) || isNaN(this.velocity.y)) {
+			console.log('ERROR: Illegal Velocity: '+this.name);
+		}
 	}
 
 	/**
@@ -411,6 +414,8 @@ class Node extends StoreableObject {
 			if (!velocityPhase || applier.velocityBasedTensors) {
 				try {
 					tempForce = applier.getForce(this);
+					if (!tempForce || isNaN(tempForce.x) || isNaN(tempForce.y))
+						console.log('ERROR: Illegal Force: '+this.name);
 					result.add(tempForce);
 				} catch (err) {
 					console.log(err);

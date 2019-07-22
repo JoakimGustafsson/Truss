@@ -204,6 +204,9 @@ class SpringCalculator extends Behaviour {
 		let actualVector = this.getActual();
 		let normalized = actualVector.normalizeVector(this.equilibriumLength);
 		let diffVector = Vector.subtractVectors(actualVector, normalized);
+		if (isNaN(diffVector.x)) {
+			console.log('ERROR: Illegal Spring Force: '+this.name);
+		}
 		return Vector.multiplyVector(-this.constant, diffVector);
 	}
 }
@@ -248,6 +251,9 @@ class PullCalculator extends Behaviour {
 			let actualVector = this.getActual();
 			let normalized = actualVector.normalizeVector(this.equilibriumLength);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
+			if (isNaN(diffVector.x)) {
+				console.log('ERROR: Illegal Spring Force: '+this.name);
+			}
 			return Vector.multiplyVector(-this.constant, diffVector);
 		}
 	}
@@ -332,9 +338,18 @@ class ImpulseCalculator extends Behaviour {
 		if (snugDistance < actualVectorLength) {
 			return;
 		} else {
-			let elasticModulus = 1/(1/this.node1.elasticModulus+1/this.node2.elasticModulus);
+			let elasticModulus1 = this.node1.elasticModulus || 1;
+			let elasticModulus2 = this.node2.elasticModulus || 1;
+			let elasticModulus = 1/(1/elasticModulus1+1/elasticModulus2);
+			if (snugDistance==0) {
+				return;
+			}
 			let normalized = actualVector.normalizeVector(snugDistance);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
+			
+			if (isNaN(diffVector.x)) {
+				console.log('ERROR: Illegal Spring Force: '+this.name);
+			}
 			return Vector.multiplyVector(-elasticModulus, diffVector);
 		}
 	}
@@ -783,7 +798,7 @@ class CollisionBounce extends Behaviour {
 
 		let shortage = tensor.getLength()-tensor.equilibriumLength;
 
-		let impulseSpringLabel = universe.currentWorld.labels.findLabel('impulsespring');
+		//let impulseSpringLabel = universe.currentWorld.labels.findLabel('impulsespring');
 
 		// Tensor 1
 		let startTensor = tensor;
@@ -818,7 +833,7 @@ class CollisionBounce extends Behaviour {
 			'from':detail.from
 		};
 
-		startTensor.name='[start-'+startTensor.name+']';
+		//startTensor.name='[start-'+startTensor.name+']';
 		startTensor.node2=collider;
 		if (tensor.equilibriumLength!=undefined) {
 			startTensor.equilibriumLength=tensor.equilibriumLength*where;
@@ -829,7 +844,7 @@ class CollisionBounce extends Behaviour {
 	
 
 		// Tensor 2
-		endTensor.name='[end-'+endTensor.name+']';
+		//endTensor.name='[end-'+endTensor.name+']';
 		endTensor.node1=collider;
 		if (tensor.equilibriumLength!=undefined) {
 			endTensor.equilibriumLength=tensor.equilibriumLength*(1-where);
@@ -845,10 +860,9 @@ class CollisionBounce extends Behaviour {
 			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
 		}
 
-		//debugdummy++;
-		//if (debugdummy==14) {
-		//	smallnodezoom(collider);
-		//}
+		if (collider.name=='newball_2' ){ //debugdummy==59) {
+			//smallnodezoom(collider);
+		}
 	}
 
 	
@@ -871,6 +885,13 @@ class CollisionBounce extends Behaviour {
 			// from is plus if comming from right
 			let dir=angle*from;
 			
+			if (node.name=='newball_2' ) {
+				debugdummy++;
+				//if (debugdummy>487){
+				smallnodezoom(node,1,debugdummy);
+				//	debugdummy=0;
+				//}
+			}
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
@@ -887,6 +908,7 @@ class CollisionBounce extends Behaviour {
 					nextTensor.destroy();
 					thisTensor.setSide(node, from);
 				}
+				
 			}
 		}
 
@@ -916,7 +938,6 @@ class CollisionBounce extends Behaviour {
 		for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
 			i.equilibriumLength = i.getLength() - elongationPerTensor;
 		} 
-
 	}
 
 }

@@ -257,7 +257,10 @@ class PerformanceTrussNode extends TrussNode {
 		// let parent = this.parentTrussNode;
 		// let world = parent.world;
 
-		this.selector = new Node(this.world, this, 'selector', {'name': 'Selector '});
+		this.selector = new Node(this.world, this, 'selector', {
+			'name': 'Selector ', 
+			'color': 'red',
+			'size':0.02});
 
 		let start2 = new Node(this.world, this, 'node', {
 			'name': 'startleft',
@@ -315,11 +318,11 @@ class PerformanceTrussNode extends TrussNode {
 		
 
 		
-		for (let a = 0; a<5; a++) {
+		for (let a = 0; a<15; a++) {
 			new Node(this.world, this, 'collide moveable hardball debugnode', {
 				'name': 'newball_'+a,
 				'mass': 1,
-				'elasticModulus': 1000,
+				'elasticModulus': 2000,
 				'size': 0.02,
 				'color': 'white',
 				'localPosition': new Position(2, 3+0.05*a),
@@ -329,7 +332,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 		} 
 
-		
+		/*
 		let alpha = new Node(this.world, this, 'moveable hardball', {
 			'name': 'alpha',
 			'size': 2,
@@ -352,7 +355,7 @@ class PerformanceTrussNode extends TrussNode {
 				'equilibriumLength': 1,
 			});
 
-		/*
+		
 		new Node(this.world, this, 'collide moveable debugnode', {
 			'name': 'ball3',
 			'mass': 1,
@@ -360,17 +363,20 @@ class PerformanceTrussNode extends TrussNode {
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(1, 0.1),
-		});
+		});*/
 		
 		
 
 		new Node(this.world, this, 'node button', {
 			'name': 'new Ball',
 			'localPosition': new Position(4, 1),
+			'size': 0.02,
 			'buttonScript':  ' () => {'+
-				'new Node(this.world, this, \'collide moveable debugnode\', {'+
+				'new Node(this.world, this, \'collide moveable hardball debugnode\', {'+
 				'\'name\': \'ball\'+cheatCounter++,'+
 				'\'mass\': 1,'+
+				'\'elasticModulus\': 1000,'+
+				'\'size\': 0.02,'+
 				'\'localPosition\': new Position(2, 3),'+
 				'\'velocityLoss\': 1,'+
 				'\'collisionLabel\': \'bounce\','+
@@ -378,6 +384,7 @@ class PerformanceTrussNode extends TrussNode {
 			'});}'
 		});
 
+		/*
 		new Node(this.world, this, 'button', {
 			'name': 'generate',
 			'localPosition': new Position(4, 3),

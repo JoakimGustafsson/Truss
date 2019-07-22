@@ -28,6 +28,7 @@ class Labels {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
 			'visibilityProperty': 1,
+			'sizeProperty': 1,
 			'colorProperty': 'white',
 			'parentTrussNodeProperty': undefined,
 			'connectedTensorsProperty': undefined,
@@ -38,7 +39,7 @@ class Labels {
 		});
 		this.hardBall = this.addLabel('hardball', [this.nodeLabel], {
 			'elasticModulusProperty': 1,
-			'sizeProperty': 1,
+			//'sizeProperty': 1,
 		});
 		this.cellNodeLabel = this.addLabel('cellnode', [this.nodeLabel], {});
 		this.tensorLabel = this.addLabel('tensor', [], {
