@@ -1,7 +1,7 @@
 /*jshint esversion:6 */
 /* exported Labels */
-/* global PushCalculator PullCalculator ImpulseCalculator SpringCalculator FieldCalculator AbsorbCalculator */
-/* global AngleNode AngleTensor SelectorBehaviour KeySensor Scriptposition */
+/* global PushCalculator CenterDisplay PullCalculator ImpulseCalculator SpringCalculator FieldCalculator AbsorbCalculator */
+/* global AngleNode AngleTensor SelectorBehaviour KeySensor Scriptposition DebugWindowSensor */
 /* global ButtonBehaviour ScriptShow CollisionSensor CollisionBounce ScriptPosition PropertyList */
 
 /**
@@ -91,7 +91,7 @@ class Labels {
 			'degree1Property': 1,
 			'degree2Property': 1,
 		});
-		this.addLabel('debugnode', [], {
+		this.addLabel('velocitynode', [], {
 			'velocityProperty': undefined,
 		});
 		this.addLabel('color', [], {
@@ -144,7 +144,14 @@ class Labels {
 		this.addLabel('button', [this.nodeLabel, this.moveableLabel], {
 			'buttonScriptProperty': '/*sourcepath template.js*/ () => {alert("MyButtonScript");}',},
 		[new ButtonBehaviour()]);
+		this.addLabel('debug', [this.sensorLabel], {},
+			[new DebugWindowSensor()]);
+			
+		this.addLabel('center', [this.sensorLabel], {},
+			[new CenterDisplay()]);
 	}
+
+	
 
 	/**
 	 * @param  {Property} name

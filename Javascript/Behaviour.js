@@ -1,5 +1,5 @@
 /*jshint esversion:6 */
-/* global control Tensor smallnodezoom*/
+/* global control Tensor smallnodezoom debugEntity*/
 
 let BehaviourOverride = {
 	SHOW: 1,
@@ -885,13 +885,8 @@ class CollisionBounce extends Behaviour {
 			// from is plus if comming from right
 			let dir=angle*from;
 			
-			if (node.name=='newball_2' ) {
-				debugdummy++;
-				//if (debugdummy>487){
-				smallnodezoom(node,1,debugdummy);
-				//	debugdummy=0;
-				//}
-			}
+			//debugEntity.breakAt(node, 'name', 'newball_2', 450);
+
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
@@ -983,7 +978,6 @@ function debugBounce(tensor) {
 	console.log('SUM Length: '+ sumLength);
 }
 
-var debugdummy =0;
 
 /** This behaviour draws a button next to the object and trigger a script
  * @class
@@ -1036,5 +1030,91 @@ class ButtonBehaviour extends Behaviour {
 	updateXPosition() {
 		this.buttonReference.innerHTML = this.name;
 		this.parentTrussNode.view.putElementOnScreen(this.localPosition, this.buttonReference);
+	}
+}
+
+
+/** This sensor updates the debug window
+ * @class
+ * @extends Behaviour
+ */
+class DebugWindowSensor extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		//storeableObject.debugEntity=debugEntity;
+		storeableObject.registerOverride(BehaviourOverride.SENSE, DebugWindowSensor.prototype.sense);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.SENSE, DebugWindowSensor.prototype.sense);
+
+	}
+
+	/**
+	 * If the position of the controlled object bounces or leaves on the right or
+	 * left side, disconnect it and restore the tensor to its original.
+	 * @param {number} time
+	 * @param {number} deltaTime
+	 * @param {Trussnode} trussNode
+	 */
+	sense() {
+
+		debugEntity.debugWindow.timeField.refresh();
+
+		//debugEntity.debugWindow.shadeLevel.value=universe.currentNode.view.clearLevel;
+		
+		debugEntity.debugWindow.debugCounter.refresh();
+		debugEntity.debugWindow.shade.refresh();
+		debugEntity.debugWindow.ticks.refresh();
+
+	}
+}
+
+/** This sensor updates the debug window
+ * @class
+ * @extends Behaviour
+ */
+class CenterDisplay extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.UPDATEPOSITION, CenterDisplay.prototype.updatePosition);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.UPDATEPOSITION, CenterDisplay.prototype.updatePosition);
+	}
+
+	/**
+	 * set the offset of the view so it is centered on this node
+	 *
+	 */
+	updatePosition() {
+		universe.currentNode.worldOffset = 
+			Vector.subtractVectors(
+				this.localPosition,
+				Vector.divideVector(universe.currentNode.worldSize,2)
+			);	
 	}
 }

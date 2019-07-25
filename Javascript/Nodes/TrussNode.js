@@ -354,7 +354,7 @@ class TrussNode extends Node {
 
 			this.updatePositions(trussTime, deltaTime);
 		}
-		this.sense(deltaTime);
+		this.sense(trussTime,deltaTime);
 	}
 
 	/**

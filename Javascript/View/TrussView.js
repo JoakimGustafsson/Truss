@@ -66,9 +66,11 @@ class TrussView {
 		let handlers = {
 			set(target, key, value, context) {
 				let returnValue = Reflect.set(target, key, value, context);
-				if (key == 'x' || key == 'y') {
+				if (key == 'y' || (key == 'x' && !_this.parentNode.lockedRatio)) {
 					_this.recalculate();
 				}
+				
+
 				return returnValue;
 			}
 		};
@@ -276,6 +278,8 @@ class TrussView {
 		if (this.parentNode.lockedRatio) 
 		{
 			this.xScale=this.yScale;
+			this._worldViewSize.x=this.xScale*this.screenSize.x;
+
 		}
 		this.setDistanceMultiplier();
 
@@ -303,8 +307,9 @@ class TrussView {
 			if (oldHeight) {
 				this._worldViewSize.y = this._worldViewSize.y*(this.element.offsetHeight/oldHeight);
 			}
+		} else {
+			this.recalculate();
 		}
-		this.recalculate();
 	}
 
 	

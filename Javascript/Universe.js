@@ -66,7 +66,8 @@ class Universe {
 		this.background = background;
 		this.selectedObject = undefined;
 		this.setupTicks = 0; // Initiated in SetCurrent
-		this.debugHaltCounter=0; // number of ticks until halt
+		this.debugHaltCounter = 0; // number of ticks until halt
+		this.timeStamp = 0; // the latest time stamp
 	}
 
 	/**
@@ -121,7 +122,7 @@ class Universe {
 	 * @param {number} timestamp
 	 */
 	tick(timestamp) {
-
+		this.timeStamp=timestamp;
 		if (this.debugHaltFunction) {
 			this.debugHaltCounter = this.debugHaltFunction(this.debugHaltCounter);
 			if (!this.debugHaltCounter) {

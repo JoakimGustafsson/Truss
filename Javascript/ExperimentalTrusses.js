@@ -262,6 +262,7 @@ class PerformanceTrussNode extends TrussNode {
 			'color': 'red',
 			'size':0.02});
 
+
 		let start2 = new Node(this.world, this, 'node', {
 			'name': 'startleft',
 			'localPosition': new Position(1, 1),
@@ -281,6 +282,11 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 
+
+		new Node(this.world, this, 'debug', {
+			'name': 'debug',
+			'localPosition': new Position(0, 0),
+		});
 
 		let start = new Node(this.world, this, 'node', {
 			'name': 'startright',

@@ -183,6 +183,14 @@ class Vector {
 		return new Vector(v1.x + v2.x, v1.y + v2.y);
 	}
 
+	/** Class method that clones a vector
+	 * @param  {Vector} v
+	 * @return {Vector}
+	 */
+	static clone(v) {
+		return new Vector(v.x, v.y);
+	}
+
 	/**
 	 * @param  {Vector} v1
 	 * @param  {Vector} v2
