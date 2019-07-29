@@ -20,6 +20,7 @@ class StoreableObject {
 		this.isNode = this instanceof Node;
 		this.senseList=[];
 		this.preUpdatePositionList=[];
+		this.postUpdatePositionList=[];
 		this.updatePositionList=[];
 		this.showList=[];
 		this.torqueList=[];
@@ -202,6 +203,9 @@ class StoreableObject {
 		case BehaviourOverride.POSTCALCULATE:
 			this.calcList2.push(newFunction);
 			break;
+		case BehaviourOverride.POSTUPDATEPOSITION:
+			this.postUpdatePositionList.push(newFunction);
+			break;
 		case BehaviourOverride.ROTATE:
 			this.rotateList.push(newFunction);
 			break;
@@ -319,6 +323,10 @@ class StoreableObject {
 
 	preUpdatePosition(...args){
 		return this.caller(this.preUpdatePositionList, ...args);
+	}
+
+	postUpdatePosition(...args){
+		return this.caller(this.postUpdatePositionList, ...args);
 	}
 
 	/**

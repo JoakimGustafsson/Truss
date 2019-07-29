@@ -484,7 +484,7 @@ class Node extends StoreableObject {
 					cxt.beginPath();
 					if (this.acceleration) {
 						view.drawLine(this.getPosition(),
-							Vector.addVectors(this.getPosition(), Vector.multiplyVector(multiplier, this.acceleration)));
+							Vector.addVectors(this.getPosition(), Vector.multiplyVector(10*multiplier, this.acceleration)));
 					}
 					cxt.stroke();
 				}

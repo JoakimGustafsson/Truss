@@ -10,7 +10,8 @@ let BehaviourOverride = {
 	SENSE: 6,
 	COLLIDE: 7,
 	PREUPDATEPOSITION: 8,
-	ROTATE: 8,
+	POSTUPDATEPOSITION: 9,
+	ROTATE: 10,
 };
 
 /**
@@ -780,7 +781,7 @@ class BounceTensorManagent extends Behaviour {
 	 * @param {StoreableObject} storeableObject
 	 */
 	attachTo(storeableObject) { 
-		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.handleBrokenTensors);
+		storeableObject.registerOverride(BehaviourOverride.POSTUPDATEPOSITION, BounceTensorManagent.prototype.handleBrokenTensors);
 		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.preUpdate);
 
 	}
@@ -789,7 +790,7 @@ class BounceTensorManagent extends Behaviour {
 	 * @param {StoreableObject} storeableObject
 	 */
 	detachFrom(storeableObject) {
-		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.handleBrokenTensors);
+		storeableObject.unregisterOverride(BehaviourOverride.POSTUPDATEPOSITION, BounceTensorManagent.prototype.handleBrokenTensors);
 		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.preUpdate);
 	}
 
@@ -849,32 +850,41 @@ class BounceTensorManagent extends Behaviour {
 
 		let startTensor = originalTensor.brokendata.startTensor;
 
-		let counter=1;
-		for (let i = startTensor ; i && i.brokendata ; i=i.brokendata.nextTensor) {
-			i.name=originalTensor.name+' '+(counter++);
-		}
-
 		for (let i = startTensor ; i && i.brokendata && i.brokendata.nextTensor!=undefined ; i=i.brokendata.nextTensor) {
 			loosen(originalTensor, i);
 		}
+
+		recalcStretch(originalTensor);
 		
-		let totalStretchedLength = 0;
-		let numberOfTensors=0;
-		for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
-			totalStretchedLength+=i.getLength();
-			numberOfTensors++;
-		} 
-
-		//let originalStretch = originalTensor.getLength()-originalTensor.equilibriumLength;
-
-		let elongationPerTensor = (totalStretchedLength-originalTensor.equilibriumLength)/numberOfTensors;
-
-		
-		for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
-			i.equilibriumLength = i.getLength() - elongationPerTensor;
-		} 
 	}
 }
+
+function recalcStretch(originalTensor) {
+	
+	let startTensor = originalTensor.brokendata.startTensor;
+
+	let counter=1;
+	for (let i = startTensor ; i && i.brokendata ; i=i.brokendata.nextTensor) {
+		i.name=originalTensor.name+' '+(counter++);
+	}
+
+	let totalStretchedLength = 0;
+	let numberOfTensors=0;
+	for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
+		totalStretchedLength+=i.getLength();
+		numberOfTensors++;
+	} 
+
+	//let originalStretch = originalTensor.getLength()-originalTensor.equilibriumLength;
+
+	let elongationPerTensor = (totalStretchedLength-originalTensor.equilibriumLength)/numberOfTensors;
+
+	
+	for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
+		i.equilibriumLength = i.getLength() - elongationPerTensor;
+	} 
+}
+
 
 /** This assumes a CollisionSensor behaviour already has been added to the node and that
  * this CollisionSensor calls the collide() function. This behaviour is attached to tensors
@@ -971,12 +981,15 @@ class CollisionBounce extends Behaviour {
 		endTensor.angle1=anglify(tensor.getTensorAngle(collider)-collider.angle);
 		endTensor.torqueConstant1=0;
 
-		if (tensor.equilibriumLength!=undefined) {
+		// ok this should take all childtensor into console.
+
+		recalcStretch(original);
+		/*if (tensor.equilibriumLength!=undefined) {
 			startTensor.equilibriumLength=startTensor.getLength()-shortage/2;
 		}
 		if (tensor.equilibriumLength!=undefined) {
 			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
-		}
+		}*/
 
 	}
 }

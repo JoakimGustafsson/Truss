@@ -163,7 +163,9 @@ class TrussNode extends Node {
 		//this.fieldLabel = world.labels.findLabel('field');
 		this.absorberLabel = world.labels.findLabel('absorber');
 		//this.springLabel = world.labels.findLabel('spring');
-		this.preUpdatePositionsLabel = world.labels.findLabel('preupdateposition');
+		this.preUpdatePositionLabel = world.labels.findLabel('preupdateposition');
+		this.postUpdatePositionLabel = world.labels.findLabel('postupdateposition');
+		
 	}
 
 	/**
@@ -320,8 +322,18 @@ class TrussNode extends Node {
 	 * @param {number} deltaTime
 	 */
 	preUpdatePositions(trussTime, deltaTime) {
-		for (let item of this.preUpdatePositionsLabel.getReferences()) {
+		for (let item of this.preUpdatePositionLabel.getReferences()) {
 			item.preUpdatePosition(trussTime, deltaTime);
+		}
+	}
+	/**
+	 * go through this list and sort out things after updating positions
+	 * @param {number} trussTime
+	 * @param {number} deltaTime
+	 */
+	postUpdatePositions(trussTime, deltaTime) {
+		for (let item of this.postUpdatePositionLabel.getReferences()) {
+			item.postUpdatePosition(trussTime, deltaTime);
 		}
 	}
 	/**
@@ -365,6 +377,7 @@ class TrussNode extends Node {
 
 			this.preUpdatePositions(deltaTime);
 			this.updatePositions(trussTime, deltaTime);
+			this.postUpdatePositions(deltaTime);
 		}
 		this.sense(trussTime,deltaTime);
 	}

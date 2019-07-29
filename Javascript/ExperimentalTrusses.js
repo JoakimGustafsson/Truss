@@ -274,7 +274,7 @@ class PerformanceTrussNode extends TrussNode {
 		});
 
 		new Tensor(start2, end2,
-			'spring bounce rubberbounceactuator',
+			'pullspring bounce rubberbounceactuator',
 			{
 				'name': 'left',
 				'constant': 909,
@@ -299,7 +299,7 @@ class PerformanceTrussNode extends TrussNode {
 		});
 
 		new Tensor(start, end,
-			'spring bounce rubberbounceactuator',
+			'pullspring bounce rubberbounceactuator',
 			{
 				'name': 'right',
 				'constant': 10,
@@ -307,7 +307,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 		new Tensor(start, start2,
-			'spring bounce rubberbounceactuator',
+			'pullspring bounce rubberbounceactuator',
 			{
 				'name': 'top',
 				'constant': 10,
@@ -323,8 +323,22 @@ class PerformanceTrussNode extends TrussNode {
 			});
 		
 
-		
-		for (let a = 0; a<1; a++) {
+		for (let a = 0; a<10; a++) {
+			new Node(this.world, this, 'collide moveable hardball velocitynode', {
+				'name': 'newball_'+a,
+				'mass': 1,
+				'elasticModulus': 10000,
+				'size': 0.04,
+				'color': 'white',
+				'localPosition': new Position(2, 3+0.09*a),
+				'velocityLoss': 1,
+				'collisionLabel': 'bounce',
+				'velocity': new Velocity(-1,0+0.39*a),
+			});
+		} 
+	
+		/*
+		for (let a = 0; a<10; a++) {
 			new Node(this.world, this, 'collide moveable hardball velocitynode', {
 				'name': 'newball_'+a,
 				'mass': 1,
@@ -350,7 +364,7 @@ class PerformanceTrussNode extends TrussNode {
 				'collisionLabel': 'bounce',
 				'velocity': new Velocity(1,0),
 			});
-		} 
+		} */
 		
 		/*
 		let alpha = new Node(this.world, this, 'moveable hardball', {
