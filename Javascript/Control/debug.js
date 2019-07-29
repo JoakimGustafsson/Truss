@@ -15,6 +15,7 @@ class Debug {
 			this.debugWindow = new DebugWindow(element, this);
 		}
 		this.debugCounter=0;
+		this.defaultTicks=0;
 	}
 
 	/**
@@ -36,7 +37,6 @@ class Debug {
 		let minLength = Infinity;
 		let index=0;
 		let length=0;
-		let defaultTicks=0;
 
 		if (counter>0) {
 			console.log('counter: '+counter);
@@ -179,7 +179,7 @@ class Debug {
 
 
 	breakAt(node, property, value, iteration) {
-		if (node[property]==value ) {
+		if (!property || node[property]==value ) {
 			this.debugCounter++;
 			if (this.debugCounter==iteration){
 				this.smallnodezoom(node,1,this.debugCounter);

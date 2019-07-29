@@ -324,20 +324,34 @@ class PerformanceTrussNode extends TrussNode {
 		
 
 		
-		for (let a = 0; a<15; a++) {
-			new Node(this.world, this, 'collide moveable hardball debugnode', {
+		for (let a = 0; a<1; a++) {
+			new Node(this.world, this, 'collide moveable hardball velocitynode', {
 				'name': 'newball_'+a,
 				'mass': 1,
-				'elasticModulus': 2000,
-				'size': 0.02,
+				'elasticModulus': 10000,
+				'size': 0.04,
 				'color': 'white',
-				'localPosition': new Position(2, 3+0.05*a),
+				'localPosition': new Position(2, 3+0.09*a),
 				'velocityLoss': 1,
 				'collisionLabel': 'bounce',
 				'velocity': new Velocity(1,0),
 			});
 		} 
 
+		for (let a = 0; a<0; a++) {
+			new Node(this.world, this, 'collide moveable hardball velocitynode', {
+				'name': 'newball2_'+a,
+				'mass': 2,
+				'elasticModulus': 10000,
+				'size': 0.04,
+				'color': 'white',
+				'localPosition': new Position(1.9, 5+0.09*a),
+				'velocityLoss': 1,
+				'collisionLabel': 'bounce',
+				'velocity': new Velocity(1,0),
+			});
+		} 
+		
 		/*
 		let alpha = new Node(this.world, this, 'moveable hardball', {
 			'name': 'alpha',
@@ -378,7 +392,7 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(4, 1),
 			'size': 0.02,
 			'buttonScript':  ' () => {'+
-				'new Node(this.world, this, \'collide moveable hardball debugnode\', {'+
+				'new Node(this.world, this, \'collide moveable hardball velocitynode\', {'+
 				'\'name\': \'ball\'+cheatCounter++,'+
 				'\'mass\': 1,'+
 				'\'elasticModulus\': 1000,'+

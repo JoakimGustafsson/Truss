@@ -679,15 +679,6 @@ class Tensor extends StoreableObject {
 	}
 
 
-	/**
-	* Using a space separated list, list the labels that should be added
-	* @param  {string} labels
-	*/
-	addLabel(labels) {
-		this.labelString+=' '+labels+' ';
-		this.labels =
-				this.world.labels.parse(this.labelString, this);
-	}
 }
 
 /**
@@ -732,7 +723,6 @@ class PictureSpring extends Tensor {
 			this.createHTMLPicture(this.pictureReference);
 		}
 
-		this.addLabel('picture');
 	}
 
 	/**

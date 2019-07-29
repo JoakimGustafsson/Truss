@@ -13,10 +13,13 @@ class StoreableObject {
 		this.name='Unnamed';
 		this.properties = new Properties();
 		this.labelString=initialLabels;
+		this.labels =[];
+		this.addedLabels =[];
 		this.valueObject=valueObject;
 		this.world=world;
 		this.isNode = this instanceof Node;
 		this.senseList=[];
+		this.preUpdatePositionList=[];
 		this.updatePositionList=[];
 		this.showList=[];
 		this.torqueList=[];
@@ -87,7 +90,8 @@ class StoreableObject {
      */
 	refreshPropertiesAfterLabelChange(valueObject = {}) {
 		//Attach the labels
-		this.labels = this.world.labels.parse(this.labelString, this);
+		this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		this.labels=this.parsedLabels.slice(0);
 		this.properties.clearProperties(this.labelProperty);
 
 		//Set the properties by looping over all properties listed by all labels
@@ -179,6 +183,9 @@ class StoreableObject {
 		case BehaviourOverride.UPDATEPOSITION:
 			this.updatePositionList.push(newFunction);
 			break;
+		case BehaviourOverride.PREUPDATEPOSITION:
+			this.preUpdatePositionList.push(newFunction);
+			break;
 		case BehaviourOverride.SHOW:
 			this.showList.push(newFunction);
 			break;
@@ -189,6 +196,7 @@ class StoreableObject {
 			this.calcList.push(newFunction);
 			break;
 		case BehaviourOverride.GHOSTCALCULATE:
+			alert('registering ghost');
 			this.ghostCalcList.push(newFunction);
 			break;
 		case BehaviourOverride.POSTCALCULATE:
@@ -211,6 +219,9 @@ class StoreableObject {
 		switch(type) {
 		case BehaviourOverride.SENSE:
 			removeIfPresent(newFunction, this.senseList);
+			break;
+		case BehaviourOverride.PREUPDATEPOSITION:
+			removeIfPresent(newFunction, this.preUpdatePositionList);
 			break;
 		case BehaviourOverride.UPDATEPOSITION:
 			removeIfPresent(newFunction, this.updatePositionList);
@@ -247,14 +258,15 @@ class StoreableObject {
 	 * calls to this function. A final answer has been found;
 	 */
 	caller(callList, ...args) {
-		if (this.isGhost && this.isGhost()) {
+		/*if (this.isGhost && this.isGhost()) {
 			if (this.ghostCalcList && callList==this.calcList ) {
 				callList = this.ghostCalcList;
 			}
 			else {
 				return;
 			}
-		}
+		}*/
+
 		for (let f of callList) {
 			let result = f.call(this, ...args);
 			if (result) {
@@ -272,14 +284,14 @@ class StoreableObject {
 	 * @return {Object} An object that is the sum (according to the addFunction) of all calls in the callList
 	 */
 	cumulativeCaller(callList, additionFunction,...args) {
-		if (this.isGhost && this.isGhost()) {
+		/*if (this.isGhost && this.isGhost()) {
 			if (this.ghostCalcList && callList==this.calcList ) {
 				callList = this.ghostCalcList;
 			}
 			else {
 				return;
 			}
-		}
+		}*/
 
 		let cumulative=undefined;
 		for (let f of callList) {
@@ -302,6 +314,11 @@ class StoreableObject {
 	 */
 	updatePosition(...args) {
 		return this.caller(this.updatePositionList, ...args);
+	}
+
+
+	preUpdatePosition(...args){
+		return this.caller(this.preUpdatePositionList, ...args);
 	}
 
 	/**
@@ -378,4 +395,37 @@ class StoreableObject {
 	collide(...args) {
 		return this.caller(this.collisionList, ...args);
 	}
+
+	
+	/**
+	* Using a space separated list, list the labels that should be added
+	* @param  {string} labels
+	*/
+	addLabelString(labels) {
+		this.labelString+=labels+' ';
+		this.parsedLabels=this.world.labels.parse(this.labelString, this);
+		this.labels=this.parsedLabels.slice(0);
+	}
+
+	hasLabel(label){
+		return label.hasMember(this);
+	}
+
+
+	/**
+	* Adding a label to an item.
+	* @param  {Label} label
+	*/
+	addLabel(label) {
+		label.addWithDependencies(this);
+	}
+
+	/**
+	* removing a label from item.
+	* @param  {Label} label
+	*/
+	removeLabel(label) {
+		label.removeWithDependencies(this);
+	}
+
 }

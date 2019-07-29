@@ -9,6 +9,8 @@ let BehaviourOverride = {
 	TORQUE: 5,
 	SENSE: 6,
 	COLLIDE: 7,
+	PREUPDATEPOSITION: 8,
+	ROTATE: 8,
 };
 
 /**
@@ -350,10 +352,12 @@ class ImpulseCalculator extends Behaviour {
 			if (isNaN(diffVector.x)) {
 				console.log('ERROR: Illegal Spring Force: '+this.name);
 			}
+			debugEntity.breakAt(this.node1, undefined, undefined, 10);
+
 			return Vector.multiplyVector(-elasticModulus, diffVector);
 		}
 	}
-}
+} 
 
 
 //ok, we need to let each calculator generate its own force, return it and then add them together
@@ -761,7 +765,119 @@ class CollisionSensor extends Behaviour {
 }
 
 /** This assumes a CollisionSensor behaviour already has been added to the node and that
- * this CollisionSensor calls the collide() function
+ * this CollisionSensor calls the collide() function. This behaviour is attached to tensors
+ * @class
+ * @extends Behaviour
+ */
+class BounceTensorManagent extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) { 
+		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.handleBrokenTensors);
+		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.preUpdate);
+
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.handleBrokenTensors);
+		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.preUpdate);
+	}
+
+	preUpdate(){
+		//let startNode=this.node1;
+		//let endNode=this.node2;
+		//alert(startNode.name+endNode.name);
+
+		/* if */
+	}
+		
+	/**
+	 * If the angle between the tensors is more than 180 degrees, cut the node free.
+	 * @return {number}
+	 */
+	handleBrokenTensors() {
+		function loosen(originalTensor, thisTensor) {
+			let node = thisTensor.node2;
+			let from =  thisTensor.brokendata.from;
+
+			let startangle = thisTensor.getTensorAngle(node);
+			let endangle = thisTensor.brokendata.nextTensor.getTensorAngle(node);
+			if (isNaN(startangle) || isNaN(endangle)) {
+				return;
+			}
+			let angle=anglify(startangle-endangle); 
+			// from is plus if comming from right
+			let dir=angle*from;
+			
+			//debugEntity.breakAt(node, 'name', 'newball_2', 450);
+
+			if (dir<0.000000000) {
+				if (originalTensor.brokendata.startTensor == thisTensor &&
+					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
+				{
+					originalTensor.deGhostify();
+					originalTensor.removeLabel(originalTensor.bounceTensorManagementLabel);
+					originalTensor.broken=false;
+					thisTensor.destroy();
+					thisTensor.brokendata.nextTensor.destroy();
+				} else {
+					let nextTensor=thisTensor.brokendata.nextTensor;
+					thisTensor.brokendata = nextTensor.brokendata;
+					thisTensor.node2=nextTensor.node2;
+					thisTensor.joinCollision(nextTensor);
+					nextTensor.destroy();
+					thisTensor.setSide(node, from);
+				}
+				
+			}
+		}
+
+		let originalTensor = this;
+		if (!originalTensor.brokendata) {
+			return;
+		}
+
+		let startTensor = originalTensor.brokendata.startTensor;
+
+		let counter=1;
+		for (let i = startTensor ; i && i.brokendata ; i=i.brokendata.nextTensor) {
+			i.name=originalTensor.name+' '+(counter++);
+		}
+
+		for (let i = startTensor ; i && i.brokendata && i.brokendata.nextTensor!=undefined ; i=i.brokendata.nextTensor) {
+			loosen(originalTensor, i);
+		}
+		
+		let totalStretchedLength = 0;
+		let numberOfTensors=0;
+		for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
+			totalStretchedLength+=i.getLength();
+			numberOfTensors++;
+		} 
+
+		//let originalStretch = originalTensor.getLength()-originalTensor.equilibriumLength;
+
+		let elongationPerTensor = (totalStretchedLength-originalTensor.equilibriumLength)/numberOfTensors;
+
+		
+		for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
+			i.equilibriumLength = i.getLength() - elongationPerTensor;
+		} 
+	}
+}
+
+/** This assumes a CollisionSensor behaviour already has been added to the node and that
+ * this CollisionSensor calls the collide() function. This behaviour is attached to tensors
  * @class
  * @extends Behaviour
  */
@@ -777,7 +893,7 @@ class CollisionBounce extends Behaviour {
 	 */
 	attachTo(storeableObject) { 
 		storeableObject.registerOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
-		storeableObject.registerOverride(BehaviourOverride.GHOSTCALCULATE, CollisionBounce.prototype.handleBrokenTensors);
+
 	}
 
 	/**
@@ -785,7 +901,6 @@ class CollisionBounce extends Behaviour {
 	 */
 	detachFrom(storeableObject) {
 		storeableObject.unregisterOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
-		storeableObject.unregisterOverride(BehaviourOverride.GHOSTCALCULATE, CollisionBounce.prototype.handleBrokenTensors);
 	}
 
 	/**
@@ -804,15 +919,18 @@ class CollisionBounce extends Behaviour {
 		let startTensor = tensor;
 		let endTensor = tensor.clone();
 		
-		endTensor.addLabel('impulsespring');
-		startTensor.addLabel('impulsespring');
-
-
 		let original;
 		if (!tensor.broken) { // The first break of a tensor
 			tensor.broken=true;
 			endTensor.broken=true;
 			startTensor = tensor.clone();
+
+			let bounceTensorManagementLabel = this.bounceTensorManagementLabel || this.world.labels.findLabel('bouncetensormanagement');
+			if (!this.hasLabel(bounceTensorManagementLabel)) {
+				tensor.addLabel(bounceTensorManagementLabel);
+				tensor.bounceTensorManagementLabel=bounceTensorManagementLabel;
+			}
+
 			startTensor.broken=true;
 			tensor.ghostify();
 			tensor.brokendata = {
@@ -838,7 +956,7 @@ class CollisionBounce extends Behaviour {
 		if (tensor.equilibriumLength!=undefined) {
 			startTensor.equilibriumLength=tensor.equilibriumLength*where;
 		}
-		startTensor.addLabel('angletensor');
+		startTensor.addLabelString(' angletensor');
 		startTensor.angle2=anglify(tensor.getTensorAngle(collider)+Math.PI-collider.angle);
 		startTensor.torqueConstant2=0;
 	
@@ -849,7 +967,7 @@ class CollisionBounce extends Behaviour {
 		if (tensor.equilibriumLength!=undefined) {
 			endTensor.equilibriumLength=tensor.equilibriumLength*(1-where);
 		}
-		endTensor.addLabel('angletensor');
+		endTensor.addLabelString(' angletensor');
 		endTensor.angle1=anglify(tensor.getTensorAngle(collider)-collider.angle);
 		endTensor.torqueConstant1=0;
 
@@ -860,81 +978,7 @@ class CollisionBounce extends Behaviour {
 			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
 		}
 
-		if (collider.name=='newball_2' ){ //debugdummy==59) {
-			//smallnodezoom(collider);
-		}
 	}
-
-	
-	/**
-	 * If the angle between the tensors is more than 180 degrees, cut the node free.
-	 * @return {number}
-	 */
-	handleBrokenTensors() {
-
-		function loosen(originalTensor, thisTensor) {
-			let node = thisTensor.node2;
-			let from =  thisTensor.brokendata.from;
-
-			let startangle = thisTensor.getTensorAngle(node);
-			let endangle = thisTensor.brokendata.nextTensor.getTensorAngle(node);
-			if (isNaN(startangle) || isNaN(endangle)) {
-				return;
-			}
-			let angle=anglify(startangle-endangle); 
-			// from is plus if comming from right
-			let dir=angle*from;
-			
-			//debugEntity.breakAt(node, 'name', 'newball_2', 450);
-
-			if (dir<0.000000000) {
-				if (originalTensor.brokendata.startTensor == thisTensor &&
-					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
-				{
-					originalTensor.deGhostify();
-					originalTensor.broken=false;
-					thisTensor.destroy();
-					thisTensor.brokendata.nextTensor.destroy();
-				} else {
-					let nextTensor=thisTensor.brokendata.nextTensor;
-					thisTensor.brokendata = nextTensor.brokendata;
-					thisTensor.node2=nextTensor.node2;
-					thisTensor.joinCollision(nextTensor);
-					nextTensor.destroy();
-					thisTensor.setSide(node, from);
-				}
-				
-			}
-		}
-
-		let originalTensor = this;
-		if (!originalTensor.brokendata) {
-			return;
-		}
-
-		let startTensor = originalTensor.brokendata.startTensor;
-
-		for (let i = startTensor ; i && i.brokendata && i.brokendata.nextTensor!=undefined ; i=i.brokendata.nextTensor) {
-			loosen(originalTensor, i); //startTensor, i.brokendata.nextTensor);
-		}
-		
-		let totalStretchedLength = 0;
-		let numberOfTensors=0;
-		for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
-			totalStretchedLength+=i.getLength();
-			numberOfTensors++;
-		} 
-
-		//let originalStretch = originalTensor.getLength()-originalTensor.equilibriumLength;
-
-		let elongationPerTensor = (totalStretchedLength-originalTensor.equilibriumLength)/numberOfTensors;
-
-		
-		for (let i = startTensor ; i!=undefined ; i=i.brokendata.nextTensor) {
-			i.equilibriumLength = i.getLength() - elongationPerTensor;
-		} 
-	}
-
 }
 
 function debugBounce(tensor) {

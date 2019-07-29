@@ -206,15 +206,6 @@ class Node extends StoreableObject {
 		return super.sense(...args);
 	}
 
-	/**
-	* Using a space separated list, list the labels that should be added
-	* @param  {string} labels
-	*/
-	addLabel(labels) {
-		this.labelString+=labels+' ';
-		this.labels =
-				this.world.labels.parse(this.labelString, this);
-	}
 
 	/** Handling properties
 	 * @param  {Property} property

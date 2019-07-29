@@ -158,11 +158,12 @@ class TrussNode extends Node {
 		this.sensorLabel = world.labels.findLabel('sensor');
 		this.angleNodeLabel = world.labels.findLabel('anglenode');
 		this.moveableLabel = world.labels.findLabel('moveable');
-		this.pullSpringLabel = world.labels.findLabel('pullspring');
-		this.pushSpringLabel = world.labels.findLabel('pushspring');
-		this.fieldLabel = world.labels.findLabel('field');
+		//this.pullSpringLabel = world.labels.findLabel('pullspring');
+		//this.pushSpringLabel = world.labels.findLabel('pushspring');
+		//this.fieldLabel = world.labels.findLabel('field');
 		this.absorberLabel = world.labels.findLabel('absorber');
-		this.springLabel = world.labels.findLabel('spring');
+		//this.springLabel = world.labels.findLabel('spring');
+		this.preUpdatePositionsLabel = world.labels.findLabel('preupdateposition');
 	}
 
 	/**
@@ -314,6 +315,16 @@ class TrussNode extends Node {
 	}
 
 	/**
+	 * go through this list and sort out things before updating positions
+	 * @param {number} trussTime
+	 * @param {number} deltaTime
+	 */
+	preUpdatePositions(trussTime, deltaTime) {
+		for (let item of this.preUpdatePositionsLabel.getReferences()) {
+			item.preUpdatePosition(trussTime, deltaTime);
+		}
+	}
+	/**
 	 * Loop through all nodes and move them according to their velocity
 	 * @param {number} trussTime
 	 * @param {number} deltaTime
@@ -352,6 +363,7 @@ class TrussNode extends Node {
 			this.calculateDampenedVelocity(deltaTime);
 			this.calculateRotation(deltaTime);
 
+			this.preUpdatePositions(deltaTime);
 			this.updatePositions(trussTime, deltaTime);
 		}
 		this.sense(trussTime,deltaTime);
