@@ -195,7 +195,7 @@ class Property {
 	makeInputField(id, parameterValue) {
 		let inputField = this.makeViewOfInputField(id, parameterValue);
 		inputField.addEventListener('input', () => {
-			this.assignValue(inputField.value);
+			this.assignValue(inputField.value, universe.selectedObject);
 		});
 		return inputField;
 	}
@@ -208,7 +208,7 @@ class Property {
 	makeNumberInputField(id, parameterValue) {
 		let inputField = this.makeViewOfInputField(id, parameterValue);
 		inputField.addEventListener('input', () => {
-			this.assignValue(parseFloat(inputField.value));
+			this.assignValue(parseFloat(inputField.value), universe.selectedObject);
 		});
 		return inputField;
 	}
@@ -428,7 +428,7 @@ class ScriptProperty extends Property {
 		let parameterValue = this.createNameValuePair(element);
 		this.input = this.makeViewOfInputFieldMultiline(this.identity, parameterValue, 5);
 		this.input.addEventListener('input', () => {
-			this.assignValue(this.input.value);
+			this.assignValue(this.input.value, universe.selectedObject);
 		});
 		
 		let this_ = this;
@@ -439,7 +439,7 @@ class ScriptProperty extends Property {
 			let filename = getFileName(this.input.value);
 
 			loadScript(filename, (content) => {
-				this_.assignValue(content);
+				this_.assignValue(content, universe.selectedObject);
 			});
 		});
 		parameterValue.appendChild(this.input);
@@ -498,7 +498,7 @@ class LabelProperty extends Property {
 		let parameterValue = this.createNameValuePair(element);
 		this.input = this.makeInputField(this.identity, parameterValue);
 		this.input.addEventListener('input', () => {
-			this.assignValue(this.input.value);
+			this.assignValue(this.input.value, universe.selectedObject);
 		});
 		parameterValue.appendChild(this.input);
 	}
@@ -575,7 +575,7 @@ class SwitchProperty extends Property {
 		parameterValue.appendChild(inputLabel);
 
 		inputField.addEventListener('input', () => {
-			this.assignValue(inputField.checked);
+			this.assignValue(inputField.checked, universe.selectedObject);
 		});
 
 		return inputField;
@@ -693,7 +693,7 @@ class PositionProperty extends Property {
 			this.assignValue(
 				new Position(parseInt(xinputField.value),
 					parseInt(yinputField.value)
-				), owner);
+				), universe.selectedObject);
 		});
 
 		/* function(e) {
@@ -704,7 +704,7 @@ class PositionProperty extends Property {
 			this.assignValue(
 				new Position(parseInt(xinputField.value),
 					parseInt(yinputField.value)
-				), owner);
+				), universe.selectedObject);
 		});
 
 		/* function(e) {
@@ -796,7 +796,7 @@ class NodeProperty extends Property {
 		};
 
 		changeButton.onclick = () => {
-			this.assignValue(universe.currentNode.selector);
+			this.assignValue(universe.currentNode.selector, universe.selectedObject);
 			this.initialSelectedItem =this.owner;
 			this.active=true;
 			document.addEventListener('selectionEvent', this.attachFunction, false);
@@ -1005,7 +1005,7 @@ class LabelListProperty extends Property {
 		};
 
 		inputField.addEventListener('input', () => {
-			this.assignValue(inputField.value);
+			this.assignValue(inputField.value, universe.selectedObject);
 		});
 		inputField.addEventListener('keydown', (e) => {
 			if (e.key === 'Enter') {

@@ -268,6 +268,14 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(1, 1),
 		});
 
+		let start2a = new Node(this.world, this, 'node', {
+			'localPosition': new Position(4, -1),
+		});
+		
+		let start2b = new Node(this.world, this, 'node', {
+			'localPosition': new Position(-2, 5),
+		});
+	
 		let end2 = new Node(this.world, this, 'node', {
 			'name': 'endleft',
 			'localPosition': new Position(1, 10),
@@ -282,7 +290,6 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 
-
 		new Node(this.world, this, 'debug', {
 			'name': 'debug',
 			'localPosition': new Position(0, 0),
@@ -293,9 +300,33 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(3, 1),
 		});
 
+		let starta = new Node(this.world, this, 'node', {
+			'localPosition': new Position(0, -1),
+		});
+	
+		let startb = new Node(this.world, this, 'node', {
+			'localPosition': new Position(6, 5),
+		});
+
 		let end = new Node(this.world, this, 'node', {
 			'name': 'endright',
 			'localPosition': new Position(3, 10),
+		});
+
+		let enda = new Node(this.world, this, 'node', {
+			'localPosition': new Position(6, 6),
+		});
+	
+		let endb = new Node(this.world, this, 'node', {
+			'localPosition': new Position(0, 12),
+		});
+
+		let end2a = new Node(this.world, this, 'node', {
+			'localPosition': new Position(-2, 6),
+		});
+	
+		let end2b = new Node(this.world, this, 'node', {
+			'localPosition': new Position(4, 12),
 		});
 
 		new Tensor(start, end,
@@ -304,6 +335,37 @@ class PerformanceTrussNode extends TrussNode {
 				'name': 'right',
 				'constant': 10,
 				'equilibriumLength': 1,
+			});
+
+		new Tensor(start2a, start2b,
+			'pullspring bounce rubberbounceactuator',
+			{
+				'name': 'nw',
+				'constant': 100,
+				'equilibriumLength': 0,
+			});
+	
+	
+		new Tensor(starta, startb,
+			'pullspring bounce rubberbounceactuator',
+			{
+				'name': 'ne',
+				'constant': 100,
+				'equilibriumLength': 0,
+			});
+		new Tensor(enda, endb,
+			'pullspring bounce rubberbounceactuator',
+			{
+				'name': 'sw',
+				'constant': 100,
+				'equilibriumLength': 0,
+			});
+		new Tensor(end2a, end2b,
+			'pullspring bounce rubberbounceactuator',
+			{
+				'name': 'se',
+				'constant': 100,
+				'equilibriumLength': 0,
 			});
 
 		new Tensor(start, start2,
@@ -333,7 +395,7 @@ class PerformanceTrussNode extends TrussNode {
 				'localPosition': new Position(2, 3+0.09*a),
 				'velocityLoss': 1,
 				'collisionLabel': 'bounce',
-				'velocity': new Velocity(-1,0+0.39*a),
+				'velocity': new Velocity(-2,0+0.19*a),
 			});
 		} 
 	

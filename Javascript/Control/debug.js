@@ -15,7 +15,7 @@ class Debug {
 			this.debugWindow = new DebugWindow(element, this);
 		}
 		this.debugCounter=0;
-		this.defaultTicks=0;
+		this.defaultTicks=1;
 	}
 
 	/**
@@ -53,7 +53,7 @@ class Debug {
 		console.log('Index: '+index);
 		console.log('node x: '+node.localPosition.x+ ' node y: '+node.localPosition.y);
 		if (minLength==Infinity) { 
-			return 'ERROR: No connectors to that node.'; 
+			console.log('ERROR: No connectors to that node.');
 		} else {
 			let shortTensor =node.connectedTensors[index];
 			let ts=universe.currentNode.timestep;
@@ -106,9 +106,11 @@ class Debug {
 			console.log(minY);
 		
 			console.log(maxY);
+			universe.currentNode.view.setOffset( new Vector(minX, minY)) ;
+			universe.currentNode.view.setWorldViewSize( new Vector(length*4.2, length*4.2));
 		}
-		universe.currentNode.view.setOffset( new Vector(minX, minY)) ;
-		universe.currentNode.view.setWorldViewSize( new Vector(length*4.2, length*4.2));
+
+
 		if (halt && !universe.currentNode.isPaused()) {
 			this.togglepause();
 		}
@@ -181,7 +183,7 @@ class Debug {
 	breakAt(node, property, value, iteration) {
 		if (!property || node[property]==value ) {
 			this.debugCounter++;
-			if (this.debugCounter==iteration){
+			if (iteration<0 || this.debugCounter==iteration){
 				this.smallnodezoom(node,1,this.debugCounter);
 			}
 		}
@@ -265,9 +267,11 @@ class DebugWindow {
 				() => {return universe.currentNode.view.clearLevel;},
 				(x) => {universe.currentNode.view.clearLevel = x;});
 			//this.shadeLevel = this.makeViewOfInputField(this.createNameValuePair(propertyContainer,'Shade level'));
-			createSimpleButton(propertyContainer, 'Shade', () => {if (universe.currentNode.view.clearLevel==1)
-			{universe.currentNode.view.clearLevel=0.1;} else
-			{universe.currentNode.view.clearLevel=1;}});
+			createSimpleButton(propertyContainer, 'Shade', () => {
+				if (universe.currentNode.view.clearLevel<0.02) {
+					universe.currentNode.view.clearLevel=1;} else {
+					universe.currentNode.view.clearLevel*=0.1;}
+			});
 
 		}
 

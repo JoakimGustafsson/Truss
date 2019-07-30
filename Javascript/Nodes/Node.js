@@ -371,10 +371,10 @@ class Node extends StoreableObject {
 		let acceleration;
 		if (forceAppliers.length > 0) {
 			acceleration = this.getAcceleration(forceAppliers, velocityPhase);
-			this.acceleration=acceleration; // For debug display purpose
 		} else {
 			acceleration = new Vector(0, 0);
 		}
+		this.acceleration=acceleration; // For debug display purpose
 		this.velocity = Vector.addVectors(Vector.multiplyVector(this.velocityLoss, this.velocity),
 			Vector.multiplyVector(timeFactor, acceleration));
 		if (!this.velocity || isNaN(this.velocity.x) || isNaN(this.velocity.y)) {

@@ -799,7 +799,10 @@ class BounceTensorManagent extends Behaviour {
 		//let endNode=this.node2;
 		//alert(startNode.name+endNode.name);
 
-		/* if */
+		Calcualte the new places of both ends
+		look along the tensor and see if they have changed places
+		then reconnect the end tensors
+		
 	}
 		
 	/**
@@ -817,20 +820,25 @@ class BounceTensorManagent extends Behaviour {
 				return;
 			}
 			let angle=anglify(startangle-endangle); 
-			// from is plus if comming from right
+			// "from" is positive if comming from right
 			let dir=angle*from;
 			
-			//debugEntity.breakAt(node, 'name', 'newball_2', 450);
 
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
 				{
+					//debugEntity.breakAt(node, 'name', 'newball_3', -5);	
 					originalTensor.deGhostify();
+					
+					originalTensor.joinCollision(thisTensor.brokendata.nextTensor);
+					originalTensor.joinCollision(thisTensor);
+					originalTensor.collisionExclude(node);
+
 					originalTensor.removeLabel(originalTensor.bounceTensorManagementLabel);
 					originalTensor.broken=false;
-					thisTensor.destroy();
 					thisTensor.brokendata.nextTensor.destroy();
+					thisTensor.destroy();
 				} else {
 					let nextTensor=thisTensor.brokendata.nextTensor;
 					thisTensor.brokendata = nextTensor.brokendata;
@@ -839,7 +847,7 @@ class BounceTensorManagent extends Behaviour {
 					nextTensor.destroy();
 					thisTensor.setSide(node, from);
 				}
-				
+			
 			}
 		}
 
@@ -917,11 +925,14 @@ class CollisionBounce extends Behaviour {
 	 * @param {Object} details
 	 */
 	collide(detail) {
+
 		let where = detail.where;
 		let tensor = detail.tensor;
 		let collider = detail.collider;
 
-		let shortage = tensor.getLength()-tensor.equilibriumLength;
+
+
+		//let shortage = tensor.getLength()-tensor.equilibriumLength;
 
 		//let impulseSpringLabel = universe.currentWorld.labels.findLabel('impulsespring');
 

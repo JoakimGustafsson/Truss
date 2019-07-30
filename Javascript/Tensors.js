@@ -549,6 +549,9 @@ class Tensor extends StoreableObject {
 		this.collideDistanceMapping={...this.collideDistanceMapping, ...otherTensor.collideDistanceMapping};
 	}
 
+	collisionExclude(node) {
+		delete this.collideDistanceMapping[node.name];
+	}
 
 	/**
 	 * Ensures that a node is set to be considered to be on a specific side of a tensor.
