@@ -328,7 +328,7 @@ function getS(p1, p2, p3) {
  * if 0<=t<=1 it lies between p1 and p2.
  * t can also be used to determina at what fraction of p1p2 it should "break"
  * @param  {Position} p1 The line first crosses p1
- * @param  {Position} p2 The line second crosses p2
+ * @param  {Position} p2 The line then crosses p2
  * @param  {Position} p3 The Position we want to check
  * @return {number} This represent where on the p1p2 line P3 is closest
  */
@@ -342,7 +342,7 @@ function getT(p1, p2, p3) {
 // This returns true if the closest point from p3 on the line crossing p1 and p2 lies between p1 and p2
 /**
  * @param  {Position} p1 The line first crosses p1
- * @param  {Position} p2 The line second crosses p2
+ * @param  {Position} p2 The line then crosses p2
  * @param  {Position} p3 The Position we want to check
  * @return {number} This represent where on the p1p2 line P3 is closest
  */

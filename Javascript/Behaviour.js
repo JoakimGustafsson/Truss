@@ -794,15 +794,43 @@ class BounceTensorManagent extends Behaviour {
 		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.preUpdate);
 	}
 
-	preUpdate(){
-		//let startNode=this.node1;
-		//let endNode=this.node2;
-		//alert(startNode.name+endNode.name);
+	preUpdate(trussTime, deltaTime){
+		function swap(previous, tensor, next) {
+			let node1=tensor.node1;
+			let node2=tensor.node2;
+			let velocity1=node1.velocity;
+			let velocity2=node2.velocity;
+			let newPosition1=
+			Vector.addVectors(node1.localPosition, Vector.multiplyVector(deltaTime, velocity1));
+			let newPosition2=
+			Vector.addVectors(node2.localPosition, Vector.multiplyVector(deltaTime, velocity2));
+	
+			let howFar1=getT(node1.localPosition, node2.localPosition,newPosition1);
+			let howFar2=getT(node1.localPosition, node2.localPosition,newPosition2);
 
-		Calcualte the new places of both ends
-		look along the tensor and see if they have changed places
-		then reconnect the end tensors
+			if (howFar1>howFar2) {
+				//debugEntity.breakAt(node1, undefined, 'newball_3', -5);	
+				previous.node2=tensor.node2;
+				let tempfrom = previous.brokendata.from;
+				previous.brokendata.from=tensor.brokendata.from;
+				next.node1=tensor.node1;
+				tensor.brokendata.from=tempfrom;
+				let temp=tensor.node1;
+				tensor.node1=tensor.node2;
+				tensor.node2=temp;
+			}
+		}
+		//Calcualte the new places of both ends
+		//look along the tensor and see if they have changed places
+		//then reconnect the end tensors
+
 		
+		//debugEntity.breakAt(this.node1, undefined, 'newball_3', -5);	
+		let previous = this.brokendata.startTensor;
+		for (let i = previous.brokendata.nextTensor ; i && i.brokendata && i.brokendata.nextTensor!=undefined ; i=i.brokendata.nextTensor) {
+			swap(previous, i, i.brokendata.nextTensor);
+			previous=i;
+		}
 	}
 		
 	/**
@@ -1139,6 +1167,8 @@ class DebugWindowSensor extends Behaviour {
 	sense() {
 
 		debugEntity.debugWindow.timeField.refresh();
+		debugEntity.debugWindow.localTimeField.refresh();
+		debugEntity.debugWindow.energyField.refresh();
 
 		//debugEntity.debugWindow.shadeLevel.value=universe.currentNode.view.clearLevel;
 		
@@ -1149,7 +1179,7 @@ class DebugWindowSensor extends Behaviour {
 	}
 }
 
-/** This sensor updates the debug window
+/** This sensor ensures that the node is always at the center of the screen
  * @class
  * @extends Behaviour
  */

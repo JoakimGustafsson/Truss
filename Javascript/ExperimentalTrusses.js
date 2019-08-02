@@ -285,7 +285,7 @@ class PerformanceTrussNode extends TrussNode {
 			'pullspring bounce rubberbounceactuator',
 			{
 				'name': 'left',
-				'constant': 909,
+				'constant': 900,
 				'equilibriumLength': 8,
 			});
 
@@ -312,7 +312,7 @@ class PerformanceTrussNode extends TrussNode {
 			'name': 'endright',
 			'localPosition': new Position(3, 10),
 		});
-
+		/*
 		let enda = new Node(this.world, this, 'node', {
 			'localPosition': new Position(6, 6),
 		});
@@ -328,7 +328,7 @@ class PerformanceTrussNode extends TrussNode {
 		let end2b = new Node(this.world, this, 'node', {
 			'localPosition': new Position(4, 12),
 		});
-
+		*/
 		new Tensor(start, end,
 			'pullspring bounce rubberbounceactuator',
 			{
@@ -353,7 +353,7 @@ class PerformanceTrussNode extends TrussNode {
 				'constant': 100,
 				'equilibriumLength': 0,
 			});
-		new Tensor(enda, endb,
+		/*new Tensor(enda, endb,
 			'pullspring bounce rubberbounceactuator',
 			{
 				'name': 'sw',
@@ -366,7 +366,7 @@ class PerformanceTrussNode extends TrussNode {
 				'name': 'se',
 				'constant': 100,
 				'equilibriumLength': 0,
-			});
+			});*/
 
 		new Tensor(start, start2,
 			'pullspring bounce rubberbounceactuator',
@@ -384,8 +384,30 @@ class PerformanceTrussNode extends TrussNode {
 				'equilibriumLength': 0.1,
 			});
 		
+		/*new Node(this.world, this, 'collide moveable velocitynode', {
+			'name': 'newball_'+1,
+			'mass': 1,
+			'elasticModulus': 10000,
+			'size': 0.1,
+			'color': 'lightgreen',
+			'localPosition': new Position(2.5, 5),
+			'velocityLoss': 1,
+			'collisionLabel': 'bounce',
+			'velocity': new Velocity(7,7),
+		});*/
+		new Node(this.world, this, 'collide moveable velocitynode', {
+			'name': 'newball_'+2,
+			'mass': 10,
+			'elasticModulus': 10000,
+			'size': 0.06,
+			'color': 'yellow',
+			'localPosition': new Position(2.0, 9.99),
+			'velocityLoss': 1,
+			'collisionLabel': 'bounce',
+			'velocity': new Velocity(-1,0),
+		});
 
-		for (let a = 0; a<10; a++) {
+		/*for (let a = 0; a<2; a++) {
 			new Node(this.world, this, 'collide moveable hardball velocitynode', {
 				'name': 'newball_'+a,
 				'mass': 1,

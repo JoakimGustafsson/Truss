@@ -241,8 +241,26 @@ class DebugWindow {
 
 			//this.timeField = this.makeViewOfInputField(this.createNameValuePair(propertyContainer,'Time'));
 	
-			this.timeField = new EditValueAssociation(propertyContainer, 'Time', 
-				() => {return universe.timeStamp;},
+			this.timeField = new EditValueAssociation(propertyContainer, 'Universe time', 
+				() => {return universe.currentNode.externalTime;},
+				() => {});
+
+			this.localTimeField = new EditValueAssociation(propertyContainer, 'Local time', 
+				() => {return universe.currentNode.internalTime;},
+				() => {});
+
+
+			let nodesLabel = universe.currentWorld.labels.findLabel('node');
+			this.energyField = new EditValueAssociation(propertyContainer, 'Energy', 
+				() => {
+					let energy = 0;
+					for(let n of nodesLabel.getNodes()) {
+						if (n.mass) {
+							energy+=Math.pow(Vector.length(n.velocity),2)*n.mass;
+						}
+					}
+					return energy;
+				},
 				() => {});
 			//this.makeViewOfInputField(this.createNameValuePair(propertyContainer,'Selected'));
 

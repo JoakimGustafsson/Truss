@@ -35,11 +35,14 @@ class TrussNode extends Node {
 
 		this.delta = 0;
 		this.lastFrameTimeMs = 0;
-		this.timestep = 1/60;
+		this.timestep = 1/60;	// target framerate
 		this._fps = 60,
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
 
+		this.timeMultiplier=1;
+		this.externalTime=0;	// Universal tick time, given by the system;
+		this.internalTime=0;	// The age of this truss in ticks (halts when paused)
 
 		this.selector=this;
 		if (!parentTrussNode) {
@@ -347,15 +350,6 @@ class TrussNode extends Node {
 		}
 	}
 
-	/**
-	 * Go through all sensors added by addSensor() and trigger the sense() function
-	 * @param {number} deltaTime
-	 */
-	sense(deltaTime) {
-		for (let sensorNode of this.sensorLabel.getNodes()) {
-			sensorNode.sense(deltaTime, this);
-		}
-	}
 
 	/**
 	 * The main function for calculating all forces, applying them to modify the velocities
@@ -366,55 +360,41 @@ class TrussNode extends Node {
 	 * @param {number} trussTime
 	 * @param {number} deltaTime
 	 */
-	calculate(trussTime, deltaTime) {
-		if (!this.paused) {
-			this.calculateTorques(deltaTime);
-			this.calculatePositionBasedForces(deltaTime);
-			this.calculatePositionBasedVelocities(deltaTime);
-			this.calculateVelocityBasedForces(deltaTime);
-			this.calculateDampenedVelocity(deltaTime);
-			this.calculateRotation(deltaTime);
-
-			this.preUpdatePositions(deltaTime);
-			this.updatePositions(trussTime, deltaTime);
-			this.postUpdatePositions(deltaTime);
-		}
-		this.sense(trussTime,deltaTime);
+	calculate() {
+		this.calculateTorques(this.timestep);
+		this.calculatePositionBasedForces(this.timestep);
+		this.calculatePositionBasedVelocities(this.timestep);
+		//this.calculateVelocityBasedForces(this.timestep);
+		//this.calculateDampenedVelocity(this.timestep);
+		//this.calculateRotation(this.timestep);
+	}
+	/**
+	 * update the position and velocities of the nodes based on the forces
+	 * @param {number} trussTime
+	 * @param {number} deltaTime
+	 */
+	update(trussTime) {
+		this.preUpdatePositions(trussTime, this.timestep);
+		this.updatePositions(trussTime, this.timestep);
+		this.postUpdatePositions(trussTime, this.timestep);
+		
 	}
 
+	/**
+	 * Go through all sensors added by addSensor() and trigger the sense() function
+	 * @param {number} trussTime
+	 */
+	sense(trussTime) {
+		for (let sensorNode of this.sensorLabel.getNodes()) {
+			sensorNode.sense(trussTime, this);
+		}
+	}
 	/**
 	 * Clear the screen
 	 * @param {number} fullClear The transparency (0-1.0)
 	 */
 	clear() {
 		this.view.clear();
-	}
-
-	/**
-	 * @param  {Position} position
-	 * @param  {number} maxDistance
-	 * @param  {Node} avoid
-	 * @return {Object}
-	 */
-	getClosestObject(position, maxDistance, avoid) {
-		let lowestDistance = 1000000000;
-		let closest;
-		for (let node of this.nodes) {
-			if (Position.distance(position, node.getPosition()) < lowestDistance && node != avoid) {
-				lowestDistance = Position.distance(position, node.getPosition());
-				closest = node;
-			}
-		}
-		for (let tensor of this.tensors) {
-			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
-				lowestDistance = Position.distance(position, tensor.getPosition());
-				closest = tensor;
-			}
-		}
-		if (lowestDistance > maxDistance) {
-			return;
-		}
-		return closest;
 	}
 
 	/** This toggle if the forces (and inertia) generates movement
@@ -442,28 +422,34 @@ class TrussNode extends Node {
 	 * @param {number} externalTimestamp
 	 */
 	tick(externalTimestamp) {
-		if (!this.timeMultiplier) {
-			this.timeMultiplier=1;
-		}
+		this.externalTime = externalTimestamp;
 		let timestamp = externalTimestamp*this.timeMultiplier;
+
 		// Track the accumulated time that hasn't been simulated yet
 		this.delta += timestamp - this.lastFrameTimeMs; // note += here
 		this.lastFrameTimeMs = timestamp;
 
-		// console.log(this.delta);
-
+		// the max amount of time we can compensate for
 		if (this.delta > 0.2) {
 			this.delta = 0;
 		}
 
 		// Simulate the total elapsed time in fixed-size chunks
 		while (this.delta >= this.timestep) {
-			this.calculate(timestamp - this.delta, this.timestep / 2);
+			this.calculate(timestamp);
+
+			this.showTruss(timestamp);
+		
+			if (!this.paused) {
+				this.update(timestamp);
+				this.internalTime+=	this.timestep;
+			}
+			this.sense(timestamp);
 			this.delta -= this.timestep;
 		}
 
-		this.clear();
-		this.showTruss(timestamp, universe.currentWorld.debugLevel);
+		//this.clear();
+		//this.showTruss(timestamp);
 
 		/* 	if (timestamp > this.lastFpsUpdate + 1) { // update every second
 			this.fps = 0.25 * this.framesThisSecond + (1 - 0.25) * this.fps; // compute the new FPS
@@ -480,15 +466,43 @@ class TrussNode extends Node {
 	/**
 	 * The Show function ask all tensors and nodes to draw themselves
 	 * @param  {number} time
-	 * @param  {number} graphicDebugLevel
 	 */
-	showTruss(time, graphicDebugLevel) {
+	showTruss(time) {
+		this.clear();
 		for (let tensor of this.tensors) {
-			tensor.show(this, graphicDebugLevel);
+			tensor.show(this, universe.currentWorld.debugLevel);
 		}
 
 		for (let node of this.nodes) {
-			node.show(this, time, graphicDebugLevel);
+			node.show(this, time, universe.currentWorld.debugLevel);
 		}
 	}
+	
+	/**
+	 * @param  {Position} position
+	 * @param  {number} maxDistance
+	 * @param  {Node} avoid
+	 * @return {Object}
+	 */
+	getClosestObject(position, maxDistance, avoid) {
+		let lowestDistance = 1000000000;
+		let closest;
+		for (let node of this.nodes) {
+			if (Position.distance(position, node.getPosition()) < lowestDistance && node != avoid) {
+				lowestDistance = Position.distance(position, node.getPosition());
+				closest = node;
+			}
+		}
+		for (let tensor of this.tensors) {
+			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
+				lowestDistance = Position.distance(position, tensor.getPosition());
+				closest = tensor;
+			}
+		}
+		if (lowestDistance > maxDistance) {
+			return;
+		}
+		return closest;
+	}
+
 }
