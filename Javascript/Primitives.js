@@ -363,6 +363,34 @@ function getTInside2(p1, p2, p3) {
 	return ((0.05 <= t) && (t <= 0.95));
 }
 
+// This returns true if the closest point from p3 on the line crossing p1 and p2 lies between p1 and p2
+/**
+ * @param  {Tensor} t1 The line first crosses p1
+ * @param  {Tensor} t2 The line second crosses p2
+ * @return {Object} where and direction that t2 crosses t1 from t1 perspective
+ */
+function intersect(t1, t2) {
+	let p1=t1.node1.localPosition;
+	let p2=t1.node2.localPosition;
+	let p3=t2.node1.localPosition;
+	let p4=t2.node2.localPosition;
+	let w= p4.x-p3.x;
+	let z = p4.y-p3.y;
+	let c = p2.x-p1.x;
+	let d = p2.y-p1.y;
+	let e = p1.y-p3.y;
+	let f = p1.x-p3.x;
+	let res;
+	if (z==0) {
+		res= -e/d;
+	} else if (w==0) {
+		res=-f/c;
+	} else {
+		res = (f/w-e/z)/(d/z-c/w);
+	}
+	return res;
+}
+
 
 /**
  * Check if p1 and p2 are within horizontal or vertical distance from each other

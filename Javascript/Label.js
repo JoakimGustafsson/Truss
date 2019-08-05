@@ -2,7 +2,7 @@
 /* exported Labels */
 /* global PushCalculator CenterDisplay PullCalculator ImpulseCalculator SpringCalculator FieldCalculator AbsorbCalculator */
 /* global AngleNode BounceTensorManagent AngleTensor SelectorBehaviour KeySensor Scriptposition DebugWindowSensor */
-/* global ButtonBehaviour ScriptShow CollisionSensor CollisionBounce ScriptPosition PropertyList */
+/* global ButtonBehaviour ScriptShow CollisionSensor CollisionSensor2 CollisionBounce ScriptPosition PropertyList */
 
 /**
  * @class
@@ -138,6 +138,10 @@ class Labels {
 		this.collideLabel = this.registerLabel('collide', [this.sensorLabel], {
 			'collisionLabelProperty': '',
 		}, [new CollisionSensor()]);
+
+		this.collideLabel = this.registerLabel('collide2', [this.sensorLabel], {
+			'collisionLabelProperty': '',
+		}, [new CollisionSensor2()]);
 
 		this.preupdateposition = this.registerLabel('preupdateposition', [], {},
 			[]);

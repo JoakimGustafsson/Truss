@@ -761,8 +761,56 @@ class CollisionSensor extends Behaviour {
 			}
 		}
 	}
+}
 
-	
+/**
+ * @class
+ * @extends Behaviour
+ */
+class CollisionSensor2 extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+		/*let _this = this;
+		document.addEventListener('collisionEvent',
+			function(e) {
+				_this.collisionFunction.call(_this, e);
+			}, false); */
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
+	}
+
+	/**
+	 * Has the node collided with any Tensor.
+	 * If so, that will casue a call of the collide function.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	preupdate(deltaTime, truss) {
+		let label = this.collisionLabel_Label;
+		let detail;
+		for (let tensor of label.getTensors()) {
+			if (!tensor.isGhost()) {
+				detail = tensor.checkCollision2(this, truss);
+				if (detail) {
+					tensor.collide(detail);
+				}
+			}
+		}
+	}
 }
 
 /** This assumes a CollisionSensor behaviour already has been added to the node and that

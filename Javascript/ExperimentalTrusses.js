@@ -395,10 +395,9 @@ class PerformanceTrussNode extends TrussNode {
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(7,7),
 		});*/
-		new Node(this.world, this, 'collide moveable velocitynode', {
-			'name': 'newball_'+2,
+		new Node(this.world, this, 'collide2 moveable velocitynode', {
+			'name': 'Original',
 			'mass': 10,
-			'elasticModulus': 10000,
 			'size': 0.06,
 			'color': 'yellow',
 			'localPosition': new Position(2.0, 9.99),
@@ -407,13 +406,20 @@ class PerformanceTrussNode extends TrussNode {
 			'velocity': new Velocity(-1,0),
 		});
 
-		/*for (let a = 0; a<2; a++) {
-			new Node(this.world, this, 'collide moveable hardball velocitynode', {
+		for (let a = 0; a<20; a++) {
+			let color='white';
+			if (a==0) {
+				color='red';
+			}
+			if (a==14) {
+				color='green';
+			}
+			new Node(this.world, this, 'collide2 moveable hardball velocitynode', {
 				'name': 'newball_'+a,
 				'mass': 1,
 				'elasticModulus': 10000,
 				'size': 0.04,
-				'color': 'white',
+				'color': color,
 				'localPosition': new Position(2, 3+0.09*a),
 				'velocityLoss': 1,
 				'collisionLabel': 'bounce',

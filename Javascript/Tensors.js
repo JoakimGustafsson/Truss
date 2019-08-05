@@ -604,6 +604,47 @@ class Tensor extends StoreableObject {
 	}
 
 	/**
+	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
+	 * @param  {Node} node
+	 * @param  {Truss} truss
+	 * @return {Object}
+	 */
+	checkCollision2(node, truss) {
+		if (this.node1==node || this.node2==node) {
+			return false;
+		}
+		let oldDistance = this.collideDistanceMapping[node.name];
+		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
+		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
+		if ((where < -0.01) || (1.01 < where)) {
+			newDistance = undefined;
+		}
+		if (!newDistance) {
+			delete this.collideDistanceMapping[node.name];
+		} else {
+			this.collideDistanceMapping[node.name] = newDistance;
+		}
+		if ((oldDistance!=0 && newDistance==0) || oldDistance * newDistance < 0) {
+			if ((where >= 0.0) && (where <= 1.0)) {
+				let detail = {
+					'where': where,
+					'from': oldDistance,
+					'collider': node,
+					'tensor': this,
+					'truss': truss,
+				};
+				let event = new CustomEvent('collisionEvent', {
+					'detail': detail,
+					'bubbles': true,
+					'cancelable': true,
+				});
+				document.dispatchEvent(event);
+				return detail;
+			}
+		}
+	}
+
+	/**
 	 * @param  {number} type Where 0 is unselect, 1 means its pointed on and 2 is selected
 	 */
 	setHighlight(type) {

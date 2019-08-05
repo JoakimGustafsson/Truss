@@ -436,7 +436,9 @@ class TrussNode extends Node {
 
 		// Simulate the total elapsed time in fixed-size chunks
 		while (this.delta >= this.timestep) {
-			this.calculate(timestamp);
+			if (!this.paused) {
+				this.calculate(timestamp);
+			}
 
 			this.showTruss(timestamp);
 		
