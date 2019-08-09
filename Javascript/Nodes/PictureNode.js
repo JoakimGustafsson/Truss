@@ -97,8 +97,8 @@ class PictureNode extends Node {
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
 	 */
-	deserialize(restoreObject, superNodes, superTensors) {
-		super.deserialize(restoreObject, superNodes, superTensors);
+	deSerialize(restoreObject, superNodes, superTensors) {
+		super.deSerialize(restoreObject, superNodes, superTensors);
 		this.pictureFileName= restoreObject.pictureFileName;
 		this.createPicture(this.pictureReference);
 		return;

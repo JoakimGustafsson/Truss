@@ -139,16 +139,16 @@ class Labels {
 			'collisionLabelProperty': '',
 		}, [new CollisionSensor()]);
 
-		this.collideLabel = this.registerLabel('collide2', [this.sensorLabel], {
-			'collisionLabelProperty': '',
-		}, [new CollisionSensor2()]);
-
 		this.preupdateposition = this.registerLabel('preupdateposition', [], {},
 			[]);
 
 		this.postupdateposition = this.registerLabel('postupdateposition', [], {},
 			[]);
 
+		this.collideLabel = this.registerLabel('collide2', [this.preupdateposition], {
+			'collisionLabelProperty': '',
+		}, [new CollisionSensor2()]);
+	
 		this.registerLabel('bouncetensormanagement', [this.postupdateposition,this.preupdateposition], {}, [new BounceTensorManagent()]);
 
 		this.registerLabel('rubberbounceactuator', [this.tensorLabel], {}, [new CollisionBounce()]);

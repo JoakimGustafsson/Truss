@@ -96,7 +96,7 @@ class Vector {
 	 * @param  {Object} restoreObject
 	 * @return {Vector}
 	 */
-	deserialize(restoreObject) {
+	deSerialize(restoreObject) {
 		this.x += restoreObject.x;
 		this.y += restoreObject.y;
 		return this;
@@ -294,6 +294,74 @@ class Velocity extends Vector {
 	}
 }
 
+/**
+ * @class
+ */
+class Line {
+	/**
+	 * @param  {Vector} start The start position
+	 * @param  {Vector} end The end position
+	 */
+	constructor(start, end) {
+		this.start=start;
+		this.end=end;
+	}
+
+	// This returns true if the closest point from p3 on the line crossing p1 and p2 lies between p1 and p2
+	/**
+ * @param  {Tensor} otherline The line second crosses this line
+ * @return {Object} where two value tells how far into each line the intersection is
+ */
+	intersect(otherline) {
+		let p1=this.start;
+		let p2=this.end;
+		let p3=otherline.start;
+		let p4=otherline.end;
+		let w= p4.x-p3.x;
+		let z = p4.y-p3.y;
+		let res;
+		if (z==0) {
+			res= -(p1.y-p3.y)/(p2.y-p1.y);
+		} else if (w==0) {
+			res=-(p1.x-p3.x)/(p2.x-p1.x);
+		} else {
+			try {
+				res = ((p1.x-p3.x)/w-(p1.y-p3.y)/z)/((p2.y-p1.y)/z-(p2.x-p1.x)/w);
+			}
+			catch(error) {
+				return false;
+			}
+		}
+		let otherRes = (p1.x-p3.x+(p2.x-p1.x)*res)/w;
+		return {'thisDistance': res, 'otherDistance': otherRes};
+	}
+
+	// Is position to the left of this line?
+	/**
+ * @param  {Position} p3 
+ * @return {number} returns a positive number if p3 is on the left of this line
+ */
+	left(p3) {
+		let a = Vector.subtractVectors(this.end, this.start);
+		let b = Vector.subtractVectors(p3, this.start);
+		let s = Vector.dotProduct(a, b.perpendicular(1)) / Vector.length2(a);
+		return s;
+	}
+
+	// return the fraction of the closest position on this line to p3
+	/**
+ * @param  {Position} p3 
+ * @return {number} returns a fraction of the distance on this line that is closest to p3
+ */
+	closest(p3) {
+		let a = Vector.subtractVectors(this.end, this.start);
+		let b = Vector.subtractVectors(p3, this.start);
+		let t = Vector.dotProduct(a, b) / Vector.length2(a);
+		return t;
+	}
+
+}
+
 /** Ensure that an Rad angle is inside the -PI to  PI span
  * @param  {number} angle
  * @return {number}
@@ -361,34 +429,6 @@ function getTInside(p1, p2, p3) {
 function getTInside2(p1, p2, p3) {
 	let t = getT(p1, p2, p3);
 	return ((0.05 <= t) && (t <= 0.95));
-}
-
-// This returns true if the closest point from p3 on the line crossing p1 and p2 lies between p1 and p2
-/**
- * @param  {Tensor} t1 The line first crosses p1
- * @param  {Tensor} t2 The line second crosses p2
- * @return {Object} where and direction that t2 crosses t1 from t1 perspective
- */
-function intersect(t1, t2) {
-	let p1=t1.node1.localPosition;
-	let p2=t1.node2.localPosition;
-	let p3=t2.node1.localPosition;
-	let p4=t2.node2.localPosition;
-	let w= p4.x-p3.x;
-	let z = p4.y-p3.y;
-	let c = p2.x-p1.x;
-	let d = p2.y-p1.y;
-	let e = p1.y-p3.y;
-	let f = p1.x-p3.x;
-	let res;
-	if (z==0) {
-		res= -e/d;
-	} else if (w==0) {
-		res=-f/c;
-	} else {
-		res = (f/w-e/z)/(d/z-c/w);
-	}
-	return res;
 }
 
 

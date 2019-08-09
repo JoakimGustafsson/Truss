@@ -187,8 +187,8 @@ class TrussNode extends Node {
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
 	 */
-	deserialize(restoreObject, superNodes, superTensors) {
-		super.deserialize(restoreObject, superNodes, superTensors);
+	deSerialize(restoreObject, superNodes, superTensors) {
+		super.deSerialize(restoreObject, superNodes, superTensors);
 		this.handleCanvas();
 		this.setView();
 		if (this.world) {
@@ -322,21 +322,21 @@ class TrussNode extends Node {
 	/**
 	 * go through this list and sort out things before updating positions
 	 * @param {number} trussTime
-	 * @param {number} deltaTime
+	 * @param {Truss} truss
 	 */
-	preUpdatePositions(trussTime, deltaTime) {
+	preUpdatePositions(trussTime, truss) {
 		for (let item of this.preUpdatePositionLabel.getReferences()) {
-			item.preUpdatePosition(trussTime, deltaTime);
+			item.preUpdatePosition(trussTime, truss);
 		}
 	}
 	/**
 	 * go through this list and sort out things after updating positions
 	 * @param {number} trussTime
-	 * @param {number} deltaTime
+	 * @param {Truss} truss
 	 */
-	postUpdatePositions(trussTime, deltaTime) {
+	postUpdatePositions(trussTime, truss) {
 		for (let item of this.postUpdatePositionLabel.getReferences()) {
-			item.postUpdatePosition(trussTime, deltaTime);
+			item.postUpdatePosition(trussTime, truss);
 		}
 	}
 	/**
@@ -374,9 +374,9 @@ class TrussNode extends Node {
 	 * @param {number} deltaTime
 	 */
 	update(trussTime) {
-		this.preUpdatePositions(trussTime, this.timestep);
+		this.preUpdatePositions(trussTime, this);
 		this.updatePositions(trussTime, this.timestep);
-		this.postUpdatePositions(trussTime, this.timestep);
+		this.postUpdatePositions(trussTime, this);
 		
 	}
 
@@ -440,7 +440,6 @@ class TrussNode extends Node {
 				this.calculate(timestamp);
 			}
 
-			this.showTruss(timestamp);
 		
 			if (!this.paused) {
 				this.update(timestamp);
@@ -448,6 +447,7 @@ class TrussNode extends Node {
 			}
 			this.sense(timestamp);
 			this.delta -= this.timestep;
+			this.showTruss(timestamp);
 		}
 
 		//this.clear();

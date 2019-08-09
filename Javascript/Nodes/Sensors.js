@@ -76,9 +76,9 @@ class KeySensorNode extends SensorNode {
 	 * @param  {Array} tensorList
 	 * @return {KeySensorNode}
 	 *
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		this.restPosition = new Position().deserialize(restoreObject.startPosition);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
+		this.restPosition = new Position().deSerialize(restoreObject.startPosition);
 		this.keyVectors = JSON.parse(restoreObject.keyList);
 		return this;
 	}
@@ -167,9 +167,9 @@ class ProximitySensorNode extends SensorNode {
 	 * @param  {Array} tensorList
 	 * @return {ProximitySensorNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		this.startPosition = new Position().deserialize(restoreObject.startPosition);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
+		this.startPosition = new Position().deSerialize(restoreObject.startPosition);
 		this.triggerFunction = restoreObject.triggerFunction;
 
 		let proxies = [];
@@ -177,7 +177,7 @@ class ProximitySensorNode extends SensorNode {
 			proxies.push({
 				'node': nodeList[item.node],
 				'distance': item.distance,
-				'vector': new Vector().deserialize(item.vector),
+				'vector': new Vector().deSerialize(item.vector),
 			});
 		}
 		this.proximityList = proxies;
@@ -276,8 +276,8 @@ class CollisionSensorNode extends SensorNode {
 	 * @param  {Array} tensorList
 	 * @return {CollisionSensorNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
 		this.localActuator = nodeList[restoreObject.localActuator];
 		this.localObject = nodeList[restoreObject.localObject];
 		return this;
@@ -365,8 +365,8 @@ class BounceSensorNode extends SensorNode {
 	 * @param  {Array} tensorList
 	 * @return {CollisionSensorNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
 		this.localActuator = nodeList[restoreObject.localActuator];
 		this.localObject = nodeList[restoreObject.localObject];
 		return this;
@@ -518,8 +518,8 @@ class PositionNode extends SensorNode {
 	 * @param  {Array} superNodes
 	 * @param  {Array} superTensors
 	 */
-	deserialize(restoreObject, superNodes, superTensors) {
-		super.deserialize(restoreObject, superNodes, superTensors);
+	deSerialize(restoreObject, superNodes, superTensors) {
+		super.deSerialize(restoreObject, superNodes, superTensors);
 		this.trackedNode=superNodes[restoreObject.trackedNode];
 		return;
 	}

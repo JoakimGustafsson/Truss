@@ -87,7 +87,7 @@ function loadWorld(fileName) {
 		// mainNode.clean();
 		universe.pop().close();
 		let newWorld= new World();
-		newWorld.deserialize(JSON.parse(x));
+		newWorld.deSerialize(JSON.parse(x));
 		universe.push(newWorld);
 		universe.setCurrentWorld(newWorld);
 	});

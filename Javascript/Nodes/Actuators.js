@@ -44,8 +44,8 @@ class ActuatorNode extends Node {
 	 * @param  {Array} tensorList
 	 * @return {ActuatorNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
 		this.iO = nodeList[restoreObject.iO];
 		return this;
 	}
@@ -112,10 +112,10 @@ class BinaryActuatorNode extends ActuatorNode {
 	 * @param  {Array} tensorList
 	 * @return {ActuatorNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		this.position1 = new Position().deserialize(restoreObject.position1);
-		this.position2 = new Position().deserialize(restoreObject.position2);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
+		this.position1 = new Position().deSerialize(restoreObject.position1);
+		this.position2 = new Position().deSerialize(restoreObject.position2);
 		this.vector = Vector.subtractVectors(this.position2, this.position1);
 		return this;
 	}
@@ -217,8 +217,8 @@ class JumpNode extends BinaryActuatorNode {
 	 * @param  {Array} tensorList
 	 * @return {JumpNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
 		this.originalGravityConstant = restoreObject.originalGravityConstant;
 		this.gravityField = tensorList[restoreObject.gravityField];
 		return this;
@@ -295,8 +295,8 @@ class LeftRightNode extends BinaryActuatorNode {
 	 * @param  {Array} tensorList
 	 * @return {LeftRightNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
 		this.moveFieldConstant = restoreObject.moveFieldConstant;
 		this.rightMovementTensor = tensorList[restoreObject.rightMovementTensor];
 		this.leftMovementTensor = tensorList[restoreObject.leftMovementTensor];
@@ -730,9 +730,9 @@ class ScrollNode extends ActuatorNode {
 	 * @param  {Array} tensorList
 	 * @return {ScrollNode}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
-		let c = new Position().deserialize(restoreObject.centerPoint, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
+		let c = new Position().deSerialize(restoreObject.centerPoint, nodeList, tensorList);
 		this.centerPoint=new Vector(c.x, c.y);
 		// this.goverenedTrussNode = this.iO;
 		return this;

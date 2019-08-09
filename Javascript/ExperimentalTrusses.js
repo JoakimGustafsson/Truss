@@ -281,14 +281,6 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(1, 10),
 		});
 
-		new Tensor(start2, end2,
-			'pullspring bounce rubberbounceactuator',
-			{
-				'name': 'left',
-				'constant': 900,
-				'equilibriumLength': 8,
-			});
-
 
 		new Node(this.world, this, 'debug', {
 			'name': 'debug',
@@ -329,16 +321,26 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(4, 12),
 		});
 		*/
+		new Tensor(start2, end2,
+			'pullspring rubberbounceactuator collide2',
+			{
+				'name': 'left',
+				'constant': 900,
+				'collisionLabel': 'bounce',
+				'equilibriumLength': 8,
+			});
+
 		new Tensor(start, end,
-			'pullspring bounce rubberbounceactuator',
+			'pullspring rubberbounceactuator collide2',
 			{
 				'name': 'right',
 				'constant': 10,
+				'collisionLabel': 'bounce',
 				'equilibriumLength': 1,
 			});
 
 		new Tensor(start2a, start2b,
-			'pullspring bounce rubberbounceactuator',
+			'pullspring rubberbounceactuator',
 			{
 				'name': 'nw',
 				'constant': 100,
@@ -347,7 +349,7 @@ class PerformanceTrussNode extends TrussNode {
 	
 	
 		new Tensor(starta, startb,
-			'pullspring bounce rubberbounceactuator',
+			'pullspring rubberbounceactuator',
 			{
 				'name': 'ne',
 				'constant': 100,
@@ -369,7 +371,7 @@ class PerformanceTrussNode extends TrussNode {
 			});*/
 
 		new Tensor(start, start2,
-			'pullspring bounce rubberbounceactuator',
+			'pullspring rubberbounceactuator',
 			{
 				'name': 'top',
 				'constant': 10,
@@ -377,7 +379,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 	
 		new Tensor(end2, end,
-			'spring bounce rubberbounceactuator',
+			'spring rubberbounceactuator',
 			{
 				'name': 'bottom',
 				'constant': 10,
@@ -394,36 +396,33 @@ class PerformanceTrussNode extends TrussNode {
 			'velocityLoss': 1,
 			'collisionLabel': 'bounce',
 			'velocity': new Velocity(7,7),
-		});*/
-		new Node(this.world, this, 'collide2 moveable velocitynode', {
+		});
+		new Node(this.world, this, 'moveable velocitynode', {
 			'name': 'Original',
 			'mass': 10,
 			'size': 0.06,
 			'color': 'yellow',
 			'localPosition': new Position(2.0, 9.99),
 			'velocityLoss': 1,
-			'collisionLabel': 'bounce',
 			'velocity': new Velocity(-1,0),
-		});
+		});*/
 
-		for (let a = 0; a<20; a++) {
+		for (let a = 0; a<10; a++) {
 			let color='white';
-			if (a==0) {
+			if (a==6) {
 				color='red';
 			}
 			if (a==14) {
 				color='green';
 			}
-			new Node(this.world, this, 'collide2 moveable hardball velocitynode', {
+			new Node(this.world, this, 'bounce moveable velocitynode', {
 				'name': 'newball_'+a,
 				'mass': 1,
-				'elasticModulus': 10000,
 				'size': 0.04,
 				'color': color,
 				'localPosition': new Position(2, 3+0.09*a),
 				'velocityLoss': 1,
-				'collisionLabel': 'bounce',
-				'velocity': new Velocity(-2,0+0.19*a),
+				'velocity': new Velocity(-2,-0.3+0.19*a),
 			});
 		} 
 	

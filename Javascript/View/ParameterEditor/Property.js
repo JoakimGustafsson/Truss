@@ -522,6 +522,18 @@ class LabelProperty extends Property {
 			this.owner[this.propertyName+'_Label']=undefined;
 		}
 	}
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {StoreableObject}
+	 */
+	deSerialize(labelName, nodeList, tensorList) {
+		let result = super.deSerialize(labelName, nodeList, tensorList);
+		this.owner[this.propertyName+'_Label']=this.owner.world.labels.findLabel(labelName);
+		return result;
+	}
 }
 
 /**

@@ -66,8 +66,8 @@
 // 	 * @param  {Array} superNodes
 // 	 * @param  {Array} superTensors
 // 	 */
-// 	deserialize(restoreObject, superNodes, superTensors) {
-// 		super.deserialize(restoreObject, superNodes, superTensors);
+// 	deSerialize(restoreObject, superNodes, superTensors) {
+// 		super.deSerialize(restoreObject, superNodes, superTensors);
 // 		// this.nodeCollection= deserializeList(restoreObject.nodeCollection, superNodes);
 // 		this._collectionlabelString= restoreObject._collectionlabelString;
 // 		return;

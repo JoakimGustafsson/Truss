@@ -60,6 +60,23 @@ class Node extends StoreableObject {
 			},
 		});
 
+		Object.defineProperty(this, 'stepVelocity', {
+			get: function() {
+				return Vector.multiplyVector(parentTrussNode.timestep, this.velocity);
+			}
+		});
+
+		Object.defineProperty(this, 'futureLocalPosition', {
+			get: function() {
+				return Vector.addVectors(
+					this.localPosition, 
+					this.stepVelocity
+				);
+			}
+		});
+
+		
+
 		Object.defineProperty(this, 'mass', {
 			get: function() {
 				if (this._mass==undefined) {
@@ -476,7 +493,7 @@ class Node extends StoreableObject {
 
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.multiplyVector(10*multiplier, this.velocity)));
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.multiplyVector(truss.timestep , this.velocity)));
 				cxt.stroke();
 
 				if (graphicDebugLevel >= 7) {

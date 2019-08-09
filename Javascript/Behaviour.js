@@ -763,56 +763,6 @@ class CollisionSensor extends Behaviour {
 	}
 }
 
-/**
- * @class
- * @extends Behaviour
- */
-class CollisionSensor2 extends Behaviour {
-	/**
-	 */
-	constructor() {
-		super();
-		/*let _this = this;
-		document.addEventListener('collisionEvent',
-			function(e) {
-				_this.collisionFunction.call(_this, e);
-			}, false); */
-	}
-
-	/**
-	 * @param {StoreableObject} storeableObject
-	 */
-	attachTo(storeableObject) {
-		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
-	}
-
-	/**
-	 * @param {StoreableObject} storeableObject
-	 */
-	detachFrom(storeableObject) {
-		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
-	}
-
-	/**
-	 * Has the node collided with any Tensor.
-	 * If so, that will casue a call of the collide function.
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
-	 */
-	preupdate(deltaTime, truss) {
-		let label = this.collisionLabel_Label;
-		let detail;
-		for (let tensor of label.getTensors()) {
-			if (!tensor.isGhost()) {
-				detail = tensor.checkCollision2(this, truss);
-				if (detail) {
-					tensor.collide(detail);
-				}
-			}
-		}
-	}
-}
-
 /** This assumes a CollisionSensor behaviour already has been added to the node and that
  * this CollisionSensor calls the collide() function. This behaviour is attached to tensors
  * @class
@@ -899,6 +849,9 @@ class BounceTensorManagent extends Behaviour {
 			// "from" is positive if comming from right
 			let dir=angle*from;
 			
+			if (isNaN(dir)) {
+				alert();
+			}
 
 			if (dir<0.000000000) {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
@@ -969,6 +922,76 @@ function recalcStretch(originalTensor) {
 	} 
 }
 
+/**
+ * @class
+ * @extends Behaviour
+ */
+class CollisionSensor2 extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+		/*let _this = this;
+		document.addEventListener('collisionEvent',
+			function(e) {
+				_this.collisionFunction.call(_this, e);
+			}, false); */
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
+	}
+
+	/**
+	 * Has the node collided with any Tensor.
+	 * If so, that will casue a call of the collide function.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	preupdate(deltaTime, truss) {
+		function split (tensor){
+			if (tensor.isGhost()) {
+				return;
+			}
+			let detail;
+			let colliders = [];
+
+			for(let node of nodes) {
+				detail = tensor.checkCollision2(node, truss);
+				if (detail) {
+					colliders.push(detail);
+				}
+			}
+			if (colliders.length==0) {
+				return;
+			}
+			// Sort according to where
+			let line = tensor.line;
+			colliders.sort((a,b)=>{
+				return -line.closest(a.collider.futureLocalPosition)+line.closest(b.collider.futureLocalPosition);
+			});
+	
+			let newTensors = tensor.collide(colliders);
+	
+			for (let subTensor of newTensors) {
+				split(subTensor);
+			}
+		}
+
+		let nodes = this.collisionLabel_Label.getNodes();
+		split(this);
+	}
+}
 
 /** This assumes a CollisionSensor behaviour already has been added to the node and that
  * this CollisionSensor calls the collide() function. This behaviour is attached to tensors
@@ -1000,85 +1023,138 @@ class CollisionBounce extends Behaviour {
 	/**
 	 * @param {Object} details
 	 */
-	collide(detail) {
+	collidex(details) {
+		let newTensors = [];
+		for (let detail of details) {
+			let tensor = detail.tensor;
+			let collider = detail.collider;
 
-		let where = detail.where;
-		let tensor = detail.tensor;
-		let collider = detail.collider;
+			// Tensor 1
+			let startTensor = tensor;
+			let endTensor = tensor.clone();
+			newTensors.push(endTensor);
 
+			let original;
+			if (!tensor.broken) { // The first break of a tensor
+				tensor.broken=true;
+				endTensor.broken=true;
+				startTensor = tensor.clone();
+				newTensors.push(startTensor);
 
+				let bounceTensorManagementLabel = this.bounceTensorManagementLabel || this.world.labels.findLabel('bouncetensormanagement');
+				if (!this.hasLabel(bounceTensorManagementLabel)) {
+					tensor.addLabel(bounceTensorManagementLabel);
+					tensor.bounceTensorManagementLabel=bounceTensorManagementLabel;
+				}
 
-		//let shortage = tensor.getLength()-tensor.equilibriumLength;
+				startTensor.broken=true;
+				tensor.ghostify();
+				tensor.brokendata = {
+					'startTensor':startTensor,
+					'parentTensor': tensor
+				};
+				original = tensor;
+			} else { 
+				original = tensor.brokendata.parentTensor;
+				endTensor.broken=true;
+			}
 
-		//let impulseSpringLabel = universe.currentWorld.labels.findLabel('impulsespring');
-
-		// Tensor 1
-		let startTensor = tensor;
-		let endTensor = tensor.clone();
+			endTensor.brokendata = tensor.brokendata;
 		
-		let original;
-		if (!tensor.broken) { // The first break of a tensor
-			tensor.broken=true;
-			endTensor.broken=true;
-			startTensor = tensor.clone();
+			startTensor.brokendata = {
+				'parentTensor':original,
+				'nextTensor':endTensor,
+				'from':detail.from
+			};
 
+			startTensor.node2=collider;
+
+			// Tensor 1
+			startTensor.addLabelString(' angletensor');
+			startTensor.angle2=anglify(tensor.getTensorAngle(collider)+Math.PI-collider.angle);
+			startTensor.torqueConstant2=0;
+	
+
+			// Tensor 2
+			endTensor.node1=collider;
+			endTensor.addLabelString(' angletensor');
+			endTensor.angle1=anglify(tensor.getTensorAngle(collider)-collider.angle);
+			endTensor.torqueConstant1=0;
+
+
+			if ((startTensor.node1==startTensor.node2) || (endTensor.node1==endTensor.node2)) {
+				alert('aa');
+			}
+
+			recalcStretch(original);
+		}
+		return newTensors;
+	}
+	/**
+	 * @param {Object} details
+	 */
+	collide(details) {
+		
+		let firstBroken = (tensor, endTensor) => {
+			tensor.broken = true;
+			endTensor.broken = true;
+			let startTensor = tensor.clone();
 			let bounceTensorManagementLabel = this.bounceTensorManagementLabel || this.world.labels.findLabel('bouncetensormanagement');
 			if (!this.hasLabel(bounceTensorManagementLabel)) {
 				tensor.addLabel(bounceTensorManagementLabel);
-				tensor.bounceTensorManagementLabel=bounceTensorManagementLabel;
+				tensor.bounceTensorManagementLabel = bounceTensorManagementLabel;
 			}
-
-			startTensor.broken=true;
+			startTensor.broken = true;
 			tensor.ghostify();
 			tensor.brokendata = {
-				'startTensor':startTensor,
+				'startTensor': startTensor,
 				'parentTensor': tensor
 			};
-			original = tensor;
-		} else { 
-			original = tensor.brokendata.parentTensor;
-			endTensor.broken=true;
-		}
-
-		endTensor.brokendata = tensor.brokendata;
-		
-		startTensor.brokendata = {
-			'parentTensor':original,
-			'nextTensor':endTensor,
-			'from':detail.from
+			return startTensor;
 		};
 
-		//startTensor.name='[start-'+startTensor.name+']';
-		startTensor.node2=collider;
-		if (tensor.equilibriumLength!=undefined) {
-			startTensor.equilibriumLength=tensor.equilibriumLength*where;
+
+		let newTensors = [];
+		
+		let tensorToBreak = details[0].tensor;
+		for (let detail of details) {
+
+			let startTensor;
+			let endTensor = tensorToBreak.clone();
+			newTensors.push(endTensor);
+
+			if (!tensorToBreak.broken) { // The first break of a tensor
+				startTensor = firstBroken(tensorToBreak, endTensor);
+				
+				endTensor.brokendata = tensorToBreak.brokendata;
+				startTensor.brokendata = {
+					'parentTensor':tensorToBreak
+				};
+				newTensors.push(startTensor);
+			} else { 
+				endTensor.brokendata = tensorToBreak.brokendata;
+				startTensor = tensorToBreak;
+				startTensor.brokendata = {
+					'parentTensor':tensorToBreak.brokendata.parentTensor
+				};
+				endTensor.broken=true;
+			}
+
+
+			startTensor.brokendata.nextTensor=endTensor;
+			startTensor.brokendata.from=detail.from;
+
+		
+			startTensor.node2=detail.collider;
+			endTensor.node1=detail.collider;
+			tensorToBreak=startTensor;
+
 		}
-		startTensor.addLabelString(' angletensor');
-		startTensor.angle2=anglify(tensor.getTensorAngle(collider)+Math.PI-collider.angle);
-		startTensor.torqueConstant2=0;
-	
 
-		// Tensor 2
-		//endTensor.name='[end-'+endTensor.name+']';
-		endTensor.node1=collider;
-		if (tensor.equilibriumLength!=undefined) {
-			endTensor.equilibriumLength=tensor.equilibriumLength*(1-where);
-		}
-		endTensor.addLabelString(' angletensor');
-		endTensor.angle1=anglify(tensor.getTensorAngle(collider)-collider.angle);
-		endTensor.torqueConstant1=0;
-
-		// ok this should take all childtensor into console.
-
-		recalcStretch(original);
-		/*if (tensor.equilibriumLength!=undefined) {
-			startTensor.equilibriumLength=startTensor.getLength()-shortage/2;
-		}
-		if (tensor.equilibriumLength!=undefined) {
-			endTensor.equilibriumLength=endTensor.getLength()- shortage/2;
-		}*/
-
+		recalcStretch(tensorToBreak.brokendata.parentTensor);
+		return newTensors;
 	}
+
 }
 
 function debugBounce(tensor) {
@@ -1100,7 +1176,7 @@ function debugBounce(tensor) {
 	let sumLength = 0;
 	let sumEq = 0;
 
-	while (currentTensor) {
+	while (currentTensor && i<20) {
 
 		console.group();
 		console.log(i+' Name: '+ currentTensor.name);

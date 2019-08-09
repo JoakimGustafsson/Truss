@@ -381,7 +381,7 @@ class World {
 	 * @param  {Object} restoreObject
 	 * @return {Object}
 	 */
-	deserialize(restoreObject) {
+	deSerialize(restoreObject) {
 		this.labels = new Labels();
 		let nodeList=[];
 		for (let nodeRestoreObject of restoreObject.nodes) {
@@ -396,16 +396,16 @@ class World {
 		}
 
 
-		// deserialize them
+		// deSerialize them
 		let index=0;
 		for (let node of nodeList) {
-			node.deserialize(restoreObject.nodes[index], nodeList, tensorList);
+			node.deSerialize(restoreObject.nodes[index], nodeList, tensorList);
 			index++;
 		}
 
 		index=0;
 		for (let tensor of tensorList) {
-			tensor.deserialize(restoreObject.tensors[index], nodeList, tensorList);
+			tensor.deSerialize(restoreObject.tensors[index], nodeList, tensorList);
 			index++;
 		}
 

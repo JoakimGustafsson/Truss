@@ -144,7 +144,7 @@ class StoreableObject {
 	 * @param  {Array} tensorList
 	 * @return {StoreableObject}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
+	deSerialize(restoreObject, nodeList, tensorList) {
 		this.labelString = restoreObject.labelString;
 		this.refreshPropertiesAfterLabelChange();
 
@@ -165,7 +165,7 @@ class StoreableObject {
 	clone() {
 		let serialized = this.serialize();
 		let node = objectFactory(this.world, serialized);
-		node.deserialize(serialized);
+		node.deSerialize(serialized);
 		node.name+=' clone';
 		return node;
 	}

@@ -1,5 +1,5 @@
 /*jshint esversion:6*/
-/* global StoreableObject warpMatrix */
+/* global StoreableObject warpMatrix Line */
 /**
  * Tensor class
  * @class
@@ -76,6 +76,15 @@ class Tensor extends StoreableObject {
 				}
 				this._node2 = value;
 				value.addTensor(this);
+			},
+		});
+
+		Object.defineProperty(this, 'line', {
+			get: function() {
+				return new Line(this.node1.localPosition, this.node2.localPosition);
+			},
+			set: function() {
+				alert('trying to set line in tensor');
 			},
 		});
 
@@ -294,8 +303,8 @@ class Tensor extends StoreableObject {
 	 * @param  {Array} tensorList
 	 * @return {Spring}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
 		//this.originalParent = tensorList[restoreObject.originalParent];
 		this.collideDistanceMapping=restoreObject.collideDistanceMapping;
 		return this;
@@ -613,36 +622,80 @@ class Tensor extends StoreableObject {
 		if (this.node1==node || this.node2==node) {
 			return false;
 		}
-		let oldDistance = this.collideDistanceMapping[node.name];
-		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < -0.01) || (1.01 < where)) {
-			newDistance = undefined;
+
+		let tensorPast=this.line;
+		
+		let futureStartPosition = Vector.addVectors(
+			tensorPast.start, 
+			this.node1.stepVelocity);
+		let futureEndPosition =  Vector.addVectors(
+			tensorPast.end, 
+			this.node2.stepVelocity);
+		let tensorFuture = new Line(futureStartPosition, futureEndPosition);
+		let startChange = new Line(tensorPast.start, tensorFuture.start);
+		let endChange = new Line(tensorPast.end, tensorFuture.end);
+
+		if (tensorPast.left(startChange.end)*tensorPast.left(endChange.end)<0) {
+			//console.log('Error. Twist');
+			return false;
 		}
-		if (!newDistance) {
-			delete this.collideDistanceMapping[node.name];
-		} else {
-			this.collideDistanceMapping[node.name] = newDistance;
+
+		let nodeChange = new Line(
+			node.localPosition,
+			node.futureLocalPosition
+		);
+		
+		let before = tensorPast.left(nodeChange.start);
+		let after = tensorFuture.left(nodeChange.end);
+		if (this.name=='right 2' && node.name=='newball_9') {
+			console.log(before+'     '+after);
 		}
-		if ((oldDistance!=0 && newDistance==0) || oldDistance * newDistance < 0) {
-			if ((where >= 0.0) && (where <= 1.0)) {
-				let detail = {
-					'where': where,
-					'from': oldDistance,
-					'collider': node,
-					'tensor': this,
-					'truss': truss,
-				};
-				let event = new CustomEvent('collisionEvent', {
-					'detail': detail,
-					'bubbles': true,
-					'cancelable': true,
-				});
-				document.dispatchEvent(event);
+
+		if (before*after<0) {
+			let detail = {
+				'from': tensorPast.left(nodeChange.start),
+				'collider': node,
+				'tensor': this,
+				'truss': truss,
+			};
+			//console.log('Error. '+tensorPast.left(nodeChange.start));
+			let futureIntersection = tensorFuture.intersect(nodeChange);
+			if (futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) {
+				// The node has collided with the future position of the tensor
 				return detail;
+			} else if (startChange.left(nodeChange.end)*endChange.left(nodeChange.end)<0) { // end inside
+				if (startChange.left(nodeChange.start)*endChange.left(nodeChange.start)<0)  { // start inside
+					return detail;
+				} else { //start outside
+					// Did it pass?
+					let intersection = startChange.intersect(nodeChange);
+					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
+						intersection = endChange.intersect(nodeChange);
+					}
+					if(intersection.otherDistance>intersection.thisDistance) { //did it pass?
+						return detail;
+					}
+				}
+			} else { // end outside
+				if (startChange.left(nodeChange.start)*endChange.left(nodeChange.start)<0)  { // start inside
+					// Did it pass?
+					let intersection = startChange.intersect(nodeChange);
+					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
+						intersection = endChange.intersect(nodeChange);
+					}
+					if(intersection.otherDistance<intersection.thisDistance) { //did it pass?
+						return detail;
+					}
+				} //else { //start outside
+				//if () { // start and end on same side
+				//	return false;
+				//}
 			}
-		}
+		} 
+
+		return false;
 	}
+
 
 	/**
 	 * @param  {number} type Where 0 is unselect, 1 means its pointed on and 2 is selected
@@ -810,8 +863,8 @@ class PictureSpring extends Tensor {
 	 * @param  {Array} tensorList
 	 * @return {Spring}
 	 */
-	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject, nodeList, tensorList);
+	deSerialize(restoreObject, nodeList, tensorList) {
+		super.deSerialize(restoreObject, nodeList, tensorList);
 		this.originalParent = tensorList[restoreObject.originalParent];
 		this.pictureReference=restoreObject.pictureReference;
 		this.width=restoreObject.width;
