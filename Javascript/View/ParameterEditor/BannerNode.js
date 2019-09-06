@@ -43,7 +43,7 @@ class BannerNode extends Node {
 		let windowWidth = Math.max(this.width, screenWidth/3);
 		let windowHeight = windowWidth*this.height/this.width;
 
-		let origin = truss.view.worldPosition(0,0);
+		let origin = truss.view.worldPositionWithOffset(0,0);
 
 		if (!topLeft) {
 			topLeft = new Position(origin.x + screenWidth - windowWidth, origin.y);
@@ -70,12 +70,12 @@ class BannerNode extends Node {
 			'velocityLoss': 0.9,
 		});
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
-			'localPosition': new Position(topLeft.x + windowWidth / 2, screenHeight * 1000),
+			'localPosition': new Position(topLeft.x + windowWidth / 2, -screenHeight * 1000),
 			'name': 'bannerGravityWell',
 		});
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
-			'localPosition': new Position(topLeft.x , topLeft.y + windowHeight),
+			'localPosition': new Position(topLeft.x , topLeft.y - windowHeight),
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'visible': 0,
@@ -83,7 +83,7 @@ class BannerNode extends Node {
 		});
 
 		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
-			'localPosition': new Position(topLeft.x + windowWidth , topLeft.y + windowHeight),
+			'localPosition': new Position(topLeft.x + windowWidth , topLeft.y - windowHeight),
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'visible': 0,

@@ -188,6 +188,14 @@ class Debug {
 			}
 		}
 	}
+	breakWhen(timeLimit) {
+		if (universe.currentNode.internalTime>timeLimit) {
+				
+			if (!universe.currentNode.isPaused()) {
+				this.togglepause();
+			}
+		}
+	}
 
 
 }

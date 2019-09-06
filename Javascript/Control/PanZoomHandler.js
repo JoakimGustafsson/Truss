@@ -124,7 +124,7 @@ class PanZoomHandler {
 			if (this.lastScreenPosition) {
 				this.view.updateOffset({
 					x: this.lastScreenPosition.x - this.screenPointerPositionX,
-					y: this.lastScreenPosition.y - this.screenPointerPositionY
+					y: -this.lastScreenPosition.y + this.screenPointerPositionY
 				});
 			}
 			this.lastScreenPosition = {

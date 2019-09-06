@@ -129,7 +129,7 @@ class TrussView {
 	 * @return {number} The horizontal position on this views display
 	 */
 	y(p) {
-		return (p.y - this.offset.y) / this.yScale;
+		return this.context.canvas.height+(-p.y + this.offset.y) / this.yScale;
 	}
 
 	/**
@@ -138,9 +138,9 @@ class TrussView {
 	 * @param  {number} y
 	 * @return {Position}
 	 */
-	worldPosition(x, y) {
-		return new Position(x * this.xScale + this.offset.x, y * this.yScale + this.offset.y);
-	}
+	//worldPosition(x, y) {
+	//	return new Position(x * this.xScale + this.offset.x, -y * this.yScale + this.offset.y);
+	//}
 
 	/**
 	 * Given a x and y position on screen display, return the world position, taking the HTML elements position into account
@@ -150,7 +150,7 @@ class TrussView {
 	 */
 	worldPositionWithOffset(x, y) {
 		return new Position((x - this.elemRectleft + this.bodyRectleft) * this.xScale + this.offset.x,
-			(y - this.elemRecttop + this.bodyRecttop) * this.yScale + this.offset.y);
+			-(y - this.elemRecttop + this.bodyRecttop- this.context.canvas.height) * this.yScale + this.offset.y);
 	}
 
 	/**
@@ -243,7 +243,7 @@ class TrussView {
 	 * @param  {Vector} screenCenter
 	 */
 	updateScale(deltaScaleOnScreen, screenCenter) {
-		let center = this.worldPosition(screenCenter.x, screenCenter.y);
+		let center = this.worldPositionWithOffset(screenCenter.x, screenCenter.y);
 
 		//this.xScale -= deltaScaleOnScreen.x * this.xScale;
 		//this.yScale -= deltaScaleOnScreen.y * this.yScale;

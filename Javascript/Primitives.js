@@ -321,8 +321,14 @@ class Line {
 		let z = p4.y-p3.y;
 		let res;
 		if (z==0) {
+			if (p2.y-p1.y==0) {
+				return false;
+			}
 			res= -(p1.y-p3.y)/(p2.y-p1.y);
 		} else if (w==0) {
+			if (p2.x-p1.x==0) {
+				return false;
+			}
 			res=-(p1.x-p3.x)/(p2.x-p1.x);
 		} else {
 			try {
@@ -336,6 +342,10 @@ class Line {
 		return {'thisDistance': res, 'otherDistance': otherRes};
 	}
 
+	reverse() {
+		return new Line(this.end, this.start);
+	}
+
 	// Is position to the left of this line?
 	/**
  * @param  {Position} p3 
@@ -344,9 +354,13 @@ class Line {
 	left(p3) {
 		let a = Vector.subtractVectors(this.end, this.start);
 		let b = Vector.subtractVectors(p3, this.start);
+		if (!Vector.length2(a)) {
+			return NaN;
+		}
 		let s = Vector.dotProduct(a, b.perpendicular(1)) / Vector.length2(a);
 		return s;
 	}
+
 
 	// return the fraction of the closest position on this line to p3
 	/**
@@ -361,6 +375,87 @@ class Line {
 	}
 
 }
+
+/**
+	 * is the position inside the four lines
+	 * @param  {Position} position
+	 * @param  {Line} tensorPast
+	 * @param  {Line} tensorFuture
+	 * @param  {Line} startChange
+	 * @param  {Line} endChange
+	 * @return {Object} {inside: Boolean, twisted: boolean}
+	 */
+function inside(position, tensorPast, tensorFuture, startChange, endChange) {
+	let twistedChangeTemp = startChange.intersect(endChange);
+	let twistedChange = (0 <= twistedChangeTemp.thisDistance) && (twistedChangeTemp.thisDistance<=1);
+
+	let twistedTensorTemp = tensorPast.intersect(tensorFuture);
+	let twistedTensor = (0 <= twistedTensorTemp.thisDistance) && (twistedTensorTemp.thisDistance<=1);
+	let cycles = [];
+	if (twistedTensor) {
+		cycles.push([tensorPast, tensorFuture.reverse(), endChange]);
+		cycles.push([tensorPast, tensorFuture.reverse(), startChange.reverse()]);
+	} else if (twistedChange) {
+		cycles.push([tensorPast, endChange, startChange.reverse()]);
+		cycles.push([tensorFuture.reverse(), endChange, startChange.reverse()]);
+	} else {
+		cycles.push([tensorPast, endChange, tensorFuture.reverse(), startChange.reverse()]);
+	}
+
+	for(let cycle of cycles) {
+		let soFarInside=true;
+		let side = 0;
+		for(let i = 0; i<cycle.length; i++) {
+			let currentSide = cycle[i].left(position);
+			if (!side) {
+				side=currentSide;
+			}
+			if (isNaN(currentSide) || (side*currentSide<0)) {
+				soFarInside=false;
+			}
+		}
+		if (soFarInside) {
+			return true;
+		}
+	}
+	return false;
+}
+/*
+let pos11 = new Position(1,1);
+let pos12 = new Position(9,1);
+let pos21= new Position(1,9);
+let pos22= new Position(9,9);
+
+
+let past= new Line(pos11, pos12);
+let future= new Line(pos21, pos22);
+let startChange= new Line(pos11, pos21);
+let endChange= new Line(pos12, pos22);
+
+
+console.log('INSIDE:'+inside(new Position(2,2), past, future, startChange, endChange));
+
+
+
+function tst() {
+	//var rng = new RNG(20);
+	for(let i=-2; i<12; i+=0.2) {
+		for (let j =-2; j<12; j+= 0.2 ) {
+			let newPos = new Position(i,j); //rng.nextRange(-1, 12), rng.nextRange(-1, 12));
+			let color ='red';
+			if (inside(newPos, past, future, startChange, endChange)) {
+				color='green';
+			}
+			new Node(universe.currentWorld, universe.currentNode, 'node', {
+				'name': 'aaball_'+i,
+				'mass': 1,
+				'size': 0.04,
+				'color': color,
+				'localPosition': newPos,
+				'velocityLoss': 1,
+			});
+		}}
+}*/
 
 /** Ensure that an Rad angle is inside the -PI to  PI span
  * @param  {number} angle

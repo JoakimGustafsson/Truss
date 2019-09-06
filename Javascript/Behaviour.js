@@ -824,6 +824,9 @@ class BounceTensorManagent extends Behaviour {
 
 		
 		//debugEntity.breakAt(this.node1, undefined, 'newball_3', -5);	
+
+		//debugEntity.breakWhen(5.39);
+
 		let previous = this.brokendata.startTensor;
 		for (let i = previous.brokendata.nextTensor ; i && i.brokendata && i.brokendata.nextTensor!=undefined ; i=i.brokendata.nextTensor) {
 			swap(previous, i, i.brokendata.nextTensor);
@@ -850,7 +853,7 @@ class BounceTensorManagent extends Behaviour {
 			let dir=angle*from;
 			
 			if (isNaN(dir)) {
-				alert();
+				alert('dir isNaN');
 			}
 
 			if (dir<0.000000000) {
@@ -870,6 +873,14 @@ class BounceTensorManagent extends Behaviour {
 					thisTensor.destroy();
 				} else {
 					let nextTensor=thisTensor.brokendata.nextTensor;
+					if (thisTensor.node1==nextTensor.node2) {
+						console.log('Null tensor');
+						
+					}
+					if (thisTensor.node1==nextTensor.node2) {
+						console.log('Null tensor');
+						
+					}
 					thisTensor.brokendata = nextTensor.brokendata;
 					thisTensor.node2=nextTensor.node2;
 					thisTensor.joinCollision(nextTensor);
@@ -1022,7 +1033,7 @@ class CollisionBounce extends Behaviour {
 
 	/**
 	 * @param {Object} details
-	 */
+	 *
 	collidex(details) {
 		let newTensors = [];
 		for (let detail of details) {
@@ -1089,7 +1100,8 @@ class CollisionBounce extends Behaviour {
 			recalcStretch(original);
 		}
 		return newTensors;
-	}
+	} */
+
 	/**
 	 * @param {Object} details
 	 */

@@ -1,5 +1,5 @@
 /*jshint esversion:6*/
-/* global StoreableObject warpMatrix Line */
+/* global StoreableObject warpMatrix Line inside */
 /**
  * Tensor class
  * @class
@@ -49,6 +49,9 @@ class Tensor extends StoreableObject {
 
 		Object.defineProperty(this, 'node1', {
 			get: function() {
+				if (this._node1 && this._node1==this._node2) {
+					alert('circular tensor node assignment.');
+				}
 				return this._node1;
 			},
 			set: function(value) {
@@ -60,11 +63,17 @@ class Tensor extends StoreableObject {
 				}
 				this._node1 = value;
 				value.addTensor(this);
+				if (this._node1==this._node2) {
+					alert('circular tensor node assignment.');
+				}
 			},
 		});
 
 		Object.defineProperty(this, 'node2', {
 			get: function() {
+				if (this._node1 && this._node1==this._node2) {
+					alert('circular tensor node assignment.');
+				}
 				return this._node2;
 			},
 			set: function(value) {
@@ -76,6 +85,9 @@ class Tensor extends StoreableObject {
 				}
 				this._node2 = value;
 				value.addTensor(this);
+				if (this._node1==this._node2) {
+					alert('circular tensor node assignment.');
+				}
 			},
 		});
 
@@ -576,7 +588,7 @@ class Tensor extends StoreableObject {
 	 * @param  {Node} node
 	 * @param  {Truss} truss
 	 * @return {Object}
-	 */
+	 *
 	checkCollision(node, truss) {
 		if (this.node1==node || this.node2==node) {
 			return false;
@@ -610,7 +622,12 @@ class Tensor extends StoreableObject {
 				return detail;
 			}
 		}
-	}
+	}  */
+
+
+
+
+
 
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
@@ -647,7 +664,7 @@ class Tensor extends StoreableObject {
 		
 		let before = tensorPast.left(nodeChange.start);
 		let after = tensorFuture.left(nodeChange.end);
-		if (this.name=='right 2' && node.name=='newball_9') {
+		if (this.name=='right 5' && node.name=='newball_8') {
 			console.log(before+'     '+after);
 		}
 
@@ -660,10 +677,42 @@ class Tensor extends StoreableObject {
 			};
 			//console.log('Error. '+tensorPast.left(nodeChange.start));
 			let futureIntersection = tensorFuture.intersect(nodeChange);
-			if (futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) {
+			if ((futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) &&
+				(futureIntersection.otherDistance>=0 && futureIntersection.otherDistance<=1)) {
 				// The node has collided with the future position of the tensor
 				return detail;
-			} else if (startChange.left(nodeChange.end)*endChange.left(nodeChange.end)<0) { // end inside
+			} 
+			
+			//Redo this considering the inside function.
+
+			let startInside = inside(node.localPosition, tensorPast, tensorFuture, startChange, endChange);
+			let endInside = inside(node.futureLocalPosition, tensorPast, tensorFuture, startChange, endChange);
+
+			let intersection = startChange.intersect(nodeChange);
+			if (intersection.otherDistance<0 || intersection.otherDistance>1) {
+				intersection = endChange.intersect(nodeChange);
+			}
+
+			if (endInside) { 
+				if (startInside)  { 
+					return detail;
+				} else { // start outside and end inside  -- Going inside
+					// Did it pass?
+					if(intersection.otherDistance<intersection.thisDistance) { //did it pass?
+						return detail;
+					}
+				}
+			} else { // end outside
+				if (startInside)  { // start inside and end outside --- Going out
+					// Did it pass?
+					if(intersection.otherDistance>intersection.thisDistance) { //did it pass?
+						return detail;
+					}
+				}
+			}
+
+			/*
+			if (startChange.left(nodeChange.end)*endChange.left(nodeChange.end)<0) { // end inside
 				if (startChange.left(nodeChange.start)*endChange.left(nodeChange.start)<0)  { // start inside
 					return detail;
 				} else { //start outside
@@ -672,7 +721,7 @@ class Tensor extends StoreableObject {
 					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
 						intersection = endChange.intersect(nodeChange);
 					}
-					if(intersection.otherDistance>intersection.thisDistance) { //did it pass?
+					if(intersection.otherDistance<intersection.thisDistance) { //did it pass?
 						return detail;
 					}
 				}
@@ -683,14 +732,14 @@ class Tensor extends StoreableObject {
 					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
 						intersection = endChange.intersect(nodeChange);
 					}
-					if(intersection.otherDistance<intersection.thisDistance) { //did it pass?
+					if(intersection.otherDistance>intersection.thisDistance) { //did it pass?
 						return detail;
 					}
 				} //else { //start outside
 				//if () { // start and end on same side
 				//	return false;
 				//}
-			}
+			}*/
 		} 
 
 		return false;

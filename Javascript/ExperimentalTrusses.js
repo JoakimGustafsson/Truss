@@ -412,8 +412,11 @@ class PerformanceTrussNode extends TrussNode {
 			if (a==6) {
 				color='red';
 			}
-			if (a==14) {
+			if (a==7) {
 				color='green';
+			}
+			if (a==8) {
+				color='pink';
 			}
 			new Node(this.world, this, 'bounce moveable velocitynode', {
 				'name': 'newball_'+a,
