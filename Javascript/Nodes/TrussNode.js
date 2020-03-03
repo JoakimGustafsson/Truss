@@ -371,11 +371,13 @@ class TrussNode extends Node {
 	/**
 	 * update the position and velocities of the nodes based on the forces
 	 * @param {number} trussTime
-	 * @param {number} deltaTime
+	 * @param {number} preventmovement
 	 */
-	update(trussTime) {
+	update(trussTime, preventmovement) {
 		this.preUpdatePositions(trussTime, this);
-		this.updatePositions(trussTime, this.timestep);
+		if (!preventmovement) {
+			this.updatePositions(trussTime, this.timestep);
+		}
 		this.postUpdatePositions(trussTime, this);
 		
 	}
@@ -431,7 +433,7 @@ class TrussNode extends Node {
 
 		// the max amount of time we can compensate for
 		if (this.delta > 0.2) {
-			this.delta = 0;
+			this.delta = this.timestep;
 		}
 
 		// Simulate the total elapsed time in fixed-size chunks
@@ -442,7 +444,7 @@ class TrussNode extends Node {
 
 		
 			if (!this.paused) {
-				this.update(timestamp);
+				this.update(timestamp, this.preventUpdate);
 				this.internalTime+=	this.timestep;
 			}
 			this.sense(timestamp);

@@ -178,6 +178,15 @@ class TrussView {
 	 * @param  {Position} position1
 	 * @param  {Position} position2
 	 */
+	drawPoint(position1) {
+		this.context.arc(this.x(position1), this.y(position1), 5, 0, 2 * Math.PI);
+	}
+
+	/**
+	 * Assuming that the context has been set, draw a line between two in-world positions
+	 * @param  {Position} position1
+	 * @param  {Position} position2
+	 */
 	drawLine(position1, position2) {
 		this.context.moveTo(this.x(position1), this.y(position1));
 		this.context.lineTo(this.x(position2), this.y(position2));

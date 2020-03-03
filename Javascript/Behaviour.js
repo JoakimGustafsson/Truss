@@ -882,6 +882,7 @@ class BounceTensorManagent extends Behaviour {
 						
 					}
 					thisTensor.brokendata = nextTensor.brokendata;
+					//debugEntity.breakWhen(1.7322, 'abc');
 					thisTensor.node2=nextTensor.node2;
 					thisTensor.joinCollision(nextTensor);
 					nextTensor.destroy();
@@ -970,13 +971,19 @@ class CollisionSensor2 extends Behaviour {
 	 * @param {Truss} truss
 	 */
 	preupdate(deltaTime, truss) {
+		let depth=0
 		function split (tensor){
+			depth++;
+			if (depth>3) {
+				return;
+			}
 			if (tensor.isGhost()) {
 				return;
 			}
 			let detail;
 			let colliders = [];
 
+			//debugEntity.breakWhen(4.78);
 			for(let node of nodes) {
 				detail = tensor.checkCollision2(node, truss);
 				if (detail) {
@@ -1106,7 +1113,7 @@ class CollisionBounce extends Behaviour {
 	 * @param {Object} details
 	 */
 	collide(details) {
-		
+
 		let firstBroken = (tensor, endTensor) => {
 			tensor.broken = true;
 			endTensor.broken = true;

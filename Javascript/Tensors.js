@@ -1,5 +1,5 @@
 /*jshint esversion:6*/
-/* global StoreableObject warpMatrix Line inside */
+/* global StoreableObject warpMatrix Line inside debugEntity */
 /**
  * Tensor class
  * @class
@@ -50,11 +50,14 @@ class Tensor extends StoreableObject {
 		Object.defineProperty(this, 'node1', {
 			get: function() {
 				if (this._node1 && this._node1==this._node2) {
-					alert('circular tensor node assignment.');
+					throw new Error('circular tensor node assignment. (get)');
 				}
 				return this._node1;
 			},
 			set: function(value) {
+				if (value && value==this._node2) {
+					throw new Error('circular tensor node assignment. (set)');
+				}
 				if (this._node1) {
 					this._node1.removeTensor(this);
 				}
@@ -63,20 +66,21 @@ class Tensor extends StoreableObject {
 				}
 				this._node1 = value;
 				value.addTensor(this);
-				if (this._node1==this._node2) {
-					alert('circular tensor node assignment.');
-				}
+				
 			},
 		});
 
 		Object.defineProperty(this, 'node2', {
 			get: function() {
 				if (this._node1 && this._node1==this._node2) {
-					alert('circular tensor node assignment.');
+					throw new Error('circular tensor node assignment. (get)');
 				}
 				return this._node2;
 			},
 			set: function(value) {
+				if (value && this._node1==value) {
+					throw new Error('circular tensor node assignment. (set)');
+				}
 				if (this._node2) {
 					this._node2.removeTensor(this);
 				}
@@ -85,9 +89,7 @@ class Tensor extends StoreableObject {
 				}
 				this._node2 = value;
 				value.addTensor(this);
-				if (this._node1==this._node2) {
-					alert('circular tensor node assignment.');
-				}
+				
 			},
 		});
 
@@ -640,6 +642,8 @@ class Tensor extends StoreableObject {
 			return false;
 		}
 
+		debugEntity.breakWhen(6.13, 'collision');
+		//console.log('a');
 		let tensorPast=this.line;
 		
 		let futureStartPosition = Vector.addVectors(
@@ -652,23 +656,49 @@ class Tensor extends StoreableObject {
 		let startChange = new Line(tensorPast.start, tensorFuture.start);
 		let endChange = new Line(tensorPast.end, tensorFuture.end);
 
-		if (tensorPast.left(startChange.end)*tensorPast.left(endChange.end)<0) {
+		// Consider if this was the wrong type of twist
+		/*	if (tensorPast.left(startChange.end)*tensorPast.left(endChange.end)<0) {
 			//console.log('Error. Twist');
 			return false;
-		}
+		} */
 
 		let nodeChange = new Line(
 			node.localPosition,
 			node.futureLocalPosition
 		);
 		
-		let before = tensorPast.left(nodeChange.start);
-		let after = tensorFuture.left(nodeChange.end);
-		if (this.name=='right 5' && node.name=='newball_8') {
-			console.log(before+'     '+after);
+		//console.log('b');
+		if (node.name=='newball_3') {
+			debugEntity.draw(node);
 		}
 
-		if (before*after<0) {
+		if (this.name=='right 5') {
+			debugEntity.draw(tensorPast);
+			debugEntity.draw(tensorFuture, 'Yellow');
+		}
+
+		if (this.name=='right 5' && node.name=='newball_3') {
+			debugEntity.draw(node.localPosition, 'purple');
+			debugEntity.draw(node.futureLocalPosition, 'pink');
+		}
+		/* let view = node.parentTrussNode.view;
+		let ctx = view.context;
+		ctx.strokeStyle='red';
+		ctx.shadowBlur = 40;
+		ctx.lineWidth = 10;
+		ctx.shadowColor = 'red';
+		ctx.beginPath();
+		view.drawLine(futureStartPosition, futureEndPosition);
+		ctx.stroke(); */
+
+		let before = tensorPast.left(nodeChange.start);
+		let after = tensorFuture.left(nodeChange.end);
+
+		//if (this.name=='right 5' && node.name=='newball_8') {
+		//	console.log(before+'     '+after);
+		//}
+
+		if (before*after<0) {		// The ball is on differnt sides now and in the future
 			let detail = {
 				'from': tensorPast.left(nodeChange.start),
 				'collider': node,
@@ -683,11 +713,13 @@ class Tensor extends StoreableObject {
 				return detail;
 			} 
 			
+			//console.log('c<:'+node.name);
 			//Redo this considering the inside function.
 
 			let startInside = inside(node.localPosition, tensorPast, tensorFuture, startChange, endChange);
 			let endInside = inside(node.futureLocalPosition, tensorPast, tensorFuture, startChange, endChange);
 
+			//console.log('c>');
 			let intersection = startChange.intersect(nodeChange);
 			if (intersection.otherDistance<0 || intersection.otherDistance>1) {
 				intersection = endChange.intersect(nodeChange);
@@ -695,6 +727,7 @@ class Tensor extends StoreableObject {
 
 			if (endInside) { 
 				if (startInside)  { 
+					//console.log('1');
 					return detail;
 				} else { // start outside and end inside  -- Going inside
 					// Did it pass?
@@ -779,10 +812,10 @@ class Tensor extends StoreableObject {
 			if (graphicDebugLevel >= 10) { // Show debug text
 				ctx.beginPath();
 				ctx.fillStyle = 'cyan';
-				ctx.font = '20px Arial';
+				ctx.font = '10px Arial';
 				ctx.textAlign = 'left';
 				let textPos = Vector.addVectors(node1.getPosition(), Vector.divideVector(this.getActual(), 2));
-				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
+				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10 + ' '+this.name);
 			}
 		}
 	}

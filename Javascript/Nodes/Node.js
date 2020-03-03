@@ -494,7 +494,10 @@ class Node extends StoreableObject {
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
 				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.multiplyVector(truss.timestep , this.velocity)));
+				view.drawPoint(Vector.addVectors(this.getPosition(), Vector.multiplyVector(truss.timestep , this.velocity)));
 				cxt.stroke();
+				
+
 
 				if (graphicDebugLevel >= 7) {
 					cxt.strokeStyle = 'red';
