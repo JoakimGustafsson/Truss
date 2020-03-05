@@ -642,7 +642,6 @@ class Tensor extends StoreableObject {
 			return false;
 		}
 
-		debugEntity.breakWhen(6.13, 'collision');
 		//console.log('a');
 		let tensorPast=this.line;
 		
@@ -668,16 +667,14 @@ class Tensor extends StoreableObject {
 		);
 		
 		//console.log('b');
-		if (node.name=='newball_3') {
-			debugEntity.draw(node);
-		}
+	
 
 		if (this.name=='right 5') {
 			debugEntity.draw(tensorPast);
 			debugEntity.draw(tensorFuture, 'Yellow');
 		}
 
-		if (this.name=='right 5' && node.name=='newball_3') {
+		if (this.name=='left 1' && node.name=='newball_9') {
 			debugEntity.draw(node.localPosition, 'purple');
 			debugEntity.draw(node.futureLocalPosition, 'pink');
 		}
@@ -699,6 +696,9 @@ class Tensor extends StoreableObject {
 		//}
 
 		if (before*after<0) {		// The ball is on differnt sides now and in the future
+			if (node.name=='newball_3') {
+				debugEntity.draw(node);
+			}
 			let detail = {
 				'from': tensorPast.left(nodeChange.start),
 				'collider': node,
@@ -707,8 +707,9 @@ class Tensor extends StoreableObject {
 			};
 			//console.log('Error. '+tensorPast.left(nodeChange.start));
 			let futureIntersection = tensorFuture.intersect(nodeChange);
-			if ((futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) &&
-				(futureIntersection.otherDistance>=0 && futureIntersection.otherDistance<=1)) {
+			if ((futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) 
+			//&& (futureIntersection.otherDistance>=0 && futureIntersection.otherDistance<=1)
+			) {
 				// The node has collided with the future position of the tensor
 				return detail;
 			} 

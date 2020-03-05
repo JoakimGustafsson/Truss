@@ -64,6 +64,8 @@
 			var setupTicks = 3;
 
 
+
+
 			function toggleDisplay(){
 				debugEntity.debugWindow.toggleDisplay();
 			}
@@ -106,6 +108,8 @@
 					// 10;			// House
 					15;
 				// 500;			// Complex
+				// 100000;			// City
+				// 1000000;			// Country
 				// 12500000;	// Earth
 				// 9000000000;	// Solar system
 				// 200000E16;	// Galaxy
@@ -148,7 +152,10 @@
 				setupFooter(document.getElementById('footer'));
 				//lastDebug();
 				
-			    debugEntity = new Debug(document.getElementById('mainArea'))
+				debugEntity = new Debug(document.getElementById('mainArea'))
+
+
+universe.currentWorld.debugLevel = 10;
 			}
 
 			function lastDebug() {

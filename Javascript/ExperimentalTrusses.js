@@ -340,19 +340,21 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 		new Tensor(start2a, start2b,
-			'pullspring rubberbounceactuator',
+			'pullspring rubberbounceactuator  collide2',
 			{
 				'name': 'nw',
 				'constant': 100,
+				'collisionLabel': 'bounce',
 				'equilibriumLength': 0,
 			});
 	
 	
 		new Tensor(starta, startb,
-			'pullspring rubberbounceactuator',
+			'pullspring rubberbounceactuator collide2',
 			{
 				'name': 'ne',
 				'constant': 100,
+				'collisionLabel': 'bounce',
 				'equilibriumLength': 0,
 			});
 		/*new Tensor(enda, endb,
@@ -371,18 +373,20 @@ class PerformanceTrussNode extends TrussNode {
 			});*/
 
 		new Tensor(start, start2,
-			'pullspring rubberbounceactuator',
+			'pullspring rubberbounceactuator collide2',
 			{
 				'name': 'top',
 				'constant': 10,
+				'collisionLabel': 'bounce',
 				'equilibriumLength': 0.1,
 			});
 	
 		new Tensor(end2, end,
-			'spring rubberbounceactuator',
+			'spring rubberbounceactuator  collide2',
 			{
 				'name': 'bottom',
 				'constant': 10,
+				'collisionLabel': 'bounce',
 				'equilibriumLength': 0.1,
 			});
 		
@@ -409,7 +413,7 @@ class PerformanceTrussNode extends TrussNode {
 
 		for (let a = 0; a<10; a++) {
 			let color='white';
-			if (a==6) {
+			if (a==9) {
 				color='red';
 			}
 			if (a==7) {

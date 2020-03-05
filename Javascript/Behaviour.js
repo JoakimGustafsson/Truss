@@ -971,7 +971,7 @@ class CollisionSensor2 extends Behaviour {
 	 * @param {Truss} truss
 	 */
 	preupdate(deltaTime, truss) {
-		let depth=0
+		let depth=0;
 		function split (tensor){
 			depth++;
 			if (depth>3) {
@@ -1002,7 +1002,7 @@ class CollisionSensor2 extends Behaviour {
 			let newTensors = tensor.collide(colliders);
 	
 			for (let subTensor of newTensors) {
-				split(subTensor);
+				//split(subTensor);  // the spanned area should only be smaller, right?
 			}
 		}
 

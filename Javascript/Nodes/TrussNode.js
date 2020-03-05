@@ -424,6 +424,8 @@ class TrussNode extends Node {
 	 * @param {number} externalTimestamp
 	 */
 	tick(externalTimestamp) {
+		debugEntity.breakWhen(7.24, 'collision');
+
 		this.externalTime = externalTimestamp;
 		let timestamp = externalTimestamp*this.timeMultiplier;
 
