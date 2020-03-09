@@ -999,11 +999,12 @@ class CollisionSensor2 extends Behaviour {
 				return -line.closest(a.collider.futureLocalPosition)+line.closest(b.collider.futureLocalPosition);
 			});
 	
-			let newTensors = tensor.collide(colliders);
+			//let newTensors = 
+			tensor.collide(colliders);
 	
-			for (let subTensor of newTensors) {
-				//split(subTensor);  // the spanned area should only be smaller, right?
-			}
+			//for (let subTensor of newTensors) {
+			//split(subTensor);  // the spanned area should only be smaller, right?
+			//}
 		}
 
 		let nodes = this.collisionLabel_Label.getNodes();

@@ -590,52 +590,6 @@ class Tensor extends StoreableObject {
 	 * @param  {Node} node
 	 * @param  {Truss} truss
 	 * @return {Object}
-	 *
-	checkCollision(node, truss) {
-		if (this.node1==node || this.node2==node) {
-			return false;
-		}
-		let oldDistance = this.collideDistanceMapping[node.name];
-		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < -0.01) || (1.01 < where)) {
-			newDistance = undefined;
-		}
-		if (!newDistance) {
-			delete this.collideDistanceMapping[node.name];
-		} else {
-			this.collideDistanceMapping[node.name] = newDistance;
-		}
-		if ((oldDistance!=0 && newDistance==0) || oldDistance * newDistance < 0) {
-			if ((where >= 0.0) && (where <= 1.0)) {
-				let detail = {
-					'where': where,
-					'from': oldDistance,
-					'collider': node,
-					'tensor': this,
-					'truss': truss,
-				};
-				let event = new CustomEvent('collisionEvent', {
-					'detail': detail,
-					'bubbles': true,
-					'cancelable': true,
-				});
-				document.dispatchEvent(event);
-				return detail;
-			}
-		}
-	}  */
-
-
-
-
-
-
-	/**
-	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
-	 * @param  {Node} node
-	 * @param  {Truss} truss
-	 * @return {Object}
 	 */
 	checkCollision2(node, truss) {
 		if (this.node1==node || this.node2==node) {
@@ -666,39 +620,26 @@ class Tensor extends StoreableObject {
 			node.futureLocalPosition
 		);
 		
-		//console.log('b');
-	
 
 		if (this.name=='right 5') {
 			debugEntity.draw(tensorPast);
 			debugEntity.draw(tensorFuture, 'Yellow');
 		}
 
-		if (this.name=='left 1' && node.name=='newball_9') {
+		if (this.name=='right 2' && node.name=='newball_0') {
 			debugEntity.draw(node.localPosition, 'purple');
-			debugEntity.draw(node.futureLocalPosition, 'pink');
+			debugEntity.draw(tensorFuture, 'green');
 		}
-		/* let view = node.parentTrussNode.view;
-		let ctx = view.context;
-		ctx.strokeStyle='red';
-		ctx.shadowBlur = 40;
-		ctx.lineWidth = 10;
-		ctx.shadowColor = 'red';
-		ctx.beginPath();
-		view.drawLine(futureStartPosition, futureEndPosition);
-		ctx.stroke(); */
+	
 
 		let before = tensorPast.left(nodeChange.start);
 		let after = tensorFuture.left(nodeChange.end);
 
-		//if (this.name=='right 5' && node.name=='newball_8') {
-		//	console.log(before+'     '+after);
-		//}
 
 		if (before*after<0) {		// The ball is on differnt sides now and in the future
-			if (node.name=='newball_3') {
-				debugEntity.draw(node);
-			}
+			//if (node.name=='newball_3') {
+			//	debugEntity.draw(node);
+			//}
 			let detail = {
 				'from': tensorPast.left(nodeChange.start),
 				'collider': node,
@@ -720,15 +661,16 @@ class Tensor extends StoreableObject {
 			let startInside = inside(node.localPosition, tensorPast, tensorFuture, startChange, endChange);
 			let endInside = inside(node.futureLocalPosition, tensorPast, tensorFuture, startChange, endChange);
 
-			//console.log('c>');
+			// Where did the node cross one of the change vectors?
 			let intersection = startChange.intersect(nodeChange);
 			if (intersection.otherDistance<0 || intersection.otherDistance>1) {
 				intersection = endChange.intersect(nodeChange);
 			}
 
 			if (endInside) { 
-				if (startInside)  { 
+				if (startInside)  { // The tensor passes a node (past and future on diffent sides)
 					//console.log('1');
+					
 					return detail;
 				} else { // start outside and end inside  -- Going inside
 					// Did it pass?
@@ -743,39 +685,9 @@ class Tensor extends StoreableObject {
 						return detail;
 					}
 				}
+				//maybe consider a node passing really fast??? Or is this already covered?
 			}
-
-			/*
-			if (startChange.left(nodeChange.end)*endChange.left(nodeChange.end)<0) { // end inside
-				if (startChange.left(nodeChange.start)*endChange.left(nodeChange.start)<0)  { // start inside
-					return detail;
-				} else { //start outside
-					// Did it pass?
-					let intersection = startChange.intersect(nodeChange);
-					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
-						intersection = endChange.intersect(nodeChange);
-					}
-					if(intersection.otherDistance<intersection.thisDistance) { //did it pass?
-						return detail;
-					}
-				}
-			} else { // end outside
-				if (startChange.left(nodeChange.start)*endChange.left(nodeChange.start)<0)  { // start inside
-					// Did it pass?
-					let intersection = startChange.intersect(nodeChange);
-					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
-						intersection = endChange.intersect(nodeChange);
-					}
-					if(intersection.otherDistance>intersection.thisDistance) { //did it pass?
-						return detail;
-					}
-				} //else { //start outside
-				//if () { // start and end on same side
-				//	return false;
-				//}
-			}*/
-		} 
-
+		}
 		return false;
 	}
 

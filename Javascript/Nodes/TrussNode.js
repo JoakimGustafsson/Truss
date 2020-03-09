@@ -1,4 +1,4 @@
-/* global TrussView PropertyEditor */
+/* global TrussView PropertyEditor debugEntity */
 /**
  * @class
  * @extends Node
@@ -424,7 +424,7 @@ class TrussNode extends Node {
 	 * @param {number} externalTimestamp
 	 */
 	tick(externalTimestamp) {
-		debugEntity.breakWhen(7.24, 'collision');
+		debugEntity.breakWhen(26.02, 'collision');
 
 		this.externalTime = externalTimestamp;
 		let timestamp = externalTimestamp*this.timeMultiplier;

@@ -1,6 +1,6 @@
 /*jshint esversion:6*/
 
-/*global createSimpleButton debugEntity */
+/*global createSimpleButton debugEntity Line Tensor*/
 
 /* This file includes scripts that are designed to simplify debugging debug */
 

@@ -556,7 +556,36 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 */
+		let testXOffset=1;
+		let testYOffset=12;
+		let experimentNr=1;
+		let color='red';
+		new Tensor(
+			new Node(this.world, this, 'node', {
+				'name': 'TestTop'+experimentNr,
+				'localPosition': new Position(testXOffset, testYOffset),
+			}), 
+			new Node(this.world, this, 'node', {
+				'name': 'TestBottom'+experimentNr,
+				'localPosition': new Position(testXOffset, testYOffset+1),
+			}),
+			'pullspring rubberbounceactuator collide2',
+			{
+				'name': 'TestTensor'+experimentNr,
+				'constant': 900,
+				'collisionLabel': 'bounce'+experimentNr,
+				'equilibriumLength': 1,
+			});
 
+		new Node(this.world, this, 'bounce'+experimentNr+' moveable velocitynode', {
+			'name': 'experimentBall'+experimentNr,
+			'mass': 1,
+			'size': 0.04,
+			'color': color,
+			'localPosition': new Position(testXOffset-1, testYOffset+0.5),
+			'velocityLoss': 1,
+			'velocity': new Velocity(2, 0),
+		});
 	}
 }
 

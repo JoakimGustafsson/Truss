@@ -307,10 +307,12 @@ class Line {
 		this.end = end;
 	}
 
-	// This returns true if the closest point from p3 on the line crossing p1 and p2 lies between p1 and p2
+
+
+	// This returns where this line and otherline crosses. 
 	/**
-	 * @param  {Tensor} otherline The line second crosses this line
-	 * @return {Object} where two value tells how far into each line the intersection is
+	 * @param  {Tensor} otherline The line that crosses this line
+	 * @return {Object} where two value tells how far into each line the intersection is starting with this line then where on otherline it crosses
 	 */
 	intersect(otherline) {
 		let p1 = this.start;
@@ -321,14 +323,17 @@ class Line {
 		let ydifference = p4.y - p3.y;
 		let res;
 		if ((ydifference == 0) && (xdifference == 0)) {
+			console.log('a');
 			return false;
 		} else if (ydifference == 0) {
 			if (p2.y - p1.y == 0) {
+				console.log('b');
 				return false;
 			}
 			res = -(p1.y - p3.y) / (p2.y - p1.y);
 		} else if (xdifference == 0) {
 			if (p2.x - p1.x == 0) {
+				console.log('c');
 				return false;
 			}
 			res = -(p1.x - p3.x) / (p2.x - p1.x);
@@ -336,6 +341,7 @@ class Line {
 			try {
 				res = ((p1.x - p3.x) / xdifference - (p1.y - p3.y) / ydifference) / ((p2.y - p1.y) / ydifference - (p2.x - p1.x) / xdifference);
 			} catch (error) {
+				console.log('d'+error);
 				return false;
 			}
 		}
@@ -345,6 +351,8 @@ class Line {
 			'otherDistance': otherRes
 		};
 	}
+
+
 
 	reverse() {
 		return new Line(this.end, this.start);
@@ -380,18 +388,38 @@ class Line {
 
 }
 
+var a = new Line({x: 3.8880492194162177, y: 3.5464950697422344}, {x: 3.9522775627360462, y: 3.6188293022775153});
+//{x: 3.8880492194162177, y: 3.5464950697422344}
+//{_x: 3.9522775627360462, _y: 3.6188293022775153}
+var b= new Line({x: 3.6719057846872856, y: 3.125693659752899}, {x: 3.6568256124157394, y: 3.0970693099729245});
+
+//console.log(a.intersect(b));
+
+var c = new Line({x: 288, y: 546}, {x: 352, y: 618});
+var d= new Line({x: 71, y: 125}, {x: 56, y: 97});
+
+console.log(c.intersect(d));
+
+//{_x: 3.6719057846872856, _y: 3.125693659752899}
+//{_x: 3.6568256124157394, _y: 3.0970693099729245}
+
+//return {
+//	'thisDistance': 0.21
+//	'otherDistance': -15
+//};
 
 var p1 = new Vector(0, 0);
-var p2 = new Vector(1, 1);
-var f1 = new Vector(1, 0);
-var f2 = new Vector(1, 1);
+var p2 = new Vector(10, 0);
+var f1 = new Vector(10, 10);
+var f2 = new Vector(0, 10);
 
 var past = new Line(p1, p2);
 var future = new Line(f1, f2);
-var startc = new Line(p1, f1);
-var endc = new Line(p2, f2);
+var startChange = new Line(p1, f1);
+var endChange = new Line(p2, f2);
 
-console.log(inside(new Position(0.5, 0.5), past, future, startc, endc));
+
+//console.log(inside(new Position(11, 11), past, future, startChange, endChange));
 
 /**
  * is the position inside the four lines
@@ -402,6 +430,72 @@ console.log(inside(new Position(0.5, 0.5), past, future, startc, endc));
  * @param  {Line} endChange
  * @return {Object} {inside: Boolean, twisted: boolean}
  */
+function inside(position, tensorPast, tensorFuture, startChange, endChange) {
+	function realLine(a) {
+		return ((a.start.x != a.end.x) || (a.start.y != a.end.y));
+	}
+
+	// First part checks if the 4 sides contains a twist
+	let crossLine = new Line(tensorPast.end, tensorFuture.start);
+	let cycles = [];
+	if (realLine(crossLine) && realLine(endChange) && realLine(tensorFuture)) {
+		cycles.push([crossLine, tensorFuture, endChange.reverse()]);
+	}
+	if (realLine(crossLine) && realLine(tensorPast) && realLine(startChange)) {
+		cycles.push([crossLine, startChange.reverse(), tensorPast]);
+	}
+
+	// Second part checks if the position is inside ONE
+	let insideCounter = 0;
+	for (let cycle of cycles) {
+		if (
+			(cycle[0].left(position) * cycle[1].left(position) > 0) &&
+			(cycle[1].left(position) * cycle[2].left(position) > 0)) {
+			insideCounter++;
+		}
+	}
+
+	return (insideCounter == 1);
+}
+/*
+let orignialCycle=[tensorPast, endChange,tensorFuture.reverse(), startChange.reverse()];
+	let cycles = [0,0,0,0];
+	let twistedChangeTemp = startChange.intersect(endChange);
+	let twistedTensorTemp = tensorPast.intersect(tensorFuture);
+
+	let crossedVectors=[];
+	if (zeroToOne(twistedChangeTemp.thisDistance)) {
+		crossedVectors[0]=1;
+	}
+	if (zeroToOne(twistedChangeTemp.otherDistance)) {
+		crossedVectors[1]=1;
+	}
+	if (zeroToOne(twistedTensorTemp.thisDistance)) {
+		crossedVectors[2]=1;
+	}
+	if (zeroToOne(twistedTensorTemp.otherDistance)) {
+		crossedVectors[3]=1;
+	}
+
+	let sum=crossedVectors.reduce((a,b) => a+b,0);
+	if (sum==0) {
+		cycles.push(orignialCycle);
+	} else if (sum==2) {
+		
+
+	} 
+
+*/
+
+/*
+ * is the position inside the four lines
+ * @param  {Position} position
+ * @param  {Line} tensorPast
+ * @param  {Line} tensorFuture
+ * @param  {Line} startChange
+ * @param  {Line} endChange
+ * @return {Object} {inside: Boolean, twisted: boolean}
+ *
 function inside(position, tensorPast, tensorFuture, startChange, endChange) {
 	function close(a,b) {
 		if (Math.abs(a-b)<0.000001) {
@@ -468,43 +562,45 @@ function inside(position, tensorPast, tensorFuture, startChange, endChange) {
 		}
 	}
 	return false;
-}
+}*/
+
 /*
-let pos11 = new Position(1,1);
-let pos12 = new Position(9,1);
-let pos21= new Position(1,9);
-let pos22= new Position(9,9);
+let pos11 = new Position(1, 1);
+let pos12 = new Position(9, 1);
+let pos21 = new Position(1, 9);
+let pos22 = new Position(9, 9);
 
 
-let past= new Line(pos11, pos12);
-let future= new Line(pos21, pos22);
-let startChange= new Line(pos11, pos21);
-let endChange= new Line(pos12, pos22);
+let past = new Line(pos11, pos12);
+let future = new Line(pos21, pos22);
+let startChange = new Line(pos11, pos21);
+let endChange = new Line(pos12, pos22);
 
 
-console.log('INSIDE:'+inside(new Position(2,2), past, future, startChange, endChange));
-
-
+console.log('INSIDE:' + inside(new Position(2, 2), past, future, startChange, endChange));
+*/
 
 function tst() {
 	//var rng = new RNG(20);
-	for(let i=-2; i<12; i+=0.2) {
-		for (let j =-2; j<12; j+= 0.2 ) {
-			let newPos = new Position(i,j); //rng.nextRange(-1, 12), rng.nextRange(-1, 12));
-			let color ='red';
+	for (let i = -2; i < 12; i += 0.2) {
+		for (let j = -2; j < 12; j += 0.2) {
+			let newPos = new Position(i, j); //rng.nextRange(-1, 12), rng.nextRange(-1, 12));
+			let color = 'red';
 			if (inside(newPos, past, future, startChange, endChange)) {
-				color='green';
+				color = 'green';
 			}
 			new Node(universe.currentWorld, universe.currentNode, 'node', {
-				'name': 'aaball_'+i,
+				'name': 'aaball_' + i,
 				'mass': 1,
 				'size': 0.04,
 				'color': color,
 				'localPosition': newPos,
 				'velocityLoss': 1,
 			});
-		}}
-}*/
+		}
+	}
+}
+
 
 /** Ensure that an Rad angle is inside the -PI to  PI span
  * @param  {number} angle
