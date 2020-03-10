@@ -626,7 +626,7 @@ class Tensor extends StoreableObject {
 			debugEntity.draw(tensorFuture, 'Yellow');
 		}
 
-		if (this.name=='right 2' && node.name=='newball_0') {
+		if (node.name=='newball_9') {
 			debugEntity.draw(node.localPosition, 'purple');
 			debugEntity.draw(tensorFuture, 'green');
 		}
@@ -649,7 +649,15 @@ class Tensor extends StoreableObject {
 			//console.log('Error. '+tensorPast.left(nodeChange.start));
 			let futureIntersection = tensorFuture.intersect(nodeChange);
 			if ((futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) 
-			//&& (futureIntersection.otherDistance>=0 && futureIntersection.otherDistance<=1)
+			&& (futureIntersection.otherDistance>=0 && futureIntersection.otherDistance<=1)  
+			) {
+				// The node has collided with the future position of the tensor
+				return detail;
+			} 
+
+			let pastIntersection = tensorPast.intersect(nodeChange);
+			if ((pastIntersection.thisDistance>=0 && pastIntersection.thisDistance<=1) 
+			&& (pastIntersection.otherDistance>=0 && pastIntersection.otherDistance<=1)  
 			) {
 				// The node has collided with the future position of the tensor
 				return detail;

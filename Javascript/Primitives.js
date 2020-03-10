@@ -352,6 +352,25 @@ class Line {
 		};
 	}
 
+	// This returns where this line and otherline crosses. 
+	/**
+	 * @param  {Tensor} otherline The line that crosses this line
+	 * @return {Object} where two value tells how far into each line the intersection is starting with this line then where on otherline it crosses
+	 */
+	intersect2(otherline) {
+		let p1 = this.start;
+		let p2 = this.end;
+		let p3 = otherline.start;
+		let p4 = otherline.end;
+		let a=(p3.x-p1.x)*(p2.y-p1.y)-(p3.y-p1.y)*(p2.x-p1.x);
+		let z=a/((p4.y-p3.y)*(p2.x-p1.x) - (p4.x-p3.x)*(p2.y-p1.y));
+		let x=(p3.x-p1.x+z*(p4.x-p3.x))/(p2.x-p1.x);
+		return {
+			'thisDistance': z,
+			'otherDistance': x
+		};
+	}
+
 
 
 	reverse() {
@@ -386,6 +405,10 @@ class Line {
 		return t;
 	}
 
+	positionAt(c) {
+		return {'x': this.start.x+c*(this.end.x-this.start.x), 'y': this.start.y+c*(this.end.y-this.start.y)};
+	}
+
 }
 
 var a = new Line({x: 3.8880492194162177, y: 3.5464950697422344}, {x: 3.9522775627360462, y: 3.6188293022775153});
@@ -398,7 +421,15 @@ var b= new Line({x: 3.6719057846872856, y: 3.125693659752899}, {x: 3.65682561241
 var c = new Line({x: 288, y: 546}, {x: 352, y: 618});
 var d= new Line({x: 71, y: 125}, {x: 56, y: 97});
 
-console.log(c.intersect(d));
+var e = c.intersect(d);
+var f = d.intersect(c);
+console.log(e);
+console.log(f);
+
+//console.log(c.positionAt(e.thisDistance));
+console.log(c.positionAt(e.thisDistance));
+console.log(d.positionAt(e.otherDistance));
+//console.log(d.positionAt(e.otherDistance));
 
 //{_x: 3.6719057846872856, _y: 3.125693659752899}
 //{_x: 3.6568256124157394, _y: 3.0970693099729245}
