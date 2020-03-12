@@ -387,6 +387,12 @@ class World {
 		for (let nodeRestoreObject of restoreObject.nodes) {
 			let node = objectFactory(this, nodeRestoreObject);
 			nodeList.push(node);
+			// ensure pointer to parenttrussnode works from the beginning. 
+			// Needed for example to setup button that is dependent on the canvas (element)
+			if (nodeRestoreObject.parentTrussNode!=undefined && nodeRestoreObject.parentTrussNode<=nodeList.length) {
+				node.parentTrussNode= nodeList[nodeRestoreObject.parentTrussNode];
+			}
+			
 		}
 
 		let tensorList=[];

@@ -62,7 +62,7 @@ class Node extends StoreableObject {
 
 		Object.defineProperty(this, 'stepVelocity', {
 			get: function() {
-				return Vector.multiplyVector(parentTrussNode.timestep, this.velocity);
+				return Vector.multiplyVector(this.parentTrussNode.timestep, this.velocity);
 			}
 		});
 

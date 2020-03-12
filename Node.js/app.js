@@ -38,7 +38,7 @@ app.get('/dir/:folder', function (req, res) {
 
 app.get('/load/:fileName', function (req, res) {
 	console.log("fileName:" + req.params.fileName);
-	fs.readFile('Saves/'+req.params.fileName, function (err, data) {
+	fs.readFile('../Saves/'+req.params.fileName, function (err, data) {
 		if (err) {
 			return console.log(err);
 		}

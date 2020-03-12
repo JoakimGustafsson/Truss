@@ -67,7 +67,12 @@
 
 
 			function toggleDisplay(){
-				debugEntity.debugWindow.toggleDisplay();
+				if (document.getElementById('mainArea').contains(debugEntity.debugWindow.debugDiv)) {
+					debugEntity.debugWindow.toggleDisplay();
+					return;
+				}
+				document.getElementById('mainArea').appendChild(debugEntity.debugWindow.debugDiv)
+				
 			}
 
 			//Main Draw loop

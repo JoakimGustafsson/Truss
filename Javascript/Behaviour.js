@@ -807,7 +807,6 @@ class BounceTensorManagent extends Behaviour {
 			let howFar2=getT(node1.localPosition, node2.localPosition,newPosition2);
 
 			if (howFar1>howFar2) {
-				//debugEntity.breakAt(node1, undefined, 'newball_3', -5);	
 				previous.node2=tensor.node2;
 				let tempfrom = previous.brokendata.from;
 				previous.brokendata.from=tensor.brokendata.from;
@@ -860,13 +859,8 @@ class BounceTensorManagent extends Behaviour {
 				if (originalTensor.brokendata.startTensor == thisTensor &&
 					thisTensor.brokendata.nextTensor.node2 == originalTensor.node2) // Last break
 				{
-					//debugEntity.breakAt(node, 'name', 'newball_3', -5);	
 					originalTensor.deGhostify();
 					
-					originalTensor.joinCollision(thisTensor.brokendata.nextTensor);
-					originalTensor.joinCollision(thisTensor);
-					originalTensor.collisionExclude(node);
-
 					originalTensor.removeLabel(originalTensor.bounceTensorManagementLabel);
 					originalTensor.broken=false;
 					thisTensor.brokendata.nextTensor.destroy();
@@ -882,11 +876,10 @@ class BounceTensorManagent extends Behaviour {
 						
 					}
 					thisTensor.brokendata = nextTensor.brokendata;
-					//debugEntity.breakWhen(1.7322, 'abc');
 					thisTensor.node2=nextTensor.node2;
-					thisTensor.joinCollision(nextTensor);
+
 					nextTensor.destroy();
-					thisTensor.setSide(node, from);
+
 				}
 			
 			}
@@ -1039,76 +1032,6 @@ class CollisionBounce extends Behaviour {
 		storeableObject.unregisterOverride(BehaviourOverride.COLLIDE, CollisionBounce.prototype.collide);
 	}
 
-	/**
-	 * @param {Object} details
-	 *
-	collidex(details) {
-		let newTensors = [];
-		for (let detail of details) {
-			let tensor = detail.tensor;
-			let collider = detail.collider;
-
-			// Tensor 1
-			let startTensor = tensor;
-			let endTensor = tensor.clone();
-			newTensors.push(endTensor);
-
-			let original;
-			if (!tensor.broken) { // The first break of a tensor
-				tensor.broken=true;
-				endTensor.broken=true;
-				startTensor = tensor.clone();
-				newTensors.push(startTensor);
-
-				let bounceTensorManagementLabel = this.bounceTensorManagementLabel || this.world.labels.findLabel('bouncetensormanagement');
-				if (!this.hasLabel(bounceTensorManagementLabel)) {
-					tensor.addLabel(bounceTensorManagementLabel);
-					tensor.bounceTensorManagementLabel=bounceTensorManagementLabel;
-				}
-
-				startTensor.broken=true;
-				tensor.ghostify();
-				tensor.brokendata = {
-					'startTensor':startTensor,
-					'parentTensor': tensor
-				};
-				original = tensor;
-			} else { 
-				original = tensor.brokendata.parentTensor;
-				endTensor.broken=true;
-			}
-
-			endTensor.brokendata = tensor.brokendata;
-		
-			startTensor.brokendata = {
-				'parentTensor':original,
-				'nextTensor':endTensor,
-				'from':detail.from
-			};
-
-			startTensor.node2=collider;
-
-			// Tensor 1
-			startTensor.addLabelString(' angletensor');
-			startTensor.angle2=anglify(tensor.getTensorAngle(collider)+Math.PI-collider.angle);
-			startTensor.torqueConstant2=0;
-	
-
-			// Tensor 2
-			endTensor.node1=collider;
-			endTensor.addLabelString(' angletensor');
-			endTensor.angle1=anglify(tensor.getTensorAngle(collider)-collider.angle);
-			endTensor.torqueConstant1=0;
-
-
-			if ((startTensor.node1==startTensor.node2) || (endTensor.node1==endTensor.node2)) {
-				alert('aa');
-			}
-
-			recalcStretch(original);
-		}
-		return newTensors;
-	} */
 
 	/**
 	 * @param {Object} details

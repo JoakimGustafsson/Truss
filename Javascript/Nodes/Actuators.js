@@ -570,19 +570,19 @@ class LineBreakerNode extends ActuatorNode {
 			this.attachToTensor(truss, newTensor, distanceFraction, dir);
 		}
 		this.clearAllInternalLinebreaks(truss, connectionNode);
-		this.clearCollisionmappingForThisNode(connectionNode);
+		//this.clearCollisionmappingForThisNode(connectionNode);
 	}
 
 	/**
 	 * @param  {Node} connectionNode
-	 */
+	 *
 	clearCollisionmappingForThisNode(connectionNode) {
 		for (let tensor of connectionNode.positionBasedTensors) {
 			if (!tensor.isGhost()) {
 				tensor.collideDistanceMapping[this.iO.name] = 0;
 			}
 		}
-	}
+	}*/
 
 	/** When the outermost linebreaker has passed an endpoint, make sure that no old (internal) linebreakers to that same node remain
 	 * @param  {Truss} truss

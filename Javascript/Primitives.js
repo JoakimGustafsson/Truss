@@ -102,6 +102,19 @@ class Vector {
 		return this;
 	}
 
+	/* TODO
+Plan
+1 fix saves
+2 create test cases for collision
+2 check why moving tensors or nodes do not catch collisions
+3 create a small game
+4 try out different control ideas like jump, double jump. downjumps. webthrows. 
+5 Try out controller mechanisms
+6 try my own controll mechanisms
+7 Try out nested realities
+8 Generate a fractal universe with triangles 
+*/
+
 	/** scale this vector so that the length becomes l
 	 * @param  {number} l The length of the resulting vector
 	 * @return {Vector}
@@ -352,26 +365,6 @@ class Line {
 		};
 	}
 
-	// This returns where this line and otherline crosses. 
-	/**
-	 * @param  {Tensor} otherline The line that crosses this line
-	 * @return {Object} where two value tells how far into each line the intersection is starting with this line then where on otherline it crosses
-	 */
-	intersect2(otherline) {
-		let p1 = this.start;
-		let p2 = this.end;
-		let p3 = otherline.start;
-		let p4 = otherline.end;
-		let a=(p3.x-p1.x)*(p2.y-p1.y)-(p3.y-p1.y)*(p2.x-p1.x);
-		let z=a/((p4.y-p3.y)*(p2.x-p1.x) - (p4.x-p3.x)*(p2.y-p1.y));
-		let x=(p3.x-p1.x+z*(p4.x-p3.x))/(p2.x-p1.x);
-		return {
-			'thisDistance': z,
-			'otherDistance': x
-		};
-	}
-
-
 
 	reverse() {
 		return new Line(this.end, this.start);
@@ -411,6 +404,7 @@ class Line {
 
 }
 
+/*
 var a = new Line({x: 3.8880492194162177, y: 3.5464950697422344}, {x: 3.9522775627360462, y: 3.6188293022775153});
 //{x: 3.8880492194162177, y: 3.5464950697422344}
 //{_x: 3.9522775627360462, _y: 3.6188293022775153}
@@ -448,7 +442,7 @@ var past = new Line(p1, p2);
 var future = new Line(f1, f2);
 var startChange = new Line(p1, f1);
 var endChange = new Line(p2, f2);
-
+*/
 
 //console.log(inside(new Position(11, 11), past, future, startChange, endChange));
 
@@ -466,7 +460,8 @@ function inside(position, tensorPast, tensorFuture, startChange, endChange) {
 		return ((a.start.x != a.end.x) || (a.start.y != a.end.y));
 	}
 
-	// First part checks if the 4 sides contains a twist
+	// First part introduces a help-line, then ensures the position is on only one side of the help-line
+	// This seems to work for all types of twisted four sided constructs
 	let crossLine = new Line(tensorPast.end, tensorFuture.start);
 	let cycles = [];
 	if (realLine(crossLine) && realLine(endChange) && realLine(tensorFuture)) {
@@ -488,112 +483,7 @@ function inside(position, tensorPast, tensorFuture, startChange, endChange) {
 
 	return (insideCounter == 1);
 }
-/*
-let orignialCycle=[tensorPast, endChange,tensorFuture.reverse(), startChange.reverse()];
-	let cycles = [0,0,0,0];
-	let twistedChangeTemp = startChange.intersect(endChange);
-	let twistedTensorTemp = tensorPast.intersect(tensorFuture);
 
-	let crossedVectors=[];
-	if (zeroToOne(twistedChangeTemp.thisDistance)) {
-		crossedVectors[0]=1;
-	}
-	if (zeroToOne(twistedChangeTemp.otherDistance)) {
-		crossedVectors[1]=1;
-	}
-	if (zeroToOne(twistedTensorTemp.thisDistance)) {
-		crossedVectors[2]=1;
-	}
-	if (zeroToOne(twistedTensorTemp.otherDistance)) {
-		crossedVectors[3]=1;
-	}
-
-	let sum=crossedVectors.reduce((a,b) => a+b,0);
-	if (sum==0) {
-		cycles.push(orignialCycle);
-	} else if (sum==2) {
-		
-
-	} 
-
-*/
-
-/*
- * is the position inside the four lines
- * @param  {Position} position
- * @param  {Line} tensorPast
- * @param  {Line} tensorFuture
- * @param  {Line} startChange
- * @param  {Line} endChange
- * @return {Object} {inside: Boolean, twisted: boolean}
- *
-function inside(position, tensorPast, tensorFuture, startChange, endChange) {
-	function close(a,b) {
-		if (Math.abs(a-b)<0.000001) {
-			return true; 
-		}
-		return false;
-	}
-	// First part checks if the 4 sides contains a twist
-	let twistedChangeTemp = startChange.intersect(endChange);
-	let twistedChange;
-	if (twistedChangeTemp) {
-		twistedChange = (0 <= twistedChangeTemp.thisDistance) && (twistedChangeTemp.thisDistance <= 1);
-	} else  {
-		twistedChange = false;
-	}
-	let twistedTensorTemp = tensorPast.intersect(tensorFuture);
-	let twistedTensor;
-	if (twistedTensorTemp) {
-		twistedTensor = (0 <= twistedTensorTemp.thisDistance) && (twistedTensorTemp.thisDistance <= 1);
-	} else  {
-		twistedTensor = false;
-	}
-	//let twistedTensor = (0 <= twistedTensorTemp.thisDistance) && (twistedTensorTemp.thisDistance <= 1);
-	let cycles = [];
-	if (twistedChangeTemp && close(twistedChangeTemp.thisDistance, 1)) { // a tensor becomes 0 length
-		cycles.push([startChange.reverse(), tensorPast, endChange]);
-	} else if (twistedChangeTemp && close(twistedChangeTemp.thisDistance, 0)) { // a tensor comes from 0 length
-		cycles.push([endChange, tensorFuture.reverse(), startChange.reverse()]);
-	} else if (twistedTensorTemp && close(twistedTensorTemp.thisDistance, 0)) { // the tensors start is stationary
-		cycles.push([tensorPast, endChange, tensorFuture.reverse()]);
-	} else if (twistedTensorTemp && close(twistedTensorTemp.thisDistance, 1)) { // the tensors end is stationary
-		cycles.push([startChange.reverse(), tensorPast, tensorFuture.reverse()]);
-	} else if (twistedTensor) { // the tensors rotates around itself
-		cycles.push([tensorPast, tensorFuture.reverse(), endChange]);
-		cycles.push([tensorPast, tensorFuture.reverse(), startChange.reverse()]);
-	} else if (twistedChange) { // the tensors switches direction (so the end change vectors cross)
-		cycles.push([tensorPast, endChange, startChange.reverse()]);
-		cycles.push([tensorFuture.reverse(), endChange, startChange.reverse()]);
-	} else {
-		cycles.push([tensorPast, endChange, tensorFuture.reverse(), startChange.reverse()]);
-	}
-	// Second part checks if the position is all inside
-	for (let cycle of cycles) {
-		let soFarInside = true;
-		let side = 0;
-		for (let i = 0; i < cycle.length; i++) {
-			let currentSide = cycle[i].left(position);
-			if (!side) {
-				side = currentSide;
-			}
-
-			if (isNaN(currentSide)) {
-				console.log('here');
-			}
-
-			if (!isNaN(currentSide)) { // If one of the nodes is completely still, for example
-				if (side * currentSide < 0) {
-					soFarInside = false;
-				}
-			}
-		}
-		if (soFarInside) {
-			return true;
-		}
-	}
-	return false;
-}*/
 
 /*
 let pos11 = new Position(1, 1);
@@ -609,7 +499,7 @@ let endChange = new Line(pos12, pos22);
 
 
 console.log('INSIDE:' + inside(new Position(2, 2), past, future, startChange, endChange));
-*/
+
 
 function tst() {
 	//var rng = new RNG(20);
@@ -630,7 +520,7 @@ function tst() {
 			});
 		}
 	}
-}
+} */
 
 
 /** Ensure that an Rad angle is inside the -PI to  PI span

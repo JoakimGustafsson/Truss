@@ -19,7 +19,7 @@ class Tensor extends StoreableObject {
 		}
 		super(parent, initialLabels, valueObject);
 
-		this.collideDistanceMapping = {};
+		//this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
 
 		Object.defineProperty(this, 'degree2', {
@@ -306,9 +306,10 @@ class Tensor extends StoreableObject {
 	serialize(nodeList, tensorList) {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Tensor';
+		representation.ghost= this.ghost;
 		//representation.collideDistanceMapping= this.collideDistanceMapping;
-		representation.collideDistanceMapping={};
-		Object.assign(representation.collideDistanceMapping,this.collideDistanceMapping);
+		//representation.collideDistanceMapping={};
+		//Object.assign(representation.collideDistanceMapping,this.collideDistanceMapping);
 		return representation;
 	}
 	/**
@@ -319,8 +320,9 @@ class Tensor extends StoreableObject {
 	 */
 	deSerialize(restoreObject, nodeList, tensorList) {
 		super.deSerialize(restoreObject, nodeList, tensorList);
+		this.ghost=restoreObject.ghost;
 		//this.originalParent = tensorList[restoreObject.originalParent];
-		this.collideDistanceMapping=restoreObject.collideDistanceMapping;
+		//this.collideDistanceMapping=restoreObject.collideDistanceMapping;
 		return this;
 	}
 
@@ -376,7 +378,7 @@ class Tensor extends StoreableObject {
 	 */
 	deGhostify() {
 		this.ghost = false;
-		this.collideDistanceMapping={};
+		//this.collideDistanceMapping={};
 	}
 
 	/**
@@ -556,10 +558,14 @@ class Tensor extends StoreableObject {
 			return this.color;
 		} else return 'white';
 	}
-	/**
+
+
+
+	/*
+	/*
 	 * clear a specific node from the list of nodes that have collided with the tensor.
 	 * @param  {Node} node
-	 */
+	 *
 	resetCollision(node) {
 		delete this.collideDistanceMapping[node.name];
 	}
@@ -567,23 +573,25 @@ class Tensor extends StoreableObject {
 	/**
 	 * join another list of collition distances.
 	 * @param  {Tensor} otherTensor
-	 */
+	 *
 	joinCollision(otherTensor) {
+		alert('should not be here')
 		this.collideDistanceMapping={...this.collideDistanceMapping, ...otherTensor.collideDistanceMapping};
 	}
 
 	collisionExclude(node) {
 		delete this.collideDistanceMapping[node.name];
-	}
+	} 
 
 	/**
 	 * Ensures that a node is set to be considered to be on a specific side of a tensor.
 	 * @param  {Node} node
 	 * @param  {Node} from direction (>0 right side. <0 Left side)
-	 */
+	 *
 	setSide(node, from){
 		this.collideDistanceMapping[node.name]= from;
 	}
+*/
 
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
@@ -873,7 +881,7 @@ class PictureSpring extends Tensor {
 		this.width=restoreObject.width;
 		this.stretch=restoreObject.stretch;
 		this.length=restoreObject.length;
-		this.collideDistanceMapping=restoreObject.collideDistanceMapping;
+		//this.collideDistanceMapping=restoreObject.collideDistanceMapping;
 
 
 		this.createHTMLPicture(this.pictureReference);

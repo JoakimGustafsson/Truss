@@ -180,7 +180,7 @@ class Property {
 	 * @return {Object}
 	 */
 	deSerialize(serializeObject) {
-		if (!serializeObject) {
+		if (serializeObject==undefined) {
 			return undefined;
 		} else if ((serializeObject.constructor === String) || (serializeObject.constructor === Number)) {
 			return serializeObject;
@@ -445,6 +445,18 @@ class ScriptProperty extends Property {
 		parameterValue.appendChild(this.input);
 	}
 
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {StoreableObject}
+	 */
+	deSerialize(scriptProp, nodeList, tensorList) {
+		let result = super.deSerialize(scriptProp, nodeList, tensorList);
+		//this.owner[this.propertyName+'_Label']=this.owner.world.labels.findLabel(labelName);
+		this.assignValue(result);
+		return result;
+	}
 
 	/** actually assign to the owning object
 	 * @param  {Object} value
