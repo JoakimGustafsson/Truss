@@ -49,12 +49,12 @@
 			<div id="FPSdisplay" style="display: inline-block; color: white;"></div>
 			<button type="button" class="simpleButton"
 				onclick="location.href='https://github.com/JoakimGustafsson/Truss/wiki'">Wiki</button>
-				<button type="button" class="simpleButton"
+			<button type="button" class="simpleButton"
 				onclick="if (universe) {universe.select(universe.currentNode)}">Configuration</button>
-				<button type="button" class="simpleButton" onclick="toggleDisplay()">Debug</button>
+			<button type="button" class="simpleButton" onclick="toggleDisplay()">Debug</button>
 			<button type="button" class="simpleButton" onclick="">Other</button>
 		</div>
-		
+
 		<script type="text/javascript">
 			var savedState = 0;
 
@@ -66,13 +66,13 @@
 
 
 
-			function toggleDisplay(){
+			function toggleDisplay() {
 				if (document.getElementById('mainArea').contains(debugEntity.debugWindow.debugDiv)) {
 					debugEntity.debugWindow.toggleDisplay();
 					return;
 				}
 				document.getElementById('mainArea').appendChild(debugEntity.debugWindow.debugDiv)
-				
+
 			}
 
 			//Main Draw loop
@@ -86,7 +86,9 @@
 				FPSdisplay = document.getElementById("FPSdisplay");
 
 				trussBackground = document.getElementById("temp");
-				let latestWorld = universe.push(new World());
+				universe.push(new World(worldSetup));
+			}
+			function worldSetup() {
 
 				/*
 
@@ -113,16 +115,17 @@
 					// 10;			// House
 					15;
 				// 500;			// Complex
-				// 100000;			// City
-				// 1000000;			// Country
+				// 100000;		// City
+				// 1000000;		// Country
 				// 12500000;	// Earth
 				// 9000000000;	// Solar system
 				// 200000E16;	// Galaxy
 
+				let latestWorld = universe.universeStack.peek();
 				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 					'name': 'MainNode',
 					'worldSize': new Position(scale, scale),
-					'worldOffset': new Position(-1 , -1),
+					'worldOffset': new Position(-1, -1),
 				});
 				latestNode.initiate();
 				latestWorld.trussNode = latestNode;
@@ -146,7 +149,7 @@
 
 				window.requestAnimationFrame(mainLoop);
 
-				control.openBottomPanel(event, 'propertiesDiv');
+				control.openBottomPanel(undefined, 'propertiesDiv');
 
 				universe.currentNode.element.display = "none";
 				control.updateResize();
@@ -156,11 +159,11 @@
 
 				setupFooter(document.getElementById('footer'));
 				//lastDebug();
-				
+
 				debugEntity = new Debug(document.getElementById('mainArea'))
 
 
-universe.currentWorld.debugLevel = 10;
+				universe.currentWorld.debugLevel = 10;
 			}
 
 			function lastDebug() {
@@ -173,7 +176,8 @@ universe.currentWorld.debugLevel = 10;
 					let n = new Node(universe.currentWorld, universe.currentNode, 'seed color', {
 						'name': 'seed' + i,
 						'color': 'transparent',
-						'localPosition': new Position(rng.nextRange(1, 15)+rng.nextFloat(), rng.nextRange(1, 15)+rng.nextFloat()),
+						'localPosition': new Position(rng.nextRange(1, 15) + rng.nextFloat(), rng.nextRange(1, 15) + rng
+							.nextFloat()),
 					});
 					seeds.push(n);
 					sites.push(n.localPosition);
@@ -202,23 +206,23 @@ universe.currentWorld.debugLevel = 10;
 				for (let vertice of result.vertices) {
 					let n = new Node(universe.currentWorld, universe.currentNode, 'seed color moveable', {
 						'name': 'vertice',
-				'mass': 10,
-				'velocityLoss': 1,
+						'mass': 10,
+						'velocityLoss': 1,
 						'color': 'transparent',
 						'localPosition': new Position(vertice.x, vertice.y),
 					});
-					tempVertices[vertice.x+vertice.y*3.14] = n;
+					tempVertices[vertice.x + vertice.y * 3.14] = n;
 				}
 
 				for (let edge of result.edges) {
-						new Tensor(tempVertices[edge.va.x+edge.va.y*3.14], tempVertices[edge.vb.x+edge.vb.y*3.14],
-							'pullspring color', {
-								'name': 'bottom',
-								'color': 'grey',
-								'constant': 10,
-								'equilibriumLength': 1
-							});
-					
+					new Tensor(tempVertices[edge.va.x + edge.va.y * 3.14], tempVertices[edge.vb.x + edge.vb.y * 3.14],
+						'pullspring color', {
+							'name': 'bottom',
+							'color': 'grey',
+							'constant': 10,
+							'equilibriumLength': 1
+						});
+
 				}
 			}
 			// render, further analyze, etc.

@@ -322,7 +322,7 @@ class PerformanceTrussNode extends TrussNode {
 		});
 		*/
 		new Tensor(start2, end2,
-			'pullspring rubberbounceactuator collide2',
+			'pullspring rubberbounceactuator collide',
 			{
 				'name': 'left',
 				'constant': 900,
@@ -331,7 +331,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 		new Tensor(start, end,
-			'pullspring rubberbounceactuator collide2',
+			'pullspring rubberbounceactuator collide',
 			{
 				'name': 'right',
 				'constant': 10,
@@ -340,7 +340,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 		new Tensor(start2a, start2b,
-			'pullspring rubberbounceactuator  collide2',
+			'pullspring rubberbounceactuator  collide',
 			{
 				'name': 'nw',
 				'constant': 100,
@@ -350,7 +350,7 @@ class PerformanceTrussNode extends TrussNode {
 	
 	
 		new Tensor(starta, startb,
-			'pullspring rubberbounceactuator collide2',
+			'pullspring rubberbounceactuator collide',
 			{
 				'name': 'ne',
 				'constant': 100,
@@ -373,7 +373,7 @@ class PerformanceTrussNode extends TrussNode {
 			});*/
 
 		new Tensor(start, start2,
-			'pullspring rubberbounceactuator collide2',
+			'pullspring rubberbounceactuator collide',
 			{
 				'name': 'top',
 				'constant': 10,
@@ -382,7 +382,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 	
 		new Tensor(end2, end,
-			'spring rubberbounceactuator  collide2',
+			'spring rubberbounceactuator  collide',
 			{
 				'name': 'bottom',
 				'constant': 10,
@@ -568,7 +568,7 @@ class PerformanceTrussNode extends TrussNode {
 				'name': 'TestBottom'+experimentNr,
 				'localPosition': new Position(testXOffset, testYOffset+1),
 			}),
-			'pullspring rubberbounceactuator collide2',
+			'pullspring rubberbounceactuator collide',
 			{
 				'name': 'TestTensor'+experimentNr,
 				'constant': 900,

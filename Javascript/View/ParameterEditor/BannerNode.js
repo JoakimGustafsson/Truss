@@ -96,6 +96,7 @@ class BannerNode extends Node {
 			'dampeningConstant': 10,
 			'constant': 5000,
 			'angle2': Math.PI,
+			'name':'banner',
 			'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
 			'visible': 1,
 		});
@@ -105,6 +106,7 @@ class BannerNode extends Node {
 			'dampeningConstant': 10,
 			'constant': 5000,
 			'angle2': 0,
+			'name':'banner',
 			'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
 			'visible': 1,
 		});
@@ -112,8 +114,8 @@ class BannerNode extends Node {
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
 			'equilibriumLength': windowHeight,
 			'dampeningConstant': 10,
-			'name': 'abc',
 			'constant': 6000,
+			'name':'banner',
 			'visible': 0,
 		});
 
@@ -121,6 +123,7 @@ class BannerNode extends Node {
 			'equilibriumLength': windowHeight,
 			'dampeningConstant': 10,
 			'constant': 6000,
+			'name':'banner',
 			'color': 'transparent',
 		});
 
@@ -128,6 +131,7 @@ class BannerNode extends Node {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
+			'name':'banner',
 			'color': 'transparent',
 		});
 
@@ -135,6 +139,7 @@ class BannerNode extends Node {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
+			'name':'banner',
 			'color': 'transparent',
 		});
 

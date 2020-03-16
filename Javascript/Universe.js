@@ -267,11 +267,12 @@ class World {
 	 * This class is used to represent a truss(node) world and the supporting governor truss(node)s
 	 * @param {TrussNode} trussNode
 	 * @param {List} governors
+	 * @param {Object} callbackDone
 	 */
-	constructor(trussNode, governors =[]) {
+	constructor(callbackDone, trussNode, governors =[]) {
 		this.trussNode = trussNode;
 		this.governors = governors;
-		this.labels = new Labels();
+		this.labels = new Labels(callbackDone);
 		this.debugLevel = 5;
 	}
 

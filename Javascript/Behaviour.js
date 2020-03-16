@@ -713,42 +713,28 @@ class SelectorBehaviour extends Behaviour {
 
 
 /**
- * @class
- * @extends Behaviour
- */
-class CollisionSensor extends Behaviour {
+ *
+class CollisionSensorOLD extends Behaviour {
 	/**
-	 */
+	 *
 	constructor() {
 		super();
 		/*let _this = this;
 		document.addEventListener('collisionEvent',
 			function(e) {
 				_this.collisionFunction.call(_this, e);
-			}, false); */
+			}, false); *
 	}
 
-	/**
-	 * @param {StoreableObject} storeableObject
-	 */
 	attachTo(storeableObject) {
 		storeableObject.registerOverride(BehaviourOverride.SENSE, CollisionSensor.prototype.sense);
 	}
 
-	/**
-	 * @param {StoreableObject} storeableObject
-	 */
 	detachFrom(storeableObject) {
 		storeableObject.unregisterOverride(BehaviourOverride.SENSE, CollisionSensor.prototype.sense);
 	}
 
-	/**
-	 * Has the node collided with any Tensor.
-	 * If so, that will casue a collisionEvent generated from the Tensors
-	 * checkCollision() function.
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
-	 */
+	 *
 	sense(deltaTime, truss) {
 		let label = this.collisionLabel_Label;
 		let detail;
@@ -763,7 +749,13 @@ class CollisionSensor extends Behaviour {
 	}
 }
 
-/** This assumes a CollisionSensor behaviour already has been added to the node and that
+
+
+/** Supports the CollisionBounce behaviour
+ * This behaviour is added to a tensor while a node is attached to it. Its purpose is to 
+ *  maintain the stretch in the different parts of the 'divided' tensor and check if the node 
+ * should become attached.
+ * This assumes a CollisionSensor behaviour already has been added to the node and that
  * this CollisionSensor calls the collide() function. This behaviour is attached to tensors
  * @class
  * @extends Behaviour
@@ -927,84 +919,6 @@ function recalcStretch(originalTensor) {
 	} 
 }
 
-/**
- * @class
- * @extends Behaviour
- */
-class CollisionSensor2 extends Behaviour {
-	/**
-	 */
-	constructor() {
-		super();
-		/*let _this = this;
-		document.addEventListener('collisionEvent',
-			function(e) {
-				_this.collisionFunction.call(_this, e);
-			}, false); */
-	}
-
-	/**
-	 * @param {StoreableObject} storeableObject
-	 */
-	attachTo(storeableObject) {
-		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
-	}
-
-	/**
-	 * @param {StoreableObject} storeableObject
-	 */
-	detachFrom(storeableObject) {
-		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor2.prototype.preupdate);
-	}
-
-	/**
-	 * Has the node collided with any Tensor.
-	 * If so, that will casue a call of the collide function.
-	 * @param {number} deltaTime
-	 * @param {Truss} truss
-	 */
-	preupdate(deltaTime, truss) {
-		let depth=0;
-		function split (tensor){
-			depth++;
-			if (depth>3) {
-				return;
-			}
-			if (tensor.isGhost()) {
-				return;
-			}
-			let detail;
-			let colliders = [];
-
-			//debugEntity.breakWhen(4.78);
-			for(let node of nodes) {
-				detail = tensor.checkCollision2(node, truss);
-				if (detail) {
-					colliders.push(detail);
-				}
-			}
-			if (colliders.length==0) {
-				return;
-			}
-			// Sort according to where
-			let line = tensor.line;
-			colliders.sort((a,b)=>{
-				return -line.closest(a.collider.futureLocalPosition)+line.closest(b.collider.futureLocalPosition);
-			});
-	
-			//let newTensors = 
-			tensor.collide(colliders);
-	
-			//for (let subTensor of newTensors) {
-			//split(subTensor);  // the spanned area should only be smaller, right?
-			//}
-		}
-
-		let nodes = this.collisionLabel_Label.getNodes();
-		split(this);
-	}
-}
-
 /** This assumes a CollisionSensor behaviour already has been added to the node and that
  * this CollisionSensor calls the collide() function. This behaviour is attached to tensors
  * @class
@@ -1099,6 +1013,85 @@ class CollisionBounce extends Behaviour {
 	}
 
 }
+
+/** 
+ * @class
+ * @extends Behaviour
+ */
+class CollisionSensor extends Behaviour {
+	/**
+	 */
+	constructor() {
+		super();
+		/*let _this = this;
+		document.addEventListener('collisionEvent',
+			function(e) {
+				_this.collisionFunction.call(_this, e);
+			}, false); */
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor.prototype.preupdate);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionSensor.prototype.preupdate);
+	}
+
+	/**
+	 * Has the node collided with any Tensor.
+	 * If so, that will casue a call of the collide function.
+	 * @param {number} deltaTime
+	 * @param {Truss} truss
+	 */
+	preupdate(deltaTime, truss) {
+		let depth=0;
+		function split (tensor){
+			depth++;
+			if (depth>3) {
+				return;
+			}
+			if (tensor.isGhost()) {
+				return;
+			}
+			let detail;
+			let colliders = [];
+
+			//debugEntity.breakWhen(4.78);
+			for(let node of nodes) {
+				detail = tensor.checkCollision2(node, truss);
+				if (detail) {
+					colliders.push(detail);
+				}
+			}
+			if (colliders.length==0) {
+				return;
+			}
+			// Sort according to where
+			let line = tensor.line;
+			colliders.sort((a,b)=>{
+				return -line.closest(a.collider.futureLocalPosition)+line.closest(b.collider.futureLocalPosition);
+			});
+	
+			//let newTensors = 
+			tensor.collide(colliders);
+	
+			//for (let subTensor of newTensors) {
+			//split(subTensor);  // the spanned area should only be smaller, right?
+			//}
+		}
+
+		let nodes = this.collisionLabel_Label.getNodes();
+		split(this);
+	}
+}
+
 
 function debugBounce(tensor) {
 	
