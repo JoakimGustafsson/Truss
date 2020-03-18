@@ -105,10 +105,10 @@ class Vector {
 	/* TODO
 Plan
 1 fix saves
-2 create test cases for collision
 2 check why moving tensors or nodes do not catch collisions
 3 create a small game
 4 try out different control ideas like jump, double jump. downjumps. webthrows. 
+4 create test cases for collision
 5 Try out controller mechanisms
 6 try my own controll mechanisms
 7 Try out nested realities
