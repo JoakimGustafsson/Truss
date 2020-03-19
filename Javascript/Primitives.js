@@ -14,17 +14,6 @@ function removeIfPresent(element, list) {
 	}
 }
 
-/* TODO: Not used. remove this:
- * Support function that cleans a list using the cb function that I always seem to mess up
- * @param  {list} list
- * @param  {Function} cb
- *
-function cleanup(list, cb) {
-	for (let r of t.slice()) {
-		cb(r);
-	}
-} */
-
 /**
  * The base vector class used to represent a point on a two dimensional plane
  * @class
@@ -102,18 +91,6 @@ class Vector {
 		return this;
 	}
 
-	/* TODO
-Plan
-1 fix saves
-2 check why moving tensors or nodes do not catch collisions
-3 create a small game
-4 try out different control ideas like jump, double jump. downjumps. webthrows. 
-4 create test cases for collision
-5 Try out controller mechanisms
-6 try my own controll mechanisms
-7 Try out nested realities
-8 Generate a fractal universe with triangles 
-*/
 
 	/** scale this vector so that the length becomes l
 	 * @param  {number} l The length of the resulting vector
