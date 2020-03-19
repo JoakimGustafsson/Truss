@@ -127,7 +127,7 @@
         "behaviour": "SelectorBehaviour"
     },
     "keySensorLabel": {
-        "name": "",
+        "name": "keysensor",
         "parent": "sensorLabel",
         "properties": {
             "keyProperty": [],

@@ -1,1 +1,78 @@
-{"classname":"World","nodes":[{"classname":"Node","labelString":"selector","name":"Selector ","localPosition":{"x":13.454732254047318,"y":1.6499377334993754},"visible":1,"size":0.02,"color":"red","parentTrussNode":3,"connectedTensors":[],"mass":1,"velocityLoss":0.99},{"classname":"Node","labelString":"debug","name":"debug","localPosition":{"x":0,"y":0},"visible":1,"size":1,"color":"white","parentTrussNode":3,"connectedTensors":[]},{"classname":"Node","labelString":"node","name":"Unnamed","localPosition":{"x":0,"y":-1},"visible":1,"size":1,"color":"white","parentTrussNode":3,"connectedTensors":[]},{"classname":"PerformanceTrussNode","labelString":"truss","screenSize":{"x":862,"y":803},"worldSize":{"x":19.483561643835614,"y":18.15},"worldOffset":{"x":-2.887048567870486,"y":-7.752801992528021},"lockedRatio":1,"fpsTarget":60,"fps":60,"timeMultiplier":1,"gridSize":0,"name":"MainNode","localPosition":{"x":-0.3329389788293904,"y":0.8136363636363617},"visible":1,"size":1,"color":"white","parentTrussNode":3,"connectedTensors":[]}],"tensors":[],"trussNode":3,"governors":[]}
+{
+    "classname": "World",
+    "nodes": [{
+        "classname": "Node",
+        "labelString": "selector",
+        "name": "Selector ",
+        "localPosition": {
+            "x": 13.454732254047318,
+            "y": 1.6499377334993754
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "red",
+        "parentTrussNode": 3,
+        "connectedTensors": [],
+        "mass": 1,
+        "velocityLoss": 0.99
+    }, {
+        "classname": "Node",
+        "labelString": "debug",
+        "name": "debug",
+        "localPosition": {
+            "x": 0,
+            "y": 0
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 3,
+        "connectedTensors": []
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 0,
+            "y": -1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 3,
+        "connectedTensors": []
+    }, {
+        "classname": "PerformanceTrussNode",
+        "labelString": "truss",
+        "screenSize": {
+            "x": 862,
+            "y": 803
+        },
+        "worldSize": {
+            "x": 19.483561643835614,
+            "y": 18.15
+        },
+        "worldOffset": {
+            "x": -2.887048567870486,
+            "y": -7.752801992528021
+        },
+        "lockedRatio": 1,
+        "fpsTarget": 60,
+        "fps": 60,
+        "timeMultiplier": 1,
+        "gridSize": 0,
+        "name": "MainNode",
+        "localPosition": {
+            "x": -0.3329389788293904,
+            "y": 0.8136363636363617
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 3,
+        "connectedTensors": []
+    }],
+    "tensors": [],
+    "trussNode": 3,
+    "governors": []
+}

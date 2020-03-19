@@ -607,13 +607,9 @@ class Tensor extends StoreableObject {
 		//console.log('a');
 		let tensorPast=this.line;
 		
-		let futureStartPosition = Vector.addVectors(
-			tensorPast.start, 
-			this.node1.stepVelocity);
-		let futureEndPosition =  Vector.addVectors(
-			tensorPast.end, 
-			this.node2.stepVelocity);
-		let tensorFuture = new Line(futureStartPosition, futureEndPosition);
+		let tensorFuture = new Line(this.node1.futureLocalPosition, this.node2.futureLocalPosition);
+
+
 		let startChange = new Line(tensorPast.start, tensorFuture.start);
 		let endChange = new Line(tensorPast.end, tensorFuture.end);
 

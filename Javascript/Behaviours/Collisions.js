@@ -152,10 +152,6 @@ class BounceTensorManagent extends Behaviour {
 						console.log('Null tensor');
 						
 					}
-					if (thisTensor.node1==nextTensor.node2) {
-						console.log('Null tensor');
-						
-					}
 					thisTensor.brokendata = nextTensor.brokendata;
 					thisTensor.node2=nextTensor.node2;
 

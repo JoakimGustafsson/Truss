@@ -161,11 +161,7 @@ class TrussNode extends Node {
 		this.sensorLabel = world.labels.findLabel('sensor');
 		this.angleNodeLabel = world.labels.findLabel('anglenode');
 		this.moveableLabel = world.labels.findLabel('moveable');
-		//this.pullSpringLabel = world.labels.findLabel('pullspring');
-		//this.pushSpringLabel = world.labels.findLabel('pushspring');
-		//this.fieldLabel = world.labels.findLabel('field');
 		this.absorberLabel = world.labels.findLabel('absorber');
-		//this.springLabel = world.labels.findLabel('spring');
 		this.preUpdatePositionLabel = world.labels.findLabel('preupdateposition');
 		this.postUpdatePositionLabel = world.labels.findLabel('postupdateposition');
 		

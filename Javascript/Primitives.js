@@ -376,14 +376,29 @@ class Line {
 	 * @return {number} returns a positive number if p3 is on the left of this line
 	 */
 	left(p3) {
+		let a = {'x': this.end.x-this.start.x, 'y': this.end.y-this.start.y};
+		if (a.x==0 && a.y==0) {
+			return NaN;
+		}
+		let s = Vector.dotProduct(a, {'x': p3.y-this.start.y, 'y': this.start.x-p3.x}) / Vector.length2(a);
+		return s;
+	}
+
+	//{'x': p3.x-this.start.x, 'y': p3.y-this.start.y};
+	//{'x': p3.y-this.start.y, 'y': this.start.x-p3.x};
+	//perpendicular(updown = 1) {
+	//	return new Vector(updown * this.y, updown * -this.x);
+	//}
+
+	/*OLDleft(p3) {
 		let a = Vector.subtractVectors(this.end, this.start);
 		let b = Vector.subtractVectors(p3, this.start);
-		if (!Vector.length2(a)) {
+		if (a.x==0 && a.y==0) {
 			return NaN;
 		}
 		let s = Vector.dotProduct(a, b.perpendicular(1)) / Vector.length2(a);
 		return s;
-	}
+	}*/
 
 
 	// return the fraction of the closest position on this line to p3

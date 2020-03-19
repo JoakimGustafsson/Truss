@@ -383,7 +383,7 @@ class World {
 	 * @return {Object}
 	 */
 	deSerialize(restoreObject) {
-		this.labels = new Labels();
+		//this.labels = new Labels();
 		let nodeList=[];
 		for (let nodeRestoreObject of restoreObject.nodes) {
 			let node = objectFactory(this, nodeRestoreObject);

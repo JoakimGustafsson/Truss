@@ -81,17 +81,23 @@ function directory(folderName) {
 /** @param  {string} fileName
 */
 function loadWorld(fileName) {
-	// mainNode.truss.hideEdit();
-	httpGetAsync('/load/' + fileName, function(x) {
-		console.log('Server reported: ' + x);
-		// mainNode.clean();
-		universe.pop().close();
-		let newWorld= new World();
-		newWorld.deSerialize(JSON.parse(x));
+	let newWorld,fileContent;
+
+	function loadWorld2() {
 		universe.push(newWorld);
 		universe.setCurrentWorld(newWorld);
+		newWorld.deSerialize(JSON.parse(fileContent));
+	}
+	// mainNode.truss.hideEdit();
+	httpGetAsync('/load/' + fileName, function(x) {
+		fileContent=x;
+		console.log('Server reported: ' + fileContent);
+		// mainNode.clean();
+		universe.pop().close();
+		newWorld= new World(loadWorld2);
 	});
 }
+
 
 /** @param  {string} fileName
 */
