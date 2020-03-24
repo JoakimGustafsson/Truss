@@ -7,16 +7,13 @@ class StoreableObject {
 	/**
 	 * @param  {World} world
 	 * @param  {string} initialLabels
-	 * @param  {object} valueObject
+	 * @param  {object} valueObject // A list of name valuepairs that the object should initially have.
 	 */
 	constructor(world, initialLabels='', valueObject={}) {
 		this.name='Unnamed';
 		this.properties = new Properties();
-		this.labelString=initialLabels;
 		this.labels =[];
 		this.addedLabels =[];
-		this.valueObject=valueObject;
-		this.world=world;
 		this.isNode = this instanceof Node;
 		this.senseList=[];
 		this.preUpdatePositionList=[];
@@ -45,6 +42,14 @@ class StoreableObject {
 		this.labelProperty = this.addProperty(new LabelListProperty(
 			'labelString', 'labelString', 'Labels', ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
+		
+		this.construnctionArgumentHandling(world, initialLabels, valueObject);
+	}
+
+	construnctionArgumentHandling(world, initialLabels, valueObject){
+		this.valueObject=valueObject;
+		this.labelString=initialLabels;
+		this.world=world;
 	}
 
 	/**

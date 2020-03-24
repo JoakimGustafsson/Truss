@@ -111,11 +111,19 @@ class Node extends StoreableObject {
 				this.angle = value * Math.PI / 180;
 			},
 		}); */
-
-		if (this.pictureReference) {
+		if (this
+			.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
 
+		this.construnctionArgumentHandling(world, parentTrussNode, initialLabels, valueObject);
+		
+	}
+
+	construnctionArgumentHandling(world, parentTrussNode, initialLabels, valueObject) {
+		if (!this.world) {
+			super.construnctionArgumentHandling(world, initialLabels, valueObject);
+		}
 		if (parentTrussNode) {
 			this.parentTrussNode = parentTrussNode;
 		}
@@ -125,7 +133,6 @@ class Node extends StoreableObject {
 			this.parentTrussNode = parentTrussNode;
 		}
 	}
-
 	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
 	 * @param  {Position} position
 	 */

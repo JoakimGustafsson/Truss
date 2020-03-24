@@ -1,7 +1,6 @@
 
 TODO
 Plan
-1 fix saves
 2 check why moving tensors or nodes do not catch collisions
 3 create a small game
 4 try out different control ideas like jump, double jump. downjumps. webthrows. 

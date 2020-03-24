@@ -403,6 +403,13 @@ class World {
 		}
 
 
+		//Fixing node parents
+		for (let index=0; index<restoreObject.nodes.length; index++) {
+			let node = nodeList[index];
+			let definition = restoreObject.nodes[index];
+			node.parentTrussNode= nodeList[definition.parentTrussNode];
+		}
+		
 		// deSerialize them
 		let index=0;
 		for (let node of nodeList) {

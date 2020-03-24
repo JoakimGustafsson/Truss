@@ -175,6 +175,12 @@ class TrussNode extends Node {
 	serialize(superNodeList=[], superTensorList=[]) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
+
+		representationObject.ratio = {
+			'x': this.worldSize.x/this.screenSize.x,
+			'y': this.worldSize.y/this.screenSize.y
+		};
+
 		return representationObject;
 	}
 
@@ -184,7 +190,14 @@ class TrussNode extends Node {
 	 * @param  {Array} superTensors
 	 */
 	deSerialize(restoreObject, superNodes, superTensors) {
+		let screenSize = {'x': this.screenSize.x, 'y': this.screenSize.y};
+
 		super.deSerialize(restoreObject, superNodes, superTensors);
+
+		this.screenSize = screenSize;
+		
+		this.worldSize = {'x': restoreObject.ratio.x*this.screenSize.x, 'y':restoreObject.ratio.y*this.screenSize.y};
+
 		this.handleCanvas();
 		this.setView();
 		if (this.world) {

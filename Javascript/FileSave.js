@@ -84,9 +84,9 @@ function loadWorld(fileName) {
 	let newWorld,fileContent;
 
 	function loadWorld2() {
+		newWorld.deSerialize(JSON.parse(fileContent));
 		universe.push(newWorld);
 		universe.setCurrentWorld(newWorld);
-		newWorld.deSerialize(JSON.parse(fileContent));
 	}
 	// mainNode.truss.hideEdit();
 	httpGetAsync('/load/' + fileName, function(x) {
