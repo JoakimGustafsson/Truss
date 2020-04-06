@@ -27,7 +27,7 @@
 	<script src="Javascript/Planet/Grid.js" type="text/javascript"></script>
 	<script src="Javascript/ExperimentalTrusses.js" type="text/javascript"></script>
 	<script src="Javascript/Control/GeneralControl.js" type="text/javascript"></script>
-	<script src="Javascript/Control/PanZoomHandler.js" type="text/javascript"></script>
+	<script src="Javascript/View/PanZoomHandler.js" type="text/javascript"></script>
 	<script src="Javascript/View/ParameterEditor/Property.js" type="text/javascript"></script>
 	<script src="Javascript/View/ParameterEditor/BannerNode.js" type="text/javascript"></script>
 	<script src="Javascript/View/ParameterEditor/ConfigurationArea.js" type="text/javascript"></script>
@@ -130,12 +130,12 @@
 				// 200000E16;	// Galaxy
 
 				let latestWorld = universe.universeStack.peek();
-				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
+				let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss').initiate({
 					'name': 'MainNode',
 					'worldSize': new Position(scale, scale),
 					'worldOffset': new Position(-1, -1),
 				});
-				latestNode.initiate();
+				latestNode.fakeLoad();
 				latestWorld.trussNode = latestNode;
 				latestWorld.governors = [];
 				latestNode.resize();

@@ -9,7 +9,9 @@ class StoreableObject {
 	 * @param  {string} initialLabels
 	 * @param  {object} valueObject // A list of name valuepairs that the object should initially have.
 	 */
-	constructor(world, initialLabels='', valueObject={}) {
+	constructor(world, initialLabels='') {
+		
+		this.world=world;
 		this.name='Unnamed';
 		this.properties = new Properties();
 		this.labels =[];
@@ -43,38 +45,24 @@ class StoreableObject {
 			'labelString', 'labelString', 'Labels', ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
 		
-		this.construnctionArgumentHandling(world, initialLabels, valueObject);
+		this.labelString=initialLabels;	
 	}
 
-	construnctionArgumentHandling(world, initialLabels, valueObject){
-		this.valueObject=valueObject;
-		this.labelString=initialLabels;
-		this.world=world;
-	}
-
-	/**
-	 */
-	destroy() {
-		this.unreference();
-	}
-	
-	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
-     *
-     */
-	unreference() {
-		this.world.labels.clearOldReferences(this);
+	initiate(valueObject) {
+		this.refreshPropertiesAfterLabelChange(valueObject);
+		return this;
 	}
 
 	/**
      *
-     */
+     *
 	initialRefresh() {
 		if (this.world) {
 			this.refreshPropertiesAfterLabelChange(this.valueObject);
 		}
-	}
+	}*/
 
-	/**
+	/** Given all the labels on the object, this gives a list of all the properties the object should have
      * @return {Object}
      */
 	getPropertyObject() {
@@ -90,7 +78,11 @@ class StoreableObject {
 		return propObject;
 	}
 
-	/**
+	/** The purpose of this function is to set up the object with all parameters that the labels 
+	 * force upon it.
+	 * If the valueObject is included in the call, it will be used to set initial values 
+	 * of the parameters.
+	 * 
 	 * @param {Object} valueObject
      *
      */
@@ -105,11 +97,11 @@ class StoreableObject {
 			let propertyObject = value.propertyObject;
 			let propertyName = propertyObject.propertyName;
 			this.properties.addProperty(propertyObject, value.defaultValue);
-			if (valueObject[propertyName]!=undefined) {	//setting default value
+			if (valueObject[propertyName]!=undefined) {	//try setting value from the valueObject
 				propertyObject.assignValue(valueObject[propertyName], this);
 			} else if (this[propertyName]==undefined ||
                 (typeof this[propertyName]== 'number' && isNaN(this[propertyName])) ||
-                value.enforced) { //handle NaN numbers and enforced defaultvalues
+                value.enforced) { // handle NaN numbers and enforced defaultvalues
 				if (value.defaultValue!=undefined) {
 					propertyObject.assignValue(value.defaultValue, this);
 				}
@@ -151,6 +143,34 @@ class StoreableObject {
 	 */
 	deSerialize(restoreObject, nodeList, tensorList) {
 		this.labelString = restoreObject.labelString;
+
+		this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		this.labels=this.parsedLabels.slice(0);
+
+
+		let propertyObject = this.getPropertyObject();
+		let valueObject = {};
+
+		for (let propertyContainer of Object.values(propertyObject)) {
+			let property = propertyContainer.propertyObject;
+			property.owner=this;
+			valueObject[property.propertyName] =
+				property.deSerialize(restoreObject[property.propertyName], nodeList, tensorList);
+		}
+
+		this.refreshPropertiesAfterLabelChange(valueObject);
+		return this;
+	}
+
+	
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {StoreableObject}
+	 *
+	deSerialize(restoreObject, nodeList, tensorList) {
+		this.labelString = restoreObject.labelString;
 		this.refreshPropertiesAfterLabelChange();
 
 		let propertyObject = this.getPropertyObject();
@@ -162,6 +182,19 @@ class StoreableObject {
 		}
 
 		return this;
+	}*/
+
+	/**
+	 */
+	destroy() {
+		this.unreference();
+	}
+	
+	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
+     *
+     */
+	unreference() {
+		this.world.labels.clearOldReferences(this);
 	}
 
 	/**

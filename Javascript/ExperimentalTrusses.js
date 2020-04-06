@@ -252,55 +252,55 @@ class PerformanceTrussNode extends TrussNode {
 	/**
 	 * @param {Node} protagonist
 	 */
-	initiate() {
+	fakeLoad() {
 		// let governedNode = this.parentTrussNode.parentTrussNode;
 		// let parent = this.parentTrussNode;
 		// let world = parent.world;
 
-		this.selector = new Node(this.world, this, 'selector', {
+		this.selector = new Node(this.world, this, 'selector').initiate({
 			'name': 'Selector ', 
 			'color': 'red',
 			'size':0.02});
 
 
-		let start2 = new Node(this.world, this, 'node', {
+		let start2 = new Node(this.world, this, 'node').initiate({
 			'name': 'startleft',
 			'localPosition': new Position(1, 1),
 		});
 
-		let start2a = new Node(this.world, this, 'node', {
+		let start2a = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(4, -1),
 		});
 		
-		let start2b = new Node(this.world, this, 'node', {
+		let start2b = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(-2, 5),
 		});
 	
-		let end2 = new Node(this.world, this, 'node', {
+		let end2 = new Node(this.world, this, 'node').initiate({
 			'name': 'endleft',
 			'localPosition': new Position(1, 10),
 		});
 
 
-		new Node(this.world, this, 'debug', {
+		new Node(this.world, this, 'debug').initiate({
 			'name': 'debug',
 			'localPosition': new Position(0, 0),
 		});
 
-		let start = new Node(this.world, this, 'node', {
+		let start = new Node(this.world, this, 'node').initiate({
 			'name': 'startright',
 			'localPosition': new Position(3, 1),
 		});
 
-		let starta = new Node(this.world, this, 'node', {
+		let starta = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(0, -1),
 		});
 	
-		let startb = new Node(this.world, this, 'node', {
+		let startb = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(6, 5),
 		});
 
-		let end = new Node(this.world, this, 'node', {
+		let end = new Node(this.world, this, 'node').initiate({
 			'name': 'endright',
 			'localPosition': new Position(3, 10),
 		});
@@ -322,7 +322,7 @@ class PerformanceTrussNode extends TrussNode {
 		});
 		*/
 		new Tensor(start2, end2,
-			'pullspring rubberbounceactuator collide',
+			'pullspring rubberbounceactuator collide').initiate(
 			{
 				'name': 'left',
 				'constant': 900,
@@ -331,7 +331,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 		new Tensor(start, end,
-			'pullspring rubberbounceactuator collide',
+			'pullspring rubberbounceactuator collide').initiate(
 			{
 				'name': 'right',
 				'constant': 10,
@@ -340,7 +340,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 
 		new Tensor(start2a, start2b,
-			'pullspring rubberbounceactuator  collide',
+			'pullspring rubberbounceactuator  collide').initiate(
 			{
 				'name': 'nw',
 				'constant': 100,
@@ -350,7 +350,7 @@ class PerformanceTrussNode extends TrussNode {
 	
 	
 		new Tensor(starta, startb,
-			'pullspring rubberbounceactuator collide',
+			'pullspring rubberbounceactuator collide').initiate(
 			{
 				'name': 'ne',
 				'constant': 100,
@@ -373,7 +373,7 @@ class PerformanceTrussNode extends TrussNode {
 			});*/
 
 		new Tensor(start, start2,
-			'pullspring rubberbounceactuator collide',
+			'pullspring rubberbounceactuator collide').initiate(
 			{
 				'name': 'top',
 				'constant': 10,
@@ -382,7 +382,7 @@ class PerformanceTrussNode extends TrussNode {
 			});
 	
 		new Tensor(end2, end,
-			'spring rubberbounceactuator  collide',
+			'spring rubberbounceactuator  collide').initiate(
 			{
 				'name': 'bottom',
 				'constant': 10,
@@ -434,12 +434,12 @@ class PerformanceTrussNode extends TrussNode {
 		} 
 	*/
 		
-		new Node(this.world, this, 'node button', {
+		new Node(this.world, this, 'node button').initiate({
 			'name': 'new Ball',
 			'localPosition': new Position(4, 1),
 			'size': 0.02,
 			'buttonScript':  ' () => {'+
-				'new Node(this.world, this.parentTrussNode, \'bounce moveable velocitynode\', {'+
+				'new Node(this.world, this.parentTrussNode, \'bounce moveable velocitynode\').initiate( {'+
 				'\'name\': \'ball\'+cheatCounter++,'+
 				'\'mass\': 1,'+
 				'\'size\': 0.02,'+

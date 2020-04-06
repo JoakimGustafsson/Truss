@@ -19,8 +19,8 @@ class TrussNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(world, parentTrussNode, initialLabels, valueObject) {
-		super(world, parentTrussNode, initialLabels, valueObject);
+	constructor(world, parentTrussNode, initialLabels) {
+		super(world, parentTrussNode, initialLabels);
 
 		this.world=world;
 		this.element = document.createElement('div');
@@ -117,15 +117,23 @@ class TrussNode extends Node {
 		}
 		);
 
-		if (world) {
-			this.handleCanvas();
-			this.setView();
-			this.setupLabels(world);
-		}
-
 		this.propertyDiv = this.element.querySelectorAll('#configview')[0];
 		this.debugLevel = this.element.querySelectorAll('#debugLevel')[0];
 	}
+
+
+	/**
+	 * @param  {object} valueObject
+	 */
+	initiate(valueObject) {
+		let returnValue = super.initiate(valueObject);	
+
+		this.handleCanvas();
+		this.setView();
+		this.setupLabels(this.world);
+		return returnValue;
+	}
+	
 
 	/**
 	 *
@@ -190,11 +198,10 @@ class TrussNode extends Node {
 	 * @param  {Array} superTensors
 	 */
 	deSerialize(restoreObject, superNodes, superTensors) {
-		let screenSize = {'x': this.screenSize.x, 'y': this.screenSize.y};
-
 		super.deSerialize(restoreObject, superNodes, superTensors);
 
-		this.screenSize = screenSize;
+		//let screenSize = {'x': this.screenSize.x, 'y': this.screenSize.y};
+		//this.screenSize = screenSize;
 		
 		this.worldSize = {'x': restoreObject.ratio.x*this.screenSize.x, 'y':restoreObject.ratio.y*this.screenSize.y};
 

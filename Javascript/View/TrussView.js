@@ -47,13 +47,15 @@ class TrussView {
 	 * @param  {Position} worldViewSize
 	 */
 	setupAlertVectors(element, worldViewSize) {
-		let x = 0;
-		let y = 0;
+		let x = 100;
+		let y = 100;
 		let _this = this;
 		if (element) {
 			x = element.offsetWidth;
 			y = element.offsetHeight;
 		}
+		x = 100;
+		y = 100;
 		this.createAlertScreenSize(x, y, element, _this);
 		if (worldViewSize) {
 			x = worldViewSize.x;

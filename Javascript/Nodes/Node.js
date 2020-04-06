@@ -12,10 +12,11 @@ class Node extends StoreableObject {
 	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
 	 * @param  {string} initialLabels
-	 * @param  {object} valueObject
 	 */
-	constructor(world, parentTrussNode, initialLabels, valueObject) {
-		super(world, initialLabels, valueObject);
+	constructor(world, parentTrussNode, initialLabels) {
+		super(world, initialLabels);
+		this.parentTrussNode=parentTrussNode;
+
 		if (!this.velocity) {
 			this.velocity = new Velocity(0, 0);
 		}
@@ -73,13 +74,8 @@ class Node extends StoreableObject {
 					'y': this.localPosition.y + this.parentTrussNode.timestep * this.velocity.y
 				};
 			}
-
-			//return Vector.addVectors(
-			//	this.localPosition, 
-			//	this.stepVelocity
-			//);
-
 		});
+
 
 
 
@@ -111,28 +107,18 @@ class Node extends StoreableObject {
 				this.angle = value * Math.PI / 180;
 			},
 		}); */
-		if (this
-			.pictureReference) {
+		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
-
-		this.construnctionArgumentHandling(world, parentTrussNode, initialLabels, valueObject);
-		
 	}
 
-	construnctionArgumentHandling(world, parentTrussNode, initialLabels, valueObject) {
-		if (!this.world) {
-			super.construnctionArgumentHandling(world, initialLabels, valueObject);
-		}
-		if (parentTrussNode) {
-			this.parentTrussNode = parentTrussNode;
-		}
-		this.initialRefresh();
-
-		if (parentTrussNode) {
-			this.parentTrussNode = parentTrussNode;
-		}
+	/**
+	 * @param  {object} valueObject
+	 */
+	initiate(valueObject) {
+		return super.initiate(valueObject);	
 	}
+	
 	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
 	 * @param  {Position} position
 	 */

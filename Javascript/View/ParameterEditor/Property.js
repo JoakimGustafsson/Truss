@@ -424,7 +424,9 @@ class ScriptProperty extends Property {
 			}
 			return 'template.js';
 		}
-		this.owner=owner;
+		if (owner) {
+			this.owner=owner;
+		}
 		let parameterValue = this.createNameValuePair(element);
 		this.input = this.makeViewOfInputFieldMultiline(this.identity, parameterValue, 5);
 		this.input.addEventListener('input', () => {

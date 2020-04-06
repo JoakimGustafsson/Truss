@@ -13,13 +13,12 @@ class Tensor extends StoreableObject {
 	 * @param  {object} valueObject
 	 */
 	constructor(node1, node2, initialLabels, valueObject) {
-		let parent;
+		let parentWorld;
 		if (node1) {
-			parent = node1.world;
+			parentWorld = node1.world;
 		}
-		super(parent, initialLabels, valueObject);
+		super(parentWorld, initialLabels, valueObject);
 
-		//this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
 
 		Object.defineProperty(this, 'degree2', {
@@ -104,8 +103,15 @@ class Tensor extends StoreableObject {
 
 		this.node1 = node1;
 		this.node2 = node2;
-		this.initialRefresh();
 	}
+
+	/**
+	 * @param  {object} valueObject
+	 */
+	initiate(valueObject) {
+		return super.initiate(valueObject);	
+	}
+	
 
 	/**
 	 * @param {Labels} value
