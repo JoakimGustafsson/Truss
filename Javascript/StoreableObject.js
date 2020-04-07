@@ -49,6 +49,9 @@ class StoreableObject {
 	}
 
 	initiate(valueObject) {
+		this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		this.labels=this.parsedLabels.slice(0);
+		
 		this.refreshPropertiesAfterLabelChange(valueObject);
 		return this;
 	}
@@ -88,8 +91,8 @@ class StoreableObject {
      */
 	refreshPropertiesAfterLabelChange(valueObject = {}) {
 		//Attach the labels
-		this.parsedLabels = this.world.labels.parse(this.labelString, this);
-		this.labels=this.parsedLabels.slice(0);
+		//this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		//this.labels=this.parsedLabels.slice(0);
 		this.properties.clearProperties(this.labelProperty);
 
 		//Set the properties by looping over all properties listed by all labels

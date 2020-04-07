@@ -185,10 +185,10 @@ class TrussNode extends Node {
 		representationObject.classname = 'TrussNode';
 
 		representationObject.ratio = {
-			'x': this.worldSize.x/this.screenSize.x,
-			'y': this.worldSize.y/this.screenSize.y
+			'x': this.screenSize.x/this.worldSize.x,
+			'y': this.screenSize.y/this.worldSize.y
 		};
-
+		//representationObject.screenSize = undefined;
 		return representationObject;
 	}
 
@@ -200,13 +200,16 @@ class TrussNode extends Node {
 	deSerialize(restoreObject, superNodes, superTensors) {
 		super.deSerialize(restoreObject, superNodes, superTensors);
 
-		//let screenSize = {'x': this.screenSize.x, 'y': this.screenSize.y};
+		//let currentScreenSize = {'x': this.screenSize.x, 'y': this.screenSize.y};
 		//this.screenSize = screenSize;
 		
-		this.worldSize = {'x': restoreObject.ratio.x*this.screenSize.x, 'y':restoreObject.ratio.y*this.screenSize.y};
+		//let originalScreenSize = {'x': this.worldSize.x*restoreObject.ratio.x, 'y':this.worldSize.y*restoreObject.ratio.x};
 
 		this.handleCanvas();
 		this.setView();
+
+		//this.view.setInitialScale(restoreObject.ratio);
+
 		if (this.world) {
 			this.setupLabels(this.world);
 		}

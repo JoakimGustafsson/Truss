@@ -204,13 +204,14 @@ class ButtonBehaviour extends Behaviour {
 		button.id = 'propertiesButton';
 		button.style.position='absolute';
 		button.classList.add('worldButton');
+		storeableObject.parentTrussNode.element.appendChild(button);
 		button.addEventListener('click', (...args) => {
 			let func = storeableObject.buttonScript_Evaluated;
 			if (func) {
 				func(...args);
 			}
 		}, false);
-		storeableObject.parentTrussNode.element.appendChild(button);
+		
 		storeableObject.buttonReference=button;
 
 		storeableObject.registerOverride(

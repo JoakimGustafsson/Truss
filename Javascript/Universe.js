@@ -1,5 +1,5 @@
 /*jshint esversion:6*/
-/* global control */
+/* global control PanZoomHandler */
 /**
  * @class
  */
@@ -243,6 +243,7 @@ class Universe {
 
 		this.currentWorld = newWorld;
 		this.setCurrentView(newWorld.trussNode);
+		this.panZoomHandler = new PanZoomHandler(universe.currentNode);
 	}
 	/**
 	 * @param  {Node} newNodeToShow
@@ -251,7 +252,7 @@ class Universe {
 		this.currentNode=newNodeToShow;
 		this.selectedObject = undefined;
 		this.show();
-		this.currentNode.canvas.onmousedown = (e) => {control.downMouse(e);};
+		this.currentNode.canvas.onmousedown = (e) => {control.downMouse(e);};  // needs to be handled via PanZoomHandler
 		this.currentNode.canvas.onmouseup = (e) => {control.upMouse(e);};
 		newNodeToShow.resize();
 		this.setupTicks = 3;

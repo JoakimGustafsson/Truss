@@ -268,13 +268,13 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(1, 1),
 		});
 
-		let start2a = new Node(this.world, this, 'node').initiate({
+		/*	let start2a = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(4, -1),
 		});
 		
 		let start2b = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(-2, 5),
-		});
+		});*/
 	
 		let end2 = new Node(this.world, this, 'node').initiate({
 			'name': 'endleft',
@@ -292,13 +292,13 @@ class PerformanceTrussNode extends TrussNode {
 			'localPosition': new Position(3, 1),
 		});
 
-		let starta = new Node(this.world, this, 'node').initiate({
+		/*	let starta = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(0, -1),
 		});
 	
 		let startb = new Node(this.world, this, 'node').initiate({
 			'localPosition': new Position(6, 5),
-		});
+		}); */
 
 		let end = new Node(this.world, this, 'node').initiate({
 			'name': 'endright',
@@ -339,7 +339,7 @@ class PerformanceTrussNode extends TrussNode {
 				'equilibriumLength': 1,
 			});
 
-		new Tensor(start2a, start2b,
+		/*	new Tensor(start2a, start2b,
 			'pullspring rubberbounceactuator  collide').initiate(
 			{
 				'name': 'nw',

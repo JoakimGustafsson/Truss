@@ -1018,6 +1018,10 @@ class LabelListProperty extends Property {
 			}
 			secondaryLabelsDiv.innerHTML = '';
 			_this.owner.labelString = value;
+
+			_this.owner.parsedLabels = _this.owner.world.labels.parse(value, _this.owner);
+			_this.owner.labels=_this.owner.parsedLabels.slice(0);
+			
 			_this.owner.refreshPropertiesAfterLabelChange();
 
 			for (let label of _this.owner.labels) {

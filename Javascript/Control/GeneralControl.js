@@ -139,7 +139,7 @@ class GeneralControl {
 			value = selector.value;
 		}
 		if (value == 'Node') {
-			let newNode = new Node(universe.currentWorld, universe.currentNode, 'node added', {
+			let newNode = new Node(universe.currentWorld, universe.currentNode, 'node added').initiate({
 				'localPosition': new Position(1, 1),
 			});
 			universe.select(newNode);
@@ -161,7 +161,7 @@ class GeneralControl {
 			this.connectionTensor = new Spring(universe.selectedObject, universe.currentNode.selector, 100);
 		} else if (value == 'DampenedSpring') {
 			this.connectionTensor =
-				new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber', {
+				new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring absorber').initiate({
 					'equilibriumLength': 6,
 					'dampeningConstant': 1,
 					'constant': 100,
@@ -169,17 +169,17 @@ class GeneralControl {
 				});
 		} else if (value == 'PullSpring') {
 			this.connectionTensor =
-				new Tensor(universe.selectedObject, universe.currentNode.selector, 'pullspring', {
+				new Tensor(universe.selectedObject, universe.currentNode.selector, 'pullspring').initiate({
 					'equilibriumLength': 6,
 					'constant': 100,
 				});
 		} else if (value == 'Absorber') {
-			new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
+			new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber').initiate({
 				'dampeningConstant': 1,
 			});
 		} else if (value == 'Field') {
 			this.connectionTensor =
-				new Tensor(universe.selectedObject, universe.currentNode.selector, 'field', {
+				new Tensor(universe.selectedObject, universe.currentNode.selector, 'field').initiate({
 					'constant': 0.0001,
 				});
 		}

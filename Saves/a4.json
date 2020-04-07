@@ -1,0 +1,177 @@
+{
+    "classname": "World",
+    "nodes": [{
+        "classname": "Node",
+        "labelString": "selector",
+        "name": "Selector ",
+        "localPosition": {
+            "x": 21.826086840807967,
+            "y": 3.4893832153690596
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "red",
+        "parentTrussNode": 7,
+        "connectedTensors": [],
+        "mass": 1,
+        "velocityLoss": 0.99
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "startleft",
+        "localPosition": {
+            "x": 1,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 7,
+        "connectedTensors": [0, 2]
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "endleft",
+        "localPosition": {
+            "x": 1,
+            "y": 10
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 7,
+        "connectedTensors": [0, 3]
+    }, {
+        "classname": "Node",
+        "labelString": "debug",
+        "name": "debug",
+        "localPosition": {
+            "x": 0,
+            "y": 0
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 7,
+        "connectedTensors": []
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "startright",
+        "localPosition": {
+            "x": 3,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 7,
+        "connectedTensors": [1, 2]
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "endright",
+        "localPosition": {
+            "x": 3,
+            "y": 10
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 7,
+        "connectedTensors": [1, 3]
+    }, {
+        "classname": "Node",
+        "labelString": "node button",
+        "name": "new Ball",
+        "localPosition": {
+            "x": 4,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "white",
+        "parentTrussNode": 7,
+        "connectedTensors": [],
+        "buttonScript": " () => {new Node(this.world, this.parentTrussNode, 'bounce moveable velocitynode').initiate( {'name': 'ball'+cheatCounter++,'mass': 1,'size': 0.02,'localPosition': new Position(2, 3),'velocityLoss': 1,'velocity': new Velocity(1, 1.5*Math.random()-0.5),});}",
+        "mass": 1,
+        "velocityLoss": 0.99
+    }, {
+        "classname": "PerformanceTrussNode",
+        "labelString": "truss",
+        "worldSize": {
+            "x": 25.055611729019212,
+            "y": 15
+        },
+        "worldOffset": {
+            "x": -1,
+            "y": -1
+        },
+        "lockedRatio": 1,
+        "fpsTarget": 60,
+        "fps": 60,
+        "timeMultiplier": 1,
+        "gridSize": 0,
+        "name": "MainNode",
+        "localPosition": {
+            "x": 1,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 7,
+        "connectedTensors": [],
+        "ratio": {
+            "x": 65.93333333333334,
+            "y": 65.93333333333334
+        }
+    }],
+    "tensors": [{
+        "classname": "Tensor",
+        "labelString": "pullspring rubberbounceactuator collide",
+        "equilibriumLength": 8,
+        "constant": 900,
+        "name": "left",
+        "visible": 1,
+        "node1": 1,
+        "node2": 2,
+        "color": "white",
+        "collisionLabel": "bounce"
+    }, {
+        "classname": "Tensor",
+        "labelString": "pullspring rubberbounceactuator collide",
+        "equilibriumLength": 1,
+        "constant": 10,
+        "name": "right",
+        "visible": 1,
+        "node1": 4,
+        "node2": 5,
+        "color": "white",
+        "collisionLabel": "bounce"
+    }, {
+        "classname": "Tensor",
+        "labelString": "pullspring rubberbounceactuator collide",
+        "equilibriumLength": 0.1,
+        "constant": 10,
+        "name": "top",
+        "visible": 1,
+        "node1": 4,
+        "node2": 1,
+        "color": "white",
+        "collisionLabel": "bounce"
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring rubberbounceactuator  collide",
+        "equilibriumLength": 0.1,
+        "constant": 10,
+        "name": "bottom",
+        "visible": 1,
+        "node1": 2,
+        "node2": 5,
+        "color": "white",
+        "collisionLabel": "bounce"
+    }],
+    "trussNode": 7,
+    "governors": []
+}

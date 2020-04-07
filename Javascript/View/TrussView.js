@@ -22,6 +22,27 @@ class TrussView {
 			},
 		});
 
+		Object.defineProperty(this, 'worldViewSize', {
+			get: function () {
+				return this._worldViewSize;
+			},
+			set: function (value) {
+				this._worldViewSize.x = value.x;
+				this._worldViewSize.y = value.y;
+				//console.log(this._worldViewSize);
+			},
+		});
+		Object.defineProperty(this, 'screenSize', {
+			get: function () {
+				return this._screenSize;
+			},
+			set: function (value) {
+				this._screenSize.x = value.x;
+				this._screenSize.y = value.y;
+				//console.log('screen:'+this._screenSize);
+			},
+		});
+
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
 		if (this.element) {
@@ -31,17 +52,8 @@ class TrussView {
 
 		this.clearLevel=1;	// the opacity of the clear
 
-		Object.defineProperty(this, 'worldViewSize', {
-			get: function () {
-				return this._worldViewSize;
-			},
-			set: function (value) {
-				this._worldViewSize.x = value.x;
-				this._worldViewSize.y = value.y;
-				console.log(this._worldViewSize);
-			},
-		});
 	}
+	
 	/**
 	 * @param  {Element} element
 	 * @param  {Position} worldViewSize
@@ -90,7 +102,7 @@ class TrussView {
 				return true;
 			}
 		};
-		this.screenSize = new Proxy(new Vector(x, y), handlers);
+		this._screenSize = new Proxy(new Vector(x, y), handlers);
 	}
 
 	/** Multiply this number with a screen distance in pixels to get the world distance
@@ -306,8 +318,10 @@ class TrussView {
 	/**
 	 */
 	resize(scale) {
-		let oldWidth = this.screenSize.x;
+		let oldWidth = this.screenSize.x; 
 		let oldHeight = this.screenSize.y;
+		//console.log('old Screen: x '+oldWidth+', y '+oldHeight);
+		//console.log('old World: x '+this._worldViewSize.x+', y '+this._worldViewSize.y);
 		this.screenSize.v = new Vector(this.element.offsetWidth, this.element.offsetHeight);
 
 		if(!scale) {
@@ -321,6 +335,8 @@ class TrussView {
 		} else {
 			this.recalculate();
 		}
+		//console.log('new Screen: x '+this.screenSize.x+', y '+this.screenSize.y);
+		//console.log('old World: x '+this._worldViewSize.x+', y '+this._worldViewSize.y);
 	}
 
 	
