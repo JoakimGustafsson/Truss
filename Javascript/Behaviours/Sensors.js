@@ -239,3 +239,62 @@ class ButtonBehaviour extends Behaviour {
 		this.parentTrussNode.view.putElementOnScreen(this.localPosition, this.buttonReference);
 	}
 }
+
+/**
+ * @class
+ * @extends Behaviour
+ */
+class ForceSensorBehaviour extends Behaviour {
+	/**
+	 * This class detects when an object bounces of a tensor or leaves it at the end.
+	 * @param {World} world
+	 * @param {TrussNode} trussNode
+	 * @param {string} initialLabels
+	 * @param  {object} valueObject
+	 */
+	constructor() {
+		super();
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	attachTo(storeableObject) {
+		storeableObject.registerOverride(BehaviourOverride.SENSE, ForceSensorBehaviour.prototype.sense);
+		storeableObject.registerOverride(BehaviourOverride.SHOW, ForceSensorBehaviour.prototype.show);
+	}
+
+	/**
+	 * @param {StoreableObject} storeableObject
+	 */
+	detachFrom(storeableObject) {
+		storeableObject.unregisterOverride(BehaviourOverride.SENSE, ForceSensorBehaviour.prototype.sense);
+		storeableObject.unregisterOverride(BehaviourOverride.SHOW, ForceSensorBehaviour.prototype.show);
+	}
+
+
+	/**
+	 * If the force in the tensor is above the limit, then the tenso is broken
+	 * @param {number} deltaTime
+	 * @param {Trussnode} trussNode
+	 */
+	sense() {
+		if (!this.force) {
+			alert('no Force in break behaviour');
+		}
+		if (Vector.length(this.force)>this.forceLimit) {
+			this.color='red';
+		} else {
+			this.color='white';
+		}
+	}
+
+		
+	/**
+	 * Draw the circle representing the node
+	 * @param {Trussnode} truss
+	 */
+	show(truss) {
+	
+	}
+}

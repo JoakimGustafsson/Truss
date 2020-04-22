@@ -1,0 +1,460 @@
+{
+    "classname": "World",
+    "nodes": [{
+        "classname": "Node",
+        "labelString": "selector",
+        "mass": 1,
+        "velocityLoss": 0.99,
+        "name": "Selector ",
+        "localPosition": {
+            "x": 7.4316527350529595,
+            "y": 42.47044466415964
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "red",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 50,
+            "y": 0
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 50,
+            "y": 50
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 20,
+            "y": 40
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 20,
+            "y": 20
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 30,
+            "y": 20
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 30,
+            "y": 40
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 0,
+            "y": 50
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 0,
+            "y": 0
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Platform1Node1",
+        "localPosition": {
+            "x": 2,
+            "y": 39
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Platform1Node2",
+        "localPosition": {
+            "x": 8,
+            "y": 39
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 1,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node a",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 1,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 1,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 1,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "Unnamed",
+        "localPosition": {
+            "x": 1,
+            "y": 1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20
+    }, {
+        "classname": "Node",
+        "labelString": "node moveable",
+        "name": "Head",
+        "localPosition": {
+            "x": 3.841923046238699,
+            "y": 43.227713876110435
+        },
+        "visible": 1,
+        "size": 0.1,
+        "color": "white",
+        "parentTrussNode": 20,
+        "mass": 1,
+        "velocityLoss": 0.9
+    }, {
+        "classname": "Node",
+        "labelString": "node moveable",
+        "name": "RightLegNode",
+        "localPosition": {
+            "x": 3.74951733385587,
+            "y": 41.03147898034944
+        },
+        "visible": 1,
+        "size": 0.1,
+        "color": "white",
+        "parentTrussNode": 20,
+        "mass": 10,
+        "velocityLoss": 0.99
+    }, {
+        "classname": "Node",
+        "labelString": "node moveable",
+        "name": "LeftLegNode",
+        "localPosition": {
+            "x": 4.147870756134687,
+            "y": 41.0597278743042
+        },
+        "visible": 1,
+        "size": 0.1,
+        "color": "white",
+        "parentTrussNode": 20,
+        "mass": 10,
+        "velocityLoss": 0.99
+    }, {
+        "classname": "Node",
+        "labelString": "node moveable anglenode",
+        "name": "Body",
+        "localPosition": {
+            "x": 3.8079295958031443,
+            "y": 43.030623951748545
+        },
+        "visible": 1,
+        "size": 0.1,
+        "color": "white",
+        "parentTrussNode": 20,
+        "mass": 60,
+        "velocityLoss": 0.99,
+        "angle": 0,
+        "turnrate": 0,
+        "turnLoss": 0.99
+    }, {
+        "classname": "PerformanceTrussNode",
+        "labelString": "truss",
+        "screenSize": {
+            "x": 712,
+            "y": 1033
+        },
+        "worldSize": {
+            "x": 8.067343905037534,
+            "y": 11.704446985819905
+        },
+        "worldOffset": {
+            "x": 0.6673209235944505,
+            "y": 35.86474031495054
+        },
+        "lockedRatio": 1,
+        "fpsTarget": 60,
+        "fps": 60,
+        "timeMultiplier": 1,
+        "gridSize": 0,
+        "name": "MainNode",
+        "localPosition": {
+            "x": -2.4417092913233414,
+            "y": -0.25944030111780103
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 20,
+        "ratio": {
+            "x": 88.25705317401953,
+            "y": 88.25705317401953
+        }
+    }],
+    "tensors": [{
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 1,
+        "node2": 2,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 6,
+        "node2": 3,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 3,
+        "node2": 4,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 4,
+        "node2": 5,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 5,
+        "node2": 6,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 8,
+        "node2": 7,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 8,
+        "node2": 1,
+        "color": "brown",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 7,
+        "node2": 2,
+        "color": "blue",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "pullspring absorber rubberbounceactuator collide",
+        "equilibriumLength": 3,
+        "constant": 100,
+        "name": "Platform1",
+        "visible": 1,
+        "node1": 10,
+        "node2": 9,
+        "color": "white",
+        "dampeningConstant": 1,
+        "collisionLabel": ""
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber angletensor",
+        "equilibriumLength": 2,
+        "constant": 100,
+        "name": "RightEgo",
+        "visible": 1,
+        "node1": 19,
+        "node2": 17,
+        "color": "white",
+        "dampeningConstant": 1,
+        "angle1": -1.6,
+        "torqueConstant1": 1400,
+        "angle2": 0,
+        "torqueConstant2": 0
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber angletensor",
+        "equilibriumLength": 2,
+        "constant": 100,
+        "name": "LeftEgo",
+        "visible": 1,
+        "node1": 19,
+        "node2": 18,
+        "color": "white",
+        "dampeningConstant": 1,
+        "angle1": -1.4,
+        "torqueConstant1": 1400,
+        "angle2": 0,
+        "torqueConstant2": 0
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 11,
+        "node2": 12,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber",
+        "equilibriumLength": 6,
+        "constant": 100,
+        "name": "Unnamed",
+        "visible": 1,
+        "node1": 14,
+        "node2": 15,
+        "color": "white",
+        "dampeningConstant": 1
+    }, {
+        "classname": "Tensor",
+        "labelString": "spring absorber angletensor",
+        "equilibriumLength": 0.2,
+        "constant": 100,
+        "name": "neck",
+        "visible": 1,
+        "node1": 16,
+        "node2": 19,
+        "color": "white",
+        "dampeningConstant": 10,
+        "angle1": 0,
+        "torqueConstant1": 0,
+        "angle2": 1.4,
+        "torqueConstant2": 100
+    }],
+    "trussNode": 20,
+    "governors": []
+}

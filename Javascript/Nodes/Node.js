@@ -217,10 +217,10 @@ class Node extends StoreableObject {
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
 	 * @param {Array} args
 	 * @return {number}
-	 */
+	 *
 	sense(...args) {
 		return super.sense(...args);
-	}
+	} */
 
 
 	/** Handling properties

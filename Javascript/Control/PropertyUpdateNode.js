@@ -5,7 +5,7 @@
  * @class
  * @augments SensorNode
  */
-class PropertyUpdateNode extends SensorNode {
+class PropertyUpdateNode extends Node {
 	/** This node is used to ensure that the property editing window 'element' is updated with the selected
 	 * objects real time property values.
 	 * @constructor

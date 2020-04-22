@@ -87,6 +87,12 @@ function loadWorld(fileName) {
 		newWorld.deSerialize(JSON.parse(fileContent));
 		universe.push(newWorld);
 		universe.setCurrentWorld(newWorld);
+		let selectorLabel = newWorld.labels.findLabel('selector');
+		let selectors=selectorLabel.getNodes();
+		if (selectors.length!=1) {
+			alert('The loaded world does not have one selector.');
+		}
+		newWorld.trussNode.selector=selectors[0];
 	}
 	// mainNode.truss.hideEdit();
 	httpGetAsync('/load/' + fileName, function(x) {

@@ -59,7 +59,7 @@ class PropertyEditor {
 	/**
 	 */
 	createBanner() {
-		this.bannerNode = new BannerNode(this.parentTrussNode, this.outerElement, this.propertyArea);
+		this.bannerNode = new BannerNode(this.parentTrussNode, this.outerElement, this.propertyArea).initiate();
 		this.bannerNode.activate();
 		this.banner = this.bannerNode.create(this.parentTrussNode);
 	}

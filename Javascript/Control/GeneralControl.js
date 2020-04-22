@@ -10,15 +10,21 @@ class GeneralControl {
 	 */
 	constructor() {
 
-		window.addEventListener('keydown', function (e) {
+		window.addEventListener('keydown', (e) => {
 			if (!universe.currentWorld.fastEdit) {
 				return;
 			}
-			console.log(e.keyCode);
+			//console.log(e.keyCode);
 			if (e.keyCode == 78) {
 				this.makeNode();
 			} else if (e.keyCode == 84) {
 				this.makeTensor();
+			} else if (e.keyCode == 67) {
+				// TODO: this.clone();
+			} else if (e.keyCode == 84) {
+				//TODO: this.copy properties();
+			} else if (e.keyCode == 68 || e.keyCode == 46 || e.keyCode == 8) {
+				this.deleteSelected();
 			}
 		}, true);
 
@@ -204,19 +210,27 @@ class GeneralControl {
 			return;
 		}
 		let nodes = gravityWellLabel.getNodes();
+		let gravityWell;
 		if (!nodes || nodes.length == 0) {
-			return;
+
+			gravityWell = new Node(universe.currentWorld, universe.currentNode, 'gravitywell').initiate({
+				'name': 'gravityWell',
+				'mass': 5.97219e24,
+				'localPosition': new Position(0, -6371e3)
+			});
+		} else {
+			gravityWell = nodes[0];
 		}
-		let gravityWell = nodes[0];
-		let constant = gravityWell.constant;
+		/*let constant = gravityWell.constant;
 		if (!constant) {
 			alert('Could not find gravitywell labeled node or field constant for gravity.');
 			return;
-		}
+		}*/
+
 		universe.currentNode.addTensor(
-			new Tensor(universe.selectedObject, gravityWell, 'gravity field', {
-				'constant': constant,
-				'visible': 0,
+			new Tensor(universe.selectedObject, gravityWell, 'gravity field').initiate({
+				'constant': 6.67e-11,
+				'visible': 1,
 			}));
 	}
 

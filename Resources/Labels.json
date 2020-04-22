@@ -21,7 +21,7 @@
             "nameProperty": "",
             "positionProperty": {
                 "type": "code",
-                "code": "new Position(1, 1)"
+                "code": "new Position(-1, -1)"
             },
             "visibilityProperty": 1,
             "sizeProperty": 1,
@@ -40,10 +40,20 @@
 
     "sensorLabel": {
         "name": "sensor",
-        "parent": "nodeLabel",
         "tags": ["sensor", "system"]
     },
 
+    "breakForceSensorLabel": {
+        "name": "breakforcesensor",
+        "parent": "sensorLabel",
+        "tags": ["game", "break"],
+        "properties": {
+            "forceLimitProperty": 1
+        },
+        
+        "behaviour": "ForceSensorBehaviour"
+    },
+    
 
     "moveableLabel": {
         "name": "moveable",

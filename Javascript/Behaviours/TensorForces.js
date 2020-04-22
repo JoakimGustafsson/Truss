@@ -247,14 +247,14 @@ class AbsorbCalculator extends Behaviour {
 	 * @param {StoreableObject} storeableObject
 	 */
 	attachTo(storeableObject) {
-		storeableObject.registerOverride(BehaviourOverride.POSTCALCULATE, AbsorbCalculator.prototype.calculate);
+		storeableObject.registerOverride(BehaviourOverride.CALCULATE, AbsorbCalculator.prototype.calculate);
 	}
 
 	/**
 	 * @param {StoreableObject} storeableObject
 	 */
 	detachFrom(storeableObject) {
-		storeableObject.unregisterOverride(BehaviourOverride.POSTCALCULATE, AbsorbCalculator.prototype.calculate);
+		storeableObject.unregisterOverride(BehaviourOverride.CALCULATE, AbsorbCalculator.prototype.calculate);
 	}
 
 	/**

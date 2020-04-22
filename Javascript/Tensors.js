@@ -630,7 +630,7 @@ class Tensor extends StoreableObject {
 			node.futureLocalPosition
 		);
 		
-
+		/*
 		if (this.name=='right 5') {
 			debugEntity.draw(tensorPast);
 			debugEntity.draw(tensorFuture, 'Yellow');
@@ -639,7 +639,7 @@ class Tensor extends StoreableObject {
 		if (node.name=='newball_9') {
 			debugEntity.draw(node.localPosition, 'purple');
 			debugEntity.draw(tensorFuture, 'green');
-		}
+		}*/
 	
 
 		let before = tensorPast.left(nodeChange.start);
@@ -783,10 +783,10 @@ class Tensor extends StoreableObject {
 	/**
 	* Calculate the second stage of forces (probably only absorbers based
 		on velocity rather than position, to make the world 'calmer' )
-	*/
+	*
 	calculateForce2() {
 		this.force = super.calculateForce(1);
-	}
+	}*/
 
 
 }

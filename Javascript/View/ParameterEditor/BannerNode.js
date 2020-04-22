@@ -12,7 +12,7 @@ class BannerNode extends Node {
 	 * @param  {HTMLElement} propertyElement
 	 */
 	constructor(truss, editParameterElement, propertyElement) {
-		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner sensor');
+		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner sensor node');
 		this.name = 'bannerNode';
 		this.element = editParameterElement;
 		this.propertyElement = propertyElement;

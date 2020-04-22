@@ -291,12 +291,12 @@ class TrussNode extends Node {
 	 * Calculate all forces caused by a Nodes velocity.
 	 * For example, Absorbers (dampeners) generate a force based on two nodes relative velocity.
 	 * @param {number} deltaTime
-	 */
+	 *
 	calculateVelocityBasedForces(deltaTime) {
 		for (let tensor of this.absorberLabel.getTensors()) {
 			tensor.calculateForce2(deltaTime);
 		}
-	}
+	}*/
 
 	/**
 	 * Update all nodes velocities based on Position based forces
@@ -331,12 +331,12 @@ class TrussNode extends Node {
 	/**
 	 * Update all nodes velocities based on Velocity based forces
 	 * @param {number} deltaTime
-	 */
+	 *
 	calculateDampenedVelocity(deltaTime) {
 		for (let node of this.moveableLabel.getNodes()) {
 			node.updateFinalVelocity(deltaTime);
 		}
-	}
+	}*/
 
 	/**
 	 * go through this list and sort out things before updating positions
@@ -408,6 +408,9 @@ class TrussNode extends Node {
 	sense(trussTime) {
 		for (let sensorNode of this.sensorLabel.getNodes()) {
 			sensorNode.sense(trussTime, this);
+		}
+		for (let sensorTensor of this.sensorLabel.getTensors()) {
+			sensorTensor.sense(trussTime, this);
 		}
 	}
 	/**

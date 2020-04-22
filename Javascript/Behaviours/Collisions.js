@@ -73,6 +73,11 @@ class BounceTensorManagent extends Behaviour {
 		storeableObject.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, BounceTensorManagent.prototype.preUpdate);
 	}
 
+
+	this preupdate should be removed
+	also remove the whole handleBrokenTensors into the other Behaviour
+	then extract the removeNode and make it available to the hit scan function 
+
 	preUpdate(trussTime, deltaTime){
 		function swap(previous, tensor, next) {
 			let node1=tensor.node1;
@@ -143,6 +148,8 @@ class BounceTensorManagent extends Behaviour {
 					originalTensor.deGhostify();
 					
 					originalTensor.removeLabel(originalTensor.bounceTensorManagementLabel);
+modify this to remove the attached behaviour to insted of label magic
+
 					originalTensor.broken=false;
 					thisTensor.brokendata.nextTensor.destroy();
 					thisTensor.destroy();
@@ -150,7 +157,7 @@ class BounceTensorManagent extends Behaviour {
 					let nextTensor=thisTensor.brokendata.nextTensor;
 					if (thisTensor.node1==nextTensor.node2) {
 						console.log('Null tensor');
-						
+						debugBounce(nextTensor);
 					}
 					thisTensor.brokendata = nextTensor.brokendata;
 					thisTensor.node2=nextTensor.node2;
@@ -247,6 +254,8 @@ class CollisionBounce extends Behaviour {
 			let bounceTensorManagementLabel = this.bounceTensorManagementLabel || this.world.labels.findLabel('bouncetensormanagement');
 			if (!this.hasLabel(bounceTensorManagementLabel)) {
 				tensor.addLabel(bounceTensorManagementLabel);
+change this to attach a handle function instead of label magic
+
 				tensor.bounceTensorManagementLabel = bounceTensorManagementLabel;
 			}
 			startTensor.broken = true;
@@ -267,6 +276,7 @@ class CollisionBounce extends Behaviour {
 			let startTensor;
 			let endTensor = tensorToBreak.clone();
 			newTensors.push(endTensor);
+			let tempDummy=0;
 
 			if (!tensorToBreak.broken) { // The first break of a tensor
 				startTensor = firstBroken(tensorToBreak, endTensor);
@@ -277,12 +287,25 @@ class CollisionBounce extends Behaviour {
 				};
 				newTensors.push(startTensor);
 			} else { 
+				
+				if (debugCycle(tensorToBreak, detail.collider)) {
+
+					if there is a second hit from the same side. remove the old hit.angle
+
+					console.log('*******************BEFORE Collition node: '+detail.collider.name);
+					console.log('*******************BEFORE Collition tensor: '+tensorToBreak.name);
+					debugBounce(tensorToBreak);
+					debugEntity.smallnodezoom(detail.collider);
+				}
+
 				endTensor.brokendata = tensorToBreak.brokendata;
 				startTensor = tensorToBreak;
 				startTensor.brokendata = {
 					'parentTensor':tensorToBreak.brokendata.parentTensor
 				};
 				endTensor.broken=true;
+				tempDummy=1;
+				
 			}
 
 
@@ -293,7 +316,10 @@ class CollisionBounce extends Behaviour {
 			startTensor.node2=detail.collider;
 			endTensor.node1=detail.collider;
 			tensorToBreak=startTensor;
-
+			if (tempDummy){ 
+				console.log('*******************AFTER Collition:'+detail.collider.name);
+				debugBounce(endTensor);
+			}
 		}
 
 		recalcStretch(tensorToBreak.brokendata.parentTensor);
@@ -503,12 +529,12 @@ function debugBounce(tensor) {
 
 		console.group();
 		console.log(i+' Name: '+ currentTensor.name);
-		console.log(i+' EquilibriumLength: '+ currentTensor.equilibriumLength);
-		console.log(i+' Length: '+ currentTensor.getLength());
-		console.log(i+' Tension: '+ (currentTensor.equilibriumLength-currentTensor.getLength()));
+		//console.log(i+' EquilibriumLength: '+ currentTensor.equilibriumLength);
+		//console.log(i+' Length: '+ currentTensor.getLength());
+		//console.log(i+' Tension: '+ (currentTensor.equilibriumLength-currentTensor.getLength()));
 		console.log(i+' StartNode: '+ currentTensor.node1.name);
 		console.log(i+' EndNode: '+ currentTensor.node2.name);
-		console.log(i+' Parent: '+ currentTensor.brokendata.parentTensor.name);
+		//console.log(i+' Parent: '+ currentTensor.brokendata.parentTensor.name);
 		console.log(i+' Broken from: '+ (currentTensor.brokendata.from<0? 'left':'right'));
 		console.groupEnd();
 
@@ -521,3 +547,26 @@ function debugBounce(tensor) {
 	console.log('SUM Length: '+ sumLength);
 }
 
+
+function debugCycle(tensor, newNode) {
+	let originalTensor= tensor.brokendata.parentTensor;
+	let currentTensor=originalTensor.brokendata.startTensor;
+	let nodes=[currentTensor.node1];
+	if (newNode) {
+		if (newNode==nodes[0]) {
+			return newNode;
+		}
+		nodes.push(newNode);
+	}
+	let i=0;
+	while (currentTensor && i<20) {
+		let index = nodes.indexOf(currentTensor.node2);
+		if (index >= 0) {
+			return currentTensor;
+		}
+		nodes.push(currentTensor.node2);
+		i++;
+		currentTensor=currentTensor.brokendata.nextTensor;
+	}
+	return 0;
+}
