@@ -315,17 +315,10 @@
         "behaviour": "CollisionSensor"
     },
 
-    "bounceTensorManagementLabel": {
-        "name": "bouncetensormanagement",
-        "parent": ["postUpdatePositionLabel", "preUpdatePositionLabel"],
-        "properties": {},
-        "tags": ["collision", "collide"],
-        "behaviour": "BounceTensorManagent"
-    },
 
     "rubberBounceActuatorLabel": {
         "name": "rubberbounceactuator",
-        "parent": ["tensorLabel"],
+        "parent": ["tensorLabel", "postUpdatePositionLabel"],
         "properties": {},
         "tags": ["collision", "collide"],
         "behaviour": "CollisionBounce"
