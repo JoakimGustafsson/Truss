@@ -68,8 +68,10 @@ class PropertyEditor {
 	 */
 	removeBanner() {
 		//let trussNode = this.parentTrussNode;
-		this.bannerNode.hide();
-		this.bannerNode.close(); // Remove the event listener
+		if (this.bannerNode) {
+			this.bannerNode.hide();
+			this.bannerNode.close(); // Remove the event listener
+		}
 		this.banner=undefined;
 	}
 }

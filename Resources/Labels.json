@@ -127,7 +127,9 @@
             "fpsTargetProperty": 60,
             "fpsProperty": 60,
             "timeMultiplierProperty": 1,
-            "snapGridProperty": 0
+            "pauseProperty": false,
+            "snapGridProperty": 0,
+            "fileNameProperty": "debugCross.json"
         }
     },
     "selectorLabel": {

@@ -50,6 +50,9 @@ class PropertyList {
 		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
 		this.timeMultiplierProperty = new NumberProperty('timeMultiplier', 'timeMultiplier', 'Time multiplier', ParameterCategory.CONTENT, 'Truss time multiplier.');
 		this.fpsProperty = new NumberProperty('fps', 'fps', 'Frames per second', ParameterCategory.CONTENT, 'Graphical update frequency aim.');
+		this.pauseProperty = new SwitchProperty('paused', 'paused', 'Paused', ParameterCategory.CONTENT, 'The timeflow is paused.');
+		this.fileNameProperty = new StringProperty('fileName', 'fileName', 'File name', ParameterCategory.CONTENT, 'The name of the file.');
+
 		this.visibilityProperty = new SwitchProperty('visible', 'visible', 'Visible', ParameterCategory.CONTENT, 'Should this be visible on the screen.');
 		this.lockedRatioProperty = new SwitchProperty('lockedRatio', 'lockedRatio', 'Locked Ratio', ParameterCategory.CONTENT, 'The display ratio between x and y axis is locked.');
 		this.snapGridProperty = new NumberProperty('gridSize', 'gridSize', 'Align to grid', ParameterCategory.CONTENT, 'Aligning all new positions to this grid. (0 for no alignment)');
@@ -65,7 +68,7 @@ class PropertyList {
 		this.restPositionProperty = new PositionProperty('restPosition', 'restPosition', 'Rest position', ParameterCategory.CONTENT, 'The position when no key is pressed.');
 
 		this.firstEdgeNodeProperty = new NodeProperty('firstEdgeNode', 'firstEdgeNode', 'First cell node', ParameterCategory.CONTENT, 'The first node in the cell edge.');
-
+		
 	}
 }
 

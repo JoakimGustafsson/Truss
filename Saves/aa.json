@@ -1,0 +1,128 @@
+{
+    "classname": "World",
+    "nodes": [{
+        "classname": "Node",
+        "labelString": "selector",
+        "mass": 1,
+        "velocityLoss": 0.99,
+        "name": "Selector ",
+        "localPosition": {
+            "x": 3.9292213200799617,
+            "y": 7.417593528816987
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "red",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "startright",
+        "localPosition": {
+            "x": 1,
+            "y": 0
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "bounce moveable velocitynode",
+        "mass": 1,
+        "velocityLoss": 1,
+        "name": "ball 0",
+        "localPosition": {
+            "x": 0,
+            "y": 2
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "white",
+        "parentTrussNode": 5,
+        "velocity": {
+            "x": 40,
+            "y": 40
+        }
+    }, {
+        "classname": "Node",
+        "labelString": "bounce moveable velocitynode",
+        "mass": 1,
+        "velocityLoss": 1,
+        "name": "ball 1",
+        "localPosition": {
+            "x": 0,
+            "y": 4
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "white",
+        "parentTrussNode": 5,
+        "velocity": {
+            "x": 36,
+            "y": -36
+        }
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "endright",
+        "localPosition": {
+            "x": 1.018392919224668,
+            "y": 9.948693126815101
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }, {
+        "classname": "PerformanceTrussNode",
+        "labelString": "truss",
+        "screenSize": {
+            "x": 651,
+            "y": 1033
+        },
+        "worldSize": {
+            "x": 9.453049370764763,
+            "y": 15
+        },
+        "worldOffset": {
+            "x": -1,
+            "y": -1
+        },
+        "lockedRatio": 1,
+        "fpsTarget": 60,
+        "fps": 60,
+        "timeMultiplier": 1,
+        "paused": 1,
+        "gridSize": 0,
+        "fileName": "aaabb.js",
+        "name": "MainNode",
+        "localPosition": {
+            "x": -1,
+            "y": -1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5,
+        "ratio": {
+            "x": 68.86666666666666,
+            "y": 68.86666666666666
+        }
+    }],
+    "tensors": [{
+        "classname": "Tensor",
+        "labelString": "pullspring rubberbounceactuator collide",
+        "equilibriumLength": 8,
+        "constant": 90,
+        "name": "Tensor",
+        "visible": 1,
+        "node1": 1,
+        "node2": 4,
+        "color": "white",
+        "collisionLabel": "bounce",
+        "ghost": false
+    }],
+    "trussNode": 5,
+    "governors": []
+}

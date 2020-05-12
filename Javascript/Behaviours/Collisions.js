@@ -213,11 +213,6 @@ class CollisionBounce extends Behaviour {
 				{
 					originalTensor.deGhostify();
 
-					//originalTensor.unregisterOverride(BehaviourOverride.PREUPDATEPOSITION, CollisionBounce.prototype.preUpdate);
-
-					//originalTensor.removeLabel(originalTensor.bounceTensorManagementLabel);
-
-
 					originalTensor.broken=false;
 					thisTensor.brokendata.nextTensor.destroy();
 					thisTensor.destroy();

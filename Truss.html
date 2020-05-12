@@ -59,7 +59,7 @@
 			<button type="button" class="simpleButton"
 				onclick="if (universe) {universe.select(universe.currentNode)}">Configuration</button>
 			<button type="button" class="simpleButton" onclick="toggleDisplay()">Debug</button>
-			<button type="button" class="simpleButton" onclick="">Other</button>
+			<button type="button" class="simpleButton" onclick="reload()">Reload</button>
 		</div>
 
 		<script type="text/javascript">
@@ -79,7 +79,11 @@
 					return;
 				}
 				document.getElementById('mainArea').appendChild(debugEntity.debugWindow.debugDiv)
+			}
 
+			
+			function reload() {
+				loadWorld(universe.currentNode.fileName);
 			}
 
 			//Main Draw loop
@@ -140,21 +144,10 @@
 				latestWorld.governors = [];
 				latestNode.resize();
 
-				/*
-								let egoMoveGovernor =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(10, 10), 1 / 60, 1, "GovenorTruss", GovenorTruss)
-								egoMoveGovernor.truss.initiate(protagonist);
-								egoMoveGovernor.resize();
-
-								let scroller =new TrussNode(latestWorld, latestNode, new Position(0, 0), new Vector(50, 50), 1 / 60, 1, "ScrollerTruss", ScrollerTruss)
-								scroller.truss.initiate(protagonist);
-								scroller.resize();
-
-								let governorList= [egoMoveGovernor, scroller];
-								*/
-
 
 				universe.setCurrentWorld(latestWorld);
 
+reload();
 				window.requestAnimationFrame(mainLoop);
 
 				control.openBottomPanel(undefined, 'propertiesDiv');
@@ -172,6 +165,7 @@
 
 
 				universe.currentWorld.debugLevel = 5;
+
 			}
 
 			function lastDebug() {
