@@ -175,18 +175,6 @@
         "size": 1,
         "color": "white",
         "parentTrussNode": 5
-    }, {
-        "classname": "Node",
-        "labelString": "node added 2bounce",
-        "name": "2beta",
-        "localPosition": {
-            "x": 0.999,
-            "y": 13
-        },
-        "visible": 1,
-        "size": 1,
-        "color": "white",
-        "parentTrussNode": 5
     }],
     "tensors": [{
         "classname": "Tensor",
