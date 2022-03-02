@@ -81,17 +81,29 @@ function directory(folderName) {
 /** @param  {string} fileName
 */
 function loadWorld(fileName) {
-	// mainNode.truss.hideEdit();
-	httpGetAsync('/load/' + fileName, function(x) {
-		console.log('Server reported: ' + x);
-		// mainNode.clean();
-		universe.pop().close();
-		let newWorld= new World();
-		newWorld.deSerialize(JSON.parse(x));
+	let newWorld,fileContent;
+
+	function loadWorld2() {
+		newWorld.deSerialize(JSON.parse(fileContent));
 		universe.push(newWorld);
 		universe.setCurrentWorld(newWorld);
+		let selectorLabel = newWorld.labels.findLabel('selector');
+		let selectors=selectorLabel.getNodes();
+		if (selectors.length!=1) {
+			alert('The loaded world does not have one selector.');
+		}
+		newWorld.trussNode.selector=selectors[0];
+	}
+	// mainNode.truss.hideEdit();
+	httpGetAsync('/load/' + fileName, function(x) {
+		fileContent=x;
+		console.log('Server reported: ' + fileContent);
+		// mainNode.clean();
+		universe.pop().close();
+		newWorld= new World(loadWorld2);
 	});
 }
+
 
 /** @param  {string} fileName
 */

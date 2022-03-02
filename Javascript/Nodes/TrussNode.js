@@ -1,4 +1,4 @@
-/* global TrussView PropertyEditor */
+/* global TrussView PropertyEditor debugEntity */
 /**
  * @class
  * @extends Node
@@ -19,8 +19,8 @@ class TrussNode extends Node {
 	 * @param  {Function} showFunction
 	 * @param  {number} velocityLoss
 	 */
-	constructor(world, parentTrussNode, initialLabels, valueObject) {
-		super(world, parentTrussNode, initialLabels, valueObject);
+	constructor(world, parentTrussNode, initialLabels) {
+		super(world, parentTrussNode, initialLabels);
 
 		this.world=world;
 		this.element = document.createElement('div');
@@ -117,15 +117,23 @@ class TrussNode extends Node {
 		}
 		);
 
-		if (world) {
-			this.handleCanvas();
-			this.setView();
-			this.setupLabels(world);
-		}
-
 		this.propertyDiv = this.element.querySelectorAll('#configview')[0];
 		this.debugLevel = this.element.querySelectorAll('#debugLevel')[0];
 	}
+
+
+	/**
+	 * @param  {object} valueObject
+	 */
+	initiate(valueObject) {
+		let returnValue = super.initiate(valueObject);	
+
+		this.handleCanvas();
+		this.setView();
+		this.setupLabels(this.world);
+		return returnValue;
+	}
+	
 
 	/**
 	 *
@@ -161,11 +169,7 @@ class TrussNode extends Node {
 		this.sensorLabel = world.labels.findLabel('sensor');
 		this.angleNodeLabel = world.labels.findLabel('anglenode');
 		this.moveableLabel = world.labels.findLabel('moveable');
-		//this.pullSpringLabel = world.labels.findLabel('pullspring');
-		//this.pushSpringLabel = world.labels.findLabel('pushspring');
-		//this.fieldLabel = world.labels.findLabel('field');
 		this.absorberLabel = world.labels.findLabel('absorber');
-		//this.springLabel = world.labels.findLabel('spring');
 		this.preUpdatePositionLabel = world.labels.findLabel('preupdateposition');
 		this.postUpdatePositionLabel = world.labels.findLabel('postupdateposition');
 		
@@ -179,6 +183,12 @@ class TrussNode extends Node {
 	serialize(superNodeList=[], superTensorList=[]) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
+
+		representationObject.ratio = {
+			'x': this.screenSize.x/this.worldSize.x,
+			'y': this.screenSize.y/this.worldSize.y
+		};
+		//representationObject.screenSize = undefined;
 		return representationObject;
 	}
 
@@ -189,8 +199,17 @@ class TrussNode extends Node {
 	 */
 	deSerialize(restoreObject, superNodes, superTensors) {
 		super.deSerialize(restoreObject, superNodes, superTensors);
+
+		//let currentScreenSize = {'x': this.screenSize.x, 'y': this.screenSize.y};
+		//this.screenSize = screenSize;
+		
+		//let originalScreenSize = {'x': this.worldSize.x*restoreObject.ratio.x, 'y':this.worldSize.y*restoreObject.ratio.x};
+
 		this.handleCanvas();
 		this.setView();
+
+		//this.view.setInitialScale(restoreObject.ratio);
+
 		if (this.world) {
 			this.setupLabels(this.world);
 		}
@@ -272,12 +291,12 @@ class TrussNode extends Node {
 	 * Calculate all forces caused by a Nodes velocity.
 	 * For example, Absorbers (dampeners) generate a force based on two nodes relative velocity.
 	 * @param {number} deltaTime
-	 */
+	 *
 	calculateVelocityBasedForces(deltaTime) {
 		for (let tensor of this.absorberLabel.getTensors()) {
 			tensor.calculateForce2(deltaTime);
 		}
-	}
+	}*/
 
 	/**
 	 * Update all nodes velocities based on Position based forces
@@ -312,12 +331,12 @@ class TrussNode extends Node {
 	/**
 	 * Update all nodes velocities based on Velocity based forces
 	 * @param {number} deltaTime
-	 */
+	 *
 	calculateDampenedVelocity(deltaTime) {
 		for (let node of this.moveableLabel.getNodes()) {
 			node.updateFinalVelocity(deltaTime);
 		}
-	}
+	}*/
 
 	/**
 	 * go through this list and sort out things before updating positions
@@ -371,11 +390,13 @@ class TrussNode extends Node {
 	/**
 	 * update the position and velocities of the nodes based on the forces
 	 * @param {number} trussTime
-	 * @param {number} deltaTime
+	 * @param {number} preventmovement
 	 */
-	update(trussTime) {
+	update(trussTime, preventmovement) {
 		this.preUpdatePositions(trussTime, this);
-		this.updatePositions(trussTime, this.timestep);
+		if (!preventmovement) {
+			this.updatePositions(trussTime, this.timestep);
+		}
 		this.postUpdatePositions(trussTime, this);
 		
 	}
@@ -387,6 +408,9 @@ class TrussNode extends Node {
 	sense(trussTime) {
 		for (let sensorNode of this.sensorLabel.getNodes()) {
 			sensorNode.sense(trussTime, this);
+		}
+		for (let sensorTensor of this.sensorLabel.getTensors()) {
+			sensorTensor.sense(trussTime, this);
 		}
 	}
 	/**
@@ -422,6 +446,8 @@ class TrussNode extends Node {
 	 * @param {number} externalTimestamp
 	 */
 	tick(externalTimestamp) {
+		//debugEntity.breakWhen(26.0, 'collision');
+
 		this.externalTime = externalTimestamp;
 		let timestamp = externalTimestamp*this.timeMultiplier;
 
@@ -431,7 +457,7 @@ class TrussNode extends Node {
 
 		// the max amount of time we can compensate for
 		if (this.delta > 0.2) {
-			this.delta = 0;
+			this.delta = this.timestep;
 		}
 
 		// Simulate the total elapsed time in fixed-size chunks
@@ -442,7 +468,7 @@ class TrussNode extends Node {
 
 		
 			if (!this.paused) {
-				this.update(timestamp);
+				this.update(timestamp, this.preventUpdate);
 				this.internalTime+=	this.timestep;
 			}
 			this.sense(timestamp);

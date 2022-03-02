@@ -22,6 +22,27 @@ class TrussView {
 			},
 		});
 
+		Object.defineProperty(this, 'worldViewSize', {
+			get: function () {
+				return this._worldViewSize;
+			},
+			set: function (value) {
+				this._worldViewSize.x = value.x;
+				this._worldViewSize.y = value.y;
+				//console.log(this._worldViewSize);
+			},
+		});
+		Object.defineProperty(this, 'screenSize', {
+			get: function () {
+				return this._screenSize;
+			},
+			set: function (value) {
+				this._screenSize.x = value.x;
+				this._screenSize.y = value.y;
+				//console.log('screen:'+this._screenSize);
+			},
+		});
+
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
 		if (this.element) {
@@ -31,29 +52,22 @@ class TrussView {
 
 		this.clearLevel=1;	// the opacity of the clear
 
-		Object.defineProperty(this, 'worldViewSize', {
-			get: function () {
-				return this._worldViewSize;
-			},
-			set: function (value) {
-				this._worldViewSize.x = value.x;
-				this._worldViewSize.y = value.y;
-				console.log(this._worldViewSize);
-			},
-		});
 	}
+	
 	/**
 	 * @param  {Element} element
 	 * @param  {Position} worldViewSize
 	 */
 	setupAlertVectors(element, worldViewSize) {
-		let x = 0;
-		let y = 0;
+		let x = 100;
+		let y = 100;
 		let _this = this;
 		if (element) {
 			x = element.offsetWidth;
 			y = element.offsetHeight;
 		}
+		x = 100;
+		y = 100;
 		this.createAlertScreenSize(x, y, element, _this);
 		if (worldViewSize) {
 			x = worldViewSize.x;
@@ -88,7 +102,7 @@ class TrussView {
 				return true;
 			}
 		};
-		this.screenSize = new Proxy(new Vector(x, y), handlers);
+		this._screenSize = new Proxy(new Vector(x, y), handlers);
 	}
 
 	/** Multiply this number with a screen distance in pixels to get the world distance
@@ -171,6 +185,15 @@ class TrussView {
 		element.style.left = this.x(position) + 'px';
 		element.style.top = this.y(position) + 'px';
 		// return new Position(this.x(position) + 1, this.y(position) + 1);
+	}
+
+	/**
+	 * Assuming that the context has been set, draw a line between two in-world positions
+	 * @param  {Position} position1
+	 * @param  {Position} position2
+	 */
+	drawPoint(position1) {
+		this.context.arc(this.x(position1), this.y(position1), 5, 0, 2 * Math.PI);
 	}
 
 	/**
@@ -295,8 +318,10 @@ class TrussView {
 	/**
 	 */
 	resize(scale) {
-		let oldWidth = this.screenSize.x;
+		let oldWidth = this.screenSize.x; 
 		let oldHeight = this.screenSize.y;
+		//console.log('old Screen: x '+oldWidth+', y '+oldHeight);
+		//console.log('old World: x '+this._worldViewSize.x+', y '+this._worldViewSize.y);
 		this.screenSize.v = new Vector(this.element.offsetWidth, this.element.offsetHeight);
 
 		if(!scale) {
@@ -310,6 +335,8 @@ class TrussView {
 		} else {
 			this.recalculate();
 		}
+		//console.log('new Screen: x '+this.screenSize.x+', y '+this.screenSize.y);
+		//console.log('old World: x '+this._worldViewSize.x+', y '+this._worldViewSize.y);
 	}
 
 	

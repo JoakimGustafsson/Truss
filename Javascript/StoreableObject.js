@@ -7,35 +7,34 @@ class StoreableObject {
 	/**
 	 * @param  {World} world
 	 * @param  {string} initialLabels
-	 * @param  {object} valueObject
+	 * @param  {object} valueObject // A list of name valuepairs that the object should initially have.
 	 */
-	constructor(world, initialLabels='', valueObject={}) {
-		this.name='Unnamed';
+	constructor(world, initialLabels = '') {
+
+		this.world = world;
+		this.name = 'Unnamed';
 		this.properties = new Properties();
-		this.labelString=initialLabels;
-		this.labels =[];
-		this.addedLabels =[];
-		this.valueObject=valueObject;
-		this.world=world;
+		this.labels = [];
+		this.addedLabels = [];
 		this.isNode = this instanceof Node;
-		this.senseList=[];
-		this.preUpdatePositionList=[];
-		this.postUpdatePositionList=[];
-		this.updatePositionList=[];
-		this.showList=[];
-		this.torqueList=[];
-		this.calcList=[];
-		this.calcList2=[];
-		this.ghostCalcList=[];
-		this.rotateList=[];
-		this.collisionList=[];
+		this.senseList = [];
+		this.preUpdatePositionList = [];
+		this.postUpdatePositionList = [];
+		this.updatePositionList = [];
+		this.showList = [];
+		this.torqueList = [];
+		this.calcList = [];
+		this.calcList2 = [];
+		this.ghostCalcList = [];
+		this.rotateList = [];
+		this.collisionList = [];
 
 		Object.defineProperty(this, 'labels', {
-			get: function() {
+			get: function () {
 				return this._labels;
 			},
-			set: function(value) {
-				this._labels=value;
+			set: function (value) {
+				this._labels = value;
 				if (this.labelChange) {
 					this.labelChange(value);
 				}
@@ -45,39 +44,36 @@ class StoreableObject {
 		this.labelProperty = this.addProperty(new LabelListProperty(
 			'labelString', 'labelString', 'Labels', ParameterCategory.CONTENT,
 			'The comma-separated list of labels'));
+
+		this.labelString = initialLabels;
 	}
 
-	/**
-	 */
-	destroy() {
-		this.unreference();
-	}
-	
-	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
-     *
-     */
-	unreference() {
-		this.world.labels.clearOldReferences(this);
+	initiate(valueObject) {
+		this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		this.labels = this.parsedLabels.slice(0);
+
+		this.refreshPropertiesAfterLabelChange(valueObject);
+		return this;
 	}
 
 	/**
      *
-     */
+     *
 	initialRefresh() {
 		if (this.world) {
 			this.refreshPropertiesAfterLabelChange(this.valueObject);
 		}
-	}
+	}*/
 
-	/**
-     * @return {Object}
-     */
+	/** Given all the labels on the object, this gives a list of all the properties the object should have
+	 * @return {Object}
+	 */
 	getPropertyObject() {
 		let propObject = {};
 		for (let label of this.labels) {
 			for (let k in label.properties) {
 				if (!propObject[k] || !propObject[k].enforced) {
-					propObject[k]=label.properties[k];
+					propObject[k] = label.properties[k];
 				}
 			}
 			// Object.assign(propObject, label.properties);
@@ -85,14 +81,18 @@ class StoreableObject {
 		return propObject;
 	}
 
-	/**
+	/** The purpose of this function is to set up the object with all parameters that the labels 
+	 * force upon it.
+	 * If the valueObject is included in the call, it will be used to set initial values 
+	 * of the parameters.
+	 * 
 	 * @param {Object} valueObject
-     *
-     */
+	 *
+	 */
 	refreshPropertiesAfterLabelChange(valueObject = {}) {
 		//Attach the labels
-		this.parsedLabels = this.world.labels.parse(this.labelString, this);
-		this.labels=this.parsedLabels.slice(0);
+		//this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		//this.labels=this.parsedLabels.slice(0);
 		this.properties.clearProperties(this.labelProperty);
 
 		//Set the properties by looping over all properties listed by all labels
@@ -100,12 +100,12 @@ class StoreableObject {
 			let propertyObject = value.propertyObject;
 			let propertyName = propertyObject.propertyName;
 			this.properties.addProperty(propertyObject, value.defaultValue);
-			if (valueObject[propertyName]!=undefined) {	//setting default value
+			if (valueObject[propertyName] != undefined) { //try setting value from the valueObject
 				propertyObject.assignValue(valueObject[propertyName], this);
-			} else if (this[propertyName]==undefined ||
-                (typeof this[propertyName]== 'number' && isNaN(this[propertyName])) ||
-                value.enforced) { //handle NaN numbers and enforced defaultvalues
-				if (value.defaultValue!=undefined) {
+			} else if (this[propertyName] == undefined ||
+				(typeof this[propertyName] == 'number' && isNaN(this[propertyName])) ||
+				value.enforced) { // handle NaN numbers and enforced defaultvalues
+				if (value.defaultValue != undefined) {
 					propertyObject.assignValue(value.defaultValue, this);
 				}
 			}
@@ -118,8 +118,10 @@ class StoreableObject {
 	 * @return {Object}
 	 */
 	serialize(localNodeList, tensorList) {
-		let representation={'classname': 'StoreableObject'};
-		representation.labelString=this.labelString;
+		let representation = {
+			'classname': 'StoreableObject'
+		};
+		representation.labelString = this.labelString;
 		let properties = this.getPropertyObject();
 
 		for (let propertyContainer of Object.values(properties)) {
@@ -127,11 +129,10 @@ class StoreableObject {
 			try {
 				representation[property.propertyName] =
 					property.serialize(this[property.propertyName], localNodeList, tensorList);
-			}
-			catch(error) {
+			} catch (error) {
 				console.log(error);
-				console.log('Object name: '+this.name);
-				console.log('Property name: '+property.propertyName);
+				console.log('Object name: ' + this.name);
+				console.log('Property name: ' + property.propertyName);
 			}
 		}
 		return representation;
@@ -146,6 +147,34 @@ class StoreableObject {
 	 */
 	deSerialize(restoreObject, nodeList, tensorList) {
 		this.labelString = restoreObject.labelString;
+
+		this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		this.labels = this.parsedLabels.slice(0);
+
+
+		let propertyObject = this.getPropertyObject();
+		let valueObject = {};
+
+		for (let propertyContainer of Object.values(propertyObject)) {
+			let property = propertyContainer.propertyObject;
+			property.owner = this;
+			valueObject[property.propertyName] =
+				property.deSerialize(restoreObject[property.propertyName], nodeList, tensorList);
+		}
+
+		this.refreshPropertiesAfterLabelChange(valueObject);
+		return this;
+	}
+
+
+	/**
+	 * @param  {Object} restoreObject
+	 * @param  {Array} nodeList
+	 * @param  {Array} tensorList
+	 * @return {StoreableObject}
+	 *
+	deSerialize(restoreObject, nodeList, tensorList) {
+		this.labelString = restoreObject.labelString;
 		this.refreshPropertiesAfterLabelChange();
 
 		let propertyObject = this.getPropertyObject();
@@ -157,6 +186,19 @@ class StoreableObject {
 		}
 
 		return this;
+	}*/
+
+	/**
+	 */
+	destroy() {
+		this.unreference();
+	}
+
+	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
+	 *
+	 */
+	unreference() {
+		this.world.labels.clearOldReferences(this);
 	}
 
 	/**
@@ -166,7 +208,7 @@ class StoreableObject {
 		let serialized = this.serialize();
 		let node = objectFactory(this.world, serialized);
 		node.deSerialize(serialized);
-		node.name+=' clone';
+		node.name += ' clone';
 		return node;
 	}
 
@@ -177,7 +219,7 @@ class StoreableObject {
 	 * @param  {Function} newFunction
 	 */
 	registerOverride(type, newFunction) {
-		switch(type) {
+		switch (type) {
 		case BehaviourOverride.SENSE:
 			this.senseList.push(newFunction);
 			break;
@@ -220,7 +262,7 @@ class StoreableObject {
 	 * @param  {Function} newFunction
 	 */
 	unregisterOverride(type, newFunction) {
-		switch(type) {
+		switch (type) {
 		case BehaviourOverride.SENSE:
 			removeIfPresent(newFunction, this.senseList);
 			break;
@@ -244,6 +286,9 @@ class StoreableObject {
 			break;
 		case BehaviourOverride.POSTCALCULATE:
 			removeIfPresent(newFunction, this.calcList2);
+			break;
+		case BehaviourOverride.POSTUPDATEPOSITION:
+			removeIfPresent(newFunction, this.postUpdatePositionList);
 			break;
 		case BehaviourOverride.ROTATE:
 			removeIfPresent(newFunction, this.rotateList);
@@ -287,7 +332,7 @@ class StoreableObject {
 	 * @param  {List} args
 	 * @return {Object} An object that is the sum (according to the addFunction) of all calls in the callList
 	 */
-	cumulativeCaller(callList, additionFunction,...args) {
+	cumulativeCaller(callList, additionFunction, ...args) {
 		/*if (this.isGhost && this.isGhost()) {
 			if (this.ghostCalcList && callList==this.calcList ) {
 				callList = this.ghostCalcList;
@@ -297,14 +342,14 @@ class StoreableObject {
 			}
 		}*/
 
-		let cumulative=undefined;
+		let cumulative = undefined;
 		for (let f of callList) {
 			let result = f.call(this, ...args);
-			
+
 			if (result && isNaN(result.x)) {
-				console.log('ERROR: Illegal Spring Force: '+this.name);
+				console.log('ERROR: Illegal Spring Force: ' + this.name);
 			}
-			cumulative = additionFunction(cumulative,result);
+			cumulative = additionFunction(cumulative, result);
 		}
 		return cumulative;
 	}
@@ -321,11 +366,11 @@ class StoreableObject {
 	}
 
 
-	preUpdatePosition(...args){
+	preUpdatePosition(...args) {
 		return this.caller(this.preUpdatePositionList, ...args);
 	}
 
-	postUpdatePosition(...args){
+	postUpdatePosition(...args) {
 		return this.caller(this.postUpdatePositionList, ...args);
 	}
 
@@ -346,20 +391,20 @@ class StoreableObject {
 	 * @param  {List} args
 	 * @return {Force} returns the resultant force of all the applied force calculations on a tensor
 	 */
-	calculateForce(stage=0, ...args) {
+	calculateForce(stage = 0, ...args) {
 		let list = this.calcList;
-		if (stage==1) {
+		if (stage == 1) {
 			list = this.calcList2;
 		}
 
-		let addVectorFunction = function (a,b) {
+		let addVectorFunction = function (a, b) {
 			if (!a) {
 				return b;
 			}
 			if (!b) {
 				return a;
 			}
-			return Vector.addVectors(a,b);
+			return Vector.addVectors(a, b);
 		};
 
 		return this.cumulativeCaller(list, addVectorFunction, ...args);
@@ -404,34 +449,34 @@ class StoreableObject {
 		return this.caller(this.collisionList, ...args);
 	}
 
-	
+
 	/**
-	* Using a space separated list, list the labels that should be added
-	* @param  {string} labels
-	*/
+	 * Using a space separated list, list the labels that should be added
+	 * @param  {string} labels
+	 */
 	addLabelString(labels) {
-		this.labelString+=labels+' ';
-		this.parsedLabels=this.world.labels.parse(this.labelString, this);
-		this.labels=this.parsedLabels.slice(0);
+		this.labelString += labels + ' ';
+		this.parsedLabels = this.world.labels.parse(this.labelString, this);
+		this.labels = this.parsedLabels.slice(0);
 	}
 
-	hasLabel(label){
+	hasLabel(label) {
 		return label.hasMember(this);
 	}
 
 
 	/**
-	* Adding a label to an item.
-	* @param  {Label} label
-	*/
+	 * Adding a label to an item.
+	 * @param  {Label} label
+	 */
 	addLabel(label) {
 		label.addWithDependencies(this);
 	}
 
 	/**
-	* removing a label from item.
-	* @param  {Label} label
-	*/
+	 * removing a label from item.
+	 * @param  {Label} label
+	 */
 	removeLabel(label) {
 		label.removeWithDependencies(this);
 	}

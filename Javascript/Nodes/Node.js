@@ -12,22 +12,23 @@ class Node extends StoreableObject {
 	 * @param  {World} world
 	 * @param  {Truss} parentTrussNode
 	 * @param  {string} initialLabels
-	 * @param  {object} valueObject
 	 */
-	constructor(world, parentTrussNode, initialLabels, valueObject) {
-		super(world, initialLabels, valueObject);
+	constructor(world, parentTrussNode, initialLabels) {
+		super(world, initialLabels);
+		this.parentTrussNode=parentTrussNode;
+
 		if (!this.velocity) {
 			this.velocity = new Velocity(0, 0);
 		}
 		this.connectedTensors = [];
-		this._size=1;
+		this._size = 1;
 
 		Object.defineProperty(this, 'pictureReference', {
-			get: function() {
+			get: function () {
 				return this._pictureReference;
 			},
-			set: function(value) {
-				if (!value ||value == '' || value == 'NaN' || value == 0) {
+			set: function (value) {
+				if (!value || value == '' || value == 'NaN' || value == 0) {
 					this._pictureReference = '';
 				} else {
 					this._pictureReference = value;
@@ -37,10 +38,10 @@ class Node extends StoreableObject {
 		});
 
 		Object.defineProperty(this, 'size', {
-			get: function() {
+			get: function () {
 				return this._size;
 			},
-			set: function(value) {
+			set: function (value) {
 				if (!value || value == '' || value == 'NaN' || value == 0) {
 					this._size = 1;
 				} else {
@@ -52,39 +53,40 @@ class Node extends StoreableObject {
 		});
 
 		Object.defineProperty(this, 'visible', {
-			get: function() {
+			get: function () {
 				return this._visible;
 			},
-			set: function(value) {
-				this._visible=value;
+			set: function (value) {
+				this._visible = value;
 			},
 		});
 
 		Object.defineProperty(this, 'stepVelocity', {
-			get: function() {
-				return Vector.multiplyVector(parentTrussNode.timestep, this.velocity);
+			get: function () {
+				return Vector.multiplyVector(this.parentTrussNode.timestep, this.velocity);
 			}
 		});
 
 		Object.defineProperty(this, 'futureLocalPosition', {
-			get: function() {
-				return Vector.addVectors(
-					this.localPosition, 
-					this.stepVelocity
-				);
+			get: function () {
+				return {
+					'x': this.localPosition.x + this.parentTrussNode.timestep * this.velocity.x,
+					'y': this.localPosition.y + this.parentTrussNode.timestep * this.velocity.y
+				};
 			}
 		});
 
-		
+
+
 
 		Object.defineProperty(this, 'mass', {
-			get: function() {
-				if (this._mass==undefined) {
+			get: function () {
+				if (this._mass == undefined) {
 					return NaN;
 				}
 				return this._mass;
 			},
-			set: function(value) {
+			set: function (value) {
 				if (value == 'NaN' || value == 0) {
 					this._mass = NaN;
 				} else {
@@ -105,21 +107,18 @@ class Node extends StoreableObject {
 				this.angle = value * Math.PI / 180;
 			},
 		}); */
-
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
-
-		if (parentTrussNode) {
-			this.parentTrussNode= parentTrussNode;
-		}
-		this.initialRefresh();
-
-		if (parentTrussNode) {
-			this.parentTrussNode= parentTrussNode;
-		}
 	}
 
+	/**
+	 * @param  {object} valueObject
+	 */
+	initiate(valueObject) {
+		return super.initiate(valueObject);	
+	}
+	
 	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
 	 * @param  {Position} position
 	 */
@@ -127,11 +126,11 @@ class Node extends StoreableObject {
 		// this.localPosition.x = position.x;
 		// this.localPosition.y = position.y;
 		this.localPosition = new Position(position.x, position.y);
-		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
-			let x=position.x + this.parentTrussNode.gridSize/2;
-			let y=position.y + this.parentTrussNode.gridSize/2;
-			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
-			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
+		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize != '0') {
+			let x = position.x + this.parentTrussNode.gridSize / 2;
+			let y = position.y + this.parentTrussNode.gridSize / 2;
+			this.localPosition.x = x - x % this.parentTrussNode.gridSize;
+			this.localPosition.y = y - y % this.parentTrussNode.gridSize;
 		}
 	}
 
@@ -158,14 +157,14 @@ class Node extends StoreableObject {
 	 * @return {string}
 	 */
 	toString() {
-		return 'Name: '+this.name+' Pos: '+this.localPosition.toString()+'Vel: '+this.velocity.toString();
+		return 'Name: ' + this.name + ' Pos: ' + this.localPosition.toString() + 'Vel: ' + this.velocity.toString();
 	}
 
 	/**
 	 * @return {Element}
 	 */
 	generateHTML() {
-		let leftButton=document.createElement('button');
+		let leftButton = document.createElement('button');
 		leftButton.classList.add('trussButton');
 		leftButton.classList.add('nodeButton');
 		leftButton.innerHTML = this.name;
@@ -175,8 +174,8 @@ class Node extends StoreableObject {
 	}
 
 	/**
-	*  @return {string}
-	*/
+	 *  @return {string}
+	 */
 	generateconnectionHTML() {
 		let div = document.createElement('div');
 
@@ -195,7 +194,7 @@ class Node extends StoreableObject {
 	 * @param  {Node} node1
 	 */
 	registerOnClick(but, node1) {
-		but.addEventListener('click', function() {
+		but.addEventListener('click', function () {
 			universe.select(node1);
 			/*
 			let previousSelectedObject = universe.selectedObject;
@@ -218,10 +217,10 @@ class Node extends StoreableObject {
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
 	 * @param {Array} args
 	 * @return {number}
-	 */
+	 *
 	sense(...args) {
 		return super.sense(...args);
-	}
+	} */
 
 
 	/** Handling properties
@@ -256,7 +255,7 @@ class Node extends StoreableObject {
 	 */
 	serialize(nodeList, tensorList) {
 		let representation = super.serialize(nodeList, tensorList);
-		representation.classname='Node';
+		representation.classname = 'Node';
 
 		return representation;
 	}
@@ -268,7 +267,7 @@ class Node extends StoreableObject {
 		this.velocity.x = 0;
 		this.velocity.y = 0;
 	}
-	
+
 	/** Returns the torque constant
 	 * @return {number}
 	 */
@@ -315,8 +314,8 @@ class Node extends StoreableObject {
 	}
 
 	/** remove all references from labels to this object, thereby basically making it eligible for garbage collection
-     *  All connected tensors should also be removed (or unreferenced, actually)
-     */
+	 *  All connected tensors should also be removed (or unreferenced, actually)
+	 */
 	unreference() {
 		super.unreference();
 		for (let tensor of this.connectedTensors) {
@@ -391,11 +390,11 @@ class Node extends StoreableObject {
 		} else {
 			acceleration = new Vector(0, 0);
 		}
-		this.acceleration=acceleration; // For debug display purpose
+		this.acceleration = acceleration; // For debug display purpose
 		this.velocity = Vector.addVectors(Vector.multiplyVector(this.velocityLoss, this.velocity),
 			Vector.multiplyVector(timeFactor, acceleration));
 		if (!this.velocity || isNaN(this.velocity.x) || isNaN(this.velocity.y)) {
-			console.log('ERROR: Illegal Velocity: '+this.name);
+			console.log('ERROR: Illegal Velocity: ' + this.name);
 		}
 	}
 
@@ -415,7 +414,7 @@ class Node extends StoreableObject {
 	 * @param {number} velocityPhase
 	 * @return {Force}
 	 */
-	sumAllForces(forceAppliers, velocityPhase=0) {
+	sumAllForces(forceAppliers, velocityPhase = 0) {
 		let result = new Force(0, 0);
 		let tempForce;
 		for (let applier of forceAppliers) {
@@ -423,7 +422,7 @@ class Node extends StoreableObject {
 				try {
 					tempForce = applier.getForce(this);
 					if (!tempForce || isNaN(tempForce.x) || isNaN(tempForce.y))
-						console.log('ERROR: Illegal Force: '+this.name);
+						console.log('ERROR: Illegal Force: ' + this.name);
 					result.add(tempForce);
 				} catch (err) {
 					console.log(err);
@@ -455,11 +454,11 @@ class Node extends StoreableObject {
 
 		let view = truss.view;
 		let cxt = view.context;
-		if (!this.visible || this.visible=='0') {
+		if (!this.visible || this.visible == '0') {
 			return;
 		}
 		if (!this.color) {
-			this.color='lightgrey';
+			this.color = 'lightgrey';
 		}
 		cxt.strokeStyle = this.color;
 
@@ -484,24 +483,27 @@ class Node extends StoreableObject {
 			}
 
 			if (graphicDebugLevel >= 6) {
-				if (this.angle!=undefined) {
+				if (this.angle != undefined) {
 					cxt.beginPath();
 					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-						new Vector(20 * multiplier * Math.cos(this.angle), 20* multiplier * Math.sin(this.angle))));
+						new Vector(20 * multiplier * Math.cos(this.angle), 20 * multiplier * Math.sin(this.angle))));
 					cxt.stroke();
-				} 
+				}
 
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.multiplyVector(truss.timestep , this.velocity)));
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.multiplyVector(truss.timestep, this.velocity)));
+				view.drawPoint(Vector.addVectors(this.getPosition(), Vector.multiplyVector(truss.timestep, this.velocity)));
 				cxt.stroke();
+
+
 
 				if (graphicDebugLevel >= 7) {
 					cxt.strokeStyle = 'red';
 					cxt.beginPath();
 					if (this.acceleration) {
 						view.drawLine(this.getPosition(),
-							Vector.addVectors(this.getPosition(), Vector.multiplyVector(10*multiplier, this.acceleration)));
+							Vector.addVectors(this.getPosition(), Vector.multiplyVector(10 * multiplier, this.acceleration)));
 					}
 					cxt.stroke();
 				}
@@ -513,13 +515,13 @@ class Node extends StoreableObject {
 				cxt.font = '10px Arial';
 				cxt.textAlign = 'left';
 				let textPos = this.getPosition();
-				let name='';
-				if (this.name) { 
-					name=this.name; 
+				let name = '';
+				if (this.name) {
+					name = this.name;
 				}
 				view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
-						Math.trunc(this.getPosition().y * 100) / 100 + ')' +name);
-				
+					Math.trunc(this.getPosition().y * 100) / 100 + ')' + name);
+
 			}
 		}
 		if (graphicDebugLevel >= 1) {
@@ -552,15 +554,15 @@ class Node extends StoreableObject {
 	}
 
 	/**
-		 * @param  {string} pictureReference
-		 */
+	 * @param  {string} pictureReference
+	 */
 	createHTMLPicture(pictureReference) {
 		this.element = document.createElement('img');
 		let tempElement = this.element;
-		let tempParentElement= this.parentTrussNode.element;
+		let tempParentElement = this.parentTrussNode.element;
 		this.element.style.position = 'absolute';
 		this.element.style.zIndex = '-1000';
-		this.element.onerror = function() {
+		this.element.onerror = function () {
 			tempParentElement.removeChild(tempElement);
 		};
 		this.element.src = 'Resources/' + pictureReference;
@@ -571,19 +573,19 @@ class Node extends StoreableObject {
 		tempParentElement.appendChild(this.element);
 
 		this.setupScale();
-		this.visible=true;
+		this.visible = true;
 	}
 
 	/**
-	* @param {number} on
-	*/
+	 * @param {number} on
+	 */
 	setVisible(on) {
 		if (on && !this.visible) {
-			this.element.display='block';
-			this.visible=true;
+			this.element.display = 'block';
+			this.visible = true;
 		} else if (!on && this.visible) {
-			this.element.display='none';
-			this.visible=false;
+			this.element.display = 'none';
+			this.visible = false;
 		}
 	}
 
@@ -593,8 +595,8 @@ class Node extends StoreableObject {
 		if (this.pictureCornerLength) { // Is this really right and why does it cause performance hits
 			return;
 		}
-		this.pictureHeight=this.element.offsetHeight;
-		this.pictureWidth=this.element.offsetWidth;
+		this.pictureHeight = this.element.offsetHeight;
+		this.pictureWidth = this.element.offsetWidth;
 
 		let multiplier = this.size / this.pictureWidth;
 		let tempVectorToCorner = new Vector(multiplier * this.pictureHeight / 2, multiplier * this.pictureWidth / 2);
@@ -609,21 +611,20 @@ class Node extends StoreableObject {
 	 */
 	pictureShow(truss) {
 		this.setupScale();
-		let a1 = new Vector(Math.cos(this.pictureCornerAngle+this.angle)*this.pictureCornerLength,
-			Math.sin(this.pictureCornerAngle+this.angle)*this.pictureCornerLength);
-		let b1 = new Vector(Math.cos(Math.PI-this.pictureCornerAngle+this.angle)*this.pictureCornerLength,
-			Math.sin(Math.PI-this.pictureCornerAngle+this.angle)*this.pictureCornerLength);
-		let c1 = new Vector(Math.cos(this.pictureCornerAngle-Math.PI+this.angle)*this.pictureCornerLength,
-			Math.sin(this.pictureCornerAngle-Math.PI+this.angle)*this.pictureCornerLength);
-		let d1 = new Vector(Math.cos(- this.pictureCornerAngle+this.angle)*this.pictureCornerLength,
-			Math.sin(- this.pictureCornerAngle+this.angle)*this.pictureCornerLength);
+		let a1 = new Vector(Math.cos(this.pictureCornerAngle + this.angle) * this.pictureCornerLength,
+			Math.sin(this.pictureCornerAngle + this.angle) * this.pictureCornerLength);
+		let b1 = new Vector(Math.cos(Math.PI - this.pictureCornerAngle + this.angle) * this.pictureCornerLength,
+			Math.sin(Math.PI - this.pictureCornerAngle + this.angle) * this.pictureCornerLength);
+		let c1 = new Vector(Math.cos(this.pictureCornerAngle - Math.PI + this.angle) * this.pictureCornerLength,
+			Math.sin(this.pictureCornerAngle - Math.PI + this.angle) * this.pictureCornerLength);
+		let d1 = new Vector(Math.cos(-this.pictureCornerAngle + this.angle) * this.pictureCornerLength,
+			Math.sin(-this.pictureCornerAngle + this.angle) * this.pictureCornerLength);
 
 		let a = Vector.addVectors(a1, this.localPosition);
 		let b = Vector.addVectors(b1, this.localPosition);
 		let c = Vector.addVectors(c1, this.localPosition);
 		let d = Vector.addVectors(d1, this.localPosition);
 
-		warpMatrix(truss, this, d, c, a, b, this. pictureWidth, this.pictureHeight);
+		warpMatrix(truss, this, d, c, a, b, this.pictureWidth, this.pictureHeight);
 	}
 }
-

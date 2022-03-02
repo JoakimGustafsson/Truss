@@ -1,6 +1,6 @@
 /*jshint esversion:6*/
 
-/*global createSimpleButton debugEntity */
+/*global createSimpleButton debugEntity Line Tensor*/
 
 /* This file includes scripts that are designed to simplify debugging debug */
 
@@ -16,6 +16,7 @@ class Debug {
 		}
 		this.debugCounter=0;
 		this.defaultTicks=1;
+		this.uniqueIds={};
 	}
 
 	/**
@@ -166,10 +167,20 @@ class Debug {
 			if (counter==number) {
 				universe.currentNode.view.clearLevel=0;
 				universe.currentNode.togglePause();
+				universe.currentNode.preventUpdate=false;
 				return 0;
 			}
 			return counter+1;
 		};
+	}
+
+	// This function runs a number of ticks and does not clear the screen completely
+	// The intention is to see what happens over very small time intervals
+	// Use clearLevel() to (re)set the screen clearing 
+	// Use tick(-1) to restart normal movement
+	calc() {
+		universe.currentNode.preventUpdate=true;
+		this.tick(1,0.001);
 	}
 
 	// decides how much to wipe the screen each tick
@@ -188,13 +199,55 @@ class Debug {
 			}
 		}
 	}
-	breakWhen(timeLimit) {
+	breakWhen(timeLimit, identifier) {
 		if (universe.currentNode.internalTime>timeLimit) {
-				
-			if (!universe.currentNode.isPaused()) {
-				this.togglepause();
+			if (!identifier || !this.uniqueIds[identifier]) {
+				if (!universe.currentNode.isPaused()) {
+					this.togglepause();
+				}
 			}
+			if (identifier && !this.uniqueIds[identifier]) {
+				this.uniqueIds[identifier]=true;
+			}
+			
 		}
+	}
+
+	draw(obj, color='green') {
+		let view = universe.currentNode.view;
+		let ctx = view.context;
+		ctx.beginPath();
+		ctx.strokeStyle = color;
+		ctx.shadowBlur = 40;
+		ctx.lineWidth = 4;
+		ctx.shadowColor = color;
+
+		if (obj instanceof Node) {
+			view.drawPoint(obj.getPosition());
+			ctx.stroke();
+			return;
+		}
+		if (obj instanceof Position) {
+			view.drawPoint(obj);
+			ctx.stroke();
+			return;
+		}
+		if (obj instanceof Line) {
+			let start = obj.start;
+			let end = obj.end;
+			view.drawLine(start, end);
+			ctx.stroke();
+			return;
+		}
+		if (obj instanceof Tensor) {
+			let start = obj.Line.start;
+			let end = obj.Line.end;
+			view.drawLine(start, end);
+			ctx.stroke();
+			return;
+		} 
+
+
 	}
 
 
@@ -283,7 +336,13 @@ class DebugWindow {
 			this.ticks= new EditValueAssociation(propertyContainer, 'Ticks', 
 				() => {return debugEntity.defaultTicks;},
 				(x) => {debugEntity.defaultTicks = x;});
-			createSimpleButton(propertyContainer, 'Tick', () => controller.tick());
+			createSimpleButton(propertyContainer, 'Tick', 
+				() => controller.tick());
+
+			createSimpleButton(propertyContainer, 'Calc', 
+				() => controller.calc());
+
+
 			createSimpleButton(propertyContainer, 'Center', () => {
 				if (universe.selectedObject) {
 					debugEntity.smallnodezoom(universe.selectedObject);

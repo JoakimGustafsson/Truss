@@ -14,17 +14,6 @@ function removeIfPresent(element, list) {
 	}
 }
 
-/* TODO: Not used. remove this:
- * Support function that cleans a list using the cb function that I always seem to mess up
- * @param  {list} list
- * @param  {Function} cb
- *
-function cleanup(list, cb) {
-	for (let r of t.slice()) {
-		cb(r);
-	}
-} */
-
 /**
  * The base vector class used to represent a point on a two dimensional plane
  * @class
@@ -41,21 +30,21 @@ class Vector {
 
 
 		Object.defineProperty(this, 'x', {
-			get: function() {
+			get: function () {
 				return this._x;
 			},
-			set: function(value) {
-				this._x=value;
+			set: function (value) {
+				this._x = value;
 			},
 		});
 
 
 		Object.defineProperty(this, 'y', {
-			get: function() {
+			get: function () {
 				return this._y;
 			},
-			set: function(value) {
-				this._y=value;
+			set: function (value) {
+				this._y = value;
 			},
 		});
 
@@ -89,7 +78,7 @@ class Vector {
 	 * @return {string} Returns a simple textual representation of the vector
 	 */
 	toString() {
-		return '[x'+ this.x+' y:'+ this.y+']';
+		return '[x' + this.x + ' y:' + this.y + ']';
 	}
 
 	/**
@@ -102,32 +91,33 @@ class Vector {
 		return this;
 	}
 
+
 	/** scale this vector so that the length becomes l
- 	* @param  {number} l The length of the resulting vector
- 	* @return {Vector}
+	 * @param  {number} l The length of the resulting vector
+	 * @return {Vector}
 	 */
 	normalizeVector(l) {
 		let length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-		if (length!=0) {
+		if (length != 0) {
 			return Vector.multiplyVector(l / length, this);
 		}
-		return new Vector(0,0);
+		return new Vector(0, 0);
 	}
 
 	/**
- 	* @param  {Vector} v1
- 	* @param  {Vector} v2
- 	* @return {number}
- 	*/
+	 * @param  {Vector} v1
+	 * @param  {Vector} v2
+	 * @return {number}
+	 */
 	static dotProduct(v1, v2) {
 		return v1.x * v2.x + v1.y * v2.y;
 	}
 	/**
- 	* @param  {number} updown 1 for up -1 for down
- 	* @return {Vector}
- 	*/
-	perpendicular(updown=1) {
-		return new Vector(updown*this.y, updown*-this.x);
+	 * @param  {number} updown 1 for up -1 for down
+	 * @return {Vector}
+	 */
+	perpendicular(updown = 1) {
+		return new Vector(updown * this.y, updown * -this.x);
 	}
 	/**
 	 * Add a vector v to this vector
@@ -303,44 +293,55 @@ class Line {
 	 * @param  {Vector} end The end position
 	 */
 	constructor(start, end) {
-		this.start=start;
-		this.end=end;
+		this.start = start;
+		this.end = end;
 	}
 
-	// This returns true if the closest point from p3 on the line crossing p1 and p2 lies between p1 and p2
+
+
+	// This returns where this line and otherline crosses. 
 	/**
- * @param  {Tensor} otherline The line second crosses this line
- * @return {Object} where two value tells how far into each line the intersection is
- */
+	 * @param  {Tensor} otherline The line that crosses this line
+	 * @return {Object} where two value tells how far into each line the intersection is starting with this line then where on otherline it crosses
+	 */
 	intersect(otherline) {
-		let p1=this.start;
-		let p2=this.end;
-		let p3=otherline.start;
-		let p4=otherline.end;
-		let w= p4.x-p3.x;
-		let z = p4.y-p3.y;
+		let p1 = this.start;
+		let p2 = this.end;
+		let p3 = otherline.start;
+		let p4 = otherline.end;
+		let xdifference = p4.x - p3.x;
+		let ydifference = p4.y - p3.y;
 		let res;
-		if (z==0) {
-			if (p2.y-p1.y==0) {
+		if ((ydifference == 0) && (xdifference == 0)) {
+			console.log('a');
+			return false;
+		} else if (ydifference == 0) {
+			if (p2.y - p1.y == 0) {
+				console.log('b');
 				return false;
 			}
-			res= -(p1.y-p3.y)/(p2.y-p1.y);
-		} else if (w==0) {
-			if (p2.x-p1.x==0) {
+			res = -(p1.y - p3.y) / (p2.y - p1.y);
+		} else if (xdifference == 0) {
+			if (p2.x - p1.x == 0) {
+				console.log('c');
 				return false;
 			}
-			res=-(p1.x-p3.x)/(p2.x-p1.x);
+			res = -(p1.x - p3.x) / (p2.x - p1.x);
 		} else {
 			try {
-				res = ((p1.x-p3.x)/w-(p1.y-p3.y)/z)/((p2.y-p1.y)/z-(p2.x-p1.x)/w);
-			}
-			catch(error) {
+				res = ((p1.x - p3.x) / xdifference - (p1.y - p3.y) / ydifference) / ((p2.y - p1.y) / ydifference - (p2.x - p1.x) / xdifference);
+			} catch (error) {
+				console.log('d'+error);
 				return false;
 			}
 		}
-		let otherRes = (p1.x-p3.x+(p2.x-p1.x)*res)/w;
-		return {'thisDistance': res, 'otherDistance': otherRes};
+		let otherRes = (p1.x - p3.x + (p2.x - p1.x) * res) / xdifference;
+		return {
+			'thisDistance': res,
+			'otherDistance': otherRes
+		};
 	}
+
 
 	reverse() {
 		return new Line(this.end, this.start);
@@ -348,25 +349,40 @@ class Line {
 
 	// Is position to the left of this line?
 	/**
- * @param  {Position} p3 
- * @return {number} returns a positive number if p3 is on the left of this line
- */
+	 * @param  {Position} p3 
+	 * @return {number} returns a positive number if p3 is on the left of this line
+	 */
 	left(p3) {
+		let a = {'x': this.end.x-this.start.x, 'y': this.end.y-this.start.y};
+		if (a.x==0 && a.y==0) {
+			return NaN;
+		}
+		let s = Vector.dotProduct(a, {'x': p3.y-this.start.y, 'y': this.start.x-p3.x}) / Vector.length2(a);
+		return s;
+	}
+
+	//{'x': p3.x-this.start.x, 'y': p3.y-this.start.y};
+	//{'x': p3.y-this.start.y, 'y': this.start.x-p3.x};
+	//perpendicular(updown = 1) {
+	//	return new Vector(updown * this.y, updown * -this.x);
+	//}
+
+	/*OLDleft(p3) {
 		let a = Vector.subtractVectors(this.end, this.start);
 		let b = Vector.subtractVectors(p3, this.start);
-		if (!Vector.length2(a)) {
+		if (a.x==0 && a.y==0) {
 			return NaN;
 		}
 		let s = Vector.dotProduct(a, b.perpendicular(1)) / Vector.length2(a);
 		return s;
-	}
+	}*/
 
 
 	// return the fraction of the closest position on this line to p3
 	/**
- * @param  {Position} p3 
- * @return {number} returns a fraction of the distance on this line that is closest to p3
- */
+	 * @param  {Position} p3 
+	 * @return {number} returns a fraction of the distance on this line that is closest to p3
+	 */
 	closest(p3) {
 		let a = Vector.subtractVectors(this.end, this.start);
 		let b = Vector.subtractVectors(p3, this.start);
@@ -374,88 +390,130 @@ class Line {
 		return t;
 	}
 
+	positionAt(c) {
+		return {'x': this.start.x+c*(this.end.x-this.start.x), 'y': this.start.y+c*(this.end.y-this.start.y)};
+	}
+
 }
+
+/*
+var a = new Line({x: 3.8880492194162177, y: 3.5464950697422344}, {x: 3.9522775627360462, y: 3.6188293022775153});
+//{x: 3.8880492194162177, y: 3.5464950697422344}
+//{_x: 3.9522775627360462, _y: 3.6188293022775153}
+var b= new Line({x: 3.6719057846872856, y: 3.125693659752899}, {x: 3.6568256124157394, y: 3.0970693099729245});
+
+//console.log(a.intersect(b));
+
+var c = new Line({x: 288, y: 546}, {x: 352, y: 618});
+var d= new Line({x: 71, y: 125}, {x: 56, y: 97});
+
+var e = c.intersect(d);
+var f = d.intersect(c);
+console.log(e);
+console.log(f);
+
+//console.log(c.positionAt(e.thisDistance));
+console.log(c.positionAt(e.thisDistance));
+console.log(d.positionAt(e.otherDistance));
+//console.log(d.positionAt(e.otherDistance));
+
+//{_x: 3.6719057846872856, _y: 3.125693659752899}
+//{_x: 3.6568256124157394, _y: 3.0970693099729245}
+
+//return {
+//	'thisDistance': 0.21
+//	'otherDistance': -15
+//};
+
+var p1 = new Vector(0, 0);
+var p2 = new Vector(10, 0);
+var f1 = new Vector(10, 10);
+var f2 = new Vector(0, 10);
+
+var past = new Line(p1, p2);
+var future = new Line(f1, f2);
+var startChange = new Line(p1, f1);
+var endChange = new Line(p2, f2);
+*/
+
+//console.log(inside(new Position(11, 11), past, future, startChange, endChange));
 
 /**
-	 * is the position inside the four lines
-	 * @param  {Position} position
-	 * @param  {Line} tensorPast
-	 * @param  {Line} tensorFuture
-	 * @param  {Line} startChange
-	 * @param  {Line} endChange
-	 * @return {Object} {inside: Boolean, twisted: boolean}
-	 */
+ * is the position inside the four lines
+ * @param  {Position} position
+ * @param  {Line} tensorPast
+ * @param  {Line} tensorFuture
+ * @param  {Line} startChange
+ * @param  {Line} endChange
+ * @return {Object} {inside: Boolean, twisted: boolean}
+ */
 function inside(position, tensorPast, tensorFuture, startChange, endChange) {
-	let twistedChangeTemp = startChange.intersect(endChange);
-	let twistedChange = (0 <= twistedChangeTemp.thisDistance) && (twistedChangeTemp.thisDistance<=1);
+	function realLine(a) {
+		return ((a.start.x != a.end.x) || (a.start.y != a.end.y));
+	}
 
-	let twistedTensorTemp = tensorPast.intersect(tensorFuture);
-	let twistedTensor = (0 <= twistedTensorTemp.thisDistance) && (twistedTensorTemp.thisDistance<=1);
+	// First part introduces a help-line, then ensures the position is on only one side of the help-line
+	// This seems to work for all types of twisted four sided constructs
+	let crossLine = new Line(tensorPast.end, tensorFuture.start);
 	let cycles = [];
-	if (twistedTensor) {
-		cycles.push([tensorPast, tensorFuture.reverse(), endChange]);
-		cycles.push([tensorPast, tensorFuture.reverse(), startChange.reverse()]);
-	} else if (twistedChange) {
-		cycles.push([tensorPast, endChange, startChange.reverse()]);
-		cycles.push([tensorFuture.reverse(), endChange, startChange.reverse()]);
-	} else {
-		cycles.push([tensorPast, endChange, tensorFuture.reverse(), startChange.reverse()]);
+	if (realLine(crossLine) && realLine(endChange) && realLine(tensorFuture)) {
+		cycles.push([crossLine, tensorFuture, endChange.reverse()]);
+	}
+	if (realLine(crossLine) && realLine(tensorPast) && realLine(startChange)) {
+		cycles.push([crossLine, startChange.reverse(), tensorPast]);
 	}
 
-	for(let cycle of cycles) {
-		let soFarInside=true;
-		let side = 0;
-		for(let i = 0; i<cycle.length; i++) {
-			let currentSide = cycle[i].left(position);
-			if (!side) {
-				side=currentSide;
-			}
-			if (isNaN(currentSide) || (side*currentSide<0)) {
-				soFarInside=false;
-			}
-		}
-		if (soFarInside) {
-			return true;
+	// Second part checks if the position is inside ONE
+	let insideCounter = 0;
+	for (let cycle of cycles) {
+		if (
+			(cycle[0].left(position) * cycle[1].left(position) > 0) &&
+			(cycle[1].left(position) * cycle[2].left(position) > 0)) {
+			insideCounter++;
 		}
 	}
-	return false;
+
+	return (insideCounter == 1);
 }
+
+
 /*
-let pos11 = new Position(1,1);
-let pos12 = new Position(9,1);
-let pos21= new Position(1,9);
-let pos22= new Position(9,9);
+let pos11 = new Position(1, 1);
+let pos12 = new Position(9, 1);
+let pos21 = new Position(1, 9);
+let pos22 = new Position(9, 9);
 
 
-let past= new Line(pos11, pos12);
-let future= new Line(pos21, pos22);
-let startChange= new Line(pos11, pos21);
-let endChange= new Line(pos12, pos22);
+let past = new Line(pos11, pos12);
+let future = new Line(pos21, pos22);
+let startChange = new Line(pos11, pos21);
+let endChange = new Line(pos12, pos22);
 
 
-console.log('INSIDE:'+inside(new Position(2,2), past, future, startChange, endChange));
-
+console.log('INSIDE:' + inside(new Position(2, 2), past, future, startChange, endChange));
 
 
 function tst() {
 	//var rng = new RNG(20);
-	for(let i=-2; i<12; i+=0.2) {
-		for (let j =-2; j<12; j+= 0.2 ) {
-			let newPos = new Position(i,j); //rng.nextRange(-1, 12), rng.nextRange(-1, 12));
-			let color ='red';
+	for (let i = -2; i < 12; i += 0.2) {
+		for (let j = -2; j < 12; j += 0.2) {
+			let newPos = new Position(i, j); //rng.nextRange(-1, 12), rng.nextRange(-1, 12));
+			let color = 'red';
 			if (inside(newPos, past, future, startChange, endChange)) {
-				color='green';
+				color = 'green';
 			}
 			new Node(universe.currentWorld, universe.currentNode, 'node', {
-				'name': 'aaball_'+i,
+				'name': 'aaball_' + i,
 				'mass': 1,
 				'size': 0.04,
 				'color': color,
 				'localPosition': newPos,
 				'velocityLoss': 1,
 			});
-		}}
-}*/
+		}
+	}
+} */
+
 
 /** Ensure that an Rad angle is inside the -PI to  PI span
  * @param  {number} angle
@@ -548,15 +606,15 @@ function boxClose(p1, p2, distance) {
  */
 function objectFactory(world, representationObject) {
 	let newObject = (Function('return new ' + representationObject.classname))();
-	newObject.world=world;
+	newObject.world = world;
 	return newObject;
 }
 
 
 /**
-	 * @param  {number} text
-	 * @param  {number} hidden
-	 */
+ * @param  {number} text
+ * @param  {number} hidden
+ */
 function timelog() { // text, hidden) {
 	return;
 	/* if (!this.lastTimeTemp) {
@@ -568,5 +626,3 @@ function timelog() { // text, hidden) {
 	}
 	this.lastTimeTemp=Date.now(); */
 }
-
-

@@ -19,7 +19,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/dir/:folder', function (req, res) {
-	console.log("folder:" + req.params.folder);
+	console.log('folder:' + req.params.folder);
 	fs.readdir(path.join(__dirname, '../../Truss/', req.params.folder),
 		function (err, files) {
 			if (err) {
@@ -34,15 +34,15 @@ app.get('/dir/:folder', function (req, res) {
 			});
 			res.end(JSON.stringify(files));
 		});
-})
+});
 
 app.get('/load/:fileName', function (req, res) {
-	console.log("fileName:" + req.params.fileName);
-	fs.readFile('Saves/'+req.params.fileName, function (err, data) {
+	console.log('fileName:' + req.params.fileName);
+	fs.readFile('../Saves/'+req.params.fileName, function (err, data) {
 		if (err) {
 			return console.log(err);
 		}
-		console.log("The file was loaded!");
+		console.log('The file was loaded!');
 		res.end(data);
 	});
 
@@ -92,7 +92,7 @@ app.post('/save', function (req, res) {
 			if (err) {
 				return console.log(err);
 			}
-			console.log("The file was saved!");
+			console.log('The file was saved!');
 			res.end('Successful save.\n')
 		});
 

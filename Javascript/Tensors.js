@@ -1,5 +1,5 @@
 /*jshint esversion:6*/
-/* global StoreableObject warpMatrix Line inside */
+/* global StoreableObject warpMatrix Line inside debugEntity */
 /**
  * Tensor class
  * @class
@@ -13,13 +13,12 @@ class Tensor extends StoreableObject {
 	 * @param  {object} valueObject
 	 */
 	constructor(node1, node2, initialLabels, valueObject) {
-		let parent;
+		let parentWorld;
 		if (node1) {
-			parent = node1.world;
+			parentWorld = node1.world;
 		}
-		super(parent, initialLabels, valueObject);
+		super(parentWorld, initialLabels, valueObject);
 
-		this.collideDistanceMapping = {};
 		this.force = new Force(0, 0);
 
 		Object.defineProperty(this, 'degree2', {
@@ -50,11 +49,14 @@ class Tensor extends StoreableObject {
 		Object.defineProperty(this, 'node1', {
 			get: function() {
 				if (this._node1 && this._node1==this._node2) {
-					alert('circular tensor node assignment.');
+					throw new Error('circular tensor node assignment. (get)');
 				}
 				return this._node1;
 			},
 			set: function(value) {
+				if (value && value==this._node2) {
+					throw new Error('circular tensor node assignment. (set)');
+				}
 				if (this._node1) {
 					this._node1.removeTensor(this);
 				}
@@ -63,20 +65,21 @@ class Tensor extends StoreableObject {
 				}
 				this._node1 = value;
 				value.addTensor(this);
-				if (this._node1==this._node2) {
-					alert('circular tensor node assignment.');
-				}
+				
 			},
 		});
 
 		Object.defineProperty(this, 'node2', {
 			get: function() {
 				if (this._node1 && this._node1==this._node2) {
-					alert('circular tensor node assignment.');
+					throw new Error('circular tensor node assignment. (get)');
 				}
 				return this._node2;
 			},
 			set: function(value) {
+				if (value && this._node1==value) {
+					throw new Error('circular tensor node assignment. (set)');
+				}
 				if (this._node2) {
 					this._node2.removeTensor(this);
 				}
@@ -85,9 +88,7 @@ class Tensor extends StoreableObject {
 				}
 				this._node2 = value;
 				value.addTensor(this);
-				if (this._node1==this._node2) {
-					alert('circular tensor node assignment.');
-				}
+				
 			},
 		});
 
@@ -102,8 +103,15 @@ class Tensor extends StoreableObject {
 
 		this.node1 = node1;
 		this.node2 = node2;
-		this.initialRefresh();
 	}
+
+	/**
+	 * @param  {object} valueObject
+	 */
+	initiate(valueObject) {
+		return super.initiate(valueObject);	
+	}
+	
 
 	/**
 	 * @param {Labels} value
@@ -304,9 +312,10 @@ class Tensor extends StoreableObject {
 	serialize(nodeList, tensorList) {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Tensor';
+		representation.ghost= this.ghost;
 		//representation.collideDistanceMapping= this.collideDistanceMapping;
-		representation.collideDistanceMapping={};
-		Object.assign(representation.collideDistanceMapping,this.collideDistanceMapping);
+		//representation.collideDistanceMapping={};
+		//Object.assign(representation.collideDistanceMapping,this.collideDistanceMapping);
 		return representation;
 	}
 	/**
@@ -317,8 +326,9 @@ class Tensor extends StoreableObject {
 	 */
 	deSerialize(restoreObject, nodeList, tensorList) {
 		super.deSerialize(restoreObject, nodeList, tensorList);
+		this.ghost=restoreObject.ghost;
 		//this.originalParent = tensorList[restoreObject.originalParent];
-		this.collideDistanceMapping=restoreObject.collideDistanceMapping;
+		//this.collideDistanceMapping=restoreObject.collideDistanceMapping;
 		return this;
 	}
 
@@ -374,7 +384,7 @@ class Tensor extends StoreableObject {
 	 */
 	deGhostify() {
 		this.ghost = false;
-		this.collideDistanceMapping={};
+		//this.collideDistanceMapping={};
 	}
 
 	/**
@@ -554,10 +564,14 @@ class Tensor extends StoreableObject {
 			return this.color;
 		} else return 'white';
 	}
-	/**
+
+
+
+	/*
+	/*
 	 * clear a specific node from the list of nodes that have collided with the tensor.
 	 * @param  {Node} node
-	 */
+	 *
 	resetCollision(node) {
 		delete this.collideDistanceMapping[node.name];
 	}
@@ -565,69 +579,25 @@ class Tensor extends StoreableObject {
 	/**
 	 * join another list of collition distances.
 	 * @param  {Tensor} otherTensor
-	 */
+	 *
 	joinCollision(otherTensor) {
+		alert('should not be here')
 		this.collideDistanceMapping={...this.collideDistanceMapping, ...otherTensor.collideDistanceMapping};
 	}
 
 	collisionExclude(node) {
 		delete this.collideDistanceMapping[node.name];
-	}
+	} 
 
 	/**
 	 * Ensures that a node is set to be considered to be on a specific side of a tensor.
 	 * @param  {Node} node
 	 * @param  {Node} from direction (>0 right side. <0 Left side)
-	 */
+	 *
 	setSide(node, from){
 		this.collideDistanceMapping[node.name]= from;
 	}
-
-	/**
-	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
-	 * @param  {Node} node
-	 * @param  {Truss} truss
-	 * @return {Object}
-	 *
-	checkCollision(node, truss) {
-		if (this.node1==node || this.node2==node) {
-			return false;
-		}
-		let oldDistance = this.collideDistanceMapping[node.name];
-		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < -0.01) || (1.01 < where)) {
-			newDistance = undefined;
-		}
-		if (!newDistance) {
-			delete this.collideDistanceMapping[node.name];
-		} else {
-			this.collideDistanceMapping[node.name] = newDistance;
-		}
-		if ((oldDistance!=0 && newDistance==0) || oldDistance * newDistance < 0) {
-			if ((where >= 0.0) && (where <= 1.0)) {
-				let detail = {
-					'where': where,
-					'from': oldDistance,
-					'collider': node,
-					'tensor': this,
-					'truss': truss,
-				};
-				let event = new CustomEvent('collisionEvent', {
-					'detail': detail,
-					'bubbles': true,
-					'cancelable': true,
-				});
-				document.dispatchEvent(event);
-				return detail;
-			}
-		}
-	}  */
-
-
-
-
-
+*/
 
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
@@ -640,35 +610,46 @@ class Tensor extends StoreableObject {
 			return false;
 		}
 
+		//console.log('a');
 		let tensorPast=this.line;
 		
-		let futureStartPosition = Vector.addVectors(
-			tensorPast.start, 
-			this.node1.stepVelocity);
-		let futureEndPosition =  Vector.addVectors(
-			tensorPast.end, 
-			this.node2.stepVelocity);
-		let tensorFuture = new Line(futureStartPosition, futureEndPosition);
+		let tensorFuture = new Line(this.node1.futureLocalPosition, this.node2.futureLocalPosition);
+
+
 		let startChange = new Line(tensorPast.start, tensorFuture.start);
 		let endChange = new Line(tensorPast.end, tensorFuture.end);
 
-		if (tensorPast.left(startChange.end)*tensorPast.left(endChange.end)<0) {
+		// Consider if this was the wrong type of twist
+		/*	if (tensorPast.left(startChange.end)*tensorPast.left(endChange.end)<0) {
 			//console.log('Error. Twist');
 			return false;
-		}
+		} */
 
 		let nodeChange = new Line(
 			node.localPosition,
 			node.futureLocalPosition
 		);
 		
-		let before = tensorPast.left(nodeChange.start);
-		let after = tensorFuture.left(nodeChange.end);
-		if (this.name=='right 5' && node.name=='newball_8') {
-			console.log(before+'     '+after);
+		/*
+		if (this.name=='right 5') {
+			debugEntity.draw(tensorPast);
+			debugEntity.draw(tensorFuture, 'Yellow');
 		}
 
-		if (before*after<0) {
+		if (node.name=='newball_9') {
+			debugEntity.draw(node.localPosition, 'purple');
+			debugEntity.draw(tensorFuture, 'green');
+		}*/
+	
+
+		let before = tensorPast.left(nodeChange.start);
+		let after = tensorFuture.left(nodeChange.end);
+
+
+		if (before*after<0) {		// The ball is on differnt sides now and in the future
+			//if (node.name=='newball_3') {
+			//	debugEntity.draw(node);
+			//}
 			let detail = {
 				'from': tensorPast.left(nodeChange.start),
 				'collider': node,
@@ -677,24 +658,37 @@ class Tensor extends StoreableObject {
 			};
 			//console.log('Error. '+tensorPast.left(nodeChange.start));
 			let futureIntersection = tensorFuture.intersect(nodeChange);
-			if ((futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) &&
-				(futureIntersection.otherDistance>=0 && futureIntersection.otherDistance<=1)) {
+			if ((futureIntersection.thisDistance>=0 && futureIntersection.thisDistance<=1) 
+			&& (futureIntersection.otherDistance>=0 && futureIntersection.otherDistance<=1)  
+			) {
+				// The node has collided with the future position of the tensor
+				return detail;
+			} 
+
+			let pastIntersection = tensorPast.intersect(nodeChange);
+			if ((pastIntersection.thisDistance>=0 && pastIntersection.thisDistance<=1) 
+			&& (pastIntersection.otherDistance>=0 && pastIntersection.otherDistance<=1)  
+			) {
 				// The node has collided with the future position of the tensor
 				return detail;
 			} 
 			
+			//console.log('c<:'+node.name);
 			//Redo this considering the inside function.
 
 			let startInside = inside(node.localPosition, tensorPast, tensorFuture, startChange, endChange);
 			let endInside = inside(node.futureLocalPosition, tensorPast, tensorFuture, startChange, endChange);
 
+			// Where did the node cross one of the change vectors?
 			let intersection = startChange.intersect(nodeChange);
 			if (intersection.otherDistance<0 || intersection.otherDistance>1) {
 				intersection = endChange.intersect(nodeChange);
 			}
 
 			if (endInside) { 
-				if (startInside)  { 
+				if (startInside)  { // The tensor passes a node (past and future on diffent sides)
+					//console.log('1');
+					
 					return detail;
 				} else { // start outside and end inside  -- Going inside
 					// Did it pass?
@@ -709,39 +703,9 @@ class Tensor extends StoreableObject {
 						return detail;
 					}
 				}
+				//maybe consider a node passing really fast??? Or is this already covered?
 			}
-
-			/*
-			if (startChange.left(nodeChange.end)*endChange.left(nodeChange.end)<0) { // end inside
-				if (startChange.left(nodeChange.start)*endChange.left(nodeChange.start)<0)  { // start inside
-					return detail;
-				} else { //start outside
-					// Did it pass?
-					let intersection = startChange.intersect(nodeChange);
-					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
-						intersection = endChange.intersect(nodeChange);
-					}
-					if(intersection.otherDistance<intersection.thisDistance) { //did it pass?
-						return detail;
-					}
-				}
-			} else { // end outside
-				if (startChange.left(nodeChange.start)*endChange.left(nodeChange.start)<0)  { // start inside
-					// Did it pass?
-					let intersection = startChange.intersect(nodeChange);
-					if (intersection.otherDistance<0 || intersection.otherDistance>1) {
-						intersection = endChange.intersect(nodeChange);
-					}
-					if(intersection.otherDistance>intersection.thisDistance) { //did it pass?
-						return detail;
-					}
-				} //else { //start outside
-				//if () { // start and end on same side
-				//	return false;
-				//}
-			}*/
-		} 
-
+		}
 		return false;
 	}
 
@@ -779,10 +743,10 @@ class Tensor extends StoreableObject {
 			if (graphicDebugLevel >= 10) { // Show debug text
 				ctx.beginPath();
 				ctx.fillStyle = 'cyan';
-				ctx.font = '20px Arial';
+				ctx.font = '10px Arial';
 				ctx.textAlign = 'left';
 				let textPos = Vector.addVectors(node1.getPosition(), Vector.divideVector(this.getActual(), 2));
-				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
+				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10 + ' '+this.name);
 			}
 		}
 	}
@@ -819,10 +783,10 @@ class Tensor extends StoreableObject {
 	/**
 	* Calculate the second stage of forces (probably only absorbers based
 		on velocity rather than position, to make the world 'calmer' )
-	*/
+	*
 	calculateForce2() {
 		this.force = super.calculateForce(1);
-	}
+	}*/
 
 
 }
@@ -919,7 +883,7 @@ class PictureSpring extends Tensor {
 		this.width=restoreObject.width;
 		this.stretch=restoreObject.stretch;
 		this.length=restoreObject.length;
-		this.collideDistanceMapping=restoreObject.collideDistanceMapping;
+		//this.collideDistanceMapping=restoreObject.collideDistanceMapping;
 
 
 		this.createHTMLPicture(this.pictureReference);

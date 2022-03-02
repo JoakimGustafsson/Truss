@@ -59,7 +59,7 @@ class PropertyEditor {
 	/**
 	 */
 	createBanner() {
-		this.bannerNode = new BannerNode(this.parentTrussNode, this.outerElement, this.propertyArea);
+		this.bannerNode = new BannerNode(this.parentTrussNode, this.outerElement, this.propertyArea).initiate();
 		this.bannerNode.activate();
 		this.banner = this.bannerNode.create(this.parentTrussNode);
 	}
@@ -68,8 +68,10 @@ class PropertyEditor {
 	 */
 	removeBanner() {
 		//let trussNode = this.parentTrussNode;
-		this.bannerNode.hide();
-		this.bannerNode.close(); // Remove the event listener
+		if (this.bannerNode) {
+			this.bannerNode.hide();
+			this.bannerNode.close(); // Remove the event listener
+		}
 		this.banner=undefined;
 	}
 }

@@ -1,0 +1,328 @@
+{
+    "preUpdatePositionLabel": {
+        "name": "preupdateposition",
+        "tags": ["system", "control"]
+    },
+    "postUpdatePositionLabel": {
+        "name": "postupdateposition",
+        "tags": ["system", "control"]
+    },
+    "colorLabel": {
+        "name": "color",
+        "properties": {
+            "colorProperty": "red",
+            "visibilityProperty": 1
+        }
+    },
+
+    "nodeLabel": {
+        "name": "node",
+        "properties": {
+            "nameProperty": "",
+            "positionProperty": {
+                "type": "code",
+                "code": "new Position(-1, -1)"
+            },
+            "visibilityProperty": 1,
+            "sizeProperty": 1,
+            "colorProperty": "white",
+            "parentTrussNodeProperty": {
+                "type": "code",
+                "code": "undefined"
+            },
+            "connectedTensorsProperty": {
+                "type": "code",
+                "code": "undefined"
+            }
+        },
+        "tags": ["node", "system"]
+    },
+
+    "sensorLabel": {
+        "name": "sensor",
+        "tags": ["sensor", "system"]
+    },
+
+    "breakForceSensorLabel": {
+        "name": "breakforcesensor",
+        "parent": "sensorLabel",
+        "tags": ["game", "break"],
+        "properties": {
+            "forceLimitProperty": 1
+        },
+        
+        "behaviour": "ForceSensorBehaviour"
+    },
+    
+
+    "moveableLabel": {
+        "name": "moveable",
+        "parent": "nodeLabel",
+        "properties": {
+            "massProperty": 1,
+            "nodeFrictionProperty": 0.99
+        }
+    },
+
+    "angleNodeLabel": {
+        "name": "anglenode",
+        "parent": "nodeLabel",
+        "properties": {
+            "angleProperty": 0,
+            "turnrateProperty": 0,
+            "turnFrictionProperty": 0.99
+        },
+        "behaviour": "AngleNode"
+    },
+
+    "velocityLabel": {
+        "name": "velocitynode",
+        "parent": "moveableLabel",
+        "properties": {
+            "velocityProperty": "undefined"
+        }
+    },
+    "picturelabel": {
+        "name": "picture",
+        "parent": "nodeLabel",
+        "properties": {
+            "pictureProperty": "/Resources/default.jpg",
+            "sizeProperty": 1,
+            "visibilityProperty": 1
+        }
+    },
+
+    "gravityWellLabel": {
+        "name": "gravitywell",
+        "parent": "nodeLabel",
+        "properties": {
+            "constantProperty": 6.67e-11,
+            "massProperty": 5.97219e24,
+            "nameProperty": "Earth",
+            "positionProperty": {
+                "type": "code",
+                "code": "new Position(0, 6371000)"
+            },
+            "enforcedProperty": true
+        }
+    },
+
+    "trussLabel": {
+        "name": "truss",
+        "parent": "nodeLabel",
+        "properties": {
+            "screenSizeProperty": {
+                "type": "code",
+                "code": "new Position(200, 200)"
+            },
+            "worldSizeProperty": {
+                "type": "code",
+                "code": "new Position(20, 20)"
+            },
+            "setWorldOffsetProperty": {
+                "type": "code",
+                "code": "new Position(0, 0)"
+            },
+            "lockedRatioProperty": 1,
+            "fpsTargetProperty": 60,
+            "fpsProperty": 60,
+            "timeMultiplierProperty": 1,
+            "pauseProperty": false,
+            "snapGridProperty": 0,
+            "fileNameProperty": "debugCross.json"
+        }
+    },
+    "selectorLabel": {
+        "name": "selector",
+        "parent": ["sensorLabel","moveableLabel"],
+        "properties": {},
+        "behaviour": "SelectorBehaviour"
+    },
+    "keySensorLabel": {
+        "name": "keysensor",
+        "parent": "sensorLabel",
+        "properties": {
+            "keyProperty": [],
+            "restPositionProperty": {
+                "type": "code",
+                "code": "new Position(1, 1)"
+            }
+        },
+        "tags": [],
+        "behaviour": "KeySensor"
+    },
+
+    "scriptPositionScript": {
+        "name": "scriptposition",
+        "parent": "sensorLabel",
+        "properties": {
+            "positionScriptProperty": "() => {alert('MyPositionScript');}"
+        },
+        "tags": [],
+        "behaviour": "ScriptPosition"
+    },
+    "scriptShow": {
+        "name": "scriptshow",
+        "parent": "",
+        "properties": {
+            "showScriptProperty": "() => {alert('MyShowScript');}"
+        },
+        "tags": [],
+        "behaviour": "ScriptShow"
+    },
+
+    "buttonLabel": {
+        "name": "button",
+        "parent": ["nodeLabel","moveableLabel"],
+        "properties": {
+            "buttonScriptProperty": "/*sourcepath template.js*/ () => {alert('MyButtonScript');}"
+        },
+        "tags": ["interface", "input", "button", "sensor"],
+        "behaviour": "ButtonBehaviour"
+    },
+    "debugLabel": {
+        "name": "debug",
+        "parent": "sensorLabel",
+        "properties": {},
+        "tags": ["system", "debug", "window"],
+        "behaviour": "DebugWindowSensor"
+    },
+    "centerlabel": {
+        "name": "center",
+        "parent": "sensorLabel",
+        "properties": {},
+        "tags": ["system"],
+        "behaviour": "CenterDisplay"
+    },
+    "hardBallLabel": {
+        "name": "hardball",
+        "parent": "nodeLabel",
+        "properties": {
+            "elasticModulusProperty": 1
+        },
+        "tags": ["system"]
+    },
+
+
+
+
+    "tensorLabel": {
+        "name": "tensor",
+        "properties": {
+            "nameProperty": "",
+            "visibilityProperty": 1,
+            "startNodeProperty": {
+                "type": "code",
+                "code": "undefined"
+            },
+            "endNodeProperty": {
+                "type": "code",
+                "code": "undefined"
+            },
+            "colorProperty": "white"
+        },
+        "tags": ["tensor", "system"]
+    },
+    "constantTensorLabel": {
+        "name": "constant",
+        "parent": "tensorLabel",
+        "properties": {
+            "constantProperty": 1
+        },
+        "tags": ["system"]
+    },
+    "pullSpringLabel": {
+        "name": "pullspring",
+        "parent": "constantTensorLabel",
+        "properties": {
+            "equilibriumLengthProperty": 1
+        },
+        "tags": ["spring", "force"],
+        "behaviour": "PullCalculator"
+    },
+    "pushSpringLabel": {
+        "name": "pullspring",
+        "parent": "constantTensorLabel",
+        "properties": {
+            "equilibriumLengthProperty": 1
+        },
+        "tags": ["spring", "force"],
+        "behaviour": "PushCalculator"
+    },
+    "springLabel": {
+        "name": "spring",
+        "parent": "constantTensorLabel",
+        "properties": {
+            "equilibriumLengthProperty": 1
+        },
+        "tags": ["spring", "force"],
+        "behaviour": "SpringCalculator"
+    },
+    "absorbLabel": {
+        "name": "absorber",
+        "parent": "tensorLabel",
+        "properties": {
+            "absorberProperty": 1,
+            "visibilityProperty": 1
+        },
+        "tags": ["force"],
+        "behaviour": "AbsorbCalculator"
+    },
+    "impulseSpringLabel": {
+        "name": "impulsespring",
+        "parent": "constantTensorLabel",
+        "properties": {},
+        "tags": ["force"],
+        "behaviour": "ImpulseCalculator"
+
+    },
+    "fieldLabel": {
+        "name": "field",
+        "parent": "constantTensorLabel",
+        "properties": {},
+        "tags": ["force"],
+        "behaviour": "FieldCalculator"
+    },
+    "angleTensorLabel": {
+        "name": "angletensor",
+        "parent": "tensorLabel",
+        "properties": {
+            "startAngleProperty": 0,
+            "torqueConstantProperty1": 0,
+            "endAngleProperty": 0,
+            "torqueConstantProperty2": 0
+        },
+        "tags": ["angle", "force"],
+        "behaviour": "AngleTensor"
+    },
+
+    "angleTensorDebugLabel": {
+        "name": "angletensordebug",
+        "parent": "angleTensorLabel",
+        "properties": {
+            "degree1Property": 1,
+            "degree2Property": 1
+        },
+        "tags": ["angle", "debug"]
+    },
+
+
+    "collideLabel": {
+        "name": "collide",
+        "parent": "preUpdatePositionLabel",
+        "properties": {
+            "collisionLabelProperty": ""
+        },
+        "tags": ["collision", "collide"],
+        "behaviour": "CollisionSensor"
+    },
+
+
+    "rubberBounceActuatorLabel": {
+        "name": "rubberbounceactuator",
+        "parent": ["tensorLabel", "postUpdatePositionLabel"],
+        "properties": {},
+        "tags": ["collision", "collide"],
+        "behaviour": "CollisionBounce"
+    }
+}

@@ -12,7 +12,7 @@ class BannerNode extends Node {
 	 * @param  {HTMLElement} propertyElement
 	 */
 	constructor(truss, editParameterElement, propertyElement) {
-		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner sensor');
+		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner sensor node');
 		this.name = 'bannerNode';
 		this.element = editParameterElement;
 		this.propertyElement = propertyElement;
@@ -24,6 +24,7 @@ class BannerNode extends Node {
 			}
 		};
 		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
+		this.initiate();
 	}
 
 	/**
@@ -46,35 +47,35 @@ class BannerNode extends Node {
 		let origin = truss.view.worldPositionWithOffset(0,0);
 
 		if (!topLeft) {
-			topLeft = new Position(origin.x + screenWidth - windowWidth, origin.y);
+			topLeft = new Position(origin.x + screenWidth - windowWidth, origin.y-screenHeight/10);
 		}
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'node banner anglenode', {
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner anglenode').initiate({
 			'localPosition': new Position(topLeft.x + windowWidth / 2, topLeft.y),
 			'name': 'nail',
 			'mass': NaN,
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable').initiate({
 			'localPosition': new Position(topLeft.x, topLeft.y),
 			'name': 'leftTop',
 			'mass': 1,
 			'visible': 0,
 			'velocityLoss': 0.9,
 		});
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable').initiate({
 			'localPosition': new Position(topLeft.x + windowWidth, topLeft.y),
 			'name': 'rightTop',
 			'mass': 1,
 			'visible': 0,
 			'velocityLoss': 0.9,
 		});
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner').initiate({
 			'localPosition': new Position(topLeft.x + windowWidth / 2, -screenHeight * 1000),
 			'name': 'bannerGravityWell',
 		});
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable').initiate({
 			'localPosition': new Position(topLeft.x , topLeft.y - windowHeight),
 			'name': 'leftBottomNode',
 			'mass': 3,
@@ -82,7 +83,7 @@ class BannerNode extends Node {
 			'velocityLoss': 0.9,
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner').initiate({
 			'localPosition': new Position(topLeft.x + windowWidth , topLeft.y - windowHeight),
 			'name': 'rightBottomNode',
 			'mass': 3,
@@ -91,50 +92,55 @@ class BannerNode extends Node {
 		});
 	
 
-		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'angletensor absorber spring banner', {
+		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'angletensor absorber spring banner').initiate({
 			'equilibriumLength': windowWidth/2,
 			'dampeningConstant': 10,
-			'constant': 5000,
+			'constant': 900,
 			'angle2': Math.PI,
-			'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
+			'name':'banner',
+			'torqueConstant2': 50000000* truss.view.xScale* truss.view.xScale,
 			'visible': 1,
 		});
 
-		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullspring absorber banner', {
+		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'angletensor pullspring absorber banner').initiate({
 			'equilibriumLength': windowWidth/2,
 			'dampeningConstant': 10,
-			'constant': 5000,
+			'constant': 900,
 			'angle2': 0,
-			'torqueConstant2': 100000000* truss.view.xScale* truss.view.xScale,
+			'name':'banner',
+			'torqueConstant2': 50000000* truss.view.xScale* truss.view.xScale,
 			'visible': 1,
 		});
 
-		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
+		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner').initiate({
 			'equilibriumLength': windowHeight,
 			'dampeningConstant': 10,
-			'name': 'abc',
 			'constant': 6000,
+			'name':'banner',
 			'visible': 0,
 		});
 
-		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
+		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner').initiate({
 			'equilibriumLength': windowHeight,
 			'dampeningConstant': 10,
 			'constant': 6000,
+			'name':'banner',
 			'color': 'transparent',
 		});
 
-		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
+		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner').initiate({
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
+			'name':'banner',
 			'color': 'transparent',
 		});
 
-		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
+		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner').initiate({
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
+			'name':'banner',
 			'color': 'transparent',
 		});
 

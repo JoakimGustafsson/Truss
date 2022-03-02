@@ -1,0 +1,207 @@
+{
+    "classname": "World",
+    "nodes": [{
+        "classname": "Node",
+        "labelString": "selector",
+        "mass": 1,
+        "velocityLoss": 0.99,
+        "name": "Selector ",
+        "localPosition": {
+            "x": 3.9292213200799617,
+            "y": 7.417593528816987
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "red",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "startright",
+        "localPosition": {
+            "x": 1,
+            "y": 0
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "node",
+        "name": "endright",
+        "localPosition": {
+            "x": 1,
+            "y": 10
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "bounce moveable velocitynode",
+        "mass": 1,
+        "velocityLoss": 1,
+        "name": "ball 0",
+        "localPosition": {
+            "x": 0,
+            "y": 2
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "white",
+        "parentTrussNode": 5,
+        "velocity": {
+            "x": 40.5,
+            "y": 40.5
+        }
+    }, {
+        "classname": "Node",
+        "labelString": "bounce moveable velocitynode",
+        "mass": 1,
+        "velocityLoss": 1,
+        "name": "ball 1",
+        "localPosition": {
+            "x": 0,
+            "y": 5
+        },
+        "visible": 1,
+        "size": 0.02,
+        "color": "white",
+        "parentTrussNode": 5,
+        "velocity": {
+            "x": 41,
+            "y": -41
+        }
+    }, {
+        "classname": "PerformanceTrussNode",
+        "labelString": "truss",
+        "screenSize": {
+            "x": 1652,
+            "y": 989
+        },
+        "worldSize": {
+            "x": 27.285561172901915,
+            "y": 16.334999999999997
+        },
+        "worldOffset": {
+            "x": -1.5719372372294584,
+            "y": -1.4260968668660934
+        },
+        "lockedRatio": 1,
+        "fpsTarget": 60,
+        "fps": 60,
+        "timeMultiplier": 1,
+        "paused": 1,
+        "gridSize": 0,
+        "fileName": "debugCross.json",
+        "name": "MainNode",
+        "localPosition": {
+            "x": -1,
+            "y": -1
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5,
+        "ratio": {
+            "x": 60.544842363024195,
+            "y": 60.544842363024195
+        }
+    }, {
+        "classname": "Node",
+        "labelString": "2bounce moveable velocitynode",
+        "name": "2Bullit",
+        "localPosition": {
+            "x": 0.91666941582011554,
+            "y": 12.976451161445329
+        },
+        "visible": 1,
+        "size": 0.01,
+        "color": "red",
+        "parentTrussNode": 5,
+        "velocity": {
+            "x": 41,
+            "y": 0
+        },
+        "mass": 1,
+        "velocityLoss": 0.99
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "2bottom",
+        "localPosition": {
+            "x": 1.004665265676345,
+            "y": 11.737699897542397
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "node added",
+        "name": "2top",
+        "localPosition": {
+            "x": 1,
+            "y": 14
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "node added 2bounce",
+        "name": "2Alpha",
+        "localPosition": {
+            "x": 1.2689322019756375,
+            "y": 13.488468350525208
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }, {
+        "classname": "Node",
+        "labelString": "node added 2bounce",
+        "name": "2beta",
+        "localPosition": {
+            "x": 1.3515156195691662,
+            "y": 12.43140060532804
+        },
+        "visible": 1,
+        "size": 1,
+        "color": "white",
+        "parentTrussNode": 5
+    }],
+    "tensors": [{
+        "classname": "Tensor",
+        "labelString": "pullspring rubberbounceactuator collide",
+        "equilibriumLength": 8,
+        "constant": 90,
+        "name": "Tensor",
+        "visible": 1,
+        "node1": 1,
+        "node2": 2,
+        "color": "white",
+        "collisionLabel": "bounce",
+        "ghost": false
+    },
+    {
+        "classname": "Tensor",
+        "labelString": "pullspring rubberbounceactuator collide",
+        "equilibriumLength": 8,
+        "constant": 90,
+        "name": "2Tensor",
+        "visible": 1,
+        "node1": 7,
+        "node2": 8,
+        "color": "white",
+        "collisionLabel": "2bounce",
+        "ghost": false
+    }],
+    "trussNode": 5,
+    "governors": []
+}

@@ -1,5 +1,5 @@
 /*jshint esversion:6*/
-/* global control */
+/* global control PanZoomHandler */
 /**
  * @class
  */
@@ -243,6 +243,7 @@ class Universe {
 
 		this.currentWorld = newWorld;
 		this.setCurrentView(newWorld.trussNode);
+		this.panZoomHandler = new PanZoomHandler(universe.currentNode);
 	}
 	/**
 	 * @param  {Node} newNodeToShow
@@ -251,7 +252,7 @@ class Universe {
 		this.currentNode=newNodeToShow;
 		this.selectedObject = undefined;
 		this.show();
-		this.currentNode.canvas.onmousedown = (e) => {control.downMouse(e);};
+		this.currentNode.canvas.onmousedown = (e) => {control.downMouse(e);};  // needs to be handled via PanZoomHandler
 		this.currentNode.canvas.onmouseup = (e) => {control.upMouse(e);};
 		newNodeToShow.resize();
 		this.setupTicks = 3;
@@ -267,11 +268,12 @@ class World {
 	 * This class is used to represent a truss(node) world and the supporting governor truss(node)s
 	 * @param {TrussNode} trussNode
 	 * @param {List} governors
+	 * @param {Object} callbackDone
 	 */
-	constructor(trussNode, governors =[]) {
+	constructor(callbackDone, trussNode, governors =[]) {
 		this.trussNode = trussNode;
 		this.governors = governors;
-		this.labels = new Labels();
+		this.labels = new Labels(callbackDone);
 		this.debugLevel = 5;
 	}
 
@@ -382,11 +384,17 @@ class World {
 	 * @return {Object}
 	 */
 	deSerialize(restoreObject) {
-		this.labels = new Labels();
+		//this.labels = new Labels();
 		let nodeList=[];
 		for (let nodeRestoreObject of restoreObject.nodes) {
 			let node = objectFactory(this, nodeRestoreObject);
 			nodeList.push(node);
+			// ensure pointer to parenttrussnode works from the beginning. 
+			// Needed for example to setup button that is dependent on the canvas (element)
+			if (nodeRestoreObject.parentTrussNode!=undefined && nodeRestoreObject.parentTrussNode<=nodeList.length) {
+				node.parentTrussNode= nodeList[nodeRestoreObject.parentTrussNode];
+			}
+			
 		}
 
 		let tensorList=[];
@@ -396,6 +404,13 @@ class World {
 		}
 
 
+		//Fixing node parents
+		for (let index=0; index<restoreObject.nodes.length; index++) {
+			let node = nodeList[index];
+			let definition = restoreObject.nodes[index];
+			node.parentTrussNode= nodeList[definition.parentTrussNode];
+		}
+		
 		// deSerialize them
 		let index=0;
 		for (let node of nodeList) {
