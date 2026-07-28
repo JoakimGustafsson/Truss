@@ -3,7 +3,7 @@
  */
 class PropertyEditor {
 	/**
-	 * @param  {Truss} parentTrussNode
+	 * @param  {TrussNode} parentTrussNode
 	 * @param  {Position} topScreenPos
 	 * @param  {number} screenWidth
 	 * @param  {number} screenHeight

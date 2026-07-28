@@ -1,11 +1,11 @@
-﻿/**
+/**
  * @class
  * @extends StoreableObject
  */
 class Node extends StoreableObject {
 	/**
 	 * @param  {World} world
-	 * @param  {Truss} parentTrussNode
+	 * @param  {TrussNode} parentTrussNode
 	 * @param  {string} initialLabels
 	 * @param  {object} valueObject
 	 */
@@ -163,7 +163,7 @@ class Node extends StoreableObject {
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 */
 	sense(deltaTime, truss) {}
 
@@ -554,7 +554,7 @@ class Node extends StoreableObject {
 
 	/**
 	 * Draw the circle representing the node
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */
@@ -703,7 +703,7 @@ class Node extends StoreableObject {
 
 	/**
 	 * Draws a picture on a given Canvas. T
-	 * @param  {truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {number} time
 	 */
 	pictureShow(truss, time) {

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Tensor class
  * @class
  * @extends StoreableObject
@@ -678,7 +678,7 @@ class Tensor extends StoreableObject {
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
 	 * @param  {Node} node
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 */
 	checkCollision(node, truss) {
 		let oldDistance = this.collideDistanceMapping[node.name];
@@ -716,7 +716,7 @@ class Tensor extends StoreableObject {
 
 	/**
 	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
-	 * @param  {truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {number} graphicDebugLevel=0
 	 */
 	show(truss, graphicDebugLevel = 0) {
@@ -938,7 +938,7 @@ class PictureSpring extends Tensor {
 
 	/**
 	 * Draws the tensor on a given Canvas. The graphicDebugLevel determines how many details that should be displayed
-	 * @param  {truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {number} graphicDebugLevel=0
 	 */
 	show(truss, graphicDebugLevel = 0) {

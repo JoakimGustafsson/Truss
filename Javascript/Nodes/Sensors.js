@@ -1,4 +1,4 @@
-﻿/**
+/**
  *
  */
 
@@ -11,7 +11,7 @@ let keyState = {};
 class SensorNode extends Node {
 	/**
 	 * @param {World} world
-	 * @param {Truss} parentTrussNode
+	 * @param {TrussNode} parentTrussNode
 	 * @param {string} initialLabels
 	 * @param  {object} valueObject
 	 */
@@ -56,7 +56,7 @@ class KeySensorNode extends SensorNode {
 	}
 
 	/**
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
@@ -137,7 +137,7 @@ class ProximitySensorNode extends SensorNode {
 	}
 
 	/**
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
@@ -207,7 +207,7 @@ class ProximitySensorNode extends SensorNode {
 	 * Dummy function. This is better handled in the updatePosition() function since
 	 * the sensor directly inluence the position of the sensor node rather than the iO.
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 */
 	sense(deltaTime, truss) {}
 
@@ -258,7 +258,7 @@ class CollisionSensorNode extends SensorNode {
 	}
 
 	/**
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
@@ -289,7 +289,7 @@ class CollisionSensorNode extends SensorNode {
 	 * If so, that will casue a collisionEvent generated from the Tensors
 	 * checkCollision() function.
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 */
 	sense(deltaTime, truss) {
 		for (let tensor of truss.connectedTensors) {
@@ -348,7 +348,7 @@ class BounceSensorNode extends SensorNode {
 	}
 
 	/**
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Object}
@@ -378,7 +378,7 @@ class BounceSensorNode extends SensorNode {
 	 * If the position of the controlled object bounces or leaves on the right or
 	 * left side, disconnect it and restore the tensor to its original.
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 */
 	sense(deltaTime, truss) {
 		if (!this.localObject || !this.localObject.breakList) return;
@@ -656,7 +656,7 @@ class PositionNode extends SensorNode {
 	/**
 	 * Simply mirrors the position of the tracked node.
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 */
 	sense(deltaTime, truss) {
 		let t = new Position(this.trackedNode.getPosition().x, this.trackedNode.getPosition().y);
@@ -665,7 +665,7 @@ class PositionNode extends SensorNode {
 
 	/**
 	 * Draw the circle representing the node
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */

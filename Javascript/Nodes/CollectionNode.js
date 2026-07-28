@@ -1,11 +1,11 @@
-﻿
+
 /**
  * @class
  * @extends Node
  */
 class CollectionNode extends Node {
 	/**
-	 * @param  {Truss} parentTrussNode
+	 * @param  {TrussNode} parentTrussNode
 	 * @param  {Position} startPosition
 	 * @param  {number} mass
 	 * @param  {string} name
@@ -19,8 +19,8 @@ class CollectionNode extends Node {
 		positionFunction, showFunction, velocityLoss = 0.99, torqueConstant = 0) {
 		super(parentTrussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss, torqueConstant);
 		this.nodeCollection=nodeCollection;
-		this.collectionlabel=collectionlabel;
-		this._collectionlabelString=_collectionlabelString;
+		this.collectionlabel=undefined;
+		this._collectionlabelString=undefined;
 
 		// this.addProperty(new Property(this, 'nodeCollection', 'nodeCollection', 'OLD: Linked nodes', ParameteType.NODELIST,
 		// ParameterCategory.CONTENT, 'A list of nodes grouped together by this node.'));
@@ -74,7 +74,7 @@ class CollectionNode extends Node {
 	}
 
 	/** Displays the Truss's canvas at the correct position
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
 	 */

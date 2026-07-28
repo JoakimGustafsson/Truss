@@ -4,78 +4,79 @@ var path = require('path');
 var formidable = require('formidable');
 var fs = require('fs');
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, '..')));
-app.use(express.static(path.join(__dirname, '../..')));
+const PROJECT_ROOT = path.resolve(__dirname, '..');
+const SAVES_DIR    = path.resolve(PROJECT_ROOT, 'Saves');
+const RESOURCES_DIR = path.resolve(PROJECT_ROOT, 'Resources');
 
-app.use(express.static(path.join(__dirname, '../../Truss')));
-app.use(express.static(path.join(__dirname, '../../Truss/Javascript')));
-app.use(express.static(path.join(__dirname, '../../Truss/Saves')));
-app.use(express.static(path.join(__dirname, '../../Truss/Resources')));
+/** Returns the resolved path only if it stays inside allowedDir, else null. */
+function safeResolve(allowedDir, userInput) {
+	const resolved = path.resolve(allowedDir, userInput);
+	return resolved.startsWith(allowedDir + path.sep) || resolved === allowedDir
+		? resolved
+		: null;
+}
+
+// Serve static assets — scoped to the project root only (no parent directories).
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(PROJECT_ROOT));
 
 app.get('/', function (req, res) {
-	res.sendFile(path.join(__dirname, '../Truss.html'));
+	res.sendFile(path.join(PROJECT_ROOT, 'Truss.html'));
 });
 
 app.get('/dir/:folder', function (req, res) {
-	console.log("folder:" + req.params.folder);
-	fs.readdir(path.join(__dirname, '../../Truss/', req.params.folder),
-		function (err, files) {
-			if (err) {
-				return console.error(err);
-			}
-			files.forEach(function (file) {
-				console.log(file);
-			});
-
-			res.writeHead(200, {
-				'Content-Type': 'text/plain'
-			});
-			res.end(JSON.stringify(files));
-		});
-})
+	const target = safeResolve(PROJECT_ROOT, req.params.folder);
+	if (!target) {
+		return res.status(400).end('Invalid path.');
+	}
+	fs.readdir(target, function (err, files) {
+		if (err) {
+			console.error(err);
+			return res.status(404).end('Not found.');
+		}
+		res.writeHead(200, { 'Content-Type': 'text/plain' });
+		res.end(JSON.stringify(files));
+	});
+});
 
 app.get('/load/:fileName', function (req, res) {
-	console.log("fileName:" + req.params.fileName);
-	fs.readFile('Saves/'+req.params.fileName, function (err, data) {
+	const target = safeResolve(SAVES_DIR, req.params.fileName);
+	if (!target) {
+		return res.status(400).end('Invalid path.');
+	}
+	fs.readFile(target, function (err, data) {
 		if (err) {
-			return console.log(err);
+			console.error(err);
+			return res.status(404).end('Not found.');
 		}
-		console.log("The file was loaded!");
+		console.log('Loaded: ' + target);
 		res.end(data);
 	});
-
 });
+
 app.post('/upload', function (req, res) {
-
-	// create an incoming form object
 	var form = new formidable.IncomingForm();
-
-	// specify that we want to allow the user to upload multiple files in a single request
 	form.multiples = true;
+	form.uploadDir = RESOURCES_DIR;
 
-	// store all uploads in the /uploads directory
-	form.uploadDir = path.join(__dirname, '../Truss/Resources');
-
-	// every time a file has been uploaded successfully,
-	// rename it to it's orignal name
 	form.on('file', function (field, file) {
-		fs.rename(file.path, path.join(form.uploadDir, file.name));
+		// Use path.basename to strip any directory components from the uploaded name.
+		const safeName = path.basename(file.originalFilename || file.name);
+		const dest = path.join(RESOURCES_DIR, safeName);
+		fs.rename(file.filepath || file.path, dest, function (err) {
+			if (err) console.error('Upload rename error:', err);
+		});
 	});
 
-	// log any errors that occur
 	form.on('error', function (err) {
-		console.log('An error has occured: \n' + err);
+		console.log('Upload error: \n' + err);
 	});
 
-	// once all the files have been uploaded, send a response to the client
 	form.on('end', function () {
 		res.end('success');
 	});
 
-	// parse the incoming request containing the form data
 	form.parse(req);
-
 });
 
 app.post('/save', function (req, res) {
@@ -86,15 +87,18 @@ app.post('/save', function (req, res) {
 	}).on('end', function () {
 		body = Buffer.concat(body).toString();
 		var obj = JSON.parse(body);
-		let filename=path.join(__dirname, '../Saves/'+ obj.fileName);
-		fs.writeFile(filename, JSON.stringify(obj.fileContent), function (err) {
+		const target = safeResolve(SAVES_DIR, obj.fileName);
+		if (!target) {
+			return res.status(400).end('Invalid path.');
+		}
+		fs.writeFile(target, JSON.stringify(obj.fileContent), function (err) {
 			if (err) {
-				return console.log(err);
+				console.error(err);
+				return res.status(500).end('Save failed.');
 			}
-			console.log("The file was saved!");
-			res.end('Successful save.\n')
+			console.log('Saved: ' + target);
+			res.end('Successful save.\n');
 		});
-
 	});
 });
 

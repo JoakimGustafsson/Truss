@@ -1,10 +1,10 @@
-﻿/**
+/**
  * @class
  * @extends Node
  */
 class BannerNode extends Node {
 	/** This class displays a banner containing a HTML element.
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {HTMLElement} editParameterElement
 	 * @param  {HTMLElement} propertyElement
 	 */
@@ -24,7 +24,7 @@ class BannerNode extends Node {
 	}
 
 	/**
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Position} topScreenPos
 	 * @return {Node}
 	 */
@@ -132,7 +132,7 @@ class BannerNode extends Node {
 	}
 
 	/**
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 */
 	hide() {
 		if (!this.truss) {
@@ -159,7 +159,7 @@ class BannerNode extends Node {
 
 
 	/** Displays the Truss's canvas at the correct position
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
 	 */
@@ -210,7 +210,7 @@ class BannerNode extends Node {
 	/**
 	 * Use sense in order to make pause work
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 */
 	sense(deltaTime, truss) {
 		// super.updatePosition(time, deltaTime);

@@ -8,7 +8,7 @@ class PropertyUpdateNode extends SensorNode {
 	 * objects real time property values.
 	 * @constructor
 	 * @param {World} world
-	 * @param {Truss} parentTrussNode
+	 * @param {TrussNode} parentTrussNode
 	 * @param {string} initialLabels
 	 * @param {Element} element - The HTML element that should display the edit area
 	 */
@@ -63,7 +63,7 @@ class PropertyUpdateNode extends SensorNode {
 	/**
 	 * Use sense in order to make pause work
 	 * @param {number} deltaTime
-	 * @param {Truss} truss
+	 * @param {TrussNode} truss
 	 */
 	sense(deltaTime, truss) {
 		// super.updatePosition(time, deltaTime);

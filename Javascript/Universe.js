@@ -116,7 +116,7 @@ class World {
 		representationObject.governors = [];
 		if (this.governors) {
 			for (let governor of this.governors) {
-				representationObject.governors = [...representationObject.governors, nodes.indexOf(governor)];
+				representationObject.governors.push(nodes.indexOf(governor));
 			}
 		}
 
@@ -199,7 +199,7 @@ class World {
 		this.governors=[];
 		if (restoreObject.governors) {
 			for (let governor of restoreObject.governors) {
-				this.governors = [...this.governors, nodeList[governor]];
+				this.governors.push(nodeList[governor]);
 			}
 		}
 
@@ -310,7 +310,7 @@ class Universe {
 		};
 		for (let governor of this.currentWorld.governors) {
 			let govDiv = governor.element;
-			govDiv.style={};
+			govDiv.removeAttribute('style');
 			govDiv.classList.add('govenorTruss');
 			govDiv.classList.add('govenorTrussFrame');
 			if (!govDiv.initiated) {
@@ -332,7 +332,7 @@ class Universe {
 		for (let world of this.universeStack.items) {
 			let stackTruss = world.trussNode;
 			let stackDiv = stackTruss.element;
-			stackDiv.style={};
+			stackDiv.removeAttribute('style');
 			stackDiv.classList.add('stackTruss');
 			stackDiv.classList.add('stackTrussFrame');
 			if (!stackDiv.initiated) {

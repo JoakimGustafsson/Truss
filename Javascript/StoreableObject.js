@@ -80,7 +80,7 @@ class StoreableObject {
 		for (let [key, value] of Object.entries(this.getPropertyObject())) {
 			this.properties.addProperty(value.propertyObject, value.defaultValue);
 			if (this[value.propertyObject.propertyName]==undefined ||
-                this[value.propertyObject.propertyName]==NaN ||
+                Number.isNaN(this[value.propertyObject.propertyName]) ||
                 value.enforced) {
 				this[value.propertyObject.propertyName]=value.defaultValue;
 			}

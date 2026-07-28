@@ -57,8 +57,8 @@ class Vector {
 	 * @return {Vector}
 	 */
 	deserialize(restoreObject) {
-		this.x += restoreObject.x;
-		this.y += restoreObject.y;
+		this.x = restoreObject.x;
+		this.y = restoreObject.y;
 		return this;
 	};
 
@@ -71,14 +71,6 @@ class Vector {
 		return Vector.multiplyVector(l / length, this);
 	}
 
-	/**
- 	* @param  {Vector} v1
- 	* @param  {Vector} v2
- 	* @return {number}
- 	*/
-	static dotProduct(v1, v2) {
-		return v1.x * v2.x + v1.y * v2.y;
-	}
 	/**
  	* @param  {number} updown 1 for up -1 for down
  	* @return {Vector}
@@ -351,7 +343,16 @@ function angleAdd(a, b) {
 function nodeDistance(n1, n2) {
 	let p1 = n1.getPosition();
 	let p2 = n2.getPosition();
-	return positionDistance(p1, p2);
+	return Vector.distance(p1, p2);
+}
+
+/** returns the distance between two positions
+ * @param  {Position} p1
+ * @param  {Position} p2
+ * @return {number}
+ */
+function positionDistance(p1, p2) {
+	return Vector.distance(p1, p2);
 }
 
 
@@ -366,7 +367,7 @@ function nodeDistance(n1, n2) {
 function getS(p1, p2, p3) {
 	let a = Vector.subtractVectors(p2, p1);
 	let b = Vector.subtractVectors(p3, p1);
-	let s = Vector.dotProduct(a, Vector.perpendicular(b)) / Vector.length2(a);
+	let s = Vector.dotProduct(a, b.perpendicular()) / Vector.length2(a);
 	return s;
 }
 
@@ -394,7 +395,7 @@ function getT(p1, p2, p3) {
  * @return {number} This represent where on the p1p2 line P3 is closest
  */
 function getTInside(p1, p2, p3) {
-	t = getT(p1, p2, p3);
+	let t = getT(p1, p2, p3);
 	return ((0 <= t) && (t <= 1));
 }
 
@@ -406,7 +407,7 @@ function getTInside(p1, p2, p3) {
  * @return {number} This represent where on the p1p2 line P3 is closest
  */
 function getTInside2(p1, p2, p3) {
-	t = getT(p1, p2, p3);
+	let t = getT(p1, p2, p3);
 	return ((0.05 <= t) && (t <= 0.95));
 }
 
@@ -457,11 +458,22 @@ function deserializeList(numberList, allObjects) {
  * @return {Object}
  */
 function objectFactory(world, representationObject, nodeList, tensorList) {
-	// let a = Function('return new ' + representationObject.classname+'('+truss+')');
-	// return (a)();
-	// newNode.deserialize(representationObject, nodeList, tensorList);
-	let newObject = (Function('return new ' + representationObject.classname))();
-	newObject.world=world;
+	// Registry is built on first call so all classes are guaranteed to be defined by then.
+	if (!objectFactory._registry) {
+		objectFactory._registry = {
+			Node, TrussNode, CollectionNode, PictureNode,
+			Tensor, PictureSpring,
+			ActuatorNode, BinaryActuatorNode, JumpNode, LeftRightNode, LineBreakerNode, ScrollNode,
+			KeySensorNode, ProximitySensorNode, CollisionSensorNode, BounceSensorNode, Selector, PositionNode,
+			WalkTruss, GovenorTruss, ScrollerTruss, PerformanceTrussNode, ProtagonistNode,
+		};
+	}
+	const Ctor = objectFactory._registry[representationObject.classname];
+	if (!Ctor) {
+		throw new Error(`Unknown class in save file: "${representationObject.classname}"`);
+	}
+	const newObject = new Ctor();
+	newObject.world = world;
 	return newObject;
 }
 
@@ -472,12 +484,4 @@ function objectFactory(world, representationObject, nodeList, tensorList) {
 	 * */
 function timelog(text, hidden) {
 	return;
-	if (!this.lastTimeTemp) {
-		this.lastTimeTemp=Date.now();
-	}
-	let t = Date.now()-this.lastTimeTemp;
-	if (!hidden && t>1) {
-		console.log(text+' '+t);
-	}
-	this.lastTimeTemp=Date.now();
 }

@@ -1,6 +1,6 @@
-﻿
+
 /**
- * @param  {Truss} truss
+ * @param  {TrussNode} truss
  * @param  {Object} obj
  * @param  {Position} ar Upper left
  * @param  {Position} br Upper right

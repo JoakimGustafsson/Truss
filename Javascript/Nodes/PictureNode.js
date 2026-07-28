@@ -1,4 +1,4 @@
-﻿
+
 /**
  * @class
  * @extends CollectionNode
@@ -105,7 +105,7 @@ class PictureNode extends CollectionNode {
 	}
 
 	/** Displays the Truss's canvas at the correct position
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
 	 */

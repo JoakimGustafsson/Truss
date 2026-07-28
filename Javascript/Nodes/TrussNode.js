@@ -1,4 +1,4 @@
-﻿
+
 /**
  * @class
  * @extends Node
@@ -6,8 +6,8 @@
 class TrussNode extends Node {
 	/** Create a node that can contain a Truss within itself.
 	 * @param  {World} world
-	 * @param  {Truss} parentTrussNode
-	 * @param  {Truss} initialLabels
+	 * @param  {TrussNode} parentTrussNode
+	 * @param  {TrussNode} initialLabels
 	 * @param  {Object} valueObject
 	 * @param  {Position} startPosition
 	 * @param  {Position} viewSize
@@ -229,12 +229,6 @@ class TrussNode extends Node {
 	}
 
 	/**
-	 * Pauses the position updates
-	 */
-	togglePause() {
-		this.togglePause();
-	}
-	/**
 	 * Recursively call tick() on the sub-Truss and then update this nodes position
 	 * @param {number} time
 	 * @param {number} delta
@@ -245,7 +239,7 @@ class TrussNode extends Node {
 	};
 
 	/** Displays the Truss's canvas at the correct position
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
 	 */

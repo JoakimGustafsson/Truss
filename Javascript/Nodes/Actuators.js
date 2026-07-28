@@ -1,4 +1,4 @@
-﻿/**
+/**
  * An ActuatorNode represents a node that is used to influence the behaviour of another node.
  * The position of this node applies a force or sets a velocity of the obj node.
  * @class
@@ -9,7 +9,7 @@ class ActuatorNode extends Node {
 	 * An ActuatorNode represents a node that is used to influence the behaviour of another node.
 	 * The position of this node applies a force or sets a velocity of the obj node.
 	 * @constructor
-	 * @param {Truss} truss - The truss that contains the node
+	 * @param {TrussNode} truss - The truss that contains the node
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Position} startPosition - The startposition of the node.
 	 * @param {number} mass - The mass of the actuator node.
@@ -71,7 +71,7 @@ class BinaryActuatorNode extends ActuatorNode {
 	 * if this node is close to position1, the getState() will return 1. If it is close to position2, getState will return 2.
 	 * Otherwise getState() returns 0;
 	 * @constructor
-	 * @param {Truss} truss - The truss that contains the node
+	 * @param {TrussNode} truss - The truss that contains the node
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
 	 * @param {Position} position2 - Sets the state to 2.
@@ -184,7 +184,7 @@ class JumpNode extends BinaryActuatorNode {
 	 * Create a JumpNode. If this nodes position is close to position 2, then
 	 * the gravityField will be 4 times stronger
 	 * @constructor
-	 * @param {Truss} truss - The truss that contains the node
+	 * @param {TrussNode} truss - The truss that contains the node
 	 * @param  {Node} obj - The protagonist node that is influenced by this actuator
 	 * @param  {Position} position1 Start position
 	 * @param  {Position} position2 If this nodes position is close to position 2, then the gravityField will be 4 times stronger
@@ -257,7 +257,7 @@ class JumpNode extends BinaryActuatorNode {
 class LeftRightNode extends BinaryActuatorNode {
 	/**
 	 * @constructor
-	 * @param {Truss} truss - The truss that contains the node
+	 * @param {TrussNode} truss - The truss that contains the node
 	 * @param {Node} obj - The node that this node should influence, often the protagonist node
 	 * @param {Position} position1 - The startposition of the node. Sets the state to 1;
 	 * @param {Position} position2 - Sets the state to 2.
@@ -434,7 +434,7 @@ class LineBreakerNode extends ActuatorNode {
 	 * by other nodes, so we need to keep track of the immediatelyLeft and immediatelyRight to know the part of the link that is
 	 * currently closest to the node. The linkBreakerRepresentation is added to a list in the influenced object (the iO)
 	 * since a given node may break several Tensors and each has to be handled separately.
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Tensor} tensor
 	 * @param  {number} distanceFraction
 	 * @param  {number} dir
@@ -555,7 +555,7 @@ class LineBreakerNode extends ActuatorNode {
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
 	 * at either end
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Object} lineBreaker
 	 * @param  {Node} connectionNode
 	 * @param  {Tensor} newTensor
@@ -595,7 +595,7 @@ class LineBreakerNode extends ActuatorNode {
 	}
 
 	/** When the outermost linebreaker has passed an endpoint, make sure that no old (internal) linebreakers to that same node remain
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Node} node
 	 */
 	clearAllInternalLinebreaks(truss, node) {
@@ -610,7 +610,7 @@ class LineBreakerNode extends ActuatorNode {
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
 	 * at either end
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Object} lineBreaker
 	 */
 	bounceExit(truss, lineBreaker) {
@@ -618,7 +618,7 @@ class LineBreakerNode extends ActuatorNode {
 	}
 
 	/** This function takes care of patching a broken link when the breaking node leaves it
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {object} lineBreaker
 	 * @param  {string} logMessage A mesage to display in the log for debug purposes
 	 */
@@ -678,7 +678,7 @@ class LineBreakerNode extends ActuatorNode {
 
 	/**
 	 * Creates a new child PullSpring and adds it to the truss
-	 * @param  {Truss} truss
+	 * @param  {TrussNode} truss
 	 * @param  {Node} leftNode
 	 * @param  {Node} rightNode
 	 * @param  {number} constant
