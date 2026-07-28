@@ -1,3 +1,12 @@
+import { Position, removeIfPresent } from './Primitives.js';
+import { Behaviours } from './Behaviour.js';
+import {
+	NumberProperty, StringProperty, PositionProperty, SwitchProperty,
+	NodeProperty, TensorListProperty, LabelListProperty, PropertyListProperty,
+	ParameterCategory,
+} from './ParameterEditor/Property.js';
+import { universe } from './globals.js';
+
 /**
  * @class
  */
@@ -414,3 +423,5 @@ class Label {
 		return [...this.tensors, ...this.nodes];
 	}
 }
+
+export { Labels, Label };

@@ -69,4 +69,5 @@ class KeySensor extends Behaviour {
 	};
 }
 
+export { Behaviours, Behaviour, KeySensor };
 

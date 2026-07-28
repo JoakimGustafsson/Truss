@@ -451,37 +451,18 @@ function deserializeList(numberList, allObjects) {
 }
 
 /**
- * @param  {World} world
- * @param  {Object} representationObject
- * @param  {Object} nodeList
- * @param  {Object} tensorList
- * @return {Object}
- */
-function objectFactory(world, representationObject, nodeList, tensorList) {
-	// Registry is built on first call so all classes are guaranteed to be defined by then.
-	if (!objectFactory._registry) {
-		objectFactory._registry = {
-			Node, TrussNode, CollectionNode, PictureNode,
-			Tensor, PictureSpring,
-			ActuatorNode, BinaryActuatorNode, JumpNode, LeftRightNode, LineBreakerNode, ScrollNode,
-			KeySensorNode, ProximitySensorNode, CollisionSensorNode, BounceSensorNode, Selector, PositionNode,
-			WalkTruss, GovenorTruss, ScrollerTruss, PerformanceTrussNode, ProtagonistNode,
-		};
-	}
-	const Ctor = objectFactory._registry[representationObject.classname];
-	if (!Ctor) {
-		throw new Error(`Unknown class in save file: "${representationObject.classname}"`);
-	}
-	const newObject = new Ctor();
-	newObject.world = world;
-	return newObject;
-}
-
-
-/**
 	 * @param  {number} text
 	 * @param  {number} hidden
 	 * */
 function timelog(text, hidden) {
 	return;
 }
+
+export {
+	inheritPrototype, removeIfPresent,
+	Vector, Position, AlertVector, Force, Velocity,
+	getAngle, anglify, angleSubstract, angleAdd,
+	nodeDistance, positionDistance,
+	getS, getT, getTInside, getTInside2, boxClose,
+	serializeList, deserializeList, timelog,
+};

@@ -1,3 +1,5 @@
+import { PropertyList, LabelListProperty, ParameterCategory } from './ParameterEditor/Property.js';
+
 /**
  * StoreableObject class
  */
@@ -13,7 +15,7 @@ class StoreableObject {
 		this.labelString=initialLabels;
 		this.valueObject=valueObject;
 		this.world=world;
-		this.isNode = this instanceof Node;
+		this.isNode = false;
 
 
 		Object.defineProperty(this, 'labels', {
@@ -156,3 +158,5 @@ class StoreableObject {
 		return this;
 	}
 }
+
+export { StoreableObject };

@@ -1,3 +1,8 @@
+import { StoreableObject } from '../StoreableObject.js';
+import { Position, Velocity, Vector, Force, serializeList, deserializeList, removeIfPresent } from '../Primitives.js';
+import { universe } from '../globals.js';
+import { warpMatrix } from '../Pictures.js';
+
 /**
  * @class
  * @extends StoreableObject
@@ -11,6 +16,7 @@ class Node extends StoreableObject {
 	 */
 	constructor(world, parentTrussNode, initialLabels, valueObject) {
 		super(world, initialLabels, valueObject);
+		this.isNode = true;
 		if (parentTrussNode) {
 			this.parentTrussNode= parentTrussNode;
 		}
@@ -726,3 +732,4 @@ class Node extends StoreableObject {
 	}
 }
 
+export { Node };

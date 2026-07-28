@@ -1,3 +1,8 @@
+import { Node } from './Node.js';
+import { View } from '../View.js';
+import { PropertyEditor } from '../ParameterEditor/PropertyEditor.js';
+import { FPSdisplay } from '../globals.js';
+import { Position, Vector } from '../Primitives.js';
 
 /**
  * @class
@@ -525,3 +530,5 @@ class TrussNode extends Node {
 		}
 	}
 }
+
+export { TrussNode };

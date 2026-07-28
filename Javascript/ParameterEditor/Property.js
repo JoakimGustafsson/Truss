@@ -1,4 +1,7 @@
 ﻿
+import { Position } from '../Primitives.js';
+import { universe } from '../globals.js';
+
 let ParameterCategory = {
 	APPEARANCE: 1,
 	TRIGGER: 2,
@@ -990,3 +993,9 @@ class PropertyListProperty extends Property {
 		}
 	}
 }
+
+export {
+	ParameterCategory, PropertyList, Property,
+	NumberProperty, StringProperty, SwitchProperty, PositionProperty,
+	NodeProperty, TensorListProperty, LabelListProperty, PropertyListProperty,
+};

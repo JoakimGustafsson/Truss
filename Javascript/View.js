@@ -1,4 +1,5 @@
 ﻿
+import { Vector, AlertVector, Position } from './Primitives.js';
 
 /**
  * @class
@@ -226,3 +227,5 @@ class View {
 		this.offset = offset;
 	};
 }
+
+export { View };

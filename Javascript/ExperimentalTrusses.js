@@ -1,3 +1,9 @@
+import { TrussNode } from './Nodes/TrussNode.js';
+import { Node } from './Nodes/Node.js';
+import { Tensor } from './Tensors.js';
+import { Selector } from './Nodes/Sensors.js';
+import { Position } from './Primitives.js';
+
 /**
  *
  */
@@ -228,3 +234,5 @@ class ProtagonistNode extends Node {
 		return representationObject;
 	}
 }
+
+export { createDefaultPerformanceScene, WalkTruss, GovenorTruss, ScrollerTruss, PerformanceTrussNode, ProtagonistNode };

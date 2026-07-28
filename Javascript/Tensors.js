@@ -1,3 +1,8 @@
+import { StoreableObject } from './StoreableObject.js';
+import { Force, Vector, Position, getAngle, anglify, angleSubstract, getTInside, getTInside2, getS, getT, nodeDistance, positionDistance, boxClose, serializeList, deserializeList } from './Primitives.js';
+import { universe } from './globals.js';
+import { warpMatrix } from './Pictures.js';
+
 /**
  * Tensor class
  * @class
@@ -967,3 +972,4 @@ class PictureSpring extends Tensor {
 	};
 }
 
+export { Tensor, PictureSpring };

@@ -1,3 +1,8 @@
+import { BannerNode } from './BannerNode.js';
+import { createConfigurationArea } from './ConfigurationArea.js';
+import { movePropertyEdit, openBottomPanel } from '../ui-actions.js';
+import { universe } from '../globals.js';
+
 /**
  * @class
  */
@@ -71,3 +76,5 @@ class PropertyEditor {
 		this.banner=undefined;
 	}
 }
+
+export { PropertyEditor };

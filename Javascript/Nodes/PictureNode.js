@@ -1,4 +1,8 @@
 
+import { CollectionNode } from './CollectionNode.js';
+import { Property, ParameterCategory } from '../ParameterEditor/Property.js';
+import { warpMatrix } from '../Pictures.js';
+
 /**
  * @class
  * @extends CollectionNode
@@ -20,8 +24,7 @@ class PictureNode extends CollectionNode {
 		...args) {
 		super(trussNode, startPosition, mass, name, nodeCollection, ...args);
 
-		this.addProperty(new Property(pictureFileName, 'pictureFileName', 'pictureFileName', 'Picture filename', ParameteType.STRING,
-			ParameterCategory.CONTENT, 'The filename of the picture.'));
+		this.addProperty(new Property('pictureFileName', 'pictureFileName', 'Picture filename', ParameterCategory.CONTENT, 'The filename of the picture.', pictureFileName));
 
 		Object.defineProperty(this, 'pictureFileName', {
 			get: function() {
@@ -61,6 +64,9 @@ class PictureNode extends CollectionNode {
 			return;
 		};
 		this.stretchElement.src = 'Resources/' + pictureReference;
+
+		// Fix ParameteType.STRING undefined reference — pass ParameterCategory.CONTENT instead
+		// The old constructor call used ParameteType (typo, was commented out in Property.js)
 		if (oldElement) {
 			this.parentTrussNode.truss.element.removeChild(oldElement);
 		}
@@ -127,3 +133,5 @@ class PictureNode extends CollectionNode {
 		}
 	};
 }
+
+export { PictureNode };

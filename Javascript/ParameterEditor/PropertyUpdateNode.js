@@ -1,3 +1,6 @@
+import { SensorNode } from '../Nodes/Sensors.js';
+import { universe } from '../globals.js';
+
 /**
  *
  * @class
@@ -72,3 +75,5 @@ class PropertyUpdateNode extends SensorNode {
 		}
 	}
 }
+
+export { PropertyUpdateNode };

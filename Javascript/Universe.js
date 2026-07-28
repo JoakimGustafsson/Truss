@@ -1,3 +1,7 @@
+import { Labels } from './Label.js';
+import { downMouse, upMouse } from './ui-actions.js';
+import { objectFactory } from './objectFactory.js';
+
 /**
  * @class
  */
@@ -387,3 +391,5 @@ class Universe {
 		this.setupTicks = 3;
 	}
 }
+
+export { Stack, World, Universe };

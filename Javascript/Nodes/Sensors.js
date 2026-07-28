@@ -1,3 +1,7 @@
+import { Node } from './Node.js';
+import { Position, Vector } from '../Primitives.js';
+import { universe, myX, myY, mouseSet } from '../globals.js';
+
 /**
  *
  */
@@ -686,3 +690,4 @@ class PositionNode extends SensorNode {
 	}
 }
 
+export { keyState, SensorNode, KeySensorNode, ProximitySensorNode, CollisionSensorNode, BounceSensorNode, Selector, PositionNode };

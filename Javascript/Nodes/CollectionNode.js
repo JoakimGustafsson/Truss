@@ -1,4 +1,9 @@
 
+import { Node } from './Node.js';
+import { universe } from '../globals.js';
+import { Property, ParameterCategory } from '../ParameterEditor/Property.js';
+import { Position } from '../Primitives.js';
+
 /**
  * @class
  * @extends Node
@@ -118,3 +123,5 @@ class CollectionNode extends Node {
 		}
 	}
 }
+
+export { CollectionNode };

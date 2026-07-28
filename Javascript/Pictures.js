@@ -1,3 +1,4 @@
+import { timelog } from './Primitives.js';
 
 /**
  * @param  {TrussNode} truss
@@ -106,3 +107,5 @@ function restoreMatrix(element) {
 	element.style['-webkit-transform-origin'] = 'left top 0px';
 	element.style.webkitTransform = text;
 }
+
+export { warpMatrix };

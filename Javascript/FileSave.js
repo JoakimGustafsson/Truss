@@ -1,4 +1,7 @@
-﻿/** Support function that returns the filename from a filepath
+﻿import { World } from './Universe.js';
+import { universe } from './globals.js';
+
+/** Support function that returns the filename from a filepath
  * @param  {string} filename
  * @return {string}
  */
@@ -128,13 +131,14 @@ function displaySaves(text) {
 			fullPath = '../Saves/' + fileName;
 			element = document.createElement('div');
 			element.className = 'filename';
-			element.innerHTML = fileName;
-			fileListElement.appendChild(element);
-			// fileListElement.appendChild(document.createElement('br'));
-			element.title = fileName;
-			element.setAttribute('onclick', 'loadFile(\'' + fileName + '\');');
-			element.setAttribute('onmouseover', 'highLightFile(this);');
-			element.setAttribute('onmouseout', 'unhighLightFile(this);');
+				element.innerHTML = fileName;
+				fileListElement.appendChild(element);
+				element.title = fileName;
+				element.addEventListener('click', () => loadFile(fileName));
+				element.addEventListener('mouseover', () => highLightFile(element));
+				element.addEventListener('mouseout', () => unhighLightFile(element));
 		}
 	}
 }
+
+export { getShortFileName, getFileExtension, httpPostAsync, httpGetAsync, saveFile, directory, loadFile, highLightFile, unhighLightFile, displaySaves };

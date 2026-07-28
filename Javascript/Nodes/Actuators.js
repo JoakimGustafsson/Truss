@@ -1,3 +1,6 @@
+import { Node } from './Node.js';
+import { Position, Vector, removeIfPresent } from '../Primitives.js';
+
 /**
  * An ActuatorNode represents a node that is used to influence the behaviour of another node.
  * The position of this node applies a force or sets a velocity of the obj node.
@@ -758,3 +761,5 @@ class ScrollNode extends ActuatorNode {
 		this.iO.view.setOffset(Vector.addVectors(this.getPosition(), this.centerPoint.opposite()));
 	}
 }
+
+export { ActuatorNode, BinaryActuatorNode, JumpNode, LeftRightNode, LineBreakerNode, ScrollNode };
