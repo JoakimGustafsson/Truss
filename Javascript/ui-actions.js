@@ -3,10 +3,19 @@ import { Node } from './Nodes/Node.js';
 import { Tensor } from './Tensors.js';
 import { Position } from './Primitives.js';
 
-export function downMouse(e) { setMouseSet(true); }
+export function downMouse(e) {
+	if (e && e.target && e.target.closest && e.target.closest('.configareaouter')) {
+		setMouseSet(false);
+		return;
+	}
+	setMouseSet(true);
+}
 export function upMouse(e) { setMouseSet(false); }
 
 export function openBottomPanel(evt, divName) {
+	if (!universe.currentNode) {
+		return;
+	}
 	var i, tabcontent, tablinks;
 	tabcontent = universe.currentNode.getElements('.tabcontent');
 	for (i = 0; i < tabcontent.length; i++) {
@@ -39,6 +48,9 @@ export function selectMainNode() {
 }
 
 export function movePropertyEdit(configAreaName) {
+	if (!universe.currentNode) {
+		return;
+	}
 	if (configAreaName == 'trussConfigArea') {
 		selectMainNode();
 	}
@@ -52,6 +64,9 @@ var connectionNodeEventListener;
 
 export function makeNode() {
 	let selector = document.getElementById('nodeType');
+	if (!selector || !universe.currentNode || !universe.currentWorld) {
+		return;
+	}
 	let value = selector.value;
 	if (value == 'Node') {
 		let newNode = new Node(universe.currentWorld, universe.currentNode, 'node added', {
@@ -66,12 +81,22 @@ var connectionTensor;
 var connectionEventListener;
 
 export function makeTensor() {
+	if (!universe.currentNode || !universe.selectedObject) {
+		return;
+	}
 	let selectorDropDown = universe.currentNode.getElement('#tensorType');
+	if (!selectorDropDown) {
+		return;
+	}
 	let value = selectorDropDown.value;
 	if (connectionTensor) {
 		universe.currentNode.removeTensor(connectionTensor);
+		connectionTensor = undefined;
 	}
-	connectionTensor = undefined;
+	if (connectionEventListener) {
+		document.removeEventListener('selectionEvent', connectionEventListener, false);
+		connectionEventListener = undefined;
+	}
 
 	if (value == 'Spring') {
 		connectionTensor = new Tensor(universe.selectedObject, universe.currentNode.selector, 'spring', {
@@ -92,7 +117,7 @@ export function makeTensor() {
 			'constant': 100,
 		});
 	} else if (value == 'Absorber') {
-		new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
+		connectionTensor = new Tensor(universe.selectedObject, universe.currentNode.selector, 'absorber', {
 			'dampeningConstant': 1,
 		});
 	} else if (value == 'Field') {
@@ -100,18 +125,24 @@ export function makeTensor() {
 			'constant': 0.0001,
 		});
 	}
-	if (connectionTensor && !connectionEventListener) {
-		connectionEventListener = document.addEventListener('selectionEvent', function(e) {
+	if (connectionTensor) {
+		connectionEventListener = function(e) {
 			if (connectionTensor && universe.selectedObject && universe.selectedObject.isNode) {
 				connectionTensor.sensorAttach();
+				document.removeEventListener('selectionEvent', connectionEventListener, false);
+				connectionEventListener = undefined;
 				connectionTensor = undefined;
 			}
-		}, false);
+		};
+		document.addEventListener('selectionEvent', connectionEventListener, false);
 	}
 }
 
 export function changeDebugLevel() {
-	universe.currentNode.debugLevel = universe.currentNode.getElement('#debugLevel').value;
+	const debugLevelDropdown = document.getElementById('debugLevel');
+	if (debugLevelDropdown && universe.currentWorld) {
+		universe.currentWorld.debugLevel = debugLevelDropdown.value;
+	}
 }
 
 export function addGravityCheat() {
@@ -122,7 +153,7 @@ export function addGravityCheat() {
 	let gravityWell = nodes[0];
 	let constant = gravityWell.constant;
 	if (!constant) {
-		alert('Could not find gravitywell labeled node or field constant for gravity.');
+		console.error('Could not find gravitywell labeled node or field constant for gravity.');
 		return;
 	}
 	universe.currentNode.addTensor(
@@ -133,12 +164,17 @@ export function addGravityCheat() {
 }
 
 export function deleteSelected() {
-	universe.selectedObject.unreference();
+	if (universe.selectedObject) {
+		universe.selectedObject.unreference();
+	}
 }
 
 export function highlightAndModifyPropertyButtons(selectionEvent) {
 	let select = selectionEvent.detail.selectedObject;
 	let connectionDiv = universe.currentNode.getElement('#connectionDiv');
+	if (!connectionDiv) {
+		return;
+	}
 	if (!select) {
 		connectionDiv.innerHTML = '';
 		return;
@@ -161,4 +197,9 @@ export function highlightAndModifyPropertyButtons(selectionEvent) {
 	}
 }
 
-export function getlabel(label) { return universe.currentWorld.labels.findLabel(label); }
+export function getlabel(label) {
+	if (!universe.currentWorld) {
+		return undefined;
+	}
+	return universe.currentWorld.labels.findLabel(label);
+}

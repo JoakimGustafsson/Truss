@@ -57,3 +57,6 @@ http://localhost:3000
 ## 6. Important caveat before development
 
 Check [CODEBASE-STATUS.md](CODEBASE-STATUS.md) for any current runtime/parser blockers before adding features.
+
+## 7. Added Information
+This code is real time critical and any changes that downgrade rendering performance should be asked for permission.

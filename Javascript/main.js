@@ -2,7 +2,7 @@ import { Universe, World } from './Universe.js';
 import { PerformanceTrussNode } from './ExperimentalTrusses.js';
 import { Position, Vector } from './Primitives.js';
 import { setUniverse, setFPSdisplay, setMyX, setMyY } from './globals.js';
-import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTensor } from './ui-actions.js';
+import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTensor, downMouse, upMouse } from './ui-actions.js';
 
 let _universe;
 
@@ -42,9 +42,12 @@ function init() {
 	window.requestAnimationFrame(mainLoop);
 
 	document.getElementById('mainArea').onmousemove = function(e) {
-		setMyX(e.pageX);
-		setMyY(e.pageY);
+		setMyX(e.clientX);
+		setMyY(e.clientY);
 	};
+	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);
+	window.addEventListener('mouseup', upMouse, false);
+	document.getElementById('mainArea').addEventListener('mouseleave', upMouse, false);
 
 	document.addEventListener('selectionEvent', function(e) {
 		highlightAndModifyPropertyButtons.call(this, e);

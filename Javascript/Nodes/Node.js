@@ -1,7 +1,9 @@
 import { StoreableObject } from '../StoreableObject.js';
 import { Position, Velocity, Vector, Force, serializeList, deserializeList, removeIfPresent } from '../Primitives.js';
 import { universe } from '../globals.js';
-import { warpMatrix } from '../Pictures.js';
+import { warpMatrix } from '../View/Pictures.js';
+import { calculateNodeTorques, updateNodeRotation } from '../Behaviours/Angles.js';
+import { evaluateScriptFunction } from '../Behaviours/Scripts.js';
 
 /**
  * @class
@@ -258,14 +260,22 @@ class Node extends StoreableObject {
 		return representation;
 	}
 
-	/*
+	/**
 	 * @param  {Object} restoreObject
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
-	 *
+	 * @return {Node}
+	 */
 	deserialize(restoreObject, nodeList, tensorList) {
 		this.name = restoreObject.name;
-		this.parentTrussNode = nodeList[restoreObject.parentTrussNode];
+		let parentIndex = restoreObject.parentTrussNode;
+		if (parentIndex == undefined || parentIndex == null || parentIndex < 0) {
+			this.parentTrussNode = this;
+		} else if (nodeList[parentIndex]) {
+			this.parentTrussNode = nodeList[parentIndex];
+		} else {
+			this.parentTrussNode = this;
+		}
 
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
@@ -289,14 +299,13 @@ class Node extends StoreableObject {
 		this.velocityLoss = restoreObject.velocityLoss;
 		try {
 			if (restoreObject.positionFunction) {
-				this.positionFunction = eval('(' + restoreObject.positionFunction + ')');
+				this.positionFunction = evaluateScriptFunction(restoreObject.positionFunction);
 			}
 			if (restoreObject.showFunction) {
-				this.showFunction = eval('(' + restoreObject.showFunction + ')');
+				this.showFunction = evaluateScriptFunction(restoreObject.showFunction);
 			}
 		} catch (err) {
-			alert(err);
-			alert(this);
+			console.error(`Failed to load script for node ${this.name}:`, err);
 		}
 
 		if (restoreObject.breakList) {
@@ -311,11 +320,8 @@ class Node extends StoreableObject {
 				});
 			}
 		}
-		// Set easy properties
-		// Make list of nodes
-		// make list of tensors (using the nodes)
-		// fill in the nodes tensor references
-	} */
+		return this;
+	}
 
 	/**
 	 */
@@ -471,16 +477,7 @@ class Node extends StoreableObject {
 	 * @return {number}
 	 */
 	calculateTorques() {
-		this.sumTorque = 0;
-		if (!this.turnable()) {
-			return;
-		}
-		for (let tensor of this.connectedTensors) {
-			if (tensor.tensorType == TensorType.SPRING) {
-				this.sumTorque += tensor.getTorque(this);
-			}
-		}
-		return this.sumTorque;
+		return calculateNodeTorques(this);
 	}
 
 	/**
@@ -489,13 +486,7 @@ class Node extends StoreableObject {
 	 * @param {number} timeFactor
 	 */
 	updateRotation(forceAppliers, timeFactor) {
-		if (this.mass) {
-			this.turnrate += this.sumTorque / (this.mass * 1000);
-		} else {
-			this.turnrate = 0; // weightless cannot turn
-		}
-		// this.turnrate = this.turnrate * 0.8;
-		this.angle += this.turnrate;
+		updateNodeRotation(this);
 	}
 
 	/**
@@ -543,7 +534,7 @@ class Node extends StoreableObject {
 					tempForce = applier.getForce(this);
 					result.add(tempForce);
 				} catch (err) {
-					console.log(err);
+					console.error(`Force calculation error for ${this.name} (applier: ${applier.name}):`, err);
 				}
 			}
 		}

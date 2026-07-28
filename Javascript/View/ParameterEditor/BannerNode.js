@@ -1,8 +1,8 @@
-import { Node } from '../Nodes/Node.js';
-import { Tensor } from '../Tensors.js';
+import { Node } from '../../Nodes/Node.js';
+import { Tensor } from '../../Tensors.js';
 import { warpMatrix } from '../Pictures.js';
-import { universe } from '../globals.js';
-import { Position, Vector } from '../Primitives.js';
+import { universe } from '../../globals.js';
+import { Position, Vector } from '../../Primitives.js';
 
 /**
  * @class
@@ -15,10 +15,20 @@ class BannerNode extends Node {
 	 * @param  {HTMLElement} propertyElement
 	 */
 	constructor(truss, editParameterElement, propertyElement) {
-		super(truss.parentTrussNode.world, truss.parentTrussNode, 'banner sensor');
+		let anchorTrussNode = truss.parentTrussNode;
+		if (!anchorTrussNode) {
+			anchorTrussNode = truss;
+		}
+		let anchorWorld = anchorTrussNode.world;
+		if (!anchorWorld) {
+			anchorWorld = truss.world;
+		}
+		super(anchorWorld, anchorTrussNode, 'banner sensor');
+		this.truss = truss;
 		this.name = 'bannerNode';
 		this.element = editParameterElement;
 		this.propertyElement = propertyElement;
+		this.isListening = false;
 		let _this=this;
 
 		this.eventListenerFunction = function(e) {
@@ -26,7 +36,6 @@ class BannerNode extends Node {
 				_this.showPropertyElements(e);
 			}
 		};
-		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
 	}
 
 	/**
@@ -145,7 +154,8 @@ class BannerNode extends Node {
 			return;
 		}
 		this.element.style.display = 'none';
-		let bannerLabel=this.truss.parentTrussNode.world.labels.findLabel('banner');
+		let bannerWorld = this.truss.parentTrussNode && this.truss.parentTrussNode.world ? this.truss.parentTrussNode.world : this.world;
+		let bannerLabel = bannerWorld.labels.findLabel('banner');
 
 		let loop = bannerLabel.getReferences().slice();
 		for (let reference of loop) {
@@ -159,8 +169,8 @@ class BannerNode extends Node {
 	 * @param  {Array} superTensorList
 	 */
 	serialize(superNodeList, superTensorList) {
-		alert('The BannerNode should never be stored.');
-		return;
+		console.error('The BannerNode should never be stored.');
+		return {};
 	}
 
 
@@ -174,7 +184,7 @@ class BannerNode extends Node {
 		this.highLight(truss.view.context);
 
 		if (graphicDebugLevel > 0) {
-			if (this.element) {
+			if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
 				warpMatrix(truss, this,
 					this.leftTopNode.getPosition(),
 					this.rightTopNode.getPosition(),
@@ -203,14 +213,20 @@ class BannerNode extends Node {
 	 * Call this before discarding to remove nodes and event listeners
 	 */
 	close() {
-		this.parentTrussNode.element.removeEventListener('selectionEvent', this.eventListenerFunction);
+		if (this.isListening) {
+			this.parentTrussNode.element.removeEventListener('selectionEvent', this.eventListenerFunction);
+			this.isListening = false;
+		}
 	}
 
 	/**
 	 *
 	 */
 	activate() {
-		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction);
+		if (!this.isListening) {
+			this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
+			this.isListening = true;
+		}
 	}
 
 	/**

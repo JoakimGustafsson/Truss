@@ -5,6 +5,7 @@ import { TrussNode } from './Nodes/TrussNode.js';
 import { Tensor, PictureSpring } from './Tensors.js';
 import { ActuatorNode, BinaryActuatorNode, JumpNode, LeftRightNode, LineBreakerNode, ScrollNode } from './Nodes/Actuators.js';
 import { KeySensorNode, ProximitySensorNode, CollisionSensorNode, BounceSensorNode, Selector, PositionNode } from './Nodes/Sensors.js';
+import { PropertyUpdateNode } from './ParameterEditor/PropertyUpdateNode.js';
 import { WalkTruss, GovenorTruss, ScrollerTruss, PerformanceTrussNode, ProtagonistNode } from './ExperimentalTrusses.js';
 
 const CLASS_REGISTRY = {
@@ -13,6 +14,12 @@ const CLASS_REGISTRY = {
 	ActuatorNode, BinaryActuatorNode, JumpNode, LeftRightNode, LineBreakerNode, ScrollNode,
 	KeySensorNode, ProximitySensorNode, CollisionSensorNode, BounceSensorNode, Selector, PositionNode,
 	WalkTruss, GovenorTruss, ScrollerTruss, PerformanceTrussNode, ProtagonistNode,
+	HTMLEditNode: PropertyUpdateNode,
+	Field: Tensor,
+	Spring: Tensor,
+	DampenedSpring: Tensor,
+	PullSpring: Tensor,
+	Absorber: Tensor,
 };
 
 export function objectFactory(world, representationObject) {

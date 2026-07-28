@@ -1,4 +1,4 @@
-import { timelog } from './Primitives.js';
+import { timelog } from '../Primitives.js';
 
 /**
  * @param  {TrussNode} truss
@@ -19,6 +19,11 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	let b = truss.view.screenPosition(br);
 	let c = truss.view.screenPosition(cr);
 	let d = truss.view.screenPosition(dr);
+
+	// Always use the live DOM size of the warped element.
+	// The property panel content can change its effective size after creation.
+	width = element.offsetWidth;
+	height = element.offsetHeight;
 
 	timelog('warpMatrix AB');
 	let m = [];

@@ -15,17 +15,17 @@ class PropertyUpdateNode extends SensorNode {
 	 * @param {string} initialLabels
 	 * @param {Element} element - The HTML element that should display the edit area
 	 */
-	constructor(world, parentTrussNode, initialLabels, element) {
-		super(world, parentTrussNode, initialLabels + ' sensor ');
+	constructor(world = undefined, parentTrussNode = undefined, initialLabels = '', element = undefined) {
+		super(world, parentTrussNode, initialLabels ? initialLabels + ' sensor ' : 'sensor');
 		this.element=element;
 		let _this = this;
 		this.name = 'PropertyUpdateNode';
+		this.isListening = false;
 		this.eventListenerFunction = function(e) {
 			if (universe.currentNode==_this.parentTrussNode) {
 				_this.showPropertyElements(e);
 			}
 		};
-		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
 	}
 
 	/**
@@ -34,6 +34,9 @@ class PropertyUpdateNode extends SensorNode {
 	showPropertyElements(selectionEvent) {
 		this.iO = selectionEvent.detail.selectedObject;
 
+		if (!this.element) {
+			return;
+		}
 		this.element.innerHTML='';
 		if (this.iO) {
 			// this.iO.properties.populateProperties(this.element);
@@ -45,14 +48,20 @@ class PropertyUpdateNode extends SensorNode {
 	 * Call this before discarding to remove nodes and event listeners
 	 */
 	close() {
-		this.parentTrussNode.element.removeEventListener('selectionEvent', this.eventListenerFunction);
+		if (this.isListening && this.parentTrussNode && this.parentTrussNode.element) {
+			this.parentTrussNode.element.removeEventListener('selectionEvent', this.eventListenerFunction);
+			this.isListening = false;
+		}
 	}
 
 	/**
 	 *
 	 */
 	activate() {
-		this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction);
+		if (!this.isListening && this.parentTrussNode && this.parentTrussNode.element) {
+			this.parentTrussNode.element.addEventListener('selectionEvent', this.eventListenerFunction, false);
+			this.isListening = true;
+		}
 	}
 
 	/**
@@ -60,7 +69,8 @@ class PropertyUpdateNode extends SensorNode {
 	 * @param  {Array} tensorList
 	 */
 	serialize(nodeList, tensorList) {
-		alert('HTMLEditNode should never be serialized');
+		console.error('HTMLEditNode should never be serialized');
+		return {};
 	}
 
 	/**

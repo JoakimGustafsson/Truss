@@ -1,4 +1,66 @@
-import { PropertyList, LabelListProperty, ParameterCategory } from './ParameterEditor/Property.js';
+import { PropertyList, LabelListProperty, ParameterCategory } from './View/ParameterEditor/Property.js';
+
+/**
+ * Infer a reasonable label string when loading older save objects that do not
+ * explicitly store labelString.
+ * @param {Object} restoreObject
+ * @param {boolean} isNode
+ * @return {string}
+ */
+function inferLegacyLabelString(restoreObject, isNode) {
+	if (!restoreObject) {
+		return isNode ? 'node' : 'tensor';
+	}
+	switch (restoreObject.classname) {
+		case 'TrussNode':
+		case 'PerformanceTrussNode':
+		case 'WalkTruss':
+		case 'GovenorTruss':
+		case 'ScrollerTruss':
+			return 'truss';
+		case 'Selector':
+			return 'selector';
+		case 'KeySensorNode':
+			return 'keysensor';
+		case 'ProximitySensorNode':
+		case 'CollisionSensorNode':
+		case 'BounceSensorNode':
+		case 'PositionNode':
+		case 'HTMLEditNode':
+		case 'PropertyUpdateNode':
+			return 'sensor';
+		case 'ProtagonistNode':
+			return 'moveable node color';
+		case 'PictureNode':
+			return 'picture node';
+		case 'CollectionNode':
+			return 'moveable node';
+		case 'JumpNode':
+		case 'LeftRightNode':
+		case 'LineBreakerNode':
+		case 'ScrollNode':
+			return 'moveable node';
+		case 'Field':
+			return 'field';
+		case 'Spring':
+			return 'spring';
+		case 'PullSpring':
+			return 'pullspring';
+		case 'Absorber':
+			return 'absorber';
+		case 'DampenedSpring':
+			return 'spring absorber';
+		case 'Tensor':
+		case 'PictureSpring':
+			return 'tensor';
+		case 'Node':
+		default:
+			if (restoreObject.name == 'Earth') {
+				return 'gravitywell node';
+			}
+			return isNode ? 'moveable node' : 'tensor';
+	}
+}
 
 /**
  * StoreableObject class
@@ -115,7 +177,12 @@ class StoreableObject {
 	 * @return {StoreableObject}
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
-		this.labelString = restoreObject.labelString;
+		const explicitLabels = typeof restoreObject.labelString == 'string' ? restoreObject.labelString.trim() : '';
+		if (explicitLabels) {
+			this.labelString = restoreObject.labelString;
+		} else if (!this.labelString || this.labelString.trim() == '') {
+			this.labelString = inferLegacyLabelString(restoreObject, this.isNode);
+		}
 		this.refreshPropertiesAfterLabelChange();
 
 		let propertyObject = this.getPropertyObject();

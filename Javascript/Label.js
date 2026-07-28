@@ -1,10 +1,10 @@
 import { Position, removeIfPresent } from './Primitives.js';
-import { Behaviours } from './Behaviour.js';
+import { Behaviours } from './Behaviours/Behaviour.js';
 import {
 	NumberProperty, StringProperty, PositionProperty, SwitchProperty,
 	NodeProperty, TensorListProperty, LabelListProperty, PropertyListProperty,
 	ParameterCategory,
-} from './ParameterEditor/Property.js';
+} from './View/ParameterEditor/Property.js';
 import { universe } from './globals.js';
 
 /**
@@ -70,8 +70,8 @@ class Labels {
 		this.worldSizeProperty = new PositionProperty(
 			'worldSize', 'worldSize', 'World display size', ParameterCategory.CONTENT,
 			'The size of the displayed worldview in that worlds measurement.');
-		this.setWorldOffsetProperty = new PositionProperty(
-			'setWorldOffset', 'setWorldOffset', 'View position', ParameterCategory.CONTENT,
+		this.worldOffsetProperty = new PositionProperty(
+			'worldOffset', 'worldOffset', 'View position', ParameterCategory.CONTENT,
 			'The world coordinates of the upper left corner.');
 		this.fpsTargetProperty = new NumberProperty('fpsTarget', 'fpsTarget', 'Updates per second',
 			ParameterCategory.CONTENT, 'Graphical update frequency aim.');
@@ -188,7 +188,7 @@ class Labels {
 		let trussLabel = this.addLabel('truss', [nodeLabel], {
 			'screenSizeProperty': new Position(200, 200),
 			'worldSizeProperty': new Position(20, 20),
-			'setWorldOffsetProperty': new Position(0, 0),
+			'worldOffsetProperty': new Position(0, 0),
 			'fpsTargetProperty': 60,
 			'fpsProperty': 60,
 			'snapGridProperty': 0,

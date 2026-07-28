@@ -1,7 +1,15 @@
 import { StoreableObject } from './StoreableObject.js';
-import { Force, Vector, Position, getAngle, anglify, angleSubstract, getTInside, getTInside2, getS, getT, nodeDistance, positionDistance, boxClose, serializeList, deserializeList } from './Primitives.js';
+import { Force, Vector, Position, getAngle, anglify, angleSubstract, getTInside, getTInside2, nodeDistance, positionDistance, boxClose, serializeList, deserializeList } from './Primitives.js';
 import { universe } from './globals.js';
-import { warpMatrix } from './Pictures.js';
+import { warpMatrix } from './View/Pictures.js';
+import {
+	calculateSpringForce,
+	calculatePullForce,
+	calculatePushForce,
+	calculateFieldForce,
+	calculateAbsorberForce,
+} from './Behaviours/TensorForces.js';
+import { resetTensorNodeCollision, checkTensorNodeCollision } from './Behaviours/Collisions.js';
 
 /**
  * Tensor class
@@ -298,39 +306,53 @@ class Tensor extends StoreableObject {
 	 * @param  {Array} nodeList
 	 * @param  {Array} tensorList
 	 * @return {Tensor}
-	 *
+	 */
 	deserialize(restoreObject, nodeList, tensorList) {
-		super.deserialize(restoreObject);
-		this.node1=nodeList[restoreObject.node1];
-		this.node2=nodeList[restoreObject.node2];
-		this.angle1=restoreObject.angle1;
-		this.angle2=restoreObject.angle2;
+		super.deserialize(restoreObject, nodeList, tensorList);
 
-
-		if (restoreObject.next) {
-			this.next=tensorList[restoreObject.next];
-		}
-		if (restoreObject.previous) {
-			this.previous=tensorList[restoreObject.previous];
-		}
-		if (restoreObject.breakStartTensor) {
-			this.breakStartTensor=tensorList[restoreObject.breakStartTensor];
-		}
-		if (restoreObject.breakEndTensor) {
-			this.breakEndTensor=tensorList[restoreObject.breakEndTensor];
+		let node1Index = restoreObject.node1;
+		if (node1Index === -1 && nodeList[1]) {
+			this.node1 = nodeList[1];
+		} else {
+			this.node1 = nodeList[node1Index];
 		}
 
+		let node2Index = restoreObject.node2;
+		if (node2Index === -1 && nodeList[1]) {
+			this.node2 = nodeList[1];
+		} else {
+			this.node2 = nodeList[node2Index];
+		}
 
-		this.force=restoreObject.force;
-		this.ghost=restoreObject.ghost;
-		this.isTensor=restoreObject.isTensor;
-		this.color=restoreObject.color;
+		this.angle1 = restoreObject.angle1;
+		this.angle2 = restoreObject.angle2;
 
-		this.labelString = restoreObject.labelString;
-		this.labels = this.world.labels.parse(this.labelString, this);
+		if (restoreObject.next !== undefined && restoreObject.next !== null) {
+			this.next = tensorList[restoreObject.next];
+		}
+		if (restoreObject.previous !== undefined && restoreObject.previous !== null) {
+			this.previous = tensorList[restoreObject.previous];
+		}
+		if (restoreObject.breakStartTensor !== undefined && restoreObject.breakStartTensor !== null) {
+			this.breakStartTensor = tensorList[restoreObject.breakStartTensor];
+		}
+		if (restoreObject.breakEndTensor !== undefined && restoreObject.breakEndTensor !== null) {
+			this.breakEndTensor = tensorList[restoreObject.breakEndTensor];
+		}
+
+		if (restoreObject.force) {
+			this.force = new Force().deserialize(restoreObject.force);
+		}
+		this.ghost = restoreObject.ghost;
+		this.isTensor = restoreObject.isTensor;
+		this.color = restoreObject.color;
+
+		if (restoreObject.originalParent !== undefined && restoreObject.originalParent !== null && restoreObject.originalParent >= 0) {
+			this.originalParent = tensorList[restoreObject.originalParent];
+		}
 
 		return this;
-	} */
+	}
 
 	/**
 	 * @return {string} The name of the tensor
@@ -480,9 +502,6 @@ class Tensor extends StoreableObject {
 	 *
 	addToTruss() {
 		return;
-		alert('why?');
-		this.addNode1(this.node1);
-		this.addNode2(this.node2);
 	}; */
 
 
@@ -594,6 +613,9 @@ class Tensor extends StoreableObject {
 	 * @return {number}
 	 */
 	getXDifference() {
+		if (!this.node1 || !this.node2) {
+			return 0;
+		}
 		return (this.node2.getPosition().x - this.node1.getPosition().x);
 	};
 
@@ -610,6 +632,9 @@ class Tensor extends StoreableObject {
 	 * @return {number}
 	 */
 	getYDifference() {
+		if (!this.node1 || !this.node2) {
+			return 0;
+		}
 		return this.node2.getPosition().y - this.node1.getPosition().y;
 	};
 
@@ -678,7 +703,7 @@ class Tensor extends StoreableObject {
 	 * @param  {Node} node
 	 */
 	resetCollision(node) {
-		delete this.collideDistanceMapping[node.name];
+		resetTensorNodeCollision(this, node);
 	};
 	/**
 	 * Give a specific node, check if it has collided with the tensor. If so, dispatch a "collisionEvent".
@@ -686,29 +711,7 @@ class Tensor extends StoreableObject {
 	 * @param  {TrussNode} truss
 	 */
 	checkCollision(node, truss) {
-		let oldDistance = this.collideDistanceMapping[node.name];
-		let newDistance = getS(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		let where = getT(this.node1.getPosition(), this.node2.getPosition(), node.getPosition());
-		if ((where < -0.0) || (1.0 < where)) {
-			newDistance = 0;
-		}
-		this.collideDistanceMapping[node.name] = newDistance;
-		if (oldDistance * newDistance < 0) {
-			if ((where >= -0) && (where <= 1)) {
-				let event = new CustomEvent('collisionEvent', {
-					detail: {
-						'where': where,
-						'from': oldDistance,
-						'collider': node,
-						'tensor': this,
-						'truss': truss,
-					},
-					bubbles: true,
-					cancelable: true,
-				});
-				document.dispatchEvent(event);
-			}
-		}
+		return checkTensorNodeCollision(this, node, truss);
 	};
 
 
@@ -775,56 +778,35 @@ class Tensor extends StoreableObject {
 	* Calculate the force in the Spring based on current length
 	*/
 	calculateForceSpring() {
-		let actualVector = this.getActual();
-		let normalized = actualVector.normalizeVector(this.equilibriumLength);
-		let diffVector = Vector.subtractVectors(actualVector, normalized);
-		this.force = Vector.multiplyVector(-this.constant, diffVector);
+		this.force = calculateSpringForce(this);
 	}
 
 	/**
 	* Calculate the force in the Spring based on current length
 	*/
 	calculateForcePull() {
-		let actualVector = this.getActual();
-		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
-			this.force = new Force(0, 0);
-		} else {
-			this.calculateForceSpring();
-		}
+		this.force = calculatePullForce(this);
 	}
 
 	/**
 	* Calculate the force in the Spring based on current length
 	*/
 	calculateForcePush() {
-		let actualVector = this.getActual();
-		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) > this.equilibriumLength * this.equilibriumLength)) {
-			this.force = new Force(0, 0);
-		} else {
-			this.calculateForceSpring();
-		}
+		this.force = calculatePushForce(this);
 	}
 
 	/**
 	* Calculate the force in the Field based on distance and mass of the nodes
 	*/
 	calculateForceField() {
-		let actualVector = this.getActual();
-		let normalized = actualVector.normalizeVector(1);
-		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
-		this.force = Vector.multiplyVector(-forceSize, normalized);
+		this.force = calculateFieldForce(this);
 	}
 
 	/**
 	* Calculate the force in the Absorber based on the relative speed between the nodes
 	*/
 	calculateForceAbsorber() {
-		let actualVector = this.getActual();
-		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
-		let parallellVelocity = Vector.multiplyVector(
-			Vector.dotProduct(actualVector, internalSpeed),
-			Vector.divideVector(actualVector, this.getLengthSquare()));
-		this.force = Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
+		this.force = calculateAbsorberForce(this);
 	}
 
 	/**

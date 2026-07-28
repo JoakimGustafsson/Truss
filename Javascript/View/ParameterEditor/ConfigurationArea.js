@@ -1,6 +1,6 @@
-import { universe } from '../globals.js';
-import { openBottomPanel, movePropertyEdit, makeNode, makeTensor, changeDebugLevel, addGravityCheat, deleteSelected } from '../ui-actions.js';
-import { saveFile, directory } from '../FileSave.js';
+import { universe } from '../../globals.js';
+import { openBottomPanel, movePropertyEdit, makeNode, makeTensor, changeDebugLevel, addGravityCheat, deleteSelected } from '../../ui-actions.js';
+import { saveFile, directory } from '../../FileSave.js';
 
 /**
  * @param {string} id

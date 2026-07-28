@@ -1,6 +1,6 @@
 ﻿
-import { Position } from '../Primitives.js';
-import { universe } from '../globals.js';
+import { Position } from '../../Primitives.js';
+import { universe } from '../../globals.js';
 
 let ParameterCategory = {
 	APPEARANCE: 1,
@@ -141,9 +141,10 @@ class Property {
 	 * @return {Object}
 	 */
 	deSerialize(serializeObject, localNodeList, tensorList) {
-		if (serializeObject.constructor === String) {
-			return serializeObject;
-		} else return '';
+		if (serializeObject === undefined || serializeObject === null) {
+			return this.defaultValue;
+		}
+		return serializeObject;
 	}
 
 	/** creates the default value editing area and handles input updates
@@ -527,6 +528,9 @@ class PositionProperty extends Property {
 	 * @return {Position}
 	 */
 	deSerialize(serializeObject, localNodeList, tensorList) {
+		if (serializeObject === undefined || serializeObject === null) {
+			return this.defaultValue;
+		}
 		return new Position(serializeObject.x, serializeObject.y);
 	}
 
@@ -621,6 +625,9 @@ class NodeProperty extends Property {
 	 * @return {Position}
 	 */
 	deSerialize(serializeObject, localNodeList, tensorList) {
+		if (serializeObject === undefined || serializeObject === null) {
+			return this.defaultValue;
+		}
 		return localNodeList[serializeObject];
 	}
 
@@ -725,6 +732,9 @@ class TensorListProperty extends Property {
 	 * @return {Object}
 	 */
 	deSerialize(serializeObject, localNodeList, tensorList) {
+		if (serializeObject === undefined || serializeObject === null) {
+			return this.defaultValue || [];
+		}
 		let returnList=[];
 		for (let tensor of serializeObject) {
 			returnList.push(tensorList[tensor]);
@@ -963,6 +973,9 @@ class PropertyListProperty extends Property {
 	 * @return {Object}
 	 */
 	deSerialize(serializeObject, localNodeList, tensorList) {
+		if (!serializeObject || serializeObject[this.propertyName] === undefined || serializeObject[this.propertyName] === null || serializeObject[this.propertyName] === '') {
+			return this.defaultValue || [];
+		}
 		return JSON.parse(serializeObject[this.propertyName]);
 	}
 

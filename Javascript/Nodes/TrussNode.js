@@ -1,8 +1,9 @@
 import { Node } from './Node.js';
-import { View } from '../View.js';
-import { PropertyEditor } from '../ParameterEditor/PropertyEditor.js';
-import { FPSdisplay } from '../globals.js';
+import { View } from '../View/TrussView.js';
+import { PropertyEditor } from '../View/ParameterEditor/PropertyEditor.js';
+import { FPSdisplay, universe } from '../globals.js';
 import { Position, Vector } from '../Primitives.js';
+import { PanZoomHandler } from '../View/PanZoomHandler.js';
 
 /**
  * @class
@@ -35,6 +36,8 @@ class TrussNode extends Node {
 		this.view= new View(viewSize, this);
 		this.canvas = document.createElement('canvas');
 
+		/** When true, xScale is forced equal to yScale (uniform/square world display). */
+		this.lockedRatio = true;
 
 		this.delta = 0;
 		this.lastFrameTimeMs = 0;
@@ -107,6 +110,17 @@ class TrussNode extends Node {
 			},
 		}
 		);
+		Object.defineProperty(this, 'worldOffset', {
+			get: function() {
+				return this.view.offset;
+			},
+			set: function(value) {
+				this.view.offset = value;
+			},
+		}
+		);
+
+		// Backward-compat alias so old save files (and label system) can still set it
 		Object.defineProperty(this, 'setWorldOffset', {
 			get: function() {
 				return this.view.offset;
@@ -149,6 +163,7 @@ class TrussNode extends Node {
 		this.canvas.style.height = '100%';
 
 		this.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
+		this.panZoom = new PanZoomHandler(this);
 	}
 
 	/**
@@ -176,6 +191,13 @@ class TrussNode extends Node {
 	serialize(superNodeList=[], superTensorList=[]) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
+		// Save the world/screen ratio so the view can be restored correctly on any screen size
+		if (this.view.screenSize.x && this.view.screenSize.y) {
+			representationObject.ratio = {
+				x: this.view.screenSize.x / this.view.worldViewSize.x,
+				y: this.view.screenSize.y / this.view.worldViewSize.y,
+			};
+		}
 		return representationObject;
 	}
 
@@ -186,8 +208,48 @@ class TrussNode extends Node {
 	 */
 	deserialize(restoreObject, superNodes, superTensors) {
 		super.deserialize(restoreObject, superNodes, superTensors);
+
+		if (restoreObject.worldSize) {
+			this.view.setWorldViewSize(new Vector().deserialize(restoreObject.worldSize));
+		} else if (restoreObject.ratio && this.view.screenSize.x && this.view.screenSize.y) {
+			// Backward compatibility: older saves used ratio instead of worldSize.
+			// Support both ratio conventions seen in legacy data.
+			let ratioX = Number(restoreObject.ratio.x);
+			let ratioY = Number(restoreObject.ratio.y);
+			if (ratioX > 0 && ratioY > 0) {
+				let worldX;
+				let worldY;
+				if (ratioX > 1 || ratioY > 1) {
+					worldX = this.view.screenSize.x / ratioX;
+					worldY = this.view.screenSize.y / ratioY;
+				} else {
+					worldX = this.view.screenSize.x * ratioX;
+					worldY = this.view.screenSize.y * ratioY;
+				}
+				if (isFinite(worldX) && isFinite(worldY) && worldX > 0 && worldY > 0) {
+					this.view.setWorldViewSize(new Vector(worldX, worldY));
+				}
+			}
+		}
+		// Support both current name and legacy save-file key
+		const offsetData = restoreObject.worldOffset || restoreObject.setWorldOffset;
+		if (offsetData) {
+			this.view.setOffset(new Vector().deserialize(offsetData));
+		}
+		if (restoreObject.fpsTarget !== undefined && restoreObject.fpsTarget !== null) {
+			this.fpsTarget = restoreObject.fpsTarget;
+		}
+		if (restoreObject.fps !== undefined && restoreObject.fps !== null) {
+			this.fps = restoreObject.fps;
+		}
+		if (restoreObject.gridSize !== undefined && restoreObject.gridSize !== null) {
+			this.gridSize = restoreObject.gridSize;
+		}
+
 		this.handleCanvas();
 		this.setView();
+		// Pass scale=true so resize() just reads the live DOM without adjusting worldViewSize
+		this.resize(true);
 		if (this.world) {
 			this.setupLabels(this.world);
 		}
@@ -227,8 +289,8 @@ class TrussNode extends Node {
 
 	/**
  */
-	resize() {
-		this.view.resize();
+	resize(scale) {
+		this.view.resize(scale);
 		this.canvas.width = this.view.screenSize.x;
 		this.canvas.height = this.view.screenSize.y;
 	}
@@ -501,7 +563,7 @@ class TrussNode extends Node {
 		}
 
 		this.clear();
-		this.showTruss(timestamp, 5);
+		this.showTruss(timestamp);
 
 		/* 	if (timestamp > this.lastFpsUpdate + 1) { // update every second
 			this.fps = 0.25 * this.framesThisSecond + (1 - 0.25) * this.fps; // compute the new FPS
@@ -521,12 +583,20 @@ class TrussNode extends Node {
 	 * @param  {number} graphicDebugLevel
 	 */
 	showTruss(time, graphicDebugLevel) {
+		let resolvedDebugLevel = Number(graphicDebugLevel);
+		if (isNaN(resolvedDebugLevel)) {
+			resolvedDebugLevel = Number(universe.currentWorld && universe.currentWorld.debugLevel);
+		}
+		if (isNaN(resolvedDebugLevel)) {
+			resolvedDebugLevel = 5;
+		}
+
 		for (let tensor of this.tensors) {
-			tensor.show(this, graphicDebugLevel);
+			tensor.show(this, resolvedDebugLevel);
 		}
 
 		for (let node of this.nodes) {
-			node.show(this, time, graphicDebugLevel);
+			node.show(this, time, resolvedDebugLevel);
 		}
 	}
 }

@@ -1,7 +1,7 @@
 import { BannerNode } from './BannerNode.js';
 import { createConfigurationArea } from './ConfigurationArea.js';
-import { movePropertyEdit, openBottomPanel } from '../ui-actions.js';
-import { universe } from '../globals.js';
+import { movePropertyEdit, openBottomPanel } from '../../ui-actions.js';
+import { universe } from '../../globals.js';
 
 /**
  * @class
@@ -70,9 +70,13 @@ class PropertyEditor {
 	/**
 	 */
 	removeBanner() {
-		let trussNode = this.parentTrussNode;
+		if (!this.bannerNode) {
+			this.banner = undefined;
+			return;
+		}
 		this.bannerNode.hide();
 		this.bannerNode.close(); // Remove the event listener
+		this.bannerNode = undefined;
 		this.banner=undefined;
 	}
 }

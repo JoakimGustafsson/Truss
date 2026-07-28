@@ -173,13 +173,24 @@ class World {
 	deserialize(restoreObject) {
 		this.labels = new Labels();
 		let nodeList=[];
-		for (let nodeRestoreObject of restoreObject.nodes) {
+		let nodeRestoreList = Array.isArray(restoreObject.nodes) ? restoreObject.nodes : [];
+		let tensorRestoreList = Array.isArray(restoreObject.tensors) ? restoreObject.tensors : [];
+		for (let nodeRestoreObject of nodeRestoreList) {
 			let node = objectFactory(this, nodeRestoreObject);
 			nodeList.push(node);
+			// Pre-link parent truss references early so property/materialization code
+			// that runs during deserialize can access parent canvas state.
+			if (nodeRestoreObject &&
+				nodeRestoreObject.parentTrussNode !== undefined &&
+				nodeRestoreObject.parentTrussNode !== null &&
+				nodeRestoreObject.parentTrussNode >= 0 &&
+				nodeRestoreObject.parentTrussNode < nodeList.length) {
+				node.parentTrussNode = nodeList[nodeRestoreObject.parentTrussNode];
+			}
 		}
 
 		let tensorList=[];
-		for (let tensorRestoreObject of restoreObject.tensors) {
+		for (let tensorRestoreObject of tensorRestoreList) {
 			let tensor = objectFactory(this, tensorRestoreObject);
 			tensorList.push(tensor);
 		}
@@ -188,22 +199,35 @@ class World {
 		// deserialize them
 		let index=0;
 		for (let node of nodeList) {
-			node.deserialize(restoreObject.nodes[index], nodeList, tensorList);
+			node.deserialize(nodeRestoreList[index], nodeList, tensorList);
 			index++;
 		}
 
 		index=0;
 		for (let tensor of tensorList) {
-			tensor.deserialize(restoreObject.tensors[index], nodeList, tensorList);
+			tensor.deserialize(tensorRestoreList[index], nodeList, tensorList);
 			index++;
 		}
 
 		this.trussNode = nodeList[restoreObject.trussNode];
+		if (!this.trussNode && nodeList.length > 0) {
+			this.trussNode = nodeList[0];
+		}
 
 		this.governors=[];
 		if (restoreObject.governors) {
 			for (let governor of restoreObject.governors) {
 				this.governors.push(nodeList[governor]);
+			}
+		}
+
+		if (this.trussNode) {
+			let selectorLabel = this.labels.findLabel('selector');
+			let selectors = selectorLabel ? selectorLabel.getNodes() : [];
+			if (selectors.length == 1) {
+				this.trussNode.selector = selectors[0];
+			} else {
+				this.trussNode.selector = this.trussNode;
 			}
 		}
 
@@ -248,7 +272,7 @@ class Universe {
 			cancelable: true,
 		});
 		if (!this.currentNode.element) {
-			alert('No element in currentNode for selection purposes.');
+			console.error('No element in currentNode for selection purposes.');
 			return;
 		}
 		this.currentNode.element.dispatchEvent(event);
@@ -347,7 +371,6 @@ class Universe {
 			stackDiv.initiated = 'true';
 			stackDiv.style.top = topPosition + 'px';
 			topPosition = topPosition + 110;
-			stackTruss.resize();
 			if (!stackDiv.selectTrussListener) {
 				stackDiv.selectTrussListener = clickSetWorld(world);
 				stackDiv.addEventListener('click', stackDiv.selectTrussListener);
@@ -387,7 +410,8 @@ class Universe {
 		this.show();
 		this.currentNode.canvas.onmousedown = downMouse;
 		this.currentNode.canvas.onmouseup = upMouse;
-		newNodeToShow.resize();
+		// Recompute from the active DOM size without changing worldViewSize.
+		newNodeToShow.resize(true);
 		this.setupTicks = 3;
 	}
 }

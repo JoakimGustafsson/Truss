@@ -4,6 +4,14 @@
 
 Merge conflict markers have been removed in this branch, keeping the newer `Universe`/`World`-based runtime side for conflicted files.
 
+## Known issues
+
+### Zoom in/out corrupts offsets
+- **Location:** `Javascript/View/PanZoomHandler.js`
+- **Description:** When zooming in or out using pinch gestures or mouse wheel, pointer position offsets become corrupted. The pan position drifts unexpectedly after zoom operations.
+- **Impact:** Pan/zoom behavior is visually incorrect after scaling; pointer coordinates don't map correctly to canvas position.
+- **TODO:** Review `PanZoomHandler.pointermove_handler()` zoom calculation logic, particularly lines 140–157 and the `updateScale()` method call.
+
 ## Conflict cleanup status
 
 The following files were conflict-resolved:
