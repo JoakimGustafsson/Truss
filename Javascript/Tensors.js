@@ -324,8 +324,23 @@ class Tensor extends StoreableObject {
 			this.node2 = nodeList[node2Index];
 		}
 
+		if (this.node1 && (isNaN(this.node1.localPosition.x) || isNaN(this.node1.localPosition.y))) {
+			console.warn(`⚠️ Tensor deserialization warning: Tensor "${this.name}" connected to node "${this.node1.name}" with NaN position (${this.node1.localPosition.x}, ${this.node1.localPosition.y})`);
+		}
+		if (this.node2 && (isNaN(this.node2.localPosition.x) || isNaN(this.node2.localPosition.y))) {
+			console.warn(`⚠️ Tensor deserialization warning: Tensor "${this.name}" connected to node "${this.node2.name}" with NaN position (${this.node2.localPosition.x}, ${this.node2.localPosition.y})`);
+		}
+
 		this.angle1 = restoreObject.angle1;
 		this.angle2 = restoreObject.angle2;
+		
+		// Log tensor properties that might be missing
+		if (this.constant === undefined || this.constant === null) {
+			console.log(`ℹ️ Tensor "${this.name}" has no constant property (passive tensor)`);
+		}
+		if (this.equilibriumLength === undefined || this.equilibriumLength === null) {
+			console.log(`ℹ️ Tensor "${this.name}" has no equilibriumLength property`);
+		}
 
 		if (restoreObject.next !== undefined && restoreObject.next !== null) {
 			this.next = tensorList[restoreObject.next];
@@ -616,7 +631,13 @@ class Tensor extends StoreableObject {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
-		return (this.node2.getPosition().x - this.node1.getPosition().x);
+		let pos1 = this.node1.getPosition();
+		let pos2 = this.node2.getPosition();
+		let diff = pos2.x - pos1.x;
+		if (isNaN(diff)) {
+			console.warn(`⚠️ Tensor.getXDifference() returned NaN: "${this.node2.name}"(${pos2.x}) - "${this.node1.name}"(${pos1.x}) = ${diff}`);
+		}
+		return diff;
 	};
 
 	/**
@@ -635,7 +656,13 @@ class Tensor extends StoreableObject {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
-		return this.node2.getPosition().y - this.node1.getPosition().y;
+		let pos1 = this.node1.getPosition();
+		let pos2 = this.node2.getPosition();
+		let diff = pos2.y - pos1.y;
+		if (isNaN(diff)) {
+			console.warn(`⚠️ Tensor.getYDifference() returned NaN: "${this.node2.name}"(${pos2.y}) - "${this.node1.name}"(${pos1.y}) = ${diff}`);
+		}
+		return diff;
 	};
 
 	/**

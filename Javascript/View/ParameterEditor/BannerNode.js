@@ -49,48 +49,75 @@ class BannerNode extends Node {
 		this.width = this.element.offsetWidth;
 		this.height = this.element.offsetHeight;
 		let screenWidth = this.element.offsetWidth;
-		let screenHeight = this.element.offsetHeight + 500;
+		// Use the element height directly without the extra 500px padding
+		let screenHeight = this.element.offsetHeight;
 		if (!topScreenPos) {
-			topScreenPos = new Position(truss.view.screenSize.x - screenWidth, 0);
+			// Safety check: ensure view has screenSize
+			if (!truss.view || !truss.view.screenSize) {
+				console.warn(`⚠️ BannerNode.create(): truss.view or screenSize is undefined`);
+				topScreenPos = new Position(0, 0);
+			} else {
+				topScreenPos = new Position(truss.view.screenSize.x - screenWidth, 0);
+			}
 		}
+		
+		console.log(`ℹ️ BannerNode creating banner at screenPos (${topScreenPos.x}, ${topScreenPos.y}), size ${screenWidth}x${screenHeight}`);
+
+		// Debug: Log world positions being calculated
+		let leftTop_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x, topScreenPos.y) : new Position(0, 0);
+		let rightTop_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y) : new Position(screenWidth, 0);
+		let leftBottom_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight) : new Position(0, screenHeight);
+		let rightBottom_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight) : new Position(screenWidth, screenHeight);
+		
+		console.log(`🔍 Banner node world positions:`);
+		console.log(`  leftTop: (${leftTop_world.x.toFixed(2)}, ${leftTop_world.y.toFixed(2)})`);
+		console.log(`  rightTop: (${rightTop_world.x.toFixed(2)}, ${rightTop_world.y.toFixed(2)})`);
+		console.log(`  leftBottom: (${leftBottom_world.x.toFixed(2)}, ${leftBottom_world.y.toFixed(2)})`);
+		console.log(`  rightBottom: (${rightBottom_world.x.toFixed(2)}, ${rightBottom_world.y.toFixed(2)})`);
 
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
+			'localPosition': truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2) : new Position(0, 0),
 			'name': 'nail',
 			'mass': NaN,
+			'isBannerUINode': true,
 		});
 
 		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
+			'localPosition': leftTop_world,
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
+			'isBannerUINode': true,
 		});
 		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
+			'localPosition': rightTop_world,
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
+			'isBannerUINode': true,
 		});
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
-			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
+			'localPosition': truss.view && truss.view.worldPosition ? truss.view.worldPosition(screenWidth / 2, -6371000) : new Position(screenWidth / 2, -6371000),
 			'name': 'bannerGravityWell',
+			'isBannerUINode': true,  // Mark as UI node so it's excluded from viewport calculations
 		});
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight),
+			'localPosition': leftBottom_world,
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
+			'isBannerUINode': true,
 		});
 
 		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight),
+			'localPosition': rightBottom_world,
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
+			'isBannerUINode': true,
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
@@ -115,35 +142,57 @@ class BannerNode extends Node {
 
 
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 8,
-			'dampeningConstant': 10,
-			'constant': 600,
+			'equilibriumLength': 10.8,
+			'dampeningConstant': 40,
+			'constant': 20000,
 			'color': 'transparent',
 		});
 
-		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 8,
-			'dampeningConstant': 10,
-			'constant': 600,
+		this.rightSpring = new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
+			'equilibriumLength': 10.8,
+			'dampeningConstant': 40,
+			'constant': 20000,
 			'color': 'transparent',
 		});
 
-		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 0,
-			'dampeningConstant': 10,
-			'constant': 0.1,
-			'color': 'transparent',
-		});
-
-		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 0,
-			'dampeningConstant': 10,
-			'constant': 0.1,
-			'color': 'transparent',
-		});
+		// Don't connect banner bottom to gravity well - the banner stays in shape via its internal springs
+		// The gravity well is just positioned far below for realistic gravity calculation
+		// (it won't affect banner since isBannerUINode excludes it from field calculations)
 
 		this.visible = true;
+		
+		// Start logging banner corner positions every 10 seconds
+		this.startPositionLogging();
+		
 		return this.nail;
+	}
+
+	/**
+	 * Log the positions of the 4 corner nodes every 10 seconds to track physics changes
+	 */
+	startPositionLogging() {
+		if (this.positionLoggingInterval) {
+			clearInterval(this.positionLoggingInterval);
+		}
+		
+		this.positionLoggingInterval = setInterval(() => {
+			if (this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
+				const leftTop = this.leftTopNode.getPosition();
+				const rightTop = this.rightTopNode.getPosition();
+				const leftBottom = this.leftBottomNode.getPosition();
+				const rightBottom = this.rightBottomNode.getPosition();
+				
+				const width = rightTop.x - leftTop.x;
+				const height = leftBottom.y - leftTop.y;
+				
+				console.log(`📐 Banner corner positions (every 10s):`);
+				console.log(`  leftTop:     (${leftTop.x.toFixed(2)}, ${leftTop.y.toFixed(2)})`);
+				console.log(`  rightTop:    (${rightTop.x.toFixed(2)}, ${rightTop.y.toFixed(2)})`);
+				console.log(`  leftBottom:  (${leftBottom.x.toFixed(2)}, ${leftBottom.y.toFixed(2)})`);
+				console.log(`  rightBottom: (${rightBottom.x.toFixed(2)}, ${rightBottom.y.toFixed(2)})`);
+				console.log(`  Width: ${width.toFixed(2)}, Height: ${height.toFixed(2)}`);
+			}
+		}, 10000);
 	}
 
 	/**
@@ -154,6 +203,13 @@ class BannerNode extends Node {
 			return;
 		}
 		this.element.style.display = 'none';
+		
+		// Clean up position logging interval
+		if (this.positionLoggingInterval) {
+			clearInterval(this.positionLoggingInterval);
+			this.positionLoggingInterval = null;
+		}
+		
 		let bannerWorld = this.truss.parentTrussNode && this.truss.parentTrussNode.world ? this.truss.parentTrussNode.world : this.world;
 		let bannerLabel = bannerWorld.labels.findLabel('banner');
 

@@ -175,6 +175,8 @@ class World {
 		let nodeList=[];
 		let nodeRestoreList = Array.isArray(restoreObject.nodes) ? restoreObject.nodes : [];
 		let tensorRestoreList = Array.isArray(restoreObject.tensors) ? restoreObject.tensors : [];
+		
+		console.log(`📦 Deserializing ${nodeRestoreList.length} nodes...`);
 		for (let nodeRestoreObject of nodeRestoreList) {
 			let node = objectFactory(this, nodeRestoreObject);
 			nodeList.push(node);
@@ -189,6 +191,7 @@ class World {
 			}
 		}
 
+		console.log(`📦 Deserializing ${tensorRestoreList.length} tensors...`);
 		let tensorList=[];
 		for (let tensorRestoreObject of tensorRestoreList) {
 			let tensor = objectFactory(this, tensorRestoreObject);
@@ -197,12 +200,14 @@ class World {
 
 
 		// deserialize them
+		console.log(`🔗 Linking nodes to their data...`);
 		let index=0;
 		for (let node of nodeList) {
 			node.deserialize(nodeRestoreList[index], nodeList, tensorList);
 			index++;
 		}
 
+		console.log(`🔗 Linking tensors to their connected nodes...`);
 		index=0;
 		for (let tensor of tensorList) {
 			tensor.deserialize(tensorRestoreList[index], nodeList, tensorList);
@@ -230,6 +235,11 @@ class World {
 				this.trussNode.selector = this.trussNode;
 			}
 		}
+		
+		console.log(`✓ Deserialization successful: ${nodeList.length} nodes, ${tensorList.length} tensors`);
+		
+		// Mark that we just loaded a save so we can monitor first tick
+		this._justDeserialized = true;
 
 		return this;
 	}

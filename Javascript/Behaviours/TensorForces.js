@@ -38,10 +38,18 @@ class SpringCalculator extends Behaviour {
 			return new Vector(0, 0);
 		}
 		let actualVector = this.getActual();
+		if (isNaN(actualVector.x) || isNaN(actualVector.y)) {
+			console.warn(`Spring calculator NaN vector detected on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". Vector: (${actualVector.x}, ${actualVector.y})`);
+			return new Vector(0, 0);
+		}
 		let normalized = actualVector.normalizeVector(this.equilibriumLength);
 		let diffVector = Vector.subtractVectors(actualVector, normalized);
-		if (isNaN(diffVector.x)) {
-			console.error('ERROR: Illegal Spring Force: '+this.name);
+		if (isNaN(diffVector.x) || isNaN(diffVector.y)) {
+			console.error(`ERROR: Illegal Spring Force on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". DiffVector: (${diffVector.x}, ${diffVector.y})`);
+			return new Vector(0, 0);
+		}
+		if (isNaN(this.constant)) {
+			console.warn(`⚠️ Spring calculator: constant is NaN on tensor "${this.name}"`);
 			return new Vector(0, 0);
 		}
 		return Vector.multiplyVector(-this.constant, diffVector);
@@ -86,13 +94,21 @@ class PullCalculator extends Behaviour {
 			return new Vector(0, 0);
 		}
 		let actualVector = this.getActual();
+		if (isNaN(actualVector.x) || isNaN(actualVector.y)) {
+			console.warn(`Pull calculator NaN vector detected on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". Vector: (${actualVector.x}, ${actualVector.y})`);
+			return new Vector(0, 0);
+		}
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) < this.equilibriumLength * this.equilibriumLength)) {
 			return new Vector(0, 0);
 		} else {
 			let normalized = actualVector.normalizeVector(this.equilibriumLength);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
-			if (isNaN(diffVector.x)) {
-				console.error('ERROR: Illegal Spring Force: '+this.name);
+			if (isNaN(diffVector.x) || isNaN(diffVector.y)) {
+				console.error(`ERROR: Illegal Spring Force on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". DiffVector: (${diffVector.x}, ${diffVector.y})`);
+				return new Vector(0, 0);
+			}
+			if (isNaN(this.constant)) {
+				console.warn(`⚠️ Pull calculator: constant is NaN on tensor "${this.name}"`);
 				return new Vector(0, 0);
 			}
 			return Vector.multiplyVector(-this.constant, diffVector);
@@ -135,13 +151,21 @@ class PushCalculator extends Behaviour {
 			return new Vector(0, 0);
 		}
 		let actualVector = this.getActual();
+		if (isNaN(actualVector.x) || isNaN(actualVector.y)) {
+			console.warn(`Push calculator NaN vector detected on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". Vector: (${actualVector.x}, ${actualVector.y})`);
+			return new Vector(0, 0);
+		}
 		if ((this.equilibriumLength > 0) && (Vector.length2(actualVector) > this.equilibriumLength * this.equilibriumLength)) {
 			return new Vector(0, 0);
 		} else {
 			let normalized = actualVector.normalizeVector(this.equilibriumLength);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
-			if (isNaN(diffVector.x)) {
-				console.error('ERROR: Illegal Spring Force: '+this.name);
+			if (isNaN(diffVector.x) || isNaN(diffVector.y)) {
+				console.error(`ERROR: Illegal Spring Force on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". DiffVector: (${diffVector.x}, ${diffVector.y})`);
+				return new Vector(0, 0);
+			}
+			if (isNaN(this.constant)) {
+				console.warn(`⚠️ Push calculator: constant is NaN on tensor "${this.name}"`);
 				return new Vector(0, 0);
 			}
 			return Vector.multiplyVector(-this.constant, diffVector);
@@ -182,6 +206,10 @@ class ImpulseCalculator extends Behaviour {
 	calculate() {
 		let snugDistance = this.node1.size+this.node2.size;
 		let actualVector = this.getActual();
+		if (isNaN(actualVector.x) || isNaN(actualVector.y)) {
+			console.warn(`Impulse calculator NaN vector detected on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". Vector: (${actualVector.x}, ${actualVector.y})`);
+			return new Vector(0, 0);
+		}
 		let actualVectorLength = Vector.length(actualVector);
 		if (snugDistance < actualVectorLength) {
 			return new Vector(0, 0);
@@ -195,8 +223,8 @@ class ImpulseCalculator extends Behaviour {
 			let normalized = actualVector.normalizeVector(snugDistance);
 			let diffVector = Vector.subtractVectors(actualVector, normalized);
 			
-			if (isNaN(diffVector.x)) {
-				console.log('ERROR: Illegal Spring Force: '+this.name);
+			if (isNaN(diffVector.x) || isNaN(diffVector.y)) {
+				console.error(`ERROR: Illegal Spring Force on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". DiffVector: (${diffVector.x}, ${diffVector.y})`);
 			}
 			debugEntity.breakAt(this.node1, undefined, undefined, 10);
 
@@ -241,12 +269,57 @@ class FieldCalculator extends Behaviour {
 	 */
 	calculate() {
 		if (!this.constant) {
-			console.warn(`Field calculator missing constant property on ${this.name}`);
+			console.warn(`⚠️ Field calculator missing constant property on ${this.name}`);
 			return new Vector(0, 0);
 		}
+		
+		// Skip field calculations for UI nodes (no mass)
+		if (!this.node1 || !this.node2) {
+			return new Vector(0, 0);
+		}
+		
+		// Skip field calculations for banner UI nodes - they manage their own spring physics
+		if (this.node1?.isBannerUINode || this.node2?.isBannerUINode) {
+			return new Vector(0, 0);
+		}
+		
 		let actualVector = this.getActual();
+		if (isNaN(actualVector.x) || isNaN(actualVector.y)) {
+			console.warn(`⚠️ Field calculator NaN vector detected on tensor "${this.name}" between nodes "${this.node1?.name || 'Unknown'}" and "${this.node2?.name || 'Unknown'}". Vector: (${actualVector.x}, ${actualVector.y})`);
+			return new Vector(0, 0);
+		}
 		let normalized = actualVector.normalizeVector(1);
-		let forceSize = this.constant * this.node1.mass * this.node2.mass / this.getLengthSquare();
+		
+		// Check for NaN/undefined in mass properties - skip if either node is a UI node
+		let mass1 = this.node1?.mass;
+		let mass2 = this.node2?.mass;
+		
+		// If nodes have no mass (UI nodes), skip field calculation
+		if (mass1 === undefined || mass1 === null || isNaN(mass1)) {
+			if (this.node1) {
+				console.log(`ℹ️ Field calculator skipping: node1 "${this.node1.name}" is a UI node (no mass)`);
+			}
+			return new Vector(0, 0);
+		}
+		if (mass2 === undefined || mass2 === null || isNaN(mass2)) {
+			if (this.node2) {
+				console.log(`ℹ️ Field calculator skipping: node2 "${this.node2.name}" is a UI node (no mass)`);
+			}
+			return new Vector(0, 0);
+		}
+		
+		let lengthSquare = this.getLengthSquare();
+		if (lengthSquare === 0) {
+			console.warn(`⚠️ Field calculator: nodes "${this.node1?.name}" and "${this.node2?.name}" are at the same position, distance is 0`);
+			return new Vector(0, 0);
+		}
+		
+		let forceSize = this.constant * mass1 * mass2 / lengthSquare;
+		if (isNaN(forceSize)) {
+			console.warn(`⚠️ Field calculator: forceSize is NaN. constant=${this.constant}, mass1=${mass1}, mass2=${mass2}, lengthSquare=${lengthSquare}`);
+			return new Vector(0, 0);
+		}
+		
 		return Vector.multiplyVector(-forceSize, normalized);
 	}
 
@@ -285,11 +358,45 @@ class AbsorbCalculator extends Behaviour {
 	 * @return {number}
 	 */
 	calculate() {
+		// Guard against missing dampening constant
+		if (!this.dampeningConstant || this.dampeningConstant === undefined || this.dampeningConstant === null) {
+			console.log(`ℹ️ Absorber calculator: no dampeningConstant on tensor "${this.name}"`);
+			return new Vector(0, 0);
+		}
+		
 		let actualVector = this.getActual();
+		if (isNaN(actualVector.x) || isNaN(actualVector.y)) {
+			console.warn(`⚠️ Absorber calculator NaN vector detected on tensor "${this.name}"`);
+			return new Vector(0, 0);
+		}
+		
+		if (!this.node1 || !this.node2) {
+			return new Vector(0, 0);
+		}
+		
 		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
+		let lengthSquare = this.getLengthSquare();
+		
+		// Safety check: if length is too small (near zero), skip calculation to avoid division issues
+		if (lengthSquare === 0 || lengthSquare < 0.0001) {
+			return new Vector(0, 0);
+		}
+		
 		let parallellVelocity = Vector.multiplyVector(
 			Vector.dotProduct(actualVector, internalSpeed),
-			Vector.divideVector(actualVector, this.getLengthSquare()));
+			Vector.divideVector(actualVector, lengthSquare));
+		
+		if (isNaN(this.dampeningConstant)) {
+			console.warn(`⚠️ Absorber calculator: dampeningConstant is NaN on tensor "${this.name}"`);
+			return new Vector(0, 0);
+		}
+		
+		// Final safety check for NaN result
+		if (isNaN(parallellVelocity.x) || isNaN(parallellVelocity.y)) {
+			console.warn(`⚠️ Absorber calculator: parallellVelocity is NaN on tensor "${this.name}"`);
+			return new Vector(0, 0);
+		}
+		
 		return Vector.multiplyVector(this.dampeningConstant, parallellVelocity);
 	}
 

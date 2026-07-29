@@ -209,9 +209,56 @@ function loadFile(fileName) {
 		universe.pop().close();
 		let newWorld= new World();
 		universe.currentWorld = newWorld;
+		
+		// Pre-pause before any calculation starts
+		// We need to pause first, then deserialize
+		
+		console.log('╔════════════════════════════════════════════════════╗');
+		console.log('║  DESERIALIZING SAVE FILE...                        ║');
+		console.log('╚════════════════════════════════════════════════════╝');
+		
 		newWorld.deserialize(normalizeRestoreObject(JSON.parse(x)));
 		universe.push(newWorld);
 		universe.setCurrentWorld(newWorld);
+		
+		console.log('╔════════════════════════════════════════════════════╗');
+		console.log('║  DESERIALIZATION COMPLETE                          ║');
+		console.log('║  All nodes and tensors loaded successfully.        ║');
+		console.log('╚════════════════════════════════════════════════════╝');
+		
+		// Auto-pause on load to allow reading deserialization messages
+		console.log('✓ Save loaded. Ensuring simulation is paused...');
+		if (newWorld.trussNode) {
+			// Force pause IMMEDIATELY to prevent further ticks
+			newWorld.trussNode.paused = true;
+			console.log(`✓ Simulation paused state set: paused=${newWorld.trussNode.paused}`);
+			console.log('✓ Deserialization complete. Check console for any warnings.');
+			console.log('✓ Click the pause button in the banner to resume simulation.');
+			
+			// Trigger resize to recalculate canvas and UI dimensions after load
+			if (newWorld.trussNode.resize) {
+				newWorld.trussNode.resize();
+				console.log('✓ Canvas dimensions recalculated');
+			}
+			
+			// Auto-select the main node to trigger banner creation
+			setTimeout(function() {
+				let event = new CustomEvent('selectionEvent', {
+					detail: {
+						'selectedObject': newWorld.trussNode,
+						'previousSelectedObject': null,
+						'trussNode': newWorld.trussNode,
+						'truss': newWorld.trussNode,
+					},
+					bubbles: true,
+					cancelable: true,
+				});
+				newWorld.trussNode.element.dispatchEvent(event);
+				console.log('✓ Main node auto-selected, banner should appear');
+			}, 100); // Small delay to ensure UI is ready
+		} else {
+			console.warn('⚠️ Could not find trussNode to pause');
+		}
 	});
 }
 

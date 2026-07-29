@@ -48,6 +48,25 @@ function init() {
 	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);
 	window.addEventListener('mouseup', upMouse, false);
 	document.getElementById('mainArea').addEventListener('mouseleave', upMouse, false);
+	
+	// Right-click to open banner
+	document.getElementById('mainArea').addEventListener('contextmenu', function(e) {
+		e.preventDefault();
+		if (_universe && _universe.selectedObject) {
+			let event = new CustomEvent('selectionEvent', {
+				detail: {
+					'selectedObject': _universe.selectedObject,
+					'previousSelectedObject': null,
+					'trussNode': _universe.selectedObject.parentObject || _universe.selectedObject,
+				},
+				bubbles: true,
+				cancelable: true,
+			});
+			_universe.currentNode.element.dispatchEvent(event);
+			console.log('✓ Banner triggered via right-click');
+		}
+		return false;
+	}, false);
 
 	document.addEventListener('selectionEvent', function(e) {
 		highlightAndModifyPropertyButtons.call(this, e);
@@ -63,6 +82,21 @@ window.addEventListener('keydown', function(e) {
 		makeNode();
 	} else if (e.keyCode == 84) {
 		makeTensor();
+	} else if (e.keyCode == 66) {
+		// 'B' key to trigger banner by firing a selection event
+		if (_universe.selectedObject) {
+			let event = new CustomEvent('selectionEvent', {
+				detail: {
+					'selectedObject': _universe.selectedObject,
+					'previousSelectedObject': null,
+					'trussNode': _universe.selectedObject.parentObject || _universe.selectedObject,
+				},
+				bubbles: true,
+				cancelable: true,
+			});
+			_universe.currentNode.element.dispatchEvent(event);
+			console.log('✓ Banner triggered via B key');
+		}
 	}
 }, true);
 

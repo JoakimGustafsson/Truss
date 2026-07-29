@@ -57,8 +57,19 @@ class Vector {
 	 * @return {Vector}
 	 */
 	deserialize(restoreObject) {
-		this.x = restoreObject.x;
-		this.y = restoreObject.y;
+		if (!restoreObject || typeof restoreObject !== 'object') {
+			console.warn(`⚠️ Vector.deserialize() called with invalid restoreObject:`, restoreObject);
+			this.x = 0;
+			this.y = 0;
+			return this;
+		}
+		this.x = (restoreObject.x !== undefined && restoreObject.x !== null) ? restoreObject.x : 0;
+		this.y = (restoreObject.y !== undefined && restoreObject.y !== null) ? restoreObject.y : 0;
+		if (isNaN(this.x) || isNaN(this.y)) {
+			console.warn(`⚠️ Vector.deserialize() resulted in NaN values: x=${this.x}, y=${this.y} from object:`, restoreObject);
+			this.x = 0;
+			this.y = 0;
+		}
 		return this;
 	};
 
@@ -68,7 +79,14 @@ class Vector {
 	 */
 	normalizeVector(l) {
 		let length = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
-		return Vector.multiplyVector(l / length, this);
+		if (length === 0) {
+			return new Vector(0, 0);
+		}
+		let result = Vector.multiplyVector(l / length, this);
+		if (isNaN(result.x) || isNaN(result.y)) {
+			console.warn(`⚠️ Vector.normalizeVector() produced NaN: normalizing (${this.x}, ${this.y}) to length ${l} with computed length ${length}`);
+		}
+		return result;
 	}
 
 	/**
@@ -84,8 +102,10 @@ class Vector {
 	 * @return {Vector}
 	 */
 	add(v) {
-		this.x += v.x;
-		this.y += v.y;
+		if (v && !isNaN(v.x) && !isNaN(v.y)) {
+			this.x += v.x;
+			this.y += v.y;
+		}
 		return this;
 	};
 
@@ -113,7 +133,11 @@ class Vector {
 	 * @return {Vector}
 	 */
 	static addVectors(v1, v2) {
-		return new Vector(v1.x + v2.x, v1.y + v2.y);
+		let result = new Vector(v1.x + v2.x, v1.y + v2.y);
+		if (isNaN(result.x) || isNaN(result.y)) {
+			console.warn(`⚠️ Vector.addVectors() produced NaN: (${v1.x}, ${v1.y}) + (${v2.x}, ${v2.y}) = (${result.x}, ${result.y})`);
+		}
+		return result;
 	}
 
 	/**
@@ -122,7 +146,11 @@ class Vector {
 	 * @return {number}
 	 */
 	static subtractVectors(v1, v2) {
-		return new Vector(v1.x - v2.x, v1.y - v2.y);
+		let result = new Vector(v1.x - v2.x, v1.y - v2.y);
+		if (isNaN(result.x) || isNaN(result.y)) {
+			console.warn(`⚠️ Vector.subtractVectors() produced NaN: (${v1.x}, ${v1.y}) - (${v2.x}, ${v2.y}) = (${result.x}, ${result.y})`);
+		}
+		return result;
 	}
 	/**
 	 * @param  {number} m
@@ -130,7 +158,11 @@ class Vector {
 	 * @return {Vector}
 	 */
 	static multiplyVector(m, v1) {
-		return new Vector(m * v1.x, m * v1.y);
+		let result = new Vector(m * v1.x, m * v1.y);
+		if (isNaN(result.x) || isNaN(result.y)) {
+			console.warn(`⚠️ Vector.multiplyVector() produced NaN: ${m} * (${v1.x}, ${v1.y}) = (${result.x}, ${result.y})`);
+		}
+		return result;
 	}
 	/**
 	 * @param  {Vector} v1
@@ -138,7 +170,11 @@ class Vector {
 	 * @return {Vector}
 	 */
 	static divideVector(v1, m) {
-		return new Vector(v1.x / m, v1.y / m);
+		let result = new Vector(v1.x / m, v1.y / m);
+		if (isNaN(result.x) || isNaN(result.y)) {
+			console.warn(`⚠️ Vector.divideVector() produced NaN: (${v1.x}, ${v1.y}) / ${m} = (${result.x}, ${result.y})`);
+		}
+		return result;
 	}
 
 	/**

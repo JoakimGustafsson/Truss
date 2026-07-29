@@ -278,6 +278,15 @@ class Node extends StoreableObject {
 		}
 
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
+		if (!restoreObject.localPosition) {
+			console.warn(`⚠️ Node deserialization: Node "${this.name}" has missing localPosition in save data`);
+		} else if (isNaN(this.localPosition.x) || isNaN(this.localPosition.y)) {
+			console.warn(`⚠️ Node deserialization: Node "${this.name}" has NaN position (${this.localPosition.x}, ${this.localPosition.y}). Resetting to (0, 0)`);
+			this.localPosition.x = 0;
+			this.localPosition.y = 0;
+		} else {
+			console.log(`✓ Node deserialized: "${this.name}" at (${this.localPosition.x.toFixed(2)}, ${this.localPosition.y.toFixed(2)})`);
+		}
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
 		this.mass = restoreObject.mass;
 		if (!this.mass) {
@@ -354,6 +363,11 @@ class Node extends StoreableObject {
 	 * @return {Position}
 	 */
 	getPosition() {
+		if (isNaN(this.localPosition.x) || isNaN(this.localPosition.y)) {
+			console.warn(`⚠️ Node.getPosition() called with NaN position on node "${this.name}". Resetting to (0, 0)`);
+			this.localPosition.x = 0;
+			this.localPosition.y = 0;
+		}
 		return this.localPosition;
 	};
 
@@ -435,7 +449,12 @@ class Node extends StoreableObject {
 	 */
 	updatePosition(trussTime, timeFactor) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
-		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
+		let velocityDelta = Vector.multiplyVector(timeFactor, this.velocity);
+		if (isNaN(velocityDelta.x) || isNaN(velocityDelta.y)) {
+			console.warn(`⚠️ Node.updatePosition() detected NaN velocity on node "${this.name}": velocity=(${this.velocity.x}, ${this.velocity.y}), delta=(${velocityDelta.x}, ${velocityDelta.y})`);
+		} else {
+			this.localPosition.add(velocityDelta);
+		}
 		if (this.positionFunction) {
 			this.setPosition(this.positionFunction(this, trussTime));
 			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
