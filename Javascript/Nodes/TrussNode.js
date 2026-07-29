@@ -146,9 +146,11 @@ class TrussNode extends Node {
 	 */
 	handleCanvas() {
 		this.canvas.name = this.name;
-		this.canvas.style.top = this.localPosition.y + 'px';
-		this.canvas.style.left = this.localPosition.x + 'px';
-		this.canvas.style.position = 'relative';
+		this.canvas.style.position = 'absolute';
+		this.canvas.style.top = '0px';
+		this.canvas.style.left = '0px';
+		this.canvas.style.display = 'block';
+		this.element.style.position = 'relative';
 		this.element.appendChild(this.canvas);
 	}
 
@@ -157,10 +159,13 @@ class TrussNode extends Node {
 	 */
 	setView() {
 		this.view.context = this.canvas.getContext('2d');
-		this.canvas.width = this.view.screenSize.x;
-		this.canvas.height = this.view.screenSize.y;
-		this.canvas.style.width = '100%';
-		this.canvas.style.height = '100%';
+		// Ensure canvas has valid dimensions before setting
+		const width = this.view.screenSize.x || 1123;
+		const height = this.view.screenSize.y || 974;
+		this.canvas.width = width;
+		this.canvas.height = height;
+		this.canvas.style.width = width + 'px';
+		this.canvas.style.height = height + 'px';
 
 		this.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
 		this.panZoom = new PanZoomHandler(this);
@@ -290,9 +295,18 @@ class TrussNode extends Node {
 	/**
  */
 	resize(scale) {
+		// Don't resize if screenSize would become 0 (can happen during layout changes)
+		const newWidth = this.element.clientWidth || this.element.offsetWidth;
+		const newHeight = this.element.clientHeight || this.element.offsetHeight;
+		
+		if (newWidth === 0 || newHeight === 0) {
+			// Skip resize with 0 dimensions
+			return;
+		}
+		
+		// Only update view resize, never change canvas dimensions during zoom/pan
+		// Canvas dimensions should be set once during initialization
 		this.view.resize(scale);
-		this.canvas.width = this.view.screenSize.x;
-		this.canvas.height = this.view.screenSize.y;
 	}
 
 	/**
@@ -312,8 +326,7 @@ class TrussNode extends Node {
 	 */
 	show(truss, time, graphicDebugLevel = 0) {
 		this.highLight(this.view.context);
-		this.canvas.style.left = this.view.x(this.localPosition) + 'px';
-		this.canvas.style.top = this.view.y(this.localPosition) + 'px';
+		// Canvas stays fixed at top-left (0px, 0px) - pan/zoom moves world content, not canvas
 	};
 
 

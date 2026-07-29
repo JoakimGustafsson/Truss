@@ -153,27 +153,42 @@ class PanZoomHandler {
 			);
 		}
 		
-		// Keep fingers stationary in world space by tracking their world positions
-		// Convert screen positions to world coordinates BEFORE panning
-		const startWorldMid = this.view.worldPosition(this.lastFrameStartMid.x, this.lastFrameStartMid.y);
-		const endWorldMid = this.view.worldPosition(mid.x, mid.y);
-		
-		// The world offset delta needed to make fingers stay in the same world position
-		const worldOffsetDelta = {
-			x: startWorldMid.x - endWorldMid.x,
-			y: startWorldMid.y - endWorldMid.y,
-		};
-
-		// Apply the world offset delta directly (not through updateOffset which also scales)
 		if (!universe.selectedObject) {
-			this.view.offset.x += worldOffsetDelta.x;
-			this.view.offset.y += worldOffsetDelta.y;
-		}
-
-		// Zoom: always compare against previous processed frame
-		if (this.lastDistance > 0 && dist > 0) {
-			const scaleDelta = (dist - this.lastDistance) / this.lastDistance;
-			this.view.updateScale({ x: scaleDelta, y: scaleDelta }, mid);
+			// Convert screen positions to world coordinates (using current scale)
+			const startWorldMid = this.view.worldPosition(this.lastFrameStartMid.x, this.lastFrameStartMid.y);
+			const endWorldMid = this.view.worldPosition(mid.x, mid.y);
+			
+			// Pan offset needed to keep fingers stationary
+			const panDelta = {
+				x: startWorldMid.x - endWorldMid.x,
+				y: startWorldMid.y - endWorldMid.y,
+			};
+			
+			// Apply pan
+			this.view.offset.x += panDelta.x;
+			this.view.offset.y += panDelta.y;
+			
+			// Zoom: calculate offset adjustment to keep midpoint fixed
+			if (this.lastDistance > 0 && dist > 0) {
+				const scaleDelta = (dist - this.lastDistance) / this.lastDistance;
+				
+				// Recalculate midpoint world position after pan but before zoom
+				const midWorldBefore = this.view.worldPosition(mid.x, mid.y);
+				
+				// Apply zoom to worldViewSize (no limits - allow extreme zoom)
+				this.view.worldViewSize.x -= scaleDelta * this.view.worldViewSize.x;
+				this.view.worldViewSize.y -= scaleDelta * this.view.worldViewSize.y;
+				
+				// Recalculate scale factors
+				this.view.recalculate();
+				
+				// Calculate where the midpoint is now in world space (with new scale)
+				const midWorldAfter = this.view.worldPosition(mid.x, mid.y);
+				
+				// Adjust offset to keep midpoint at same world position
+				this.view.offset.x += midWorldBefore.x - midWorldAfter.x;
+				this.view.offset.y += midWorldBefore.y - midWorldAfter.y;
+			}
 		}
 
 		this.lastMidpoint = mid;

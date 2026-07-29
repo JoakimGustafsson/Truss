@@ -125,10 +125,12 @@ class View {
 	 * @return {number} 0 if it is outside
 	 */
 	inside(position) {
-		return (this.x(position) > 0 &&
-			this.x(position) < this.context.canvas.width &&
-			this.y(position) > 0 &&
-			this.y(position) < this.context.canvas.height);
+		// Allow drawing even if outside canvas bounds - zoom can make objects appear far from their world position
+		// return (this.x(position) > 0 &&
+		// 	this.x(position) < this.context.canvas.width &&
+		// 	this.y(position) > 0 &&
+		// 	this.y(position) < this.context.canvas.height);
+		return true;
 	};
 
 	/** Given a position p in the world, return the position on this views display
