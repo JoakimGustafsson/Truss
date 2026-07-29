@@ -206,6 +206,58 @@ class View {
 	};
 
 	/**
+	 * Draw debug circles at finger positions in world space
+	 * @param  {Array} fingerWorldPositions Array of world positions
+	 */
+	drawFingerIndicators(fingerWorldPositions) {
+		if (!fingerWorldPositions || fingerWorldPositions.length === 0) return;
+		
+		const savedFillStyle = this.context.fillStyle;
+		const savedStrokeStyle = this.context.strokeStyle;
+		
+		fingerWorldPositions.forEach((pos, i) => {
+			this.context.beginPath();
+			const radius = 0.5; // World units
+			this.drawCircle(pos, radius);
+			this.context.fillStyle = i === 0 ? 'rgba(255, 0, 0, 0.3)' : 'rgba(0, 255, 0, 0.3)';
+			this.context.fill();
+			this.context.strokeStyle = i === 0 ? 'rgba(255, 0, 0, 0.8)' : 'rgba(0, 255, 0, 0.8)';
+			this.context.lineWidth = 2;
+			this.context.stroke();
+		});
+		
+		this.context.fillStyle = savedFillStyle;
+		this.context.strokeStyle = savedStrokeStyle;
+	};
+
+	/**
+	 * Draw debug circles at finger positions in screen space
+	 * @param  {Array} fingerScreenPositions Array of screen {x, y} positions
+	 */
+	drawFingerScreenIndicators(fingerScreenPositions) {
+		if (!fingerScreenPositions || fingerScreenPositions.length === 0) return;
+		
+		const savedFillStyle = this.context.fillStyle;
+		const savedStrokeStyle = this.context.strokeStyle;
+		const savedLineWidth = this.context.lineWidth;
+		
+		fingerScreenPositions.forEach((pos, i) => {
+			this.context.beginPath();
+			const radius = 20; // Screen pixels
+			this.context.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
+			this.context.fillStyle = i === 0 ? 'rgba(255, 100, 100, 0.2)' : 'rgba(100, 255, 100, 0.2)';
+			this.context.fill();
+			this.context.strokeStyle = i === 0 ? 'rgba(255, 100, 100, 1)' : 'rgba(100, 255, 100, 1)';
+			this.context.lineWidth = 3;
+			this.context.stroke();
+		});
+		
+		this.context.fillStyle = savedFillStyle;
+		this.context.strokeStyle = savedStrokeStyle;
+		this.context.lineWidth = savedLineWidth;
+	};
+
+	/**
 	 * Support function to refresh the ratios so. Should not be manually used
 	 */
 	recalculate() {

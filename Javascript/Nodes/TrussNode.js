@@ -598,6 +598,16 @@ class TrussNode extends Node {
 		for (let node of this.nodes) {
 			node.show(this, time, resolvedDebugLevel);
 		}
+		
+		// Draw finger position indicators for debugging
+		if (this.panZoom && this.panZoom.fingerWorldPositions.length > 0) {
+			// Draw world-space circles (small, colored)
+			this.view.drawFingerIndicators(this.panZoom.fingerWorldPositions);
+			
+			// Draw screen-space circles (larger, at screen level to show tracking)
+			const screenPositions = Array.from(this.panZoom.activePointers.values());
+			this.view.drawFingerScreenIndicators(screenPositions);
+		}
 	}
 }
 
