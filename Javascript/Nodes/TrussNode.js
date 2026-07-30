@@ -541,6 +541,17 @@ class TrussNode extends Node {
 				let nodePos = new Position(screenX, screenY);
 				
 				let distance = Position.distance(position, nodePos);
+				
+				// Debug logging
+				if (node.name === 'nail') {
+					console.log(`\n🎯 NAIL COORDINATE DEBUG:`);
+					console.log(`   Input mouse screenPos: (${position.x.toFixed(1)}, ${position.y.toFixed(1)})`);
+					console.log(`   Nail displayPercent: (${node.displayPositionX.toFixed(2)}%, ${node.displayPositionY.toFixed(2)}%)`);
+					console.log(`   Canvas size: ${this.view.screenSize.x}x${this.view.screenSize.y}`);
+					console.log(`   Nail computed screenPos: (${screenX.toFixed(1)}, ${screenY.toFixed(1)})`);
+					console.log(`   Distance: ${distance.toFixed(1)} (threshold: 20px)`);
+				}
+				
 				if (distance < lowestDistanceDisplay && node != avoid) {
 					lowestDistanceDisplay = distance;
 					closest = node;

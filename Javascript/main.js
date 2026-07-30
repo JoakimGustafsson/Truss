@@ -42,8 +42,11 @@ function init() {
 	window.requestAnimationFrame(mainLoop);
 
 	document.getElementById('mainArea').onmousemove = function(e) {
-		setMyX(e.clientX);
-		setMyY(e.clientY);
+		let mainArea = document.getElementById('mainArea');
+		let rect = mainArea.getBoundingClientRect();
+		// Convert from viewport coordinates to canvas-relative coordinates
+		setMyX(e.clientX - rect.left);
+		setMyY(e.clientY - rect.top);
 	};
 	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);
 	window.addEventListener('mouseup', upMouse, false);
