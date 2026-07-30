@@ -152,7 +152,6 @@ class Labels {
 		});
 		let moveabelLabel = this.addLabel('moveable', [nodeLabel], {
 			'massProperty': 1,
-			'nodeFrictionProperty': 0.99,
 		});
 		let angleLabel = this.addLabel('angle', [nodeLabel], {
 			'angleProperty': 1,
