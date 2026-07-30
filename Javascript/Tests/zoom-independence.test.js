@@ -41,16 +41,21 @@ class BannerPositionTest {
 	/**
 	 * Find the closest gravity well node in the world, or create one if none exist
 	 * 
+	 * A gravity well is identified by:
+	 * - Having 'gravitywell' in its label, OR
+	 * - Being a node that other field tensors connect to
+	 * 
 	 * @param {Object} world - World object containing nodes
 	 * @param {Vector} referencePosition - Position to measure distance from (in world coordinates)
 	 * @return {Node} Gravity well node
 	 */
 	_findOrCreateGravityWell(world, referencePosition) {
-		// Find all gravity well nodes (nodes with 'gravitywell' label)
+		// Find all gravity well nodes by checking labels
+		// A node is a gravity well if its label includes 'gravitywell'
 		const gravityWells = world.nodes.filter(node => {
-			return node.connectedTensors && node.connectedTensors.some(tensor => 
-				tensor.labels && tensor.labels.includes('gravitywell')
-			);
+			// Check if node label contains 'gravitywell' (e.g., 'gravitywell node', 'gravitywell', etc.)
+			const label = node.label || '';
+			return label.includes('gravitywell');
 		});
 
 		// If gravity wells exist, return the closest one
@@ -70,12 +75,14 @@ class BannerPositionTest {
 				}
 			});
 
+			console.log(`✓ Found existing gravity well: ${closestWell.name} at (${closestWell.localPosition.x.toExponential(1)}, ${closestWell.localPosition.y.toExponential(1)})`);
 			return closestWell;
 		}
 
 		// No gravity well exists, create one far DOWN (negative Y in world coordinates)
 		// World coordinates: origin at lower-left, positive Y is UP, negative Y is DOWN
 		// To pull banner downward toward "earth", place gravity well at large negative Y
+		console.log(`⚠ No gravity well found. Creating synthetic gravity well at (${referencePosition.x}, ${(referencePosition.y - 50000).toExponential(1)})`);
 		const gravityWellNode = new Node(
 			world,
 			null,
