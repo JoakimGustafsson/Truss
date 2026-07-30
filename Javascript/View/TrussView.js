@@ -210,7 +210,11 @@ class View {
 	 * @param  {string} text
 	 */
 	drawText(position, text) {
+		// Save baseline and set to middle to account for Y-axis flip
+		const savedBaseline = this.context.textBaseline;
+		this.context.textBaseline = 'middle';
 		this.context.fillText(text, this.x(position), this.y(position));
+		this.context.textBaseline = savedBaseline;
 	};
 
 	/**
