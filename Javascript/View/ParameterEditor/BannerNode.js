@@ -119,14 +119,14 @@ class BannerNode extends Node {
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
-			'constant': 5000,
+			'constant': 50,
 			'visible': 1,
 		});
 
 		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
-			'constant': 5000,
+			'constant': 50,
 			'visible': 1,
 		});
 
