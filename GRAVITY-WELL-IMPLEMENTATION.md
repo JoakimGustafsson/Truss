@@ -2,7 +2,9 @@
 
 ## Overview
 
-The banner physics system now uses **real gravitational physics** instead of empirical tuning constants. The banner can dynamically find, connect to, or create gravity wells that pull it downward, allowing the banner to hang from a moving point source.
+The banner physics system now uses **real gravitational physics** with movable gravity wells. The banner automatically finds or creates a gravity well and connects all nodes via field tensors that pull them toward it.
+
+**IMPORTANT:** This document uses **world coordinates** (mathematical system). See [COORDINATE-SYSTEMS.md](COORDINATE-SYSTEMS.md) for detailed explanation of world vs. display coordinates.
 
 ## Key Features
 
@@ -27,10 +29,8 @@ Where:
 
 ### 3. Scaled Physics
 Constants are scaled for reasonable forces in world units:
-- **Bottom nodes**: `GRAVITY_CONSTANT × 1e15` (strong pull down)
-- **Top nodes**: `GRAVITY_CONSTANT × 1e14` (weaker pull, held by springs)
-
-These scale factors can be adjusted based on your world unit system.
+- **Bottom nodes**: `GRAVITY_CONSTANT × 1e15` (strong pull toward gravity well)
+- **Top nodes**: `GRAVITY_CONSTANT × 1e14` (weaker pull, mostly held by springs)
 
 ### 4. Field Tensor Connections
 All banner nodes are connected to the gravity well via **field tensors**:
@@ -43,6 +43,24 @@ new Tensor(gravityWell, bannerNode, 'field', {
 ```
 
 This provides directional attraction toward the gravity well.
+
+## Critical: Gravity Well Positioning
+
+**The gravity well MUST be at NEGATIVE Y in world coordinates to pull downward.**
+
+```javascript
+// WRONG - Positive Y pulls upward!
+gravityWell = new Position(x, y + 50000);
+
+// CORRECT - Negative Y pulls downward!
+gravityWell = new Position(x, y - 50000);
+```
+
+Why? In world coordinates:
+- Positive Y = UP
+- Negative Y = DOWN
+
+So gravity well at negative Y creates downward attractive force.
 
 ## Implementation Details
 
@@ -64,7 +82,7 @@ _findOrCreateGravityWell(world, referencePosition) {
     return closestWell;
   }
 
-  // 3. If none exist, create one
+  // 3. If none exist, create one far DOWN (negative Y)
   const gravityWellNode = new Node(
     world,
     null,
@@ -72,7 +90,7 @@ _findOrCreateGravityWell(world, referencePosition) {
     {
       localPosition: new Position(
         referencePosition.x,
-        referencePosition.y + 10000  // Place far below
+        referencePosition.y - 50000  // NEGATIVE Y = DOWN in world coordinates
       ),
       mass: Number.POSITIVE_INFINITY,  // Immovable
       name: 'gravityWell'
@@ -89,7 +107,7 @@ _findOrCreateGravityWell(world, referencePosition) {
 In `createTestBanner()`:
 
 ```javascript
-// Find or create gravity well at banner center
+// Find or create gravity well at banner center (in world coordinates)
 const gravityWell = this._findOrCreateGravityWell(
   mockWorld, 
   centerPos
@@ -118,128 +136,96 @@ new Tensor(gravityWell, rightTopNode, 'field', {
 
 The physics automatically scale correctly across zoom levels because:
 
-1. **View zoom** adjusts the world view size (e.g., 100 / zoomFactor)
-2. **Position coordinates** are in world units, not screen units
-3. **Spring and gravity forces** operate in world unit space
-4. **Physics integration** uses consistent deltaTime (16ms frame time)
+1. **View zoom** adjusts the world view size
+2. **Position coordinates** are in world units
+3. **Spring and gravity forces** operate in world space
+4. **Physics integration** uses consistent time steps
 
-This means the banner will settle to the same physical position regardless of zoom level.
+The banner settles to the same physical position regardless of zoom.
 
 ## Usage Scenarios
 
 ### Scenario 1: Static Gravity Well
 ```javascript
-// Banner creates its own gravity well
+// Banner creates its own gravity well at negative Y
 const banner = createTestBanner(view, zoom);
-// Banner hangs straight down toward auto-created gravity well
+// Banner hangs downward toward auto-created gravity well
 ```
 
 ### Scenario 2: Existing Gravity Well
 ```javascript
-// If world already has a 'gravitywell' node
+// If world has a 'gravitywell' node at negative Y
 const gravityWell = world.nodes.find(n => 
   n.connectedTensors.some(t => t.labels.includes('gravitywell'))
 );
 
 const banner = createTestBanner(view, zoom);
-// Banner gravitates toward the existing gravity well
+// Banner gravitates toward existing well
 ```
 
 ### Scenario 3: Moving Gravity Well
 ```javascript
-// Gravity well can be moved during simulation
-gravityWell.setPosition(newPosition);
+// Move gravity well in world coordinates
+gravityWell.setPosition(new Position(x, newNegativeY));
 
-// Banner automatically reorients and moves toward new position
-// Physics simulation handles the motion naturally
+// Banner automatically reorients toward new position
+// Physics handles motion naturally
 ```
 
 ### Scenario 4: Multiple Gravity Wells
 ```javascript
-// If multiple gravity wells exist
-const gravityWells = world.nodes.filter(n => 
-  n.connectedTensors.some(t => t.labels.includes('gravitywell'))
-);
-
+// If multiple gravity wells exist at negative Y
 const banner = createTestBanner(view, zoom);
 // Banner gravitates toward the CLOSEST one
 ```
 
 ## Physics Constants Tuning
 
-The scale factors (1e15 and 1e14) can be adjusted if needed:
+The scale factors can be adjusted:
 
 ```javascript
-// Stronger gravity pull
-const BOTTOM_GRAVITY_SCALE = 1e16;  // Faster settling
-const TOP_GRAVITY_SCALE = 1e15;     // Stronger top node pull
+// Stronger gravity (faster settling)
+const BOTTOM_GRAVITY_SCALE = 1e16;
+const TOP_GRAVITY_SCALE = 1e15;
 
-// Weaker gravity pull  
-const BOTTOM_GRAVITY_SCALE = 1e14;  // Slower settling
-const TOP_GRAVITY_SCALE = 1e13;     // Weaker top node pull
+// Weaker gravity (slower settling)
+const BOTTOM_GRAVITY_SCALE = 1e14;
+const TOP_GRAVITY_SCALE = 1e13;
 ```
 
-Adjust these based on:
-- Desired settling speed (3 seconds is target)
-- Whether banner should be pulled more toward gravity well
-- Trade-off with spring force dominance
+## Common Issues and Solutions
 
-## Comparison: Before vs. After
-
-### Before (Empirical Tuning)
+### Issue: Banner Not Dangling Downward
+**Cause:** Gravity well at positive Y (pulling upward!)  
+**Fix:** Ensure gravity well Y coordinate is **negative**
 ```javascript
-gravity: 89  // What is this? No physical basis!
-topBandSpring: 2200
-hangSpring: 1200
-verticalSpring: 0
+// Use y - 50000, not y + 50000
 ```
-- ✗ Arbitrary constant with no meaning
-- ✗ Doesn't scale with zoom properly  
-- ✗ Can't handle dynamic gravity wells
-- ✗ 87.5% criteria success rate
 
-### After (Real Physics)
-```javascript
-gravityWellNode = createOrFind('gravitywell')
-fieldTensor = Tensor(gravityWellNode, bannerNode, 'field', {
-  constant: GRAVITY_CONSTANT * 1e15
-})
-```
-- ✓ Based on Newton's law of gravitation
-- ✓ Automatically scales across zoom levels
-- ✓ Supports moving gravity wells
-- ✓ Works at any scale (nano to lightyear)
-- ✓ Ready for engine validation
+### Issue: Nodes Barely Moving
+**Cause:** Field tensor constants too weak  
+**Fix:** Increase scale factors (try 1e16 or higher)
+
+### Issue: Physics Different at Different Zooms
+**Cause:** Mixing world and screen coordinates  
+**Fix:** Use `node.localPosition` (world) not screen calculations
 
 ## Validation Checklist
 
-- [ ] Run test at zoom 1.0 in game engine
-- [ ] Verify banner settles within 3 seconds
-- [ ] Check all 8 position criteria pass
-- [ ] Test at 5 different zoom levels (10^-14, 10^-6, 1.0, 10^6, 10^14)
-- [ ] Test moving gravity well during settlement
-- [ ] Test switching between multiple gravity wells
-- [ ] Benchmark performance (frame time, settling speed)
-- [ ] Document any scale factors that needed adjustment
-
-## Future Enhancements
-
-1. **Variable-mass gravity wells** - Different gravitational strengths
-2. **Attracting springs** - Instead of field tensors for more control
-3. **Multiple attractor points** - Banner with several anchor nodes
-4. **Gravity well collision** - Prevent gravity wells from overlapping
-5. **Physics-based animation** - Smooth banner motion as gravity changes
-
-## Technical Notes
-
-- Field tensors are bidirectional forces, so gravity pulls on both objects
-- Gravity well has infinite mass, so it doesn't move from force reactions
-- Banner node masses (1 for top, 3 for bottom) affect force magnitudes
-- Damping (0.9) prevents oscillation and allows smooth settling
-- Zoom-independent physics because all calculations use world units
+- [ ] Gravity well positioned at NEGATIVE Y
+- [ ] Banner nodes dangle downward (not upward!)
+- [ ] Test at zoom 1.0
+- [ ] Test at 5+ zoom levels (10^-14 to 10^14)
+- [ ] Test moving gravity well
+- [ ] Test multiple gravity wells
+- [ ] Benchmark performance
 
 ## References
 
-- Newton's Law of Universal Gravitation: https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation
-- Field Physics in Game Engines: https://en.wikipedia.org/wiki/Force_field
-- Numerical Integration (Euler Method): Used for position updates each frame
+- [Coordinate Systems Documentation](COORDINATE-SYSTEMS.md) - Critical reference
+- Newton's Law of Universal Gravitation
+- Field Physics in Game Engines
+
+## Key Takeaway
+
+**Remember: Gravity well at NEGATIVE Y (down) in world coordinates!**
