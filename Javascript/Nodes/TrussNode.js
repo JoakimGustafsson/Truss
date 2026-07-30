@@ -533,8 +533,11 @@ class TrussNode extends Node {
 			let coordLabel = n.labels && n.labels.find(l => l.name === 'coordinatesystem');
 			return coordLabel && coordLabel.coordinatesystemProperty === 'display';
 		});
-		if (displayNodes.length > 0) {
-			console.log(`📊 Display nodes found: ${displayNodes.map(n => `${n.name}(${n.displayPositionX.toFixed(1)}%, ${n.displayPositionY.toFixed(1)}%)`).join(', ')}`);
+		if (displayNodes.length > 0 && displayNodes.length < 20) {  // Only log once or first time
+			console.log(`📊 Display nodes found (${displayNodes.length} total):`);
+			displayNodes.forEach(n => {
+				console.log(`  - ${n.name}: (${n.displayPositionX.toFixed(1)}%, ${n.displayPositionY.toFixed(1)}%) mass=${n.mass}`);
+			});
 		}
 		// For display nodes, we need canvas-relative coordinates
 		// Position.x and position.y are viewport-relative (clientX/clientY)
