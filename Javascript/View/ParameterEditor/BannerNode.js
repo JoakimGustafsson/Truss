@@ -133,6 +133,16 @@ class BannerNode extends Node {
 			'displayPositionY': bottomPercentY,
 		});
 
+		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
+			'constant': 0.1,
+			'color': 'transparent',
+		});
+
+		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
+			'constant': 0.1,
+			'color': 'transparent',
+		});
+
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
@@ -168,19 +178,9 @@ class BannerNode extends Node {
 			'color': 'transparent',
 		});
 
-		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 0,
-			'dampeningConstant': 10,
-			'constant': 0.1,
-			'color': 'transparent',
-		});
-
-		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 0,
-			'dampeningConstant': 10,
-			'constant': 0.1,
-			'color': 'transparent',
-		});
+		// Note: bannerGravityWell is a display coordinate node that serves as an anchor point
+		// Gravity effects for display coordinate nodes should be applied directly in the physics engine
+		// rather than through tensor connections, to keep physics isolated per coordinate system
 
 		this.visible = true;
 		return this.nail;
