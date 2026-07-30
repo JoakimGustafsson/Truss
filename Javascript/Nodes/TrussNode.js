@@ -525,18 +525,55 @@ class TrussNode extends Node {
 	getClosestObject(position, maxDistance, avoid) {
 		let lowestDistance = 1000000000;
 		let closest;
+		
 		for (let node of this.nodes) {
-			if (Position.distance(position, node.getPosition()) < lowestDistance && node != avoid) {
-				lowestDistance = Position.distance(position, node.getPosition());
+			// Check if node is in display coordinate system
+			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
+			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
+			
+			let nodePos;
+			if (nodeIsDisplay) {
+				// For display nodes, input position is in screen pixels
+				// Convert node's display position percentages to screen pixels
+				let screenX = (node.displayPositionX / 100) * this.view.screenSize.x;
+				let screenY = this.view.screenSize.y - (node.displayPositionY / 100) * this.view.screenSize.y;
+				nodePos = new Position(screenX, screenY);
+			} else {
+				// For world nodes, use world position converted to screen
+				nodePos = this.view.screenPosition(node.getPosition());
+			}
+			
+			if (Position.distance(position, nodePos) < lowestDistance && node != avoid) {
+				lowestDistance = Position.distance(position, nodePos);
 				closest = node;
 			}
 		}
+		
 		for (let tensor of this.tensors) {
-			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
-				lowestDistance = Position.distance(position, tensor.getPosition());
+			// Similar check for tensors - if both nodes are display coordinates
+			let node1CoordLabel = tensor.node1 && tensor.node1.labels && tensor.node1.labels.find(l => l.name === 'coordinatesystem');
+			let node2CoordLabel = tensor.node2 && tensor.node2.labels && tensor.node2.labels.find(l => l.name === 'coordinatesystem');
+			let node1IsDisplay = node1CoordLabel && node1CoordLabel.coordinatesystemProperty === 'display';
+			let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
+			
+			let tensorPos;
+			if (node1IsDisplay && node2IsDisplay) {
+				// Both ends in display space - compute midpoint in screen pixels
+				let screenX1 = (tensor.node1.displayPositionX / 100) * this.view.screenSize.x;
+				let screenY1 = this.view.screenSize.y - (tensor.node1.displayPositionY / 100) * this.view.screenSize.y;
+				let screenX2 = (tensor.node2.displayPositionX / 100) * this.view.screenSize.x;
+				let screenY2 = this.view.screenSize.y - (tensor.node2.displayPositionY / 100) * this.view.screenSize.y;
+				tensorPos = new Position((screenX1 + screenX2) / 2, (screenY1 + screenY2) / 2);
+			} else {
+				tensorPos = this.view.screenPosition(tensor.getPosition());
+			}
+			
+			if (Position.distance(position, tensorPos) < lowestDistance && tensor != avoid) {
+				lowestDistance = Position.distance(position, tensorPos);
 				closest = tensor;
 			}
 		}
+		
 		if (lowestDistance > maxDistance) {
 			return;
 		}

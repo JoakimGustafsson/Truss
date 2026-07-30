@@ -122,8 +122,31 @@ class SelectorBehaviour extends Behaviour {
 		if (trussNode != universe.currentNode) {
 			return;
 		}
-		this.cursorPosition = trussNode.view.worldPositionWithOffset(control.myX, control.myY);
-		let closest = trussNode.getClosestObject(this.cursorPosition, 20 * trussNode.view.getDistanceMultiplier(), this);
+		
+		// For display coordinate nodes, keep cursor position in screen pixels
+		// For world coordinate nodes, convert to world coordinates
+		let cursorScreenX = control.myX;
+		let cursorScreenY = control.myY;
+		
+		// Check if selectedObject is in display coordinates
+		let selectedIsDisplay = false;
+		if (universe.selectedObject && universe.selectedObject.labels) {
+			let coordLabel = universe.selectedObject.labels.find(l => l.name === 'coordinatesystem');
+			selectedIsDisplay = coordLabel && coordLabel.coordinatesystemProperty === 'display';
+		}
+		
+		if (selectedIsDisplay) {
+			// For display coordinates, convert screen pixels to percentages
+			this.cursorPosition = new Position(
+				(cursorScreenX / trussNode.view.screenSize.x) * 100,
+				100 - (cursorScreenY / trussNode.view.screenSize.y) * 100
+			);
+		} else {
+			// For world coordinates, use standard conversion
+			this.cursorPosition = trussNode.view.worldPositionWithOffset(cursorScreenX, cursorScreenY);
+		}
+		
+		let closest = trussNode.getClosestObject(new Position(cursorScreenX, cursorScreenY), 20 * trussNode.view.getDistanceMultiplier(), this);
 
 		if (!control.mouseSet) {
 			if (!closest) {
@@ -150,7 +173,13 @@ class SelectorBehaviour extends Behaviour {
 		} else if (control.mouseSet) { // Mouse is continually pressed
 			if (universe.selectedObject && universe.selectedObject.isNode) {
 				universe.selectedObject.resetVelocity();
-				universe.selectedObject.copyPosition(this.cursorPosition);
+				// For display nodes, update displayPositionX/Y directly
+				if (selectedIsDisplay) {
+					universe.selectedObject.displayPositionX = this.cursorPosition.x;
+					universe.selectedObject.displayPositionY = this.cursorPosition.y;
+				} else {
+					universe.selectedObject.copyPosition(this.cursorPosition);
+				}
 			}
 		}
 
