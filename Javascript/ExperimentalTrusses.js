@@ -5,11 +5,22 @@ import { Selector } from './Nodes/Sensors.js';
 import { Position } from './Primitives.js';
 
 /**
+ * Coordinate System Reference:
+ * - World coordinates use mathematical convention: origin at lower-left
+ * - Positive Y = UP, Negative Y = DOWN
+ * - Earth (gravity well) must be at NEGATIVE Y to pull objects downward
+ * - See COORDINATE-SYSTEMS.md for detailed explanation
  *
+ * Field Tensor Behavior:
+ * - Positive constant = REPULSION (pushes objects away)
+ * - Negative constant = ATTRACTION (pulls objects toward)
+ * - Force calculation: force = -(constant * m1 * m2 / r²) * direction
+ * - The negative sign is applied in FieldCalculator.calculate()
+ * - For gravity: use NEGATIVE constant so that positive field math gives attraction
  */
-const EARTH_CENTER = new Position(0, -6371e3);
+const EARTH_CENTER = new Position(0, -6371e3);  // NEGATIVE Y = far down (toward gravity)
 const EARTH_MASS = 5.97219e24;
-const GRAVITY_CONSTANT = 6.67e-11;
+const GRAVITY_CONSTANT = -6.67e-11;  // NEGATIVE for attractive force (gravity)
 
 /**
  * @param  {TrussNode} trussNode
