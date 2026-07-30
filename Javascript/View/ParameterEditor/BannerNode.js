@@ -76,14 +76,17 @@ class BannerNode extends Node {
 		// This creates noticeable downward force on banner nodes
 		const GRAVITY_CONSTANT = -0.001;  // Scaled for display coordinate space
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
 			'name': 'nail',
-			'mass': NaN,
-			'velocityLoss': 1.0,
+			'mass': 1,  // Must have mass to participate in physics
+			'velocityLoss': 0.95,
 			'displayPositionX': centerPercentX,
 			'displayPositionY': centerPercentY,
 		});
+		
+		console.log(`✓ Banner nail initialized at display coords (${centerPercentX.toFixed(2)}%, ${centerPercentY.toFixed(2)}%) screen pos (${topScreenPos.x + screenWidth / 2}, ${topScreenPos.y / 2})`);
+		
 		
 		// Explicitly set coordinatesystem label property to 'display'
 		let nailCoordLabel = this.nail.labels && this.nail.labels.find(l => l.name === 'coordinatesystem');

@@ -533,6 +533,9 @@ class TrussNode extends Node {
 		let displayPercY = 100 - (position.y / this.view.screenSize.y) * 100;
 		let displayPosition = new Position(displayPercX, displayPercY);
 		
+		// Debug: log screen size info
+		console.log(`📐 Screen size in use: ${this.view.screenSize.x} x ${this.view.screenSize.y}; Canvas element: ${this.view.element.clientWidth} x ${this.view.element.clientHeight}`);
+		
 		for (let node of this.nodes) {
 			// Check if node is in display coordinate system
 			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');

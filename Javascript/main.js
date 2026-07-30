@@ -45,8 +45,11 @@ function init() {
 		let mainArea = document.getElementById('mainArea');
 		let rect = mainArea.getBoundingClientRect();
 		// Convert from viewport coordinates to canvas-relative coordinates
-		setMyX(e.clientX - rect.left);
-		setMyY(e.clientY - rect.top);
+		let relX = e.clientX - rect.left;
+		let relY = e.clientY - rect.top;
+		console.log(`🖱️ Mouse move: viewport (${e.clientX}, ${e.clientY}) -> canvas-relative (${relX.toFixed(1)}, ${relY.toFixed(1)}); mainArea size: ${mainArea.clientWidth} x ${mainArea.clientHeight}`);
+		setMyX(relX);
+		setMyY(relY);
 	};
 	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);
 	window.addEventListener('mouseup', upMouse, false);
