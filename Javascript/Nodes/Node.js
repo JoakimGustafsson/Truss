@@ -538,14 +538,9 @@ class Node extends StoreableObject {
 			acceleration = new Vector(0, 0);
 		}
 		
-		// Determine velocity loss from velocityloss label if present, otherwise use node property
-		let velocityLossFactor = this.velocityLoss;
-		if (this.labels && Array.isArray(this.labels)) {
-			const velocityLossLabel = this.labels.find(label => label.name === 'velocityloss');
-			if (velocityLossLabel && velocityLossLabel.velocityLoss !== undefined) {
-				velocityLossFactor = velocityLossLabel.velocityLoss;
-			}
-		}
+		// Use node's velocityLoss if it exists (set by label properties system)
+		// Default to 1.0 (no velocity loss) if not set
+		let velocityLossFactor = this.velocityLoss !== undefined ? this.velocityLoss : 1.0;
 		
 		this.velocity = Vector.addVectors(Vector.multiplyVector(velocityLossFactor, this.velocity),
 			Vector.multiplyVector(timeFactor, acceleration));
