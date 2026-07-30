@@ -320,7 +320,11 @@ class FieldCalculator extends Behaviour {
 			return new Vector(0, 0);
 		}
 		
-		return Vector.multiplyVector(-forceSize, normalized);
+		let force = Vector.multiplyVector(-forceSize, normalized);
+		// With Y-axis flipped (up = positive), negate Y component of field forces to maintain correct direction
+		// (gravity should pull downward, which is now negative Y)
+		force.y = -force.y;
+		return force;
 	}
 
 }
