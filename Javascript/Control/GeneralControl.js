@@ -51,8 +51,11 @@ class GeneralControl {
 	 * @param  {Event} e
 	 */
 	myMove(e) {
-		this.myX = e.pageX;
-		this.myY = e.pageY;
+		let mainArea = document.getElementById('mainArea');
+		let rect = mainArea.getBoundingClientRect();
+		// Convert from viewport coordinates to canvas-relative coordinates
+		this.myX = e.clientX - rect.left;
+		this.myY = e.clientY - rect.top;
 	}
 
 	/**
