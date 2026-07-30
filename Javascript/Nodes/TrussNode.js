@@ -528,13 +528,21 @@ class TrussNode extends Node {
 		let lowestDistanceDisplay = 1000000000;  // Separate tracker for display coordinate distances
 		let closest;
 		
-		// Convert input screen position to display percentages for comparing with display nodes
-		let displayPercX = (position.x / this.view.screenSize.x) * 100;
-		let displayPercY = 100 - (position.y / this.view.screenSize.y) * 100;
+		// For display nodes, we need canvas-relative coordinates
+		// Position.x and position.y are viewport-relative (clientX/clientY)
+		// We need to convert to canvas-relative, then to display percentages
+		let canvas = this.view.element;
+		let canvasRect = canvas.getBoundingClientRect();
+		let canvasRelX = position.x - canvasRect.left;
+		let canvasRelY = position.y - canvasRect.top;
+		
+		// Convert canvas-relative pixels to display percentages
+		let displayPercX = (canvasRelX / this.view.screenSize.x) * 100;
+		let displayPercY = 100 - (canvasRelY / this.view.screenSize.y) * 100;
 		let displayPosition = new Position(displayPercX, displayPercY);
 		
 		// Debug: log screen size info
-		console.log(`📐 Screen size in use: ${this.view.screenSize.x} x ${this.view.screenSize.y}; Canvas element: ${this.view.element.clientWidth} x ${this.view.element.clientHeight}`);
+		console.log(`📐 Screen size in use: ${this.view.screenSize.x} x ${this.view.screenSize.y}; Canvas rect: left=${canvasRect.left}, top=${canvasRect.top}; Viewport coords: (${position.x}, ${position.y}) -> Canvas coords: (${canvasRelX}, ${canvasRelY})`);
 		
 		for (let node of this.nodes) {
 			// Check if node is in display coordinate system

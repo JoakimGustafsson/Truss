@@ -42,15 +42,11 @@ function init() {
 	window.requestAnimationFrame(mainLoop);
 
 	document.getElementById('mainArea').onmousemove = function(e) {
-		// Get the actual canvas element from the event
-		let canvas = e.currentTarget.querySelector('canvas') || e.currentTarget;
-		let rect = canvas.getBoundingClientRect();
-		// Convert from viewport coordinates to canvas-relative coordinates
-		let relX = e.clientX - rect.left;
-		let relY = e.clientY - rect.top;
-		console.log(`🖱️ Mouse move: viewport (${e.clientX}, ${e.clientY}) -> canvas-relative (${relX.toFixed(1)}, ${relY.toFixed(1)}); canvas size: ${canvas.clientWidth} x ${canvas.clientHeight}`);
-		setMyX(relX);
-		setMyY(relY);
+		// Store viewport-relative coordinates (for world coordinate system)
+		// Display coordinate system will convert these as needed
+		console.log(`🖱️ Mouse move: viewport (${e.clientX}, ${e.clientY}); button state: ${e.buttons}`);
+		setMyX(e.clientX);
+		setMyY(e.clientY);
 	};
 	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);
 	window.addEventListener('mouseup', upMouse, false);

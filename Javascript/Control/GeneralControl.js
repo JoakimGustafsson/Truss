@@ -51,12 +51,10 @@ class GeneralControl {
 	 * @param  {Event} e
 	 */
 	myMove(e) {
-		// Get the actual canvas element from the event
-		let canvas = e.currentTarget.querySelector('canvas') || e.currentTarget;
-		let rect = canvas.getBoundingClientRect();
-		// Convert from viewport coordinates to canvas-relative coordinates
-		this.myX = e.clientX - rect.left;
-		this.myY = e.clientY - rect.top;
+		// Store viewport-relative coordinates (for world coordinate system)
+		// Display coordinate system will convert these as needed
+		this.myX = e.clientX;
+		this.myY = e.clientY;
 	}
 
 	/**
