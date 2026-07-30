@@ -531,10 +531,8 @@ class TrussNode extends Node {
 		// For display nodes, we need canvas-relative coordinates
 		// Position.x and position.y are viewport-relative (clientX/clientY)
 		// We need to convert to canvas-relative, then to display percentages
-		let canvas = this.view.element;
-		let canvasRect = canvas.getBoundingClientRect();
-		let canvasRelX = position.x - canvasRect.left;
-		let canvasRelY = position.y - canvasRect.top;
+		let canvasRelX = position.x - (this.view.elemRectleft || 0);
+		let canvasRelY = position.y - (this.view.elemRecttop || 0);
 		
 		// Convert canvas-relative pixels to display percentages
 		let displayPercX = (canvasRelX / this.view.screenSize.x) * 100;
@@ -542,7 +540,7 @@ class TrussNode extends Node {
 		let displayPosition = new Position(displayPercX, displayPercY);
 		
 		// Debug: log screen size info
-		console.log(`📐 Screen size in use: ${this.view.screenSize.x} x ${this.view.screenSize.y}; Canvas rect: left=${canvasRect.left}, top=${canvasRect.top}; Viewport coords: (${position.x}, ${position.y}) -> Canvas coords: (${canvasRelX}, ${canvasRelY})`);
+		console.log(`📐 Screen size in use: ${this.view.screenSize.x} x ${this.view.screenSize.y}; Canvas rect offset: (${this.view.elemRectleft}, ${this.view.elemRecttop}); Viewport coords: (${position.x}, ${position.y}) -> Canvas coords: (${canvasRelX}, ${canvasRelY})`);
 		
 		for (let node of this.nodes) {
 			// Check if node is in display coordinate system
