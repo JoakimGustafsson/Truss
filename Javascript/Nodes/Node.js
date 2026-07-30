@@ -576,17 +576,20 @@ class Node extends StoreableObject {
 		cxt.strokeStyle = this.color;
 
 		// Handle display coordinate rendering (percentage-based)
-		let isDisplayCoordinates = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
+		// Check coordinatesystem label for 'display' value
+		let coordinateSystemLabel = this.labels && this.labels.find(label => label.name === 'coordinatesystem');
+		let isDisplayCoordinates = coordinateSystemLabel && coordinateSystemLabel.coordinatesystemProperty === 'display';
+		
 		if (isDisplayCoordinates) {
-			let posXLabel = this.labels.find(label => label.name === 'positionX');
-			let posYLabel = this.labels.find(label => label.name === 'positionY');
+			let displayX = this.displayPositionX;
+			let displayY = this.displayPositionY;
 			
-			if (posXLabel && posYLabel) {
+			if (displayX !== undefined && displayY !== undefined) {
 				// Convert percentages to screen pixels
 				// X: 0 = left, 100 = right
 				// Y: 0 = bottom, 100 = top
-				let screenX = (posXLabel.value / 100) * view.screenSize.x;
-				let screenY = view.screenSize.y - (posYLabel.value / 100) * view.screenSize.y;
+				let screenX = (displayX / 100) * view.screenSize.x;
+				let screenY = view.screenSize.y - (displayY / 100) * view.screenSize.y;
 				
 				this.highLight(cxt);
 				cxt.beginPath();

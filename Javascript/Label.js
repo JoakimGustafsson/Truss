@@ -90,6 +90,10 @@ class Labels {
 			'enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT,
 			'Special parameter that only is used in labels to enforce all parameter values are enforced.');
 
+		this.coordinatesystemProperty = new StringProperty(
+			'coordinatesystem', 'coordinatesystem', 'Coordinate System', ParameterCategory.CONTENT,
+			'The coordinate system for this node: "world" or "display".');
+
 		this.startNodeProperty = new NodeProperty(
 			'node1', 'node1', 'Start node', ParameterCategory.CONTENT,
 			'Start node.');
@@ -222,6 +226,13 @@ class Labels {
 			// Their positions are NOT affected by zoom/pan transformations
 			// Used for UI elements like banner that should maintain fixed screen size
 			// Display coordinates operate independently: no physics connections to world nodes
+		});
+		let coordinateSystemLabel = this.addLabel('coordinatesystem', [nodeLabel], {
+			'coordinatesystemProperty': 'world',
+			// Coordinate system for node positioning: 'world' or 'display'
+			// 'world': standard world coordinates, affected by zoom/pan
+			// 'display': screen-relative coordinates, independent of zoom/pan
+			// Defaults to 'world' if not specified
 		});
 	}
 

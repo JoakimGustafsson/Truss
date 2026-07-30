@@ -737,22 +737,24 @@ class Tensor extends StoreableObject {
 		}
 
 		// Handle display coordinate rendering
-		let node1IsDisplay = node1.labels && node1.labels.some(label => label.name === 'displaycoordinates');
-		let node2IsDisplay = node2.labels && node2.labels.some(label => label.name === 'displaycoordinates');
+		let node1CoordSystem = node1.labels && node1.labels.find(label => label.name === 'coordinatesystem');
+		let node2CoordSystem = node2.labels && node2.labels.find(label => label.name === 'coordinatesystem');
+		let node1IsDisplay = node1CoordSystem && node1CoordSystem.coordinatesystemProperty === 'display';
+		let node2IsDisplay = node2CoordSystem && node2CoordSystem.coordinatesystemProperty === 'display';
 		
 		if (node1IsDisplay && node2IsDisplay) {
 			// Both nodes in display coordinates - render directly to screen
-			let pos1XLabel = node1.labels.find(label => label.name === 'positionX');
-			let pos1YLabel = node1.labels.find(label => label.name === 'positionY');
-			let pos2XLabel = node2.labels.find(label => label.name === 'positionX');
-			let pos2YLabel = node2.labels.find(label => label.name === 'positionY');
+			let pos1X = node1.displayPositionX;
+			let pos1Y = node1.displayPositionY;
+			let pos2X = node2.displayPositionX;
+			let pos2Y = node2.displayPositionY;
 			
-			if (pos1XLabel && pos1YLabel && pos2XLabel && pos2YLabel) {
+			if (pos1X !== undefined && pos1Y !== undefined && pos2X !== undefined && pos2Y !== undefined) {
 				// Convert percentages to screen pixels
-				let screenX1 = (pos1XLabel.value / 100) * view.screenSize.x;
-				let screenY1 = view.screenSize.y - (pos1YLabel.value / 100) * view.screenSize.y;
-				let screenX2 = (pos2XLabel.value / 100) * view.screenSize.x;
-				let screenY2 = view.screenSize.y - (pos2YLabel.value / 100) * view.screenSize.y;
+				let screenX1 = (pos1X / 100) * view.screenSize.x;
+				let screenY1 = view.screenSize.y - (pos1Y / 100) * view.screenSize.y;
+				let screenX2 = (pos2X / 100) * view.screenSize.x;
+				let screenY2 = view.screenSize.y - (pos2Y / 100) * view.screenSize.y;
 				
 				this.highLight(ctx);
 				ctx.beginPath();
