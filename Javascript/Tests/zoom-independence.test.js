@@ -258,8 +258,8 @@ class BannerPositionTest {
 	 * Check if banner node positions meet success criteria
 	 * 
 	 * Success Criteria (±10% tolerance added to each range):
-	 * - Upper right: X at 98-100% ±10%, Y at 0-20% ±10%
-	 * - Upper left: X at 70% ±10%, Y at 0-20% ±10%
+	 * - Upper right: X at 98-100% ±10%, Y at 5-20% ±10% (hanger must hang)
+	 * - Upper left: X at 70% ±10%, Y at 5-20% ±10% (hanger must hang)
 	 * - Bottom left: X at 70% ±10%, Y at 60-100% ±10%
 	 * - Bottom right: X at 98-100% ±10%, Y at 60-100% ±10%
 	 */
@@ -296,10 +296,10 @@ class BannerPositionTest {
 				percent: (rightTopScreen.x / screenWidth * 100).toFixed(1),
 			},
 			rightTopY: {
-				min: screenHeight * 0.00 - toleranceH,  // 0% - 10%
+				min: screenHeight * 0.05,  // 5% - FIXED floor (hanger must hang)
 				max: screenHeight * 0.20 + toleranceH,  // 20% + 10%
 				actual: rightTopScreen.y,
-				name: 'Right Top Y (0-20% ±10%)',
+				name: 'Right Top Y (5-20% ±10%, hanger MUST hang)',
 				percent: (rightTopScreen.y / screenHeight * 100).toFixed(1),
 			},
 			leftTopX: {
@@ -310,10 +310,10 @@ class BannerPositionTest {
 				percent: (leftTopScreen.x / screenWidth * 100).toFixed(1),
 			},
 			leftTopY: {
-				min: screenHeight * 0.00 - toleranceH,  // 0% - 10%
+				min: screenHeight * 0.05,  // 5% - FIXED floor (hanger must hang)
 				max: screenHeight * 0.20 + toleranceH,  // 20% + 10%
 				actual: leftTopScreen.y,
-				name: 'Left Top Y (0-20% ±10%)',
+				name: 'Left Top Y (5-20% ±10%, hanger MUST hang)',
 				percent: (leftTopScreen.y / screenHeight * 100).toFixed(1),
 			},
 			rightBottomX: {

@@ -8,8 +8,8 @@
     │                                 │
 0%  │                                 │
     │  ┌──────────────────┐           │
-    │  │ ✕ (hanger nail)  │           │  Target: Right edge, 0-20% ±10%
-    │  │ /      |      \  │           │  Actual: Check after 3s stabilization
+5%  │  │ ✕ (hanger nail)  │           │  Target: Right edge, 5-20% ±10%
+    │  │ /      |      \  │           │  ✨ Hanger MUST hang (min 5%)
     │  ├────────┴────────┤           │
 10% │  │ Left  │  Right   │           │  Both top nodes should be
     │  │       │          │           │  at same height here
@@ -31,7 +31,7 @@
          
 Left Top X:      70% ± 10% → 60%-80%
 Right Top X:    98% ± 10% → 88%-110%
-Top Y:           0-20% ± 10% → -10% to 30%
+Top Y:           5-20% (5% is HARD FLOOR, ±10% only on upper limit → 5% to 30%)
 
 Left Bottom X:   70% ± 10% → 60%-80%
 Right Bottom X: 98% ± 10% → 88%-110%
@@ -40,12 +40,12 @@ Bottom Y:       60-100% ± 10% → 50%-110%
 
 ## Position Criteria Checklist
 
-### Upper Nodes (Y: 0-20% ±10% = -10% to 30% from top)
+### Upper Nodes (Y: 5% HARD FLOOR to 20% with ±10% upper tolerance = 5% to 30%) ✨ *Hanger MUST hang*
 
 | Node | X Position | Y Position | Status |
 |------|-----------|-----------|--------|
-| **Left Top** | 70% ±10% (60-80%) | -10% to 30% | ✓ |
-| **Right Top** | 98% ±10% (88-110%) | -10% to 30% | ✓ |
+| **Left Top** | 70% ±10% (60-80%) | 5% to 30% | ✓ |
+| **Right Top** | 98% ±10% (88-110%) | 5% to 30% | ✓ |
 
 ### Lower Nodes (Y: 60-100% ±10% = 50% to 110% from top)
 

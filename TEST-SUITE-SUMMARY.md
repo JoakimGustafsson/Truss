@@ -31,10 +31,10 @@ You now have a comprehensive automated test suite to verify that banner physics 
 
 ### After 3-Second Physics Stabilization:
 
-**Upper Nodes (Top of Banner)**
+**Upper Nodes (Top of Banner)** ✨ *Hanger must hang (5% is HARD FLOOR, no tolerance)*
 ```
-Left Top:    X = 70% ±10% (60%-80%)    Y = 0-20% ±10% (-10% to 30%)
-Right Top:   X = 98% ±10% (88%-110%)   Y = 0-20% ±10% (-10% to 30%)
+Left Top:    X = 70% ±10% (60%-80%)    Y = 5-20% (5% is FIXED, max to 30% ±10%)
+Right Top:   X = 98% ±10% (88%-110%)   Y = 5-20% (5% is FIXED, max to 30% ±10%)
 ```
 
 **Lower Nodes (Bottom of Banner)**
