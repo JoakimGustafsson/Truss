@@ -79,7 +79,7 @@ class BannerNode extends Node {
 			'name': 'nail',
 			'mass': NaN,
 			'velocityLoss': 1.0,
-			'coordinatesystem': 'display',
+			'coordinatesystemProperty': 'display',
 			'displayPositionX': centerPercentX,
 			'displayPositionY': centerPercentY,
 		});
@@ -89,7 +89,7 @@ class BannerNode extends Node {
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
+			'coordinatesystemProperty': 'display',
 			'displayPositionX': topLeftPercentX,
 			'displayPositionY': topLeftPercentY,
 		});
@@ -99,7 +99,7 @@ class BannerNode extends Node {
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
+			'coordinatesystemProperty': 'display',
 			'displayPositionX': topRightPercentX,
 			'displayPositionY': topLeftPercentY,
 		});
@@ -109,7 +109,7 @@ class BannerNode extends Node {
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,  // Earth's mass
 			'velocityLoss': 1.0,
-			'coordinatesystem': 'display',
+			'coordinatesystemProperty': 'display',
 			'displayPositionX': centerPercentX,
 			'displayPositionY': EARTH_CENTER_DISTANCE_PERCENT,
 		});
@@ -120,7 +120,7 @@ class BannerNode extends Node {
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
+			'coordinatesystemProperty': 'display',
 			'displayPositionX': topLeftPercentX,
 			'displayPositionY': bottomPercentY,
 		});
@@ -131,7 +131,7 @@ class BannerNode extends Node {
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
+			'coordinatesystemProperty': 'display',
 			'displayPositionX': topRightPercentX,
 			'displayPositionY': bottomPercentY,
 		});
@@ -146,35 +146,35 @@ class BannerNode extends Node {
 			'color': 'transparent',
 		});
 
-		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
+		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner coordinatesystem', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 5000,
 			'visible': 1,
 		});
 
-		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
+		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner coordinatesystem', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 5000,
 			'visible': 1,
 		});
 
-		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
+		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner coordinatesystem', {
 			'equilibriumLength': 18,
 			'dampeningConstant': 10,
 			'constant': 3000,
 		});
 
 
-		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
+		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner coordinatesystem', {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 600,
 			'color': 'transparent',
 		});
 
-		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
+		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner coordinatesystem', {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 600,
