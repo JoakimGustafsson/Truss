@@ -79,44 +79,54 @@ class BannerNode extends Node {
 			'name': 'nail',
 			'mass': NaN,
 			'velocityLoss': 1.0,
-			'coordinatesystemProperty': 'display',
 			'displayPositionX': centerPercentX,
 			'displayPositionY': centerPercentY,
 		});
 		
-		// Verify coordinatesystem label was applied
+		// Explicitly set coordinatesystem label property to 'display'
 		let nailCoordLabel = this.nail.labels && this.nail.labels.find(l => l.name === 'coordinatesystem');
-		console.log(`✓ Banner nail created with coordinatesystem label:`, nailCoordLabel ? `${nailCoordLabel.name}=${nailCoordLabel.coordinatesystemProperty}` : 'NOT FOUND');
+		if (nailCoordLabel) {
+			nailCoordLabel.coordinatesystemProperty = 'display';
+			console.log(`✓ Banner nail coordinatesystem set to: ${nailCoordLabel.coordinatesystemProperty}`);
+		} else {
+			console.warn(`⚠️ Banner nail missing coordinatesystem label!`);
+		}
 
 		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'coordinatesystemProperty': 'display',
 			'displayPositionX': topLeftPercentX,
 			'displayPositionY': topLeftPercentY,
 		});
+		
+		let leftTopCoordLabel = this.leftTopNode.labels && this.leftTopNode.labels.find(l => l.name === 'coordinatesystem');
+		if (leftTopCoordLabel) leftTopCoordLabel.coordinatesystemProperty = 'display';
 
 		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'coordinatesystemProperty': 'display',
 			'displayPositionX': topRightPercentX,
 			'displayPositionY': topLeftPercentY,
 		});
+		
+		let rightTopCoordLabel = this.rightTopNode.labels && this.rightTopNode.labels.find(l => l.name === 'coordinatesystem');
+		if (rightTopCoordLabel) rightTopCoordLabel.coordinatesystemProperty = 'display';
 
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
 			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,  // Earth's mass
 			'velocityLoss': 1.0,
-			'coordinatesystemProperty': 'display',
 			'displayPositionX': centerPercentX,
 			'displayPositionY': EARTH_CENTER_DISTANCE_PERCENT,
 		});
+		
+		let gravityCoordLabel = this.bannerGravityWell.labels && this.bannerGravityWell.labels.find(l => l.name === 'coordinatesystem');
+		if (gravityCoordLabel) gravityCoordLabel.coordinatesystemProperty = 'display';
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight),
@@ -124,10 +134,12 @@ class BannerNode extends Node {
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'coordinatesystemProperty': 'display',
 			'displayPositionX': topLeftPercentX,
 			'displayPositionY': bottomPercentY,
 		});
+		
+		let leftBottomCoordLabel = this.leftBottomNode.labels && this.leftBottomNode.labels.find(l => l.name === 'coordinatesystem');
+		if (leftBottomCoordLabel) leftBottomCoordLabel.coordinatesystemProperty = 'display';
 
 		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight),
@@ -135,10 +147,12 @@ class BannerNode extends Node {
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'coordinatesystemProperty': 'display',
 			'displayPositionX': topRightPercentX,
 			'displayPositionY': bottomPercentY,
 		});
+		
+		let rightBottomCoordLabel = this.rightBottomNode.labels && this.rightBottomNode.labels.find(l => l.name === 'coordinatesystem');
+		if (rightBottomCoordLabel) rightBottomCoordLabel.coordinatesystemProperty = 'display';
 
 		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
 			'constant': GRAVITY_CONSTANT,  // Newton's gravitational constant
