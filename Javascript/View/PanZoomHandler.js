@@ -63,8 +63,7 @@ class PanZoomHandler {
 	/** Convert a clientX/Y coord to element-local pixel coords. */
 	_clientToLocal(clientX, clientY) {
 		const rect = this.sensorElement.getBoundingClientRect();
-		// Mathematical coordinates: negate Y so down = negative
-		return { x: clientX - rect.left, y: -(clientY - rect.top) };
+		return { x: clientX - rect.left, y: clientY - rect.top };
 	}
 
 	/** Midpoint of all active pointers (in local coords). */
@@ -220,7 +219,8 @@ class PanZoomHandler {
 
 		// Always pan if there's any horizontal movement (two-finger drag)
 		if (absDeltaX > 0) {
-			const panDelta = { x: ev.deltaX, y: ev.deltaY };
+			// With Y-axis flipped, negate deltaY for correct pan direction
+			const panDelta = { x: ev.deltaX, y: -ev.deltaY };
 			this.view.updateOffset(panDelta);
 		} 
 		// Only zoom if movement is nearly vertical (< 2px horizontal tolerance)
