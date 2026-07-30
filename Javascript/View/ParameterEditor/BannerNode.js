@@ -75,6 +75,7 @@ class BannerNode extends Node {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
 			'name': 'nail',
 			'mass': NaN,
+			'velocityLoss': 1.0,
 			'labels': [
 				{'name': 'displaycoordinates'},
 				{'name': 'positionX', 'value': centerPercentX},
@@ -108,6 +109,7 @@ class BannerNode extends Node {
 			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,
+			'velocityLoss': 1.0,
 			'labels': [
 				{'name': 'displaycoordinates'},
 				{'name': 'positionX', 'value': centerPercentX},
