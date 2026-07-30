@@ -41,22 +41,21 @@ class BannerPositionTest {
 	/**
 	 * Find the closest gravity well node in the world, or create one if none exist
 	 * 
-	 * A gravity well is identified by:
-	 * - Having 'gravitywell' in its label, OR
-	 * - Being a node that other field tensors connect to
+	 * Uses the Label API (world.labels.findLabel) to properly query for 
+	 * gravity wells instead of pattern-matching label strings.
+	 * 
+	 * A gravity well is identified by the 'gravitywell' label.
+	 * See LABEL-API-GUIDE.md for full Label API documentation.
 	 * 
 	 * @param {Object} world - World object containing nodes
 	 * @param {Vector} referencePosition - Position to measure distance from (in world coordinates)
 	 * @return {Node} Gravity well node
 	 */
 	_findOrCreateGravityWell(world, referencePosition) {
-		// Find all gravity well nodes by checking labels
-		// A node is a gravity well if its label includes 'gravitywell'
-		const gravityWells = world.nodes.filter(node => {
-			// Check if node label contains 'gravitywell' (e.g., 'gravitywell node', 'gravitywell', etc.)
-			const label = node.label || '';
-			return label.includes('gravitywell');
-		});
+		// Use Label API to find gravity wells
+		// This is the proper way to query labeled objects
+		const gravityWellLabel = world.labels.findLabel('gravitywell');
+		const gravityWells = gravityWellLabel.getNodes();
 
 		// If gravity wells exist, return the closest one
 		if (gravityWells.length > 0) {
