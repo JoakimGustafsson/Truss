@@ -257,6 +257,40 @@ class BannerNode extends Node {
 		super.show(truss, time, graphicDebugLevel);
 		this.highLight(truss.view.context);
 
+		// Show all banner nodes and tensors (they're in display coordinates)
+		if (this.nail) {
+			this.nail.show(truss, time, graphicDebugLevel);
+		}
+		if (this.leftTopNode) {
+			this.leftTopNode.show(truss, time, graphicDebugLevel);
+		}
+		if (this.rightTopNode) {
+			this.rightTopNode.show(truss, time, graphicDebugLevel);
+		}
+		if (this.leftBottomNode) {
+			this.leftBottomNode.show(truss, time, graphicDebugLevel);
+		}
+		if (this.rightBottomNode) {
+			this.rightBottomNode.show(truss, time, graphicDebugLevel);
+		}
+		
+		// Show all banner tensors
+		if (this.leftBand) {
+			this.leftBand.show(truss, graphicDebugLevel);
+		}
+		if (this.rightBand) {
+			this.rightBand.show(truss, graphicDebugLevel);
+		}
+		if (this.topBand) {
+			this.topBand.show(truss, graphicDebugLevel);
+		}
+		if (this.leftSpring) {
+			this.leftSpring.show(truss, graphicDebugLevel);
+		}
+		if (this.rightSpring) {
+			this.rightSpring.show(truss, graphicDebugLevel);
+		}
+
 		// Always apply position transform (both debug and normal mode)
 		// warpMatrix handles displaycoordinates label to skip zoom/pan for display nodes
 		if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
