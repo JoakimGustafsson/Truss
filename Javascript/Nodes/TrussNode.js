@@ -239,7 +239,10 @@ class TrussNode extends Node {
 		// Support both current name and legacy save-file key
 		const offsetData = restoreObject.worldOffset || restoreObject.setWorldOffset;
 		if (offsetData) {
-			this.view.setOffset(new Vector().deserialize(offsetData));
+			const offsetVec = new Vector().deserialize(offsetData);
+			// Flip Y offset for coordinate system migration (old saves have Y positive downward)
+			offsetVec.y = -offsetVec.y;
+			this.view.setOffset(offsetVec);
 		}
 		if (restoreObject.fpsTarget !== undefined && restoreObject.fpsTarget !== null) {
 			this.fpsTarget = restoreObject.fpsTarget;

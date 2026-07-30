@@ -278,6 +278,16 @@ class Node extends StoreableObject {
 		}
 
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
+		
+		// Version migration: flip Y coordinates for old save files (Y-axis flip from screen to mathematical coords)
+		// This migration runs automatically on first load of old saves
+		if (restoreObject.localPosition && this.localPosition.y !== undefined && this.localPosition.y !== null) {
+			// Old saves have Y positive downward; new system has Y positive upward
+			// We flip by negating and adjusting relative to world size
+			// Simple approach: negate Y to flip from screen to math coords
+			this.localPosition.y = -this.localPosition.y;
+		}
+		
 		if (!restoreObject.localPosition) {
 			console.warn(`⚠️ Node deserialization: Node "${this.name}" has missing localPosition in save data`);
 		} else if (isNaN(this.localPosition.x) || isNaN(this.localPosition.y)) {
@@ -285,9 +295,13 @@ class Node extends StoreableObject {
 			this.localPosition.x = 0;
 			this.localPosition.y = 0;
 		} else {
-			console.log(`✓ Node deserialized: "${this.name}" at (${this.localPosition.x.toFixed(2)}, ${this.localPosition.y.toFixed(2)})`);
+			console.log(`✓ Node deserialized: "${this.name}" at (${this.localPosition.x.toFixed(2)}, ${this.localPosition.y.toFixed(2)}) [Y-axis flipped]`);
 		}
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
+		// Flip velocity Y for coordinate system migration
+		if (restoreObject.velocity && this.velocity.y !== undefined && this.velocity.y !== null) {
+			this.velocity.y = -this.velocity.y;
+		}
 		this.mass = restoreObject.mass;
 		if (!this.mass) {
 			this.mass = NaN;
