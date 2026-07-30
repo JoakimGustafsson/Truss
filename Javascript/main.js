@@ -31,7 +31,7 @@ function init() {
 
 	let latestNode = new PerformanceTrussNode(latestWorld, undefined, 'truss', {
 		'name': 'MainNode',
-	}, new Position(0, 0), new Vector(30, 35), 1 / 60, 1, 'MainNode');
+	}, new Position(0, 0), new Vector(60, 70), 1 / 60, 1, 'MainNode');
 	latestNode.initiate();
 	latestWorld.trussNode = latestNode;
 	latestWorld.governors = [];
