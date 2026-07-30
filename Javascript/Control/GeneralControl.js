@@ -1,4 +1,5 @@
 /* global Tensor Spring */
+import { setMyX, setMyY } from '../globals.js';
 
 /**
  * @class
@@ -53,8 +54,9 @@ class GeneralControl {
 	myMove(e) {
 		// Store viewport-relative coordinates (for world coordinate system)
 		// Display coordinate system will convert these as needed
-		this.myX = e.clientX;
-		this.myY = e.clientY;
+		// Update the GLOBAL myX/myY (from globals.js) via the setters
+		setMyX(e.clientX);
+		setMyY(e.clientY);
 	}
 
 	/**
