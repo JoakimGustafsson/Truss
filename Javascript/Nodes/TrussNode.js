@@ -528,15 +528,28 @@ class TrussNode extends Node {
 		let lowestDistanceDisplay = 1000000000;  // Separate tracker for display coordinate distances
 		let closest;
 		
-		// Debug: show all display coordinate nodes
+		// Debug: show all coordinate nodes
 		let displayNodes = this.nodes.filter(n => {
 			let coordLabel = n.labels && n.labels.find(l => l.name === 'coordinatesystem');
 			return coordLabel && coordLabel.coordinatesystemProperty === 'display';
 		});
+		let worldNodes = this.nodes.filter(n => {
+			let coordLabel = n.labels && n.labels.find(l => l.name === 'coordinatesystem');
+			return !coordLabel || coordLabel.coordinatesystemProperty !== 'display';
+		});
+		
 		if (displayNodes.length > 0 && displayNodes.length < 20) {  // Only log once or first time
 			console.log(`📊 Display nodes found (${displayNodes.length} total):`);
 			displayNodes.forEach(n => {
 				console.log(`  - ${n.name}: (${n.displayPositionX.toFixed(1)}%, ${n.displayPositionY.toFixed(1)}%) mass=${n.mass}`);
+			});
+		}
+		
+		if (worldNodes.length > 0 && worldNodes.length < 20) {
+			console.log(`🌍 World nodes found (${worldNodes.length} total):`);
+			worldNodes.forEach(n => {
+				let pos = n.getPosition();
+				console.log(`  - ${n.name}: (${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}) mass=${n.mass}`);
 			});
 		}
 		// For display nodes, we need canvas-relative coordinates
