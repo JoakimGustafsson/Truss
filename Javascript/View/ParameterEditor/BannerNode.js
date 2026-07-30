@@ -170,14 +170,14 @@ class BannerNode extends Node {
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner coordinatesystem', {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
-			'constant': 600,
+			'constant': 2000,
 			'color': 'transparent',
 		});
 
 		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner coordinatesystem', {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
-			'constant': 600,
+			'constant': 2000,
 			'color': 'transparent',
 		});
 
