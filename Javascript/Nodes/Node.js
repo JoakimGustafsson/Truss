@@ -581,6 +581,10 @@ class Node extends StoreableObject {
 		if (!this.visible || this.visible=='0') {
 			return;
 		}
+		// Hide gravity wells and other huge mass nodes (they're not meant to be rendered)
+		if (this.mass && this.mass > 1e20) {
+			return;
+		}
 		if (!this.color) {
 			this.color='lightgrey';
 		}
