@@ -96,11 +96,9 @@ class BannerNode extends Node {
 			'mass': 1,
 			'velocityLoss': 0.9,
 		});
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner nogravity', {
-			'localPosition': truss.view && truss.view.worldPosition ? truss.view.worldPosition(screenWidth / 2, -6371000) : new Position(screenWidth / 2, -6371000),
-			'name': 'bannerGravityWell',
-			'nogravity': true,  // This should use labels, but keeping for reference
-		});
+		// NOTE: No synthetic bannerGravityWell created
+		// Banner gravity is provided by Earth's gravity well (if it exists)
+		// See gravity connections below
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': leftBottom_world,
@@ -156,6 +154,37 @@ class BannerNode extends Node {
 		// Banner bottom nodes (leftBottomNode, rightBottomNode) are NOT marked with 'nogravity'
 		// They will receive gravity field connections from Earth, allowing them to hang downward
 		// Top nodes are marked with 'nogravity' so they stay anchored by springs instead of falling
+
+		// CRITICAL: Connect bottom nodes to Earth's gravity well
+		// These nodes need explicit gravity field tensors to experience gravitational force
+		const gravityWellLabel = this.world.labels.findLabel('gravitywell');
+		if (gravityWellLabel) {
+			const gravityWells = gravityWellLabel.getNodes();
+			if (gravityWells && gravityWells.length > 0) {
+				const earthNode = gravityWells[0];
+				const GRAVITY_CONSTANT = -6.67e-11;  // Negative for attraction (Newton's gravity)
+				
+				// Connect left bottom node to gravity
+				this.gravityFieldLeft = new Tensor(earthNode, this.leftBottomNode, 'field', {
+					'name': 'gravity-leftBottom',
+					'constant': GRAVITY_CONSTANT,
+					'visible': 0,  // Hide the gravity field lines
+				});
+				
+				// Connect right bottom node to gravity
+				this.gravityFieldRight = new Tensor(earthNode, this.rightBottomNode, 'field', {
+					'name': 'gravity-rightBottom',
+					'constant': GRAVITY_CONSTANT,
+					'visible': 0,  // Hide the gravity field lines
+				});
+				
+				console.log(`✓ Banner: Connected leftBottomNode and rightBottomNode to ${earthNode.name} gravity well`);
+			} else {
+				console.warn(`⚠️ Banner: No gravity well found. Bottom nodes won't experience gravity.`);
+			}
+		} else {
+			console.warn(`⚠️ Banner: gravitywell label not found. Bottom nodes won't experience gravity.`);
+		}
 
 		this.visible = true;
 		
