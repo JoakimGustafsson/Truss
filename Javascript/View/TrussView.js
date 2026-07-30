@@ -115,6 +115,8 @@ class View {
 		this.element.style.height = screenSize.y + 'px';
 		this.setupAlertVectors(this.element, new Vector().deserialize(restoreObject.worldViewSize));
 		this.offset = new Vector().deserialize(restoreObject.offset);
+		// Flip Y offset for new coordinate system (0,0 at lower-left)
+		this.offset.y = -this.offset.y + this.worldViewSize.y;
 		this.recalculate();
 		return this;
 	}
@@ -143,10 +145,12 @@ class View {
 
 	/** Given a position p in the world, return the position on this views display
 	 * @param  {Position} p The inworld position
-	 * @return {number} The horizontal position on this views display
+	 * @return {number} The vertical position on this views display
 	 */
 	y(p) {
-		return (p.y - this.offset.y) / this.yScale;
+		// Mathematical coordinates: negate Y so down = negative
+		// Also flip offset.y to maintain correct camera positioning
+		return -(p.y - this.offset.y) / this.yScale;
 	};
 
 	/**
@@ -156,7 +160,8 @@ class View {
 	 * @return {Position}
 	 */
 	worldPosition(x, y) {
-		return new Position(x * this.xScale + this.offset.x, y * this.yScale + this.offset.y);
+		// Mathematical coordinates: negate Y so down = negative
+		return new Position(x * this.xScale + this.offset.x, -y * this.yScale + this.offset.y);
 	};
 
 	/**
@@ -167,8 +172,9 @@ class View {
 	 * @return {Position}
 	 */
 	worldPositionWithOffset(x, y) {
+		// Mathematical coordinates: negate Y so down = negative
 		return new Position((x - this.elemRectleft) * this.xScale + this.offset.x,
-			(y - this.elemRecttop) * this.yScale + this.offset.y);
+			-(y - this.elemRecttop) * this.yScale + this.offset.y);
 	};
 
 	/**
@@ -274,6 +280,11 @@ class View {
 			this.xScale = this.yScale;
 			// Adjust worldViewSize.x to reflect the locked scale (bypass callback to avoid recursion)
 			this.worldViewSize.v.x = this.xScale * this.screenSize.x;
+		}
+
+		// Center camera on origin: offset.y = worldViewSize.y puts (0,0) at lower-left of screen
+		if (this.offset.y === 0) {
+			this.offset.y = this.worldViewSize.y;
 		}
 
 		// Cache the visible canvas rect for pointer<->world conversion

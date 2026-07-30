@@ -63,7 +63,8 @@ class PanZoomHandler {
 	/** Convert a clientX/Y coord to element-local pixel coords. */
 	_clientToLocal(clientX, clientY) {
 		const rect = this.sensorElement.getBoundingClientRect();
-		return { x: clientX - rect.left, y: clientY - rect.top };
+		// Mathematical coordinates: negate Y so down = negative
+		return { x: clientX - rect.left, y: -(clientY - rect.top) };
 	}
 
 	/** Midpoint of all active pointers (in local coords). */
