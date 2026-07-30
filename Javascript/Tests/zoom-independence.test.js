@@ -99,7 +99,6 @@ class BannerPositionTest {
 		world.nodes.push(gravityWellNode);
 		
 		// Also add to the gravitywell label so future queries find it
-		const gravityWellLabel = world.labels.findLabel('gravitywell');
 		if (gravityWellLabel.addNode) {
 			gravityWellLabel.addNode(gravityWellNode);
 		}
