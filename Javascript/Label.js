@@ -201,6 +201,13 @@ class Labels {
 			'keyProperty': [],
 			'restPositionProperty': new Position(1, 1),
 		});
+		let nogravityLabel = this.addLabel('nogravity', [nodeLabel], {
+			// Nodes with this label should not be affected by gravity fields
+			// Used for UI elements like banner top nodes that are anchored or controlled by springs
+		});
+		let bannerLabel = this.addLabel('banner', [nodeLabel], {
+			// Nodes with this label are part of the banner UI system
+		});
 	}
 
 	/**

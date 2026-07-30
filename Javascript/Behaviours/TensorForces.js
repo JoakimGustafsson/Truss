@@ -278,8 +278,13 @@ class FieldCalculator extends Behaviour {
 			return new Vector(0, 0);
 		}
 		
-		// Skip field calculations for banner UI nodes - they manage their own spring physics
-		if (this.node1?.isBannerUINode || this.node2?.isBannerUINode) {
+		// Skip field calculations for nodes marked with 'nogravity' label
+		// The 'nogravity' label is used for nodes that should not be affected by gravity fields
+		// (typically UI elements like banner top nodes that are anchored or controlled by springs)
+		const hasNoGravity1 = this.node1.labels && this.node1.labels.some(label => label.name === 'nogravity');
+		const hasNoGravity2 = this.node2.labels && this.node2.labels.some(label => label.name === 'nogravity');
+		
+		if (hasNoGravity1 || hasNoGravity2) {
 			return new Vector(0, 0);
 		}
 		

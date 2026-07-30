@@ -78,31 +78,28 @@ class BannerNode extends Node {
 		console.log(`  leftBottom: (${leftBottom_world.x.toFixed(2)}, ${leftBottom_world.y.toFixed(2)})`);
 		console.log(`  rightBottom: (${rightBottom_world.x.toFixed(2)}, ${rightBottom_world.y.toFixed(2)})`);
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner nogravity', {
 			'localPosition': truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2) : new Position(0, 0),
 			'name': 'nail',
 			'mass': NaN,
-			'isBannerUINode': true,
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity', {
 			'localPosition': leftTop_world,
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'isBannerUINode': true,
 		});
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity', {
 			'localPosition': rightTop_world,
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'isBannerUINode': true,
 		});
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner nogravity', {
 			'localPosition': truss.view && truss.view.worldPosition ? truss.view.worldPosition(screenWidth / 2, -6371000) : new Position(screenWidth / 2, -6371000),
 			'name': 'bannerGravityWell',
-			'isBannerUINode': true,  // Mark as UI node so it's excluded from viewport calculations
+			'nogravity': true,  // This should use labels, but keeping for reference
 		});
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
@@ -111,16 +108,14 @@ class BannerNode extends Node {
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'isBannerUINode': true,
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': rightBottom_world,
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'isBannerUINode': true,
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
@@ -158,9 +153,9 @@ class BannerNode extends Node {
 			'color': 'transparent',
 		});
 
-		// Don't connect banner bottom to gravity well - the banner stays in shape via its internal springs
-		// The gravity well is just positioned far below for realistic gravity calculation
-		// (it won't affect banner since isBannerUINode excludes it from field calculations)
+		// Banner bottom nodes (leftBottomNode, rightBottomNode) are NOT marked with 'nogravity'
+		// They will receive gravity field connections from Earth, allowing them to hang downward
+		// Top nodes are marked with 'nogravity' so they stay anchored by springs instead of falling
 
 		this.visible = true;
 		
