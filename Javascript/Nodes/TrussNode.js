@@ -525,6 +525,7 @@ class TrussNode extends Node {
 	 */
 	getClosestObject(position, maxDistance, avoid, view) {
 		let lowestDistance = 1000000000;
+		let lowestDistanceDisplay = 1000000000;  // Separate tracker for display coordinate distances
 		let closest;
 		
 		for (let node of this.nodes) {
@@ -532,28 +533,26 @@ class TrussNode extends Node {
 			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
 			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
 			
-			let nodePos;
 			if (nodeIsDisplay) {
 				// For display nodes, input position is already in screen pixels
 				// Convert node's display position percentages to screen pixels
 				let screenX = (node.displayPositionX / 100) * this.view.screenSize.x;
 				let screenY = this.view.screenSize.y - (node.displayPositionY / 100) * this.view.screenSize.y;
-				nodePos = new Position(screenX, screenY);
+				let nodePos = new Position(screenX, screenY);
+				
+				let distance = Position.distance(position, nodePos);
+				if (distance < lowestDistanceDisplay && node != avoid) {
+					lowestDistanceDisplay = distance;
+					closest = node;
+				}
 			} else {
 				// For world nodes, convert input screen position to world coordinates first
 				let worldPos = view ? view.worldPositionWithOffset(position.x, position.y) : position;
-				nodePos = this.view.screenPosition(node.getPosition());
-				// Now we need to compare in world space, so use node's actual world position
-				if (Position.distance(worldPos, node.getPosition()) < lowestDistance && node != avoid) {
-					lowestDistance = Position.distance(worldPos, node.getPosition());
+				let distance = Position.distance(worldPos, node.getPosition());
+				if (distance < lowestDistance && node != avoid) {
+					lowestDistance = distance;
 					closest = node;
 				}
-				continue; // Skip the distance calculation below for world nodes
-			}
-			
-			if (Position.distance(position, nodePos) < lowestDistance && node != avoid) {
-				lowestDistance = Position.distance(position, nodePos);
-				closest = node;
 			}
 		}
 		
@@ -564,32 +563,48 @@ class TrussNode extends Node {
 			let node1IsDisplay = node1CoordLabel && node1CoordLabel.coordinatesystemProperty === 'display';
 			let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
 			
-			let tensorPos;
 			if (node1IsDisplay && node2IsDisplay) {
 				// Both ends in display space - compute midpoint in screen pixels
 				let screenX1 = (tensor.node1.displayPositionX / 100) * this.view.screenSize.x;
 				let screenY1 = this.view.screenSize.y - (tensor.node1.displayPositionY / 100) * this.view.screenSize.y;
 				let screenX2 = (tensor.node2.displayPositionX / 100) * this.view.screenSize.x;
 				let screenY2 = this.view.screenSize.y - (tensor.node2.displayPositionY / 100) * this.view.screenSize.y;
-				tensorPos = new Position((screenX1 + screenX2) / 2, (screenY1 + screenY2) / 2);
+				let tensorPos = new Position((screenX1 + screenX2) / 2, (screenY1 + screenY2) / 2);
 				
-				if (Position.distance(position, tensorPos) < lowestDistance && tensor != avoid) {
-					lowestDistance = Position.distance(position, tensorPos);
+				let distance = Position.distance(position, tensorPos);
+				if (distance < lowestDistanceDisplay && tensor != avoid) {
+					lowestDistanceDisplay = distance;
 					closest = tensor;
 				}
 			} else {
 				// World coordinate tensor - convert screen position to world first
 				let worldPos = view ? view.worldPositionWithOffset(position.x, position.y) : position;
-				if (Position.distance(worldPos, tensor.getPosition()) < lowestDistance && tensor != avoid) {
-					lowestDistance = Position.distance(worldPos, tensor.getPosition());
+				let distance = Position.distance(worldPos, tensor.getPosition());
+				if (distance < lowestDistance && tensor != avoid) {
+					lowestDistance = distance;
 					closest = tensor;
 				}
 			}
 		}
 		
-		if (lowestDistance > maxDistance) {
-			return;
+		// Check if closest object is within threshold for its coordinate system
+		if (closest) {
+			let closestCoordLabel = closest.labels && closest.labels.find(l => l.name === 'coordinatesystem');
+			let closestIsDisplay = closestCoordLabel && closestCoordLabel.coordinatesystemProperty === 'display';
+			
+			// For display nodes, use pixel-based threshold (20 pixels)
+			// For world nodes, use the provided maxDistance threshold
+			if (closestIsDisplay) {
+				if (lowestDistanceDisplay > 20) {
+					return undefined;
+				}
+			} else {
+				if (lowestDistance > maxDistance) {
+					return undefined;
+				}
+			}
 		}
+		
 		return closest;
 	}
 
