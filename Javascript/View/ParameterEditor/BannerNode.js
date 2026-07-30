@@ -72,7 +72,9 @@ class BannerNode extends Node {
 		// Earth's radius = 6,371 km = 6.371e6 m
 		// Distance in percentages: (6.371e6 m / 0.004 m/%) = 1.59275e9 %
 		const EARTH_CENTER_DISTANCE_PERCENT = -1.59275e9;  // Below display origin
-		const GRAVITY_CONSTANT = -6.67e-11;  // Newton's gravitational constant for attractive force
+		// Gravity constant scaled for display coordinates (percentage-based, not meters)
+		// This creates noticeable downward force on banner nodes
+		const GRAVITY_CONSTANT = -0.001;  // Scaled for display coordinate space
 
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
@@ -189,14 +191,16 @@ class BannerNode extends Node {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 2000,
-			'color': 'transparent',
+			'color': 'rgba(100, 200, 100, 0.5)',  // Semi-transparent green
+			'visible': 1,
 		});
 
-		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner coordinatesystem', {
+		this.rightSpring = new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner coordinatesystem', {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 2000,
-			'color': 'transparent',
+			'color': 'rgba(100, 200, 100, 0.5)',  // Semi-transparent green
+			'visible': 1,
 		});
 
 		// Note: bannerGravityWell is a display coordinate node that serves as an anchor point
