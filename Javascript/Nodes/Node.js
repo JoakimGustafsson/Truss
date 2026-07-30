@@ -498,8 +498,9 @@ class Node extends StoreableObject {
 	updateVelocity(forceAppliers, timeFactor, velocityPhase) {
 		if (isNaN(this.mass)) return;
 		
-		// Only update velocity if node has velocityLoss property (physics-enabled)
-		if (this.velocityLoss === undefined) return;
+		// Check if node should have physics: either has velocityLoss, or has 'moveable' label
+		let hasMoveable = this.labels && this.labels.some(label => label.name === 'moveable');
+		if (this.velocityLoss === undefined && !hasMoveable) return;
 		
 		let acceleration;
 		if (forceAppliers.length > 0) {
@@ -509,7 +510,10 @@ class Node extends StoreableObject {
 			acceleration = new Vector(0, 0);
 		}
 		
-		this.velocity = Vector.addVectors(Vector.multiplyVector(this.velocityLoss, this.velocity),
+		// Use velocityLoss if defined, otherwise default to 0.95 for moveable nodes
+		let velocityLoss = this.velocityLoss !== undefined ? this.velocityLoss : 0.95;
+		
+		this.velocity = Vector.addVectors(Vector.multiplyVector(velocityLoss, this.velocity),
 			Vector.multiplyVector(timeFactor, acceleration));
 	}
 
