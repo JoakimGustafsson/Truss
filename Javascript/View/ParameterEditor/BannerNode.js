@@ -26,6 +26,7 @@ class BannerNode extends Node {
 		super(anchorWorld, anchorTrussNode, 'banner sensor');
 		this.truss = truss;
 		this.name = 'bannerNode';
+		this.visible = false;  // Hide BannerNode from rendering - it's just a container for UI
 		this.element = editParameterElement;
 		this.propertyElement = propertyElement;
 		this.isListening = false;
