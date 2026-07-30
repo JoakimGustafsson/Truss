@@ -266,11 +266,34 @@ class BannerNode extends Node {
 
 		if (graphicDebugLevel > 0) {
 			if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
+				// Use display coordinate positions instead of world positions
+				// Convert from percentages to screen pixels
+				let screenWidth = truss.view.screenSize.x;
+				let screenHeight = truss.view.screenSize.y;
+				
+				// Create Position objects for warpMatrix using display coordinates
+				let topLeftScreenPos = new Position(
+					(this.leftTopNode.displayPositionX / 100) * screenWidth,
+					screenHeight - (this.leftTopNode.displayPositionY / 100) * screenHeight
+				);
+				let topRightScreenPos = new Position(
+					(this.rightTopNode.displayPositionX / 100) * screenWidth,
+					screenHeight - (this.rightTopNode.displayPositionY / 100) * screenHeight
+				);
+				let bottomLeftScreenPos = new Position(
+					(this.leftBottomNode.displayPositionX / 100) * screenWidth,
+					screenHeight - (this.leftBottomNode.displayPositionY / 100) * screenHeight
+				);
+				let bottomRightScreenPos = new Position(
+					(this.rightBottomNode.displayPositionX / 100) * screenWidth,
+					screenHeight - (this.rightBottomNode.displayPositionY / 100) * screenHeight
+				);
+				
 				warpMatrix(truss, this,
-					this.leftTopNode.getPosition(),
-					this.rightTopNode.getPosition(),
-					this.leftBottomNode.getPosition(),
-					this.rightBottomNode.getPosition(),
+					topLeftScreenPos,
+					topRightScreenPos,
+					bottomLeftScreenPos,
+					bottomRightScreenPos,
 					this.width,
 					this.height);
 			}
