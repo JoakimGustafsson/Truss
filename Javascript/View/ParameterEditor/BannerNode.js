@@ -45,6 +45,26 @@ class BannerNode extends Node {
 	 */
 	create(truss, topScreenPos) {
 		this.element.style.display = 'block';
+		// Allow touch events to pass through to the canvas for pan/zoom
+		this.element.style.pointerEvents = 'none';
+		
+		// Forward touch events to the canvas for pinch-zoom
+		this.element.addEventListener('touchstart', (e) => {
+			if (e.touches.length >= 2) {
+				e.preventDefault();
+				this._forwardTouchToCanvas(e);
+			}
+		}, { passive: false });
+		this.element.addEventListener('touchmove', (e) => {
+			if (e.touches.length >= 2) {
+				e.preventDefault();
+				this._forwardTouchToCanvas(e);
+			}
+		}, { passive: false });
+		this.element.addEventListener('touchend', (e) => {
+			this._forwardTouchToCanvas(e);
+		}, { passive: false });
+		
 		this.truss = truss;
 		this.width = this.element.offsetWidth;
 		this.height = this.element.offsetHeight;
@@ -168,6 +188,24 @@ class BannerNode extends Node {
 	}
 
 	/**
+	 * Forward touch events from banner element to canvas for pinch-zoom handling
+	 */
+	_forwardTouchToCanvas(touchEvent) {
+		const canvas = this.truss?.element?.querySelector('canvas');
+		if (canvas) {
+			// Create a new touch event on the canvas with the same data
+			const newEvent = new TouchEvent(touchEvent.type, {
+				bubbles: true,
+				cancelable: true,
+				touches: touchEvent.touches,
+				targetTouches: touchEvent.targetTouches,
+				changedTouches: touchEvent.changedTouches
+			});
+			canvas.dispatchEvent(newEvent);
+		}
+	}
+
+	/**
 	 * Log the positions of the 4 corner nodes every 10 seconds to track physics changes
 	 */
 	startPositionLogging() {
@@ -203,6 +241,8 @@ class BannerNode extends Node {
 			return;
 		}
 		this.element.style.display = 'none';
+		// Restore pointer events when hiding
+		this.element.style.pointerEvents = 'auto';
 		
 		// Clean up position logging interval
 		if (this.positionLoggingInterval) {

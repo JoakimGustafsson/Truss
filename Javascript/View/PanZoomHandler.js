@@ -153,42 +153,40 @@ class PanZoomHandler {
 			);
 		}
 		
-		if (!universe.selectedObject) {
-			// Convert screen positions to world coordinates (using current scale)
-			const startWorldMid = this.view.worldPosition(this.lastFrameStartMid.x, this.lastFrameStartMid.y);
-			const endWorldMid = this.view.worldPosition(mid.x, mid.y);
+		// Convert screen positions to world coordinates (using current scale)
+		const startWorldMid = this.view.worldPosition(this.lastFrameStartMid.x, this.lastFrameStartMid.y);
+		const endWorldMid = this.view.worldPosition(mid.x, mid.y);
+		
+		// Pan offset needed to keep fingers stationary
+		const panDelta = {
+		x: startWorldMid.x - endWorldMid.x,
+		y: startWorldMid.y - endWorldMid.y,
+		};
+		
+		// Apply pan (always, on two-pointer gesture)
+		this.view.offset.x += panDelta.x;
+		this.view.offset.y += panDelta.y;
+		
+		// Always allow zoom on two-pointer gesture, regardless of selection
+		if (this.lastFrameStartDist && this.lastFrameStartDist > 0 && dist > 0) {
+		const scaleDelta = (dist - this.lastFrameStartDist) / this.lastFrameStartDist;
 			
-			// Pan offset needed to keep fingers stationary
-			const panDelta = {
-				x: startWorldMid.x - endWorldMid.x,
-				y: startWorldMid.y - endWorldMid.y,
-			};
+		// Recalculate midpoint world position after pan but before zoom
+		const midWorldBefore = this.view.worldPosition(mid.x, mid.y);
 			
-			// Apply pan
-			this.view.offset.x += panDelta.x;
-			this.view.offset.y += panDelta.y;
+		// Apply zoom to worldViewSize (no limits - allow extreme zoom)
+		this.view.worldViewSize.x -= scaleDelta * this.view.worldViewSize.x;
+		this.view.worldViewSize.y -= scaleDelta * this.view.worldViewSize.y;
 			
-			// Zoom: calculate offset adjustment to keep midpoint fixed
-			if (this.lastDistance > 0 && dist > 0) {
-				const scaleDelta = (dist - this.lastDistance) / this.lastDistance;
-				
-				// Recalculate midpoint world position after pan but before zoom
-				const midWorldBefore = this.view.worldPosition(mid.x, mid.y);
-				
-				// Apply zoom to worldViewSize (no limits - allow extreme zoom)
-				this.view.worldViewSize.x -= scaleDelta * this.view.worldViewSize.x;
-				this.view.worldViewSize.y -= scaleDelta * this.view.worldViewSize.y;
-				
-				// Recalculate scale factors
-				this.view.recalculate();
-				
-				// Calculate where the midpoint is now in world space (with new scale)
-				const midWorldAfter = this.view.worldPosition(mid.x, mid.y);
-				
-				// Adjust offset to keep midpoint at same world position
-				this.view.offset.x += midWorldBefore.x - midWorldAfter.x;
-				this.view.offset.y += midWorldBefore.y - midWorldAfter.y;
-			}
+		// Recalculate scale factors
+		this.view.recalculate();
+			
+		// Calculate where the midpoint is now in world space (with new scale)
+		const midWorldAfter = this.view.worldPosition(mid.x, mid.y);
+			
+		// Adjust offset to keep midpoint at same world position
+		this.view.offset.x += midWorldBefore.x - midWorldAfter.x;
+		this.view.offset.y += midWorldBefore.y - midWorldAfter.y;
 		}
 
 		this.lastMidpoint = mid;
@@ -211,26 +209,35 @@ class PanZoomHandler {
 		this.pendingUpdate = false;
 	}
 
-	/** Handles mouse wheel and touchpad pinch (both fire 'wheel' events). */
+	/** Handles mouse wheel and touchpad pinch/pan (both fire 'wheel' events). */
 	_onWheel(ev) {
 		ev.preventDefault();
 
 		const local = this._clientToLocal(ev.clientX, ev.clientY);
+		const absDeltaX = Math.abs(ev.deltaX);
+		const absDeltaY = Math.abs(ev.deltaY);
 
-		// Normalize deltaY across the three possible deltaMode values
-		let delta;
-		if (ev.deltaMode === WheelEvent.DOM_DELTA_PIXEL) {
-			delta = -ev.deltaY / 300;
-		} else if (ev.deltaMode === WheelEvent.DOM_DELTA_LINE) {
-			delta = -ev.deltaY / 3;
-		} else {
-			// DOM_DELTA_PAGE
-			delta = -ev.deltaY;
+		// Always pan if there's any horizontal movement (two-finger drag)
+		if (absDeltaX > 0) {
+			const panDelta = { x: ev.deltaX, y: ev.deltaY };
+			this.view.updateOffset(panDelta);
+		} 
+		// Only zoom if movement is nearly vertical (< 2px horizontal tolerance)
+		else if (absDeltaY > 0) {
+			let delta;
+			if (ev.deltaMode === WheelEvent.DOM_DELTA_PIXEL) {
+				delta = -ev.deltaY / 300;
+			} else if (ev.deltaMode === WheelEvent.DOM_DELTA_LINE) {
+				delta = -ev.deltaY / 3;
+			} else {
+				// DOM_DELTA_PAGE
+				delta = -ev.deltaY;
+			}
+			// Clamp to prevent jarring jumps from fast scrolling
+			delta = Math.max(-0.3, Math.min(0.3, delta));
+
+			this.view.updateScale({ x: delta, y: delta }, local);
 		}
-		// Clamp to prevent jarring jumps from fast scrolling
-		delta = Math.max(-0.3, Math.min(0.3, delta));
-
-		this.view.updateScale({ x: delta, y: delta }, local);
 	}
 }
 
