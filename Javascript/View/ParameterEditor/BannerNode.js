@@ -254,16 +254,16 @@ class BannerNode extends Node {
 		super.show(truss, time, graphicDebugLevel);
 		this.highLight(truss.view.context);
 
-		if (graphicDebugLevel > 0) {
-			if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
-				warpMatrix(truss, this,
-					this.leftTopNode.getPosition(),
-					this.rightTopNode.getPosition(),
-					this.leftBottomNode.getPosition(),
-					this.rightBottomNode.getPosition(),
-					this.width,
-					this.height);
-			}
+		// Always apply position transform (both debug and normal mode)
+		// warpMatrix handles displaycoordinates label to skip zoom/pan for display nodes
+		if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
+			warpMatrix(truss, this,
+				this.leftTopNode.getPosition(),
+				this.rightTopNode.getPosition(),
+				this.leftBottomNode.getPosition(),
+				this.rightBottomNode.getPosition(),
+				this.width,
+				this.height);
 		}
 	};
 
