@@ -105,6 +105,19 @@ function createDefaultPerformanceScene(trussNode) {
 		'constant': GRAVITY_CONSTANT,
 		'visible': 0,
 	});
+
+	// Field tensor connections to bottom nodes for proper hanging behavior
+	// Bottom nodes experience stronger gravity pull to create the draping effect
+	new Tensor(trussNode.earth, nodeA, 'field', {
+		'name': 'gravity-nodeA',
+		'constant': GRAVITY_CONSTANT,
+		'visible': 0,
+	});
+	new Tensor(trussNode.earth, nodeB, 'field', {
+		'name': 'gravity-nodeB',
+		'constant': GRAVITY_CONSTANT,
+		'visible': 0,
+	});
 }
 
 /**

@@ -97,6 +97,13 @@ class BannerPositionTest {
 		);
 
 		world.nodes.push(gravityWellNode);
+		
+		// Also add to the gravitywell label so future queries find it
+		const gravityWellLabel = world.labels.findLabel('gravitywell');
+		if (gravityWellLabel.addNode) {
+			gravityWellLabel.addNode(gravityWellNode);
+		}
+		
 		return gravityWellNode;
 	}
 
@@ -107,14 +114,48 @@ class BannerPositionTest {
 	 * @return {Object} { world, bannerNodes, bannerTensors }
 	 */
 	createTestBanner(view, zoomFactor) {
-		// Mock world object
+		// Mock world object with proper Label API support
+		// This allows gravity well detection to work correctly
 		const mockWorld = {
 			nodes: [],
 			tensors: [],
 			labels: {
-				findLabel: (name) => ({
-					getReferences: () => [],
-				}),
+				findLabel: (name) => {
+					// Create a mock Label object that maintains node/tensor references
+					const mockLabel = {
+						name: name,
+						nodes: [],
+						tensors: [],
+						getNodes: function() {
+							return this.nodes;
+						},
+						getTensors: function() {
+							return this.tensors;
+						},
+						getReferences: function() {
+							return [...this.nodes, ...this.tensors];
+						},
+						addNode: function(node) {
+							if (!this.nodes.includes(node)) {
+								this.nodes.push(node);
+							}
+						},
+						addTensor: function(tensor) {
+							if (!this.tensors.includes(tensor)) {
+								this.tensors.push(tensor);
+							}
+						},
+					};
+					
+					// Pre-populate gravitywell label if searching for it
+					// This allows the banner to find Earth gravity well
+					if (name === 'gravitywell') {
+						// Earth should be passed in, for now return empty
+						// Will be populated after Earth creation
+					}
+					
+					return mockLabel;
+				},
 			},
 		};
 
