@@ -68,42 +68,43 @@ class BannerNode extends Node {
 
 		// DISPLAY COORDINATE SYSTEM
 		// Banner operates in display coordinates (screen-relative)
-		// Positions are in pure display space, NOT world coordinates
+		// Positions are in SCREEN PIXELS (not scaled)
 		// This keeps banner independent of zoom/pan transforms
-		// Scale: screen coordinates scaled 0.01x for physics simulation
-		const DISPLAY_SCALE = 0.01;  // 1:100 scaling
+		// Scale: only physics parameters (mass, springs) scaled 0.01x
+		// Positions stay in screen pixels so they render at correct visual location
+		const DISPLAY_SCALE = 0.01;  // Only for physics parameters, NOT positions
 		
-		// Keep positions in pure display space (screen coordinates scaled)
-		// Do NOT convert through view.worldPosition() - that's for world coordinates!
-		const scaledLeftTop = new Position(topScreenPos.x * DISPLAY_SCALE, topScreenPos.y * DISPLAY_SCALE);
-		const scaledRightTop = new Position((topScreenPos.x + screenWidth) * DISPLAY_SCALE, topScreenPos.y * DISPLAY_SCALE);
-		const scaledLeftBottom = new Position(topScreenPos.x * DISPLAY_SCALE, (topScreenPos.y + screenHeight) * DISPLAY_SCALE);
-		const scaledRightBottom = new Position((topScreenPos.x + screenWidth) * DISPLAY_SCALE, (topScreenPos.y + screenHeight) * DISPLAY_SCALE);
-		const scaledNailPos = new Position((topScreenPos.x + screenWidth / 2) * DISPLAY_SCALE, (topScreenPos.y / 2) * DISPLAY_SCALE);
+		// Positions stay in screen space (not scaled)
+		// When rendering with displaycoordinates label, these are used directly as pixel coordinates
+		const screenLeftTop = new Position(topScreenPos.x, topScreenPos.y);
+		const screenRightTop = new Position(topScreenPos.x + screenWidth, topScreenPos.y);
+		const screenLeftBottom = new Position(topScreenPos.x, topScreenPos.y + screenHeight);
+		const screenRightBottom = new Position(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight);
+		const screenNailPos = new Position(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2);
 		
 		console.log(`✓ Banner created in display coordinate space (zoom-independent):`);
-		console.log(`  nail: (${scaledNailPos.x.toFixed(2)}, ${scaledNailPos.y.toFixed(2)})`);
-		console.log(`  leftTop: (${scaledLeftTop.x.toFixed(2)}, ${scaledLeftTop.y.toFixed(2)})`);
-		console.log(`  rightTop: (${scaledRightTop.x.toFixed(2)}, ${scaledRightTop.y.toFixed(2)})`);
-		console.log(`  leftBottom: (${scaledLeftBottom.x.toFixed(2)}, ${scaledLeftBottom.y.toFixed(2)})`);
-		console.log(`  rightBottom: (${scaledRightBottom.x.toFixed(2)}, ${scaledRightBottom.y.toFixed(2)})`);
+		console.log(`  nail: (${screenNailPos.x.toFixed(2)}, ${screenNailPos.y.toFixed(2)})`);
+		console.log(`  leftTop: (${screenLeftTop.x.toFixed(2)}, ${screenLeftTop.y.toFixed(2)})`);
+		console.log(`  rightTop: (${screenRightTop.x.toFixed(2)}, ${screenRightTop.y.toFixed(2)})`);
+		console.log(`  leftBottom: (${screenLeftBottom.x.toFixed(2)}, ${screenLeftBottom.y.toFixed(2)})`);
+		console.log(`  rightBottom: (${screenRightBottom.x.toFixed(2)}, ${screenRightBottom.y.toFixed(2)})`);
 
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner nogravity displaycoordinates', {
-			'localPosition': scaledNailPos,
+			'localPosition': screenNailPos,
 			'name': 'nail',
 			'mass': NaN,
 		});
 
 		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity displaycoordinates', {
-			'localPosition': scaledLeftTop,
+			'localPosition': screenLeftTop,
 			'name': 'leftTop',
-			'mass': 1 * DISPLAY_SCALE,
+			'mass': 1,  // Physics scale handled separately below
 			'velocityLoss': 0.9,
 		});
 		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity displaycoordinates', {
-			'localPosition': scaledRightTop,
+			'localPosition': screenRightTop,
 			'name': 'rightTop',
-			'mass': 1 * DISPLAY_SCALE,
+			'mass': 1,
 			'velocityLoss': 0.9,
 		});
 		// NOTE: No synthetic bannerGravityWell created
@@ -111,55 +112,55 @@ class BannerNode extends Node {
 		// See gravity connections below
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable velocityloss displaycoordinates', {
-			'localPosition': scaledLeftBottom,
+			'localPosition': screenLeftBottom,
 			'name': 'leftBottomNode',
-			'mass': 3 * DISPLAY_SCALE,
+			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9999,
 		});
 
 		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable velocityloss displaycoordinates', {
-			'localPosition': scaledRightBottom,
+			'localPosition': screenRightBottom,
 			'name': 'rightBottomNode',
-			'mass': 3 * DISPLAY_SCALE,
+			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9999,
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
-			'equilibriumLength': 6 * DISPLAY_SCALE,
+			'equilibriumLength': 60,
 			'dampeningConstant': 10,
-			'constant': 50 * DISPLAY_SCALE,
+			'constant': 50,
 			'visible': 1,
 		});
 
 		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
-			'equilibriumLength': 6 * DISPLAY_SCALE,
+			'equilibriumLength': 60,
 			'dampeningConstant': 10,
-			'constant': 50 * DISPLAY_SCALE,
+			'constant': 50,
 			'visible': 1,
 		});
 
 		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
-			'equilibriumLength': 18 * DISPLAY_SCALE,
+			'equilibriumLength': 200,
 			'dampeningConstant': 10,
-			'constant': 3000 * DISPLAY_SCALE,
+			'constant': 30000,
 			'visible': 1,
 		});
 
 
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 10.8 * DISPLAY_SCALE,
+			'equilibriumLength': 108,
 			'dampeningConstant': 40,
-			'constant': 20000 * DISPLAY_SCALE,
+			'constant': 200000,
 			'color': 'transparent',
 			'visible': 1,
 		});
 
 		this.rightSpring = new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 10.8 * DISPLAY_SCALE,
+			'equilibriumLength': 108,
 			'dampeningConstant': 40,
-			'constant': 20000 * DISPLAY_SCALE,
+			'constant': 200000,
 			'color': 'transparent',
 			'visible': 1,
 		});
