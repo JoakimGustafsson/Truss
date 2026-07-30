@@ -66,11 +66,15 @@ class BannerNode extends Node {
 		const centerPercentY = 100 - ((topScreenPos.y + screenHeight / 2) / canvasHeight) * 100;
 		const bottomPercentY = 100 - ((topScreenPos.y + screenHeight) / canvasHeight) * 100;
 
+		// Earth gravity well: position at Earth's center distance below screen
+		// 100% screen = 40 cm (physical), Earth radius = 6,371 km
+		// Distance in percentages: (6.371e13 cm / 40 cm) * 100 = 1.59e16 %
+		const EARTH_GRAVITY_WELL_Y = -1.59e16; // Far below, at Earth's center distance
+
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
 			'name': 'nail',
 			'mass': NaN,
-			'velocityLoss': 1.0,
 			'labels': [
 				{'name': 'displaycoordinates'},
 				{'name': 'positionX', 'value': centerPercentX},
@@ -103,11 +107,11 @@ class BannerNode extends Node {
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
 			'name': 'bannerGravityWell',
-			'velocityLoss': 1.0,
+			'mass': 5.972e24,
 			'labels': [
 				{'name': 'displaycoordinates'},
 				{'name': 'positionX', 'value': centerPercentX},
-				{'name': 'positionY', 'value': -900},
+				{'name': 'positionY', 'value': EARTH_GRAVITY_WELL_Y},
 			]
 		});
 
