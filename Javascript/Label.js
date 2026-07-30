@@ -217,6 +217,12 @@ class Labels {
 			// 0.9 = 10% loss (heavy damping)
 			// Lower values = more damping = slower falling
 		});
+		let displayCoordinatesLabel = this.addLabel('displaycoordinates', [nodeLabel], {
+			// Nodes with this label operate in display coordinates (screen-relative)
+			// Their positions are NOT affected by zoom/pan transformations
+			// Used for UI elements like banner that should maintain fixed screen size
+			// Display coordinates operate independently: no physics connections to world nodes
+		});
 	}
 
 	/**

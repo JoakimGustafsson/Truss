@@ -15,10 +15,29 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	// return;
 	let element = obj.element;
 	timelog('inside warpMatrix', 1);
-	let a = truss.view.screenPosition(ar);
-	let b = truss.view.screenPosition(br);
-	let c = truss.view.screenPosition(cr);
-	let d = truss.view.screenPosition(dr);
+	
+	// Check if this object has displaycoordinates label - if so, don't apply zoom/pan transform
+	let isDisplayCoordinates = false;
+	if (obj.labels && Array.isArray(obj.labels)) {
+		isDisplayCoordinates = obj.labels.some(label => label.name === 'displaycoordinates');
+	}
+	
+	// For display coordinates, use positions as-is (already in screen space)
+	// For world coordinates, apply view transformation
+	let a, b, c, d;
+	if (isDisplayCoordinates) {
+		// Positions are already in screen coordinates, use directly
+		a = ar;
+		b = br;
+		c = cr;
+		d = dr;
+	} else {
+		// Apply view transformation for world coordinates
+		a = truss.view.screenPosition(ar);
+		b = truss.view.screenPosition(br);
+		c = truss.view.screenPosition(cr);
+		d = truss.view.screenPosition(dr);
+	}
 
 	// Always use the live DOM size of the warped element.
 	// The property panel content can change its effective size after creation.

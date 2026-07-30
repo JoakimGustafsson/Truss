@@ -78,113 +78,103 @@ class BannerNode extends Node {
 		console.log(`  leftBottom: (${leftBottom_world.x.toFixed(2)}, ${leftBottom_world.y.toFixed(2)})`);
 		console.log(`  rightBottom: (${rightBottom_world.x.toFixed(2)}, ${rightBottom_world.y.toFixed(2)})`);
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'node banner nogravity', {
-			'localPosition': truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2) : new Position(0, 0),
+		// DISPLAY COORDINATE SYSTEM
+		// Banner operates in display coordinates (screen-relative, 1 world unit = 100 display units)
+		// This keeps banner size consistent across zoom levels
+		// Scale: 10m world banner → 0.1m display = ~10cm on screen
+		const DISPLAY_SCALE = 0.01;  // 1:100 scaling
+		
+		// Scale all positions and dimensions for display coordinate system
+		const scaledScreenWidth = screenWidth * DISPLAY_SCALE;
+		const scaledScreenHeight = screenHeight * DISPLAY_SCALE;
+		const scaledLeftTop = new Position(leftTop_world.x * DISPLAY_SCALE, leftTop_world.y * DISPLAY_SCALE);
+		const scaledRightTop = new Position(rightTop_world.x * DISPLAY_SCALE, rightTop_world.y * DISPLAY_SCALE);
+		const scaledLeftBottom = new Position(leftBottom_world.x * DISPLAY_SCALE, leftBottom_world.y * DISPLAY_SCALE);
+		const scaledRightBottom = new Position(rightBottom_world.x * DISPLAY_SCALE, rightBottom_world.y * DISPLAY_SCALE);
+		const scaledNailPos = new Position((topScreenPos.x + screenWidth / 2) * DISPLAY_SCALE, (topScreenPos.y / 2) * DISPLAY_SCALE);
+
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner nogravity displaycoordinates', {
+			'localPosition': scaledNailPos,
 			'name': 'nail',
 			'mass': NaN,
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity', {
-			'localPosition': leftTop_world,
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity displaycoordinates', {
+			'localPosition': scaledLeftTop,
 			'name': 'leftTop',
-			'mass': 1,
+			'mass': 1 * DISPLAY_SCALE,
 			'velocityLoss': 0.9,
 		});
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity', {
-			'localPosition': rightTop_world,
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable nogravity displaycoordinates', {
+			'localPosition': scaledRightTop,
 			'name': 'rightTop',
-			'mass': 1,
+			'mass': 1 * DISPLAY_SCALE,
 			'velocityLoss': 0.9,
 		});
 		// NOTE: No synthetic bannerGravityWell created
 		// Banner gravity is provided by Earth's gravity well (if it exists)
 		// See gravity connections below
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable velocityloss', {
-			'localPosition': leftBottom_world,
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable velocityloss displaycoordinates', {
+			'localPosition': scaledLeftBottom,
 			'name': 'leftBottomNode',
-			'mass': 3,
+			'mass': 3 * DISPLAY_SCALE,
 			'color': 'transparent',
 			'velocityLoss': 0.9999,
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable velocityloss', {
-			'localPosition': rightBottom_world,
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable velocityloss displaycoordinates', {
+			'localPosition': scaledRightBottom,
 			'name': 'rightBottomNode',
-			'mass': 3,
+			'mass': 3 * DISPLAY_SCALE,
 			'color': 'transparent',
 			'velocityLoss': 0.9999,
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
-			'equilibriumLength': 6,
+			'equilibriumLength': 6 * DISPLAY_SCALE,
 			'dampeningConstant': 10,
-			'constant': 50,
+			'constant': 50 * DISPLAY_SCALE,
 			'visible': 1,
 		});
 
 		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
-			'equilibriumLength': 6,
+			'equilibriumLength': 6 * DISPLAY_SCALE,
 			'dampeningConstant': 10,
-			'constant': 50,
+			'constant': 50 * DISPLAY_SCALE,
 			'visible': 1,
 		});
 
 		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
-			'equilibriumLength': 18,
+			'equilibriumLength': 18 * DISPLAY_SCALE,
 			'dampeningConstant': 10,
-			'constant': 3000,
+			'constant': 3000 * DISPLAY_SCALE,
 		});
 
 
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 10.8,
+			'equilibriumLength': 10.8 * DISPLAY_SCALE,
 			'dampeningConstant': 40,
-			'constant': 20000,
+			'constant': 20000 * DISPLAY_SCALE,
 			'color': 'transparent',
 		});
 
 		this.rightSpring = new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 10.8,
+			'equilibriumLength': 10.8 * DISPLAY_SCALE,
 			'dampeningConstant': 40,
-			'constant': 20000,
+			'constant': 20000 * DISPLAY_SCALE,
 			'color': 'transparent',
 		});
 
-		// Banner bottom nodes (leftBottomNode, rightBottomNode) are NOT marked with 'nogravity'
-		// They will receive gravity field connections from Earth, allowing them to hang downward
-		// Top nodes are marked with 'nogravity' so they stay anchored by springs instead of falling
+		// Banner bottom nodes (leftBottomNode, rightBottomNode) are in display coordinates
+		// They don't connect to world-scale gravity (which would be the wrong scale)
+		// Instead, they hang naturally due to spring forces and physics
+		// Top nodes are marked with 'nogravity' so they stay anchored by springs
 
-		// CRITICAL: Connect bottom nodes to Earth's gravity well
-		// These nodes need explicit gravity field tensors to experience gravitational force
-		const gravityWellLabel = this.world.labels.findLabel('gravitywell');
-		if (gravityWellLabel) {
-			const gravityWells = gravityWellLabel.getNodes();
-			if (gravityWells && gravityWells.length > 0) {
-				const earthNode = gravityWells[0];
-				const GRAVITY_CONSTANT = -6.67e-11;  // Negative for attraction (Newton's gravity)
-				
-				// Connect left bottom node to gravity
-				this.gravityFieldLeft = new Tensor(earthNode, this.leftBottomNode, 'field', {
-					'name': 'gravity-leftBottom',
-					'constant': GRAVITY_CONSTANT,
-					'visible': 0,  // Hide the gravity field lines
-				});
-				
-				// Connect right bottom node to gravity
-				this.gravityFieldRight = new Tensor(earthNode, this.rightBottomNode, 'field', {
-					'name': 'gravity-rightBottom',
-					'constant': GRAVITY_CONSTANT,
-					'visible': 0,  // Hide the gravity field lines
-				});
-				
-				console.log(`✓ Banner: Connected leftBottomNode and rightBottomNode to ${earthNode.name} gravity well`);
-			} else {
-				console.warn(`⚠️ Banner: No gravity well found. Bottom nodes won't experience gravity.`);
-			}
-		} else {
-			console.warn(`⚠️ Banner: gravitywell label not found. Bottom nodes won't experience gravity.`);
-		}
+		// Display coordinate nodes operate independently from world nodes
+		// No gravity field connection is created - springs alone create the hanging effect
+		console.log(`✓ Banner: Created with displaycoordinates label (zoom-independent physics)`);
+		
 
 		this.visible = true;
 		
