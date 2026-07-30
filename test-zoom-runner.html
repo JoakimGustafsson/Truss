@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Zoom Independence Test Runner</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: 'Monaco', 'Courier New', monospace;
+			background: #1e1e1e;
+			color: #d4d4d4;
+			padding: 20px;
+			line-height: 1.6;
+		}
+
+		.container {
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+
+		header {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			padding: 30px;
+			border-radius: 8px;
+			margin-bottom: 30px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+		}
+
+		h1 {
+			font-size: 2em;
+			margin-bottom: 10px;
+		}
+
+		.subtitle {
+			font-size: 0.9em;
+			opacity: 0.9;
+		}
+
+		.controls {
+			background: #252526;
+			padding: 20px;
+			border-radius: 8px;
+			margin-bottom: 20px;
+			border: 1px solid #3e3e42;
+		}
+
+		.control-group {
+			margin-bottom: 15px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 8px;
+			font-weight: bold;
+			color: #ce9178;
+		}
+
+		input[type="number"],
+		select {
+			background: #1e1e1e;
+			color: #d4d4d4;
+			border: 1px solid #3e3e42;
+			padding: 8px 12px;
+			border-radius: 4px;
+			font-family: inherit;
+			font-size: 0.9em;
+			width: 200px;
+		}
+
+		input[type="number"]:focus,
+		select:focus {
+			outline: none;
+			border-color: #667eea;
+			box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+		}
+
+		button {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 4px;
+			cursor: pointer;
+			font-weight: bold;
+			font-size: 0.95em;
+			transition: transform 0.2s, box-shadow 0.2s;
+		}
+
+		button:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+		}
+
+		button:active {
+			transform: translateY(0);
+		}
+
+		.button-group {
+			display: flex;
+			gap: 10px;
+		}
+
+		.test-result {
+			background: #252526;
+			border: 1px solid #3e3e42;
+			border-radius: 8px;
+			padding: 20px;
+			margin-bottom: 15px;
+			font-size: 0.85em;
+		}
+
+		.test-result.passed {
+			border-left: 4px solid #4ec9b0;
+		}
+
+		.test-result.failed {
+			border-left: 4px solid #f48771;
+		}
+
+		.test-result h3 {
+			color: #4ec9b0;
+			margin-bottom: 10px;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.test-result.failed h3 {
+			color: #f48771;
+		}
+
+		.status-icon {
+			font-size: 1.2em;
+		}
+
+		.test-details {
+			background: #1e1e1e;
+			padding: 12px;
+			border-radius: 4px;
+			margin-top: 10px;
+			overflow-x: auto;
+		}
+
+		.test-details pre {
+			margin: 0;
+			font-size: 0.8em;
+			color: #ce9178;
+		}
+
+		.summary {
+			background: linear-gradient(135deg, #1e1e1e 0%, #252526 100%);
+			border: 2px solid #667eea;
+			border-radius: 8px;
+			padding: 20px;
+			margin-top: 30px;
+		}
+
+		.summary h2 {
+			color: #667eea;
+			margin-bottom: 15px;
+			font-size: 1.3em;
+		}
+
+		.summary-stats {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+			gap: 15px;
+			margin-bottom: 15px;
+		}
+
+		.stat {
+			background: #1e1e1e;
+			padding: 15px;
+			border-radius: 4px;
+			border-left: 3px solid #667eea;
+		}
+
+		.stat-label {
+			color: #858585;
+			font-size: 0.9em;
+			margin-bottom: 5px;
+		}
+
+		.stat-value {
+			color: #4ec9b0;
+			font-size: 1.3em;
+			font-weight: bold;
+		}
+
+		.stat.warning .stat-value {
+			color: #dcdcaa;
+		}
+
+		.stat.error .stat-value {
+			color: #f48771;
+		}
+
+		.loading {
+			text-align: center;
+			padding: 40px;
+			color: #858585;
+		}
+
+		.spinner {
+			display: inline-block;
+			width: 40px;
+			height: 40px;
+			border: 4px solid #3e3e42;
+			border-top-color: #667eea;
+			border-radius: 50%;
+			animation: spin 0.8s linear infinite;
+			margin-bottom: 20px;
+		}
+
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+
+		.error-message {
+			background: #3c2222;
+			border-left: 4px solid #f48771;
+			color: #f48771;
+			padding: 15px;
+			border-radius: 4px;
+			margin-bottom: 20px;
+		}
+
+		.zoom-level-list {
+			background: #1e1e1e;
+			padding: 15px;
+			border-radius: 4px;
+			margin-top: 10px;
+			max-height: 200px;
+			overflow-y: auto;
+			font-size: 0.8em;
+		}
+
+		.zoom-level-item {
+			padding: 5px 0;
+			border-bottom: 1px solid #3e3e42;
+			color: #ce9178;
+		}
+
+		.zoom-level-item:last-child {
+			border-bottom: none;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<h1>🔬 Zoom Independence Test Suite</h1>
+			<p class="subtitle">Verifying banner physics works correctly from nano to lightyear scales</p>
+		</header>
+
+		<div class="controls">
+			<div class="control-group">
+				<label>Test Configuration</label>
+				<div class="button-group">
+					<button onclick="runAllTests()">Run Full Test Suite</button>
+					<button onclick="runCoordinateTests()">Run Coordinate Tests Only</button>
+					<button onclick="runPanTests()">Run Pan Tests Only</button>
+					<button onclick="runPointerTests()">Run Pointer Tests Only</button>
+				</div>
+			</div>
+
+			<div class="control-group">
+				<label>Zoom Range Configuration</label>
+				<div>
+					<label for="minExponent">Min Exponent (10^x):</label>
+					<input type="number" id="minExponent" value="-9" min="-20" max="20" step="1">
+				</div>
+				<div style="margin-top: 10px;">
+					<label for="maxExponent">Max Exponent (10^x):</label>
+					<input type="number" id="maxExponent" value="15" min="-20" max="20" step="1">
+				</div>
+				<div style="margin-top: 10px;">
+					<label for="stepSize">Step Size:</label>
+					<input type="number" id="stepSize" value="1.5" min="0.1" max="5" step="0.1">
+				</div>
+				<button onclick="previewZoomLevels()" style="margin-top: 10px;">Preview Zoom Levels</button>
+				<div id="zoomPreview"></div>
+			</div>
+		</div>
+
+		<div id="results"></div>
+	</div>
+
+	<script type="module">
+		import ZoomIndependenceTest from '../Javascript/Tests/zoom-independence.test.js';
+		import { TrussView } from '../Javascript/View/TrussView.js';
+		import { Vector } from '../Javascript/Primitives.js';
+
+		// Store test instance globally
+		window.testInstance = null;
+		window.TrussView = TrussView;
+		window.Vector = Vector;
+		window.ZoomIndependenceTest = ZoomIndependenceTest;
+
+		// Make functions globally available
+		window.runAllTests = runAllTests;
+		window.runCoordinateTests = runCoordinateTests;
+		window.runPanTests = runPanTests;
+		window.runPointerTests = runPointerTests;
+		window.previewZoomLevels = previewZoomLevels;
+		window.clearResults = clearResults;
+
+		async function runAllTests() {
+			try {
+				clearResults();
+				displayLoading('Running full test suite...');
+
+				// Create a mock view for testing
+				const mockView = createMockView();
+				const test = new ZoomIndependenceTest();
+				
+				// Override zoom levels with user input
+				const minExp = parseFloat(document.getElementById('minExponent').value);
+				const maxExp = parseFloat(document.getElementById('maxExponent').value);
+				const step = parseFloat(document.getElementById('stepSize').value);
+				test.zoomLevels = generateCustomZoomLevels(minExp, maxExp, step);
+
+				const results = test.runFullSuite(mockView, null);
+				displayResults(results);
+			} catch (error) {
+				displayError(`Test execution failed: ${error.message}`);
+				console.error(error);
+			}
+		}
+
+		function runCoordinateTests() {
+			try {
+				clearResults();
+				const mockView = createMockView();
+				const test = new ZoomIndependenceTest();
+				const minExp = parseFloat(document.getElementById('minExponent').value);
+				const maxExp = parseFloat(document.getElementById('maxExponent').value);
+				const step = parseFloat(document.getElementById('stepSize').value);
+				test.zoomLevels = generateCustomZoomLevels(minExp, maxExp, step);
+
+				console.log('\n' + '='.repeat(80));
+				console.log('COORDINATE TRANSFORMATION TESTS');
+				console.log('='.repeat(80) + '\n');
+
+				const results = { coordinateTransformation: [] };
+				let passed = 0;
+
+				test.zoomLevels.forEach(zoom => {
+					const result = test.testCoordinateTransformation(mockView, zoom);
+					results.coordinateTransformation.push(result);
+					if (result.passed) passed++;
+					
+					const status = result.passed ? '✓' : '✗';
+					console.log(
+						`${status} Zoom 10^${Math.log10(zoom).toFixed(1)}: ` +
+						`error=${result.error.toExponential(2)}`
+					);
+				});
+
+				console.log(`\nResult: ${passed}/${test.zoomLevels.length} tests passed\n`);
+				displayResults(results);
+			} catch (error) {
+				displayError(`Coordinate tests failed: ${error.message}`);
+			}
+		}
+
+		function runPanTests() {
+			try {
+				clearResults();
+				const mockView = createMockView();
+				const test = new ZoomIndependenceTest();
+				const minExp = parseFloat(document.getElementById('minExponent').value);
+				const maxExp = parseFloat(document.getElementById('maxExponent').value);
+				const step = parseFloat(document.getElementById('stepSize').value);
+				test.zoomLevels = generateCustomZoomLevels(minExp, maxExp, step);
+
+				console.log('\n' + '='.repeat(80));
+				console.log('PAN CONSISTENCY TESTS');
+				console.log('='.repeat(80) + '\n');
+
+				const results = { panConsistency: [] };
+				let passed = 0;
+
+				test.zoomLevels.forEach(zoom => {
+					const result = test.testPanConsistency(mockView, zoom);
+					results.panConsistency.push(result);
+					if (result.passed) passed++;
+					
+					const status = result.passed ? '✓' : '✗';
+					console.log(
+						`${status} Zoom 10^${Math.log10(zoom).toFixed(1)}: ` +
+						`drift=(${result.stability.x.toExponential(2)}, ${result.stability.y.toExponential(2)})`
+					);
+				});
+
+				console.log(`\nResult: ${passed}/${test.zoomLevels.length} tests passed\n`);
+				displayResults(results);
+			} catch (error) {
+				displayError(`Pan tests failed: ${error.message}`);
+			}
+		}
+
+		function runPointerTests() {
+			try {
+				clearResults();
+				const mockView = createMockView();
+				const test = new ZoomIndependenceTest();
+				const minExp = parseFloat(document.getElementById('minExponent').value);
+				const maxExp = parseFloat(document.getElementById('maxExponent').value);
+				const step = parseFloat(document.getElementById('stepSize').value);
+				test.zoomLevels = generateCustomZoomLevels(minExp, maxExp, step);
+
+				console.log('\n' + '='.repeat(80));
+				console.log('POINTER MAPPING TESTS');
+				console.log('='.repeat(80) + '\n');
+
+				const results = { pointerMapping: [] };
+				let passed = 0;
+
+				test.zoomLevels.forEach(zoom => {
+					const result = test.testPointerMapping(mockView, zoom);
+					results.pointerMapping.push(result);
+					if (result.passed) passed++;
+					
+					const status = result.passed ? '✓' : '✗';
+					console.log(
+						`${status} Zoom 10^${Math.log10(zoom).toFixed(1)}: ` +
+						`${result.testPoints.length} test points consistent`
+					);
+				});
+
+				console.log(`\nResult: ${passed}/${test.zoomLevels.length} tests passed\n`);
+				displayResults(results);
+			} catch (error) {
+				displayError(`Pointer tests failed: ${error.message}`);
+			}
+		}
+
+		function createMockView() {
+			const mockNode = {
+				canvas: { getBoundingClientRect: () => ({ left: 0, top: 0 }) },
+				element: { getBoundingClientRect: () => ({ left: 0, top: 0 }) },
+				lockedRatio: false,
+			};
+
+			const view = new TrussView(new Vector(100, 100), mockNode);
+			return view;
+		}
+
+		function generateCustomZoomLevels(minExp, maxExp, step) {
+			const levels = [];
+			for (let exp = minExp; exp <= maxExp; exp += step) {
+				levels.push(Math.pow(10, exp));
+			}
+			return levels;
+		}
+
+		function previewZoomLevels() {
+			const minExp = parseFloat(document.getElementById('minExponent').value);
+			const maxExp = parseFloat(document.getElementById('maxExponent').value);
+			const step = parseFloat(document.getElementById('stepSize').value);
+			const levels = generateCustomZoomLevels(minExp, maxExp, step);
+
+			let html = '<div class="zoom-level-list">';
+			html += `<strong>Generated ${levels.length} zoom levels:</strong><br>`;
+			levels.forEach((level, i) => {
+				const exp = Math.log10(level);
+				html += `<div class="zoom-level-item">10^${exp.toFixed(1)} = ${level.toExponential(2)}</div>`;
+			});
+			html += '</div>';
+
+			document.getElementById('zoomPreview').innerHTML = html;
+		}
+
+		function displayLoading(message) {
+			document.getElementById('results').innerHTML = `
+				<div class="loading">
+					<div class="spinner"></div>
+					<p>${message}</p>
+				</div>
+			`;
+		}
+
+		function displayResults(results) {
+			let html = '';
+
+			if (results.coordinateTransformation && results.coordinateTransformation.length) {
+				html += '<h2>Coordinate Transformation Results</h2>';
+				results.coordinateTransformation.forEach(result => {
+					const cssClass = result.passed ? 'passed' : 'failed';
+					const icon = result.passed ? '✓' : '✗';
+					html += `
+						<div class="test-result ${cssClass}">
+							<h3><span class="status-icon">${icon}</span> Zoom 10^${Math.log10(result.zoomFactor).toFixed(1)}</h3>
+							<div class="test-details">
+								<pre>${JSON.stringify(result, null, 2)}</pre>
+							</div>
+						</div>
+					`;
+				});
+			}
+
+			if (results.panConsistency && results.panConsistency.length) {
+				html += '<h2>Pan Consistency Results</h2>';
+				results.panConsistency.forEach(result => {
+					const cssClass = result.passed ? 'passed' : 'failed';
+					const icon = result.passed ? '✓' : '✗';
+					html += `
+						<div class="test-result ${cssClass}">
+							<h3><span class="status-icon">${icon}</span> Zoom 10^${Math.log10(result.zoomFactor).toFixed(1)}</h3>
+							<div class="test-details">
+								<pre>${JSON.stringify(result, null, 2)}</pre>
+							</div>
+						</div>
+					`;
+				});
+			}
+
+			if (results.pointerMapping && results.pointerMapping.length) {
+				html += '<h2>Pointer Mapping Results</h2>';
+				results.pointerMapping.forEach(result => {
+					const cssClass = result.passed ? 'passed' : 'failed';
+					const icon = result.passed ? '✓' : '✗';
+					html += `
+						<div class="test-result ${cssClass}">
+							<h3><span class="status-icon">${icon}</span> Zoom 10^${Math.log10(result.zoomFactor).toFixed(1)}</h3>
+							<div class="test-details">
+								<pre>${JSON.stringify(result, null, 2)}</pre>
+							</div>
+						</div>
+					`;
+				});
+			}
+
+			if (results.summary && Object.keys(results.summary).length) {
+				html += '<div class="summary"><h2>Summary</h2><div class="summary-stats">';
+				Object.entries(results.summary).forEach(([test, summary]) => {
+					html += `<div class="stat"><div class="stat-label">${test}</div><div class="stat-value">${summary}</div></div>`;
+				});
+				html += '</div></div>';
+			}
+
+			document.getElementById('results').innerHTML = html;
+		}
+
+		function displayError(message) {
+			document.getElementById('results').innerHTML = `<div class="error-message">${message}</div>`;
+		}
+
+		function clearResults() {
+			document.getElementById('results').innerHTML = '';
+			document.getElementById('zoomPreview').innerHTML = '';
+		}
+	</script>
+</body>
+</html>

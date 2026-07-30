@@ -324,23 +324,8 @@ class Tensor extends StoreableObject {
 			this.node2 = nodeList[node2Index];
 		}
 
-		if (this.node1 && (isNaN(this.node1.localPosition.x) || isNaN(this.node1.localPosition.y))) {
-			console.warn(`⚠️ Tensor deserialization warning: Tensor "${this.name}" connected to node "${this.node1.name}" with NaN position (${this.node1.localPosition.x}, ${this.node1.localPosition.y})`);
-		}
-		if (this.node2 && (isNaN(this.node2.localPosition.x) || isNaN(this.node2.localPosition.y))) {
-			console.warn(`⚠️ Tensor deserialization warning: Tensor "${this.name}" connected to node "${this.node2.name}" with NaN position (${this.node2.localPosition.x}, ${this.node2.localPosition.y})`);
-		}
-
 		this.angle1 = restoreObject.angle1;
 		this.angle2 = restoreObject.angle2;
-		
-		// Log tensor properties that might be missing
-		if (this.constant === undefined || this.constant === null) {
-			console.log(`ℹ️ Tensor "${this.name}" has no constant property (passive tensor)`);
-		}
-		if (this.equilibriumLength === undefined || this.equilibriumLength === null) {
-			console.log(`ℹ️ Tensor "${this.name}" has no equilibriumLength property`);
-		}
 
 		if (restoreObject.next !== undefined && restoreObject.next !== null) {
 			this.next = tensorList[restoreObject.next];
@@ -631,13 +616,7 @@ class Tensor extends StoreableObject {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
-		let pos1 = this.node1.getPosition();
-		let pos2 = this.node2.getPosition();
-		let diff = pos2.x - pos1.x;
-		if (isNaN(diff)) {
-			console.warn(`⚠️ Tensor.getXDifference() returned NaN: "${this.node2.name}"(${pos2.x}) - "${this.node1.name}"(${pos1.x}) = ${diff}`);
-		}
-		return diff;
+		return (this.node2.getPosition().x - this.node1.getPosition().x);
 	};
 
 	/**
@@ -656,13 +635,7 @@ class Tensor extends StoreableObject {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
-		let pos1 = this.node1.getPosition();
-		let pos2 = this.node2.getPosition();
-		let diff = pos2.y - pos1.y;
-		if (isNaN(diff)) {
-			console.warn(`⚠️ Tensor.getYDifference() returned NaN: "${this.node2.name}"(${pos2.y}) - "${this.node1.name}"(${pos1.y}) = ${diff}`);
-		}
-		return diff;
+		return this.node2.getPosition().y - this.node1.getPosition().y;
 	};
 
 	/**
@@ -763,45 +736,46 @@ class Tensor extends StoreableObject {
 			return;
 		}
 
-		// Check if either node is in display coordinates
-		let isDisplayCoordinates = false;
-		if (node1 && node1.labels && Array.isArray(node1.labels)) {
-			isDisplayCoordinates = node1.labels.some(label => label.name === 'displaycoordinates');
+		// Handle display coordinate rendering
+		let node1IsDisplay = node1.labels && node1.labels.some(label => label.name === 'displaycoordinates');
+		let node2IsDisplay = node2.labels && node2.labels.some(label => label.name === 'displaycoordinates');
+		
+		if (node1IsDisplay && node2IsDisplay) {
+			// Both nodes in display coordinates - render directly to screen
+			let pos1XLabel = node1.labels.find(label => label.name === 'positionX');
+			let pos1YLabel = node1.labels.find(label => label.name === 'positionY');
+			let pos2XLabel = node2.labels.find(label => label.name === 'positionX');
+			let pos2YLabel = node2.labels.find(label => label.name === 'positionY');
+			
+			if (pos1XLabel && pos1YLabel && pos2XLabel && pos2YLabel) {
+				// Convert percentages to screen pixels
+				let screenX1 = (pos1XLabel.value / 100) * view.screenSize.x;
+				let screenY1 = view.screenSize.y - (pos1YLabel.value / 100) * view.screenSize.y;
+				let screenX2 = (pos2XLabel.value / 100) * view.screenSize.x;
+				let screenY2 = view.screenSize.y - (pos2YLabel.value / 100) * view.screenSize.y;
+				
+				this.highLight(ctx);
+				ctx.beginPath();
+				ctx.moveTo(screenX1, screenY1);
+				ctx.lineTo(screenX2, screenY2);
+				ctx.stroke();
+				return; // Don't render as world coordinate
+			}
 		}
-		if (!isDisplayCoordinates && node2 && node2.labels && Array.isArray(node2.labels)) {
-			isDisplayCoordinates = node2.labels.some(label => label.name === 'displaycoordinates');
-		}
-
+		
 		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||
-			(graphicDebugLevel >= 6) || isDisplayCoordinates) {  // Always show display tensors
+			(graphicDebugLevel >= 6)) {
 			this.highLight(ctx);
 			ctx.beginPath();
-			
-			let pos1 = node1.getPosition();
-			let pos2 = node2.getPosition();
-			
-			if (isDisplayCoordinates) {
-				// Display coordinates: draw directly in screen space
-				ctx.moveTo(pos1.x, pos1.y);
-				ctx.lineTo(pos2.x, pos2.y);
-			} else {
-				// World coordinates: use view transforms
-				view.drawLine(pos1, pos2);
-			}
+			view.drawLine(node1.getPosition(), node2.getPosition());
 			ctx.stroke();
-			
 			if (graphicDebugLevel >= 10) { // Show debug text
 				ctx.beginPath();
 				ctx.fillStyle = 'cyan';
 				ctx.font = '20px Arial';
 				ctx.textAlign = 'left';
-				let textPos = Vector.addVectors(pos1, Vector.divideVector(this.getActual(), 2));
-				
-				if (isDisplayCoordinates) {
-					ctx.fillText(Math.trunc(10 * this.getLength()) / 10, textPos.x, textPos.y);
-				} else {
-					view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
-				}
+				let textPos = Vector.addVectors(node1.getPosition(), Vector.divideVector(this.getActual(), 2));
+				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
 			}
 		}
 	};

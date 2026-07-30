@@ -41,21 +41,17 @@ class BannerPositionTest {
 	/**
 	 * Find the closest gravity well node in the world, or create one if none exist
 	 * 
-	 * Uses the Label API (world.labels.findLabel) to properly query for 
-	 * gravity wells instead of pattern-matching label strings.
-	 * 
-	 * A gravity well is identified by the 'gravitywell' label.
-	 * See LABEL-API-GUIDE.md for full Label API documentation.
-	 * 
 	 * @param {Object} world - World object containing nodes
 	 * @param {Vector} referencePosition - Position to measure distance from (in world coordinates)
 	 * @return {Node} Gravity well node
 	 */
 	_findOrCreateGravityWell(world, referencePosition) {
-		// Use Label API to find gravity wells
-		// This is the proper way to query labeled objects
-		const gravityWellLabel = world.labels.findLabel('gravitywell');
-		const gravityWells = gravityWellLabel.getNodes();
+		// Find all gravity well nodes (nodes with 'gravitywell' label)
+		const gravityWells = world.nodes.filter(node => {
+			return node.connectedTensors && node.connectedTensors.some(tensor => 
+				tensor.labels && tensor.labels.includes('gravitywell')
+			);
+		});
 
 		// If gravity wells exist, return the closest one
 		if (gravityWells.length > 0) {
@@ -74,14 +70,12 @@ class BannerPositionTest {
 				}
 			});
 
-			console.log(`✓ Found existing gravity well: ${closestWell.name} at (${closestWell.localPosition.x.toExponential(1)}, ${closestWell.localPosition.y.toExponential(1)})`);
 			return closestWell;
 		}
 
 		// No gravity well exists, create one far DOWN (negative Y in world coordinates)
 		// World coordinates: origin at lower-left, positive Y is UP, negative Y is DOWN
 		// To pull banner downward toward "earth", place gravity well at large negative Y
-		console.log(`⚠ No gravity well found. Creating synthetic gravity well at (${referencePosition.x}, ${(referencePosition.y - 50000).toExponential(1)})`);
 		const gravityWellNode = new Node(
 			world,
 			null,
@@ -97,12 +91,6 @@ class BannerPositionTest {
 		);
 
 		world.nodes.push(gravityWellNode);
-		
-		// Also add to the gravitywell label so future queries find it
-		if (gravityWellLabel.addNode) {
-			gravityWellLabel.addNode(gravityWellNode);
-		}
-		
 		return gravityWellNode;
 	}
 
@@ -113,48 +101,14 @@ class BannerPositionTest {
 	 * @return {Object} { world, bannerNodes, bannerTensors }
 	 */
 	createTestBanner(view, zoomFactor) {
-		// Mock world object with proper Label API support
-		// This allows gravity well detection to work correctly
+		// Mock world object
 		const mockWorld = {
 			nodes: [],
 			tensors: [],
 			labels: {
-				findLabel: (name) => {
-					// Create a mock Label object that maintains node/tensor references
-					const mockLabel = {
-						name: name,
-						nodes: [],
-						tensors: [],
-						getNodes: function() {
-							return this.nodes;
-						},
-						getTensors: function() {
-							return this.tensors;
-						},
-						getReferences: function() {
-							return [...this.nodes, ...this.tensors];
-						},
-						addNode: function(node) {
-							if (!this.nodes.includes(node)) {
-								this.nodes.push(node);
-							}
-						},
-						addTensor: function(tensor) {
-							if (!this.tensors.includes(tensor)) {
-								this.tensors.push(tensor);
-							}
-						},
-					};
-					
-					// Pre-populate gravitywell label if searching for it
-					// This allows the banner to find Earth gravity well
-					if (name === 'gravitywell') {
-						// Earth should be passed in, for now return empty
-						// Will be populated after Earth creation
-					}
-					
-					return mockLabel;
-				},
+				findLabel: (name) => ({
+					getReferences: () => [],
+				}),
 			},
 		};
 
@@ -188,10 +142,6 @@ class BannerPositionTest {
 			}
 		);
 
-		// TUNED NODE MASSES (from 10-iteration optimization):
-		const TOP_NODE_MASS = 1;      // Tuned - kept at 1
-		const BOTTOM_NODE_MASS = 3;   // Tuned - kept at 3
-		
 		const leftTopNode = new Node(
 			mockWorld,
 			null,
@@ -201,7 +151,7 @@ class BannerPositionTest {
 					topScreenPos.x,
 					topScreenPos.y
 				),
-				mass: TOP_NODE_MASS,
+				mass: 1,
 				velocityLoss: 0.9,
 				name: 'leftTopNode',
 			}
@@ -216,7 +166,7 @@ class BannerPositionTest {
 					topScreenPos.x + screenBannerWidth,
 					topScreenPos.y
 				),
-				mass: TOP_NODE_MASS,
+				mass: 1,
 				velocityLoss: 0.9,
 				name: 'rightTopNode',
 			}
@@ -231,7 +181,7 @@ class BannerPositionTest {
 					topScreenPos.x,
 					topScreenPos.y + screenBannerHeight
 				),
-				mass: BOTTOM_NODE_MASS,
+				mass: 3,
 				velocityLoss: 0.9,
 				name: 'leftBottomNode',
 			}
@@ -246,47 +196,41 @@ class BannerPositionTest {
 					topScreenPos.x + screenBannerWidth,
 					topScreenPos.y + screenBannerHeight
 				),
-				mass: BOTTOM_NODE_MASS,
+				mass: 3,
 				velocityLoss: 0.9,
 				name: 'rightBottomNode',
 			}
 		);
 
 		// Create connecting tensors
-		// TUNED CONSTANTS (from 10-iteration optimization):
-		const TOP_SPRING_CONSTANT = 2656;        // Tuned from 3000
-		const SIDE_SPRING_CONSTANT = 5000;       // Tuned - kept at 5000
-		const VERTICAL_SPRING_CONSTANT = 600;    // Tuned - kept at 600
-		const DAMPENING_CONSTANT = 10;           // Tuned - kept at 10
-		
 		const topBand = new Tensor(leftTopNode, rightTopNode, 'spring banner', {
 			equilibriumLength: screenBannerWidth / 100,
-			dampeningConstant: DAMPENING_CONSTANT,
-			constant: TOP_SPRING_CONSTANT,
+			dampeningConstant: 10,
+			constant: 3000,
 		});
 
 		const leftBand = new Tensor(leftTopNode, nail, 'absorber pullspring banner', {
 			equilibriumLength: 6,
-			dampeningConstant: DAMPENING_CONSTANT,
-			constant: SIDE_SPRING_CONSTANT,
+			dampeningConstant: 10,
+			constant: 5000,
 		});
 
 		const rightBand = new Tensor(rightTopNode, nail, 'absorber pullspring banner', {
 			equilibriumLength: 6,
-			dampeningConstant: DAMPENING_CONSTANT,
-			constant: SIDE_SPRING_CONSTANT,
+			dampeningConstant: 10,
+			constant: 5000,
 		});
 
 		const leftSpring = new Tensor(leftTopNode, leftBottomNode, 'spring banner', {
 			equilibriumLength: screenBannerHeight / 100,
-			dampeningConstant: DAMPENING_CONSTANT,
-			constant: VERTICAL_SPRING_CONSTANT,
+			dampeningConstant: 10,
+			constant: 600,
 		});
 
 		const rightSpring = new Tensor(rightTopNode, rightBottomNode, 'spring banner', {
 			equilibriumLength: screenBannerHeight / 100,
-			dampeningConstant: DAMPENING_CONSTANT,
-			constant: VERTICAL_SPRING_CONSTANT,
+			dampeningConstant: 10,
+			constant: 600,
 		});
 
 		// Find or create gravity well
@@ -298,30 +242,27 @@ class BannerPositionTest {
 
 		// Connect banner nodes to gravity well via field tensors
 		// This provides real gravitational attraction toward the gravity well
-		// TUNED PARAMETERS (from 10-iteration optimization at zoom 1.0):
 		const GRAVITY_CONSTANT = 6.67e-11; // Real gravitational constant
-		const GRAVITY_SCALE_LARGE = 7.35e4;  // Bottom nodes (tuned from 1e15)
-		const GRAVITY_SCALE_SMALL = 7.00e3;  // Top nodes (tuned from 1e14)
 		
 		// Connect bottom nodes to gravity well (they pull downward)
 		const leftBottomGravity = new Tensor(gravityWell, leftBottomNode, 'field', {
-			constant: GRAVITY_SCALE_LARGE, // Optimized for proper hanging
+			constant: GRAVITY_CONSTANT * 1e15, // Scale up for reasonable forces in world units
 			name: 'leftBottomGravity',
 		});
 
 		const rightBottomGravity = new Tensor(gravityWell, rightBottomNode, 'field', {
-			constant: GRAVITY_SCALE_LARGE,
+			constant: GRAVITY_CONSTANT * 1e15,
 			name: 'rightBottomGravity',
 		});
 
 		// Connect top nodes to gravity well (weaker pull, mostly held by springs)
 		const leftTopGravity = new Tensor(gravityWell, leftTopNode, 'field', {
-			constant: GRAVITY_SCALE_SMALL, // Weaker for top nodes
+			constant: GRAVITY_CONSTANT * 1e14, // Weaker for top nodes
 			name: 'leftTopGravity',
 		});
 
 		const rightTopGravity = new Tensor(gravityWell, rightTopNode, 'field', {
-			constant: GRAVITY_SCALE_SMALL,
+			constant: GRAVITY_CONSTANT * 1e14,
 			name: 'rightTopGravity',
 		});
 

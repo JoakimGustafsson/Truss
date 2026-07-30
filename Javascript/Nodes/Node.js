@@ -278,30 +278,7 @@ class Node extends StoreableObject {
 		}
 
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
-		
-		// Version migration: flip Y coordinates for old save files (Y-axis flip from screen to mathematical coords)
-		// This migration runs automatically on first load of old saves
-		if (restoreObject.localPosition && this.localPosition.y !== undefined && this.localPosition.y !== null) {
-			// Old saves have Y positive downward; new system has Y positive upward
-			// We flip by negating and adjusting relative to world size
-			// Simple approach: negate Y to flip from screen to math coords
-			this.localPosition.y = -this.localPosition.y;
-		}
-		
-		if (!restoreObject.localPosition) {
-			console.warn(`⚠️ Node deserialization: Node "${this.name}" has missing localPosition in save data`);
-		} else if (isNaN(this.localPosition.x) || isNaN(this.localPosition.y)) {
-			console.warn(`⚠️ Node deserialization: Node "${this.name}" has NaN position (${this.localPosition.x}, ${this.localPosition.y}). Resetting to (0, 0)`);
-			this.localPosition.x = 0;
-			this.localPosition.y = 0;
-		} else {
-			console.log(`✓ Node deserialized: "${this.name}" at (${this.localPosition.x.toFixed(2)}, ${this.localPosition.y.toFixed(2)}) [Y-axis flipped]`);
-		}
 		this.velocity = new Vector().deserialize(restoreObject.velocity);
-		// Flip velocity Y for coordinate system migration
-		if (restoreObject.velocity && this.velocity.y !== undefined && this.velocity.y !== null) {
-			this.velocity.y = -this.velocity.y;
-		}
 		this.mass = restoreObject.mass;
 		if (!this.mass) {
 			this.mass = NaN;
@@ -377,11 +354,6 @@ class Node extends StoreableObject {
 	 * @return {Position}
 	 */
 	getPosition() {
-		if (isNaN(this.localPosition.x) || isNaN(this.localPosition.y)) {
-			console.warn(`⚠️ Node.getPosition() called with NaN position on node "${this.name}". Resetting to (0, 0)`);
-			this.localPosition.x = 0;
-			this.localPosition.y = 0;
-		}
 		return this.localPosition;
 	};
 
@@ -463,12 +435,7 @@ class Node extends StoreableObject {
 	 */
 	updatePosition(trussTime, timeFactor) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
-		let velocityDelta = Vector.multiplyVector(timeFactor, this.velocity);
-		if (isNaN(velocityDelta.x) || isNaN(velocityDelta.y)) {
-			console.warn(`⚠️ Node.updatePosition() detected NaN velocity on node "${this.name}": velocity=(${this.velocity.x}, ${this.velocity.y}), delta=(${velocityDelta.x}, ${velocityDelta.y})`);
-		} else {
-			this.localPosition.add(velocityDelta);
-		}
+		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
 		if (this.positionFunction) {
 			this.setPosition(this.positionFunction(this, trussTime));
 			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
@@ -537,12 +504,7 @@ class Node extends StoreableObject {
 		} else {
 			acceleration = new Vector(0, 0);
 		}
-		
-		// Use node's velocityLoss if it exists (set by label properties system)
-		// Default to 1.0 (no velocity loss) if not set
-		let velocityLossFactor = this.velocityLoss !== undefined ? this.velocityLoss : 1.0;
-		
-		this.velocity = Vector.addVectors(Vector.multiplyVector(velocityLossFactor, this.velocity),
+		this.velocity = Vector.addVectors(Vector.multiplyVector(this.velocityLoss, this.velocity),
 			Vector.multiplyVector(timeFactor, acceleration));
 	}
 
@@ -593,30 +555,6 @@ class Node extends StoreableObject {
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */
-	/**
-	 * Get position transformed for the appropriate coordinate system
-	 * @param {View} view - The view/camera object
-	 * @returns {Position} - Position in screen/render space
-	 */
-	getRenderPosition(view) {
-		// Check if this node is in display coordinates
-		let isDisplayCoordinates = false;
-		if (this.labels && Array.isArray(this.labels)) {
-			isDisplayCoordinates = this.labels.some(label => label.name === 'displaycoordinates');
-		}
-
-		let pos = this.getPosition();
-		
-		if (isDisplayCoordinates) {
-			// Display coordinates: position is already in screen space, use directly
-			return pos;
-		} else {
-			// World coordinates: position needs view transform to screen space
-			// Use warpMatrix transform if available, otherwise use view methods
-			return pos;  // Caller (view.drawCircle, etc) will apply view transforms
-		}
-	}
-
 	show(truss, time, graphicDebugLevel = 0) {
 		let view = truss.view;
 		let cxt = view.context;
@@ -628,104 +566,83 @@ class Node extends StoreableObject {
 		}
 		cxt.strokeStyle = this.color;
 
-		// Check if this node is in display coordinates (not affected by zoom/pan)
-		let isDisplayCoordinates = false;
-		if (this.labels && Array.isArray(this.labels)) {
-			isDisplayCoordinates = this.labels.some(label => label.name === 'displaycoordinates');
+		// Handle display coordinate rendering (percentage-based)
+		let isDisplayCoordinates = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
+		if (isDisplayCoordinates) {
+			let posXLabel = this.labels.find(label => label.name === 'positionX');
+			let posYLabel = this.labels.find(label => label.name === 'positionY');
+			
+			if (posXLabel && posYLabel) {
+				// Convert percentages to screen pixels
+				// X: 0 = left, 100 = right
+				// Y: 0 = bottom, 100 = top
+				let screenX = (posXLabel.value / 100) * view.screenSize.x;
+				let screenY = view.screenSize.y - (posYLabel.value / 100) * view.screenSize.y;
+				
+				this.highLight(cxt);
+				cxt.beginPath();
+				if (this.mass) {
+					cxt.arc(screenX, screenY, 4, 0, 2 * Math.PI);
+				} else {
+					// Draw crosshairs for nodes without mass
+					cxt.moveTo(screenX - 10, screenY - 10);
+					cxt.lineTo(screenX + 10, screenY + 10);
+					cxt.moveTo(screenX + 10, screenY - 10);
+					cxt.lineTo(screenX - 10, screenY + 10);
+				}
+				cxt.stroke();
+				return; // Don't render as world coordinate
+			}
 		}
 
-		// Render display nodes always, world nodes only in debug mode
-		if (graphicDebugLevel >= 3 || isDisplayCoordinates) {
+		if (graphicDebugLevel >= 3) {
 			if (this.pictureReference) {
 				this.pictureShow(truss, time);
 			}
-			
-			let pos = this.getPosition();
-			
-			// For display coords, always render; for world coords, check if in view
-			if (isDisplayCoordinates || view.inside(pos)) {
+			if (view.inside(this.getPosition())) {
 				this.highLight(cxt);
 				cxt.beginPath();
-				
-				if (isDisplayCoordinates) {
-					// Display coordinates: render directly in screen space
-					if (this.mass && !Number.isNaN(this.mass)) {
-						cxt.arc(pos.x, pos.y, Math.max(3, 0.03 * this.massRadius), 0, 2 * Math.PI);
-					} else {
-						cxt.moveTo(pos.x - 2, pos.y - 2);
-						cxt.lineTo(pos.x + 2, pos.y + 2);
-						cxt.moveTo(pos.x + 2, pos.y - 2);
-						cxt.lineTo(pos.x - 2, pos.y + 2);
-					}
+				if (this.mass) {
+					view.drawCircle(this.getPosition(), 0.03 * this.massRadius);
 				} else {
-					// World coordinates: use view transforms
-					if (this.mass) {
-						view.drawCircle(pos, 0.03 * this.massRadius);
-					} else {
-						view.drawLine(Vector.subtractVectors(pos, new Position(0.1, 0.1)),
-							Vector.addVectors(pos, new Position(0.1, 0.1)));
-						view.drawLine(Vector.addVectors(pos, new Position(0.1, -0.1)),
-							Vector.addVectors(pos, new Position(-0.1, 0.1)));
-					}
+					view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.1, 0.1)),
+						Vector.addVectors(this.getPosition(), new Position(0.1, 0.1)));
+					view.drawLine(Vector.addVectors(this.getPosition(), new Position(0.1, -0.1)),
+						Vector.addVectors(this.getPosition(), new Position(-0.1, 0.1)));
 				}
 				cxt.stroke();
 			}
 
 			if (graphicDebugLevel >= 6) {
-				let pos = this.getPosition();
 				cxt.beginPath();
-				
-				if (isDisplayCoordinates) {
-					cxt.moveTo(pos.x, pos.y);
-					cxt.lineTo(pos.x + 20 * Math.cos(this.getAngle()), 
-						pos.y + 20 * Math.sin(this.getAngle()));
-				} else {
-					view.drawLine(pos, Vector.addVectors(pos,
-						new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
-				}
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
+					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
 				cxt.stroke();
 
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
-				
-				if (isDisplayCoordinates) {
-					cxt.moveTo(pos.x, pos.y);
-					cxt.lineTo(pos.x + this.velocity.x * 0.5, pos.y + this.velocity.y * 0.5);
-				} else {
-					view.drawLine(pos, Vector.addVectors(pos, Vector.divideVector(this.velocity, 0.8)));
-				}
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
 				cxt.stroke();
 
 				if (graphicDebugLevel >= 7) {
 					cxt.strokeStyle = 'red';
 					cxt.beginPath();
 					if (this.acceleration) {
-						if (isDisplayCoordinates) {
-							cxt.moveTo(pos.x, pos.y);
-							cxt.lineTo(pos.x + this.acceleration.x * 0.1,
-								pos.y + this.acceleration.y * 0.1);
-						} else {
-							view.drawLine(pos,
-								Vector.addVectors(pos, Vector.divideVector(this.acceleration, 4)));
-						}
+						view.drawLine(this.getPosition(),
+							Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
 					}
 					cxt.stroke();
 				}
 			}
 
 			if (graphicDebugLevel >= 10) {
-				let pos = this.getPosition();
 				cxt.beginPath();
 				cxt.fillStyle = this.color;
 				cxt.font = '10px Arial';
 				cxt.textAlign = 'left';
-				
-				if (isDisplayCoordinates) {
-					cxt.fillText('(' + Math.trunc(pos.x) + ', ' + Math.trunc(pos.y) + ')', pos.x + 5, pos.y);
-				} else {
-					view.drawText(pos, '(' + Math.trunc(pos.x * 100) / 100 + ', ' +
-						Math.trunc(pos.y * 100) / 100 + ')');
-				}
+				let textPos = this.getPosition();
+				view.drawText(textPos, '(' + Math.trunc(this.getPosition().x * 100) / 100 + ', ' +
+						Math.trunc(this.getPosition().y * 100) / 100 + ')');
 			}
 		}
 		if (graphicDebugLevel >= 1) {
