@@ -66,10 +66,13 @@ class BannerNode extends Node {
 		const centerPercentY = 100 - ((topScreenPos.y + screenHeight / 2) / canvasHeight) * 100;
 		const bottomPercentY = 100 - ((topScreenPos.y + screenHeight) / canvasHeight) * 100;
 
-		// Earth gravity well: position at Earth's center distance below screen
-		// 100% screen = 40 cm (physical), Earth radius = 6,371 km
-		// Distance in percentages: (6.371e13 cm / 40 cm) * 100 = 1.59e16 %
-		const EARTH_GRAVITY_WELL_Y = -1.59e16; // Far below, at Earth's center distance
+		// Earth gravity well: calculate distance to Earth's center
+		// 100% screen = 40 cm (physical)
+		// 1% = 0.4 cm = 0.004 m
+		// Earth's radius = 6,371 km = 6.371e6 m
+		// Distance in percentages: (6.371e6 m / 0.004 m/%) = 1.59275e9 %
+		const EARTH_CENTER_DISTANCE_PERCENT = -1.59275e9;  // Below display origin
+		const GRAVITY_CONSTANT = -6.67e-11;  // Newton's gravitational constant for attractive force
 
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
@@ -104,11 +107,11 @@ class BannerNode extends Node {
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
 			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
 			'name': 'bannerGravityWell',
-			'mass': 5.972e24,
+			'mass': 5.972e24,  // Earth's mass
 			'velocityLoss': 1.0,
 			'coordinatesystem': 'display',
 			'displayPositionX': centerPercentX,
-			'displayPositionY': EARTH_GRAVITY_WELL_Y,
+			'displayPositionY': EARTH_CENTER_DISTANCE_PERCENT,
 		});
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
@@ -134,12 +137,12 @@ class BannerNode extends Node {
 		});
 
 		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
-			'constant': 0.00001,
+			'constant': GRAVITY_CONSTANT,  // Newton's gravitational constant
 			'color': 'transparent',
 		});
 
 		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
-			'constant': 0.00001,
+			'constant': GRAVITY_CONSTANT,  // Newton's gravitational constant
 			'color': 'transparent',
 		});
 
