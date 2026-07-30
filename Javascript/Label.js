@@ -182,7 +182,7 @@ class Labels {
 			'constantProperty': 6.67e-11,
 			'massProperty': 5.97219e24,
 			'nameProperty': 'Earth',
-			'positionProperty': new Position(0, 6371000),
+			'positionProperty': new Position(0, -6371000),
 			'enforcedProperty': true,
 		});
 		let trussLabel = this.addLabel('truss', [nodeLabel], {

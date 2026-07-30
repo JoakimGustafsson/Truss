@@ -7,7 +7,7 @@ import { Position } from './Primitives.js';
 /**
  *
  */
-const EARTH_CENTER = new Position(0, 6371e3);
+const EARTH_CENTER = new Position(0, -6371e3);
 const EARTH_MASS = 5.97219e24;
 const GRAVITY_CONSTANT = 6.67e-11;
 
