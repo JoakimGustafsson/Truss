@@ -105,7 +105,7 @@ class BannerNode extends Node {
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
-			'velocityLoss': 0.99,
+			'velocityLoss': 0.9999,
 		});
 
 		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable velocityloss', {
@@ -113,7 +113,7 @@ class BannerNode extends Node {
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
-			'velocityLoss': 0.99,
+			'velocityLoss': 0.9999,
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {

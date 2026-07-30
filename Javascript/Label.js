@@ -41,12 +41,9 @@ class Labels {
 		this.torqueConstantProperty = new NumberProperty(
 			'torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT,
 			'How stiff the node is with respect to attempts angle differences.');
-		this.nodeFrictionProperty = new NumberProperty(
-			'velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT,
-			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		this.velocityLossLabelProperty = new NumberProperty(
+		this.velocityLossProperty = new NumberProperty(
 			'velocityLoss', 'velocityLoss', 'Velocity loss', ParameterCategory.CONTENT,
-			'How much velocity is lost per frame when velocityloss label applied (0-1, where 1 is no loss).');
+			'How much velocity is lost per frame (0-1, where 1 is no loss).');
 		this.colorProperty = new StringProperty(
 			'color', 'color', 'Colour', ParameterCategory.CONTENT,
 			'The colour of the node.');
@@ -212,10 +209,11 @@ class Labels {
 			// Nodes with this label are part of the banner UI system
 		});
 		let velocityLossLabel = this.addLabel('velocityloss', [nodeLabel], {
-			'velocityLossLabelProperty': 0.99,
+			'velocityLossProperty': 0.9999,
 			// Nodes with this label have tunable velocity loss applied per physics frame
 			// velocityLoss value (0-1): fraction of velocity retained per frame
-			// 0.99 = 1% loss (default, minimal damping)
+			// 0.9999 = 0.01% loss (default, minimal damping - natural falling)
+			// 0.99 = 1% loss (light damping)
 			// 0.95 = 5% loss (moderate damping)
 			// 0.9 = 10% loss (heavy damping)
 			// Lower values = more damping = slower falling
