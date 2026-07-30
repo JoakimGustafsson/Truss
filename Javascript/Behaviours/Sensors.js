@@ -123,10 +123,10 @@ class SelectorBehaviour extends Behaviour {
 			return;
 		}
 		
-		// For display coordinate nodes, keep cursor position in screen pixels
-		// For world coordinate nodes, convert to world coordinates
+		// Cursor position in screen pixels
 		let cursorScreenX = control.myX;
 		let cursorScreenY = control.myY;
+		let screenPosition = new Position(cursorScreenX, cursorScreenY);
 		
 		// Check if selectedObject is in display coordinates
 		let selectedIsDisplay = false;
@@ -135,8 +135,8 @@ class SelectorBehaviour extends Behaviour {
 			selectedIsDisplay = coordLabel && coordLabel.coordinatesystemProperty === 'display';
 		}
 		
+		// For dragging display nodes, convert screen pixels to percentages
 		if (selectedIsDisplay) {
-			// For display coordinates, convert screen pixels to percentages
 			this.cursorPosition = new Position(
 				(cursorScreenX / trussNode.view.screenSize.x) * 100,
 				100 - (cursorScreenY / trussNode.view.screenSize.y) * 100
@@ -146,7 +146,8 @@ class SelectorBehaviour extends Behaviour {
 			this.cursorPosition = trussNode.view.worldPositionWithOffset(cursorScreenX, cursorScreenY);
 		}
 		
-		let closest = trussNode.getClosestObject(new Position(cursorScreenX, cursorScreenY), 20 * trussNode.view.getDistanceMultiplier(), this);
+		// Pass view to getClosestObject so it can handle both coordinate systems
+		let closest = trussNode.getClosestObject(screenPosition, 20 * trussNode.view.getDistanceMultiplier(), this, trussNode.view);
 
 		if (!control.mouseSet) {
 			if (!closest) {

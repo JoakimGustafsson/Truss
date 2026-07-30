@@ -517,12 +517,13 @@ class TrussNode extends Node {
 	};
 
 	/**
-	 * @param  {Position} position
+	 * @param  {Position} position - Position in SCREEN coordinates (pixels)
 	 * @param  {number} maxDistance
 	 * @param  {Node} avoid
+	 * @param  {View} view - Optional View to convert screen to world coordinates
 	 * @return {Object}
 	 */
-	getClosestObject(position, maxDistance, avoid) {
+	getClosestObject(position, maxDistance, avoid, view) {
 		let lowestDistance = 1000000000;
 		let closest;
 		
@@ -533,14 +534,21 @@ class TrussNode extends Node {
 			
 			let nodePos;
 			if (nodeIsDisplay) {
-				// For display nodes, input position is in screen pixels
+				// For display nodes, input position is already in screen pixels
 				// Convert node's display position percentages to screen pixels
 				let screenX = (node.displayPositionX / 100) * this.view.screenSize.x;
 				let screenY = this.view.screenSize.y - (node.displayPositionY / 100) * this.view.screenSize.y;
 				nodePos = new Position(screenX, screenY);
 			} else {
-				// For world nodes, use world position converted to screen
+				// For world nodes, convert input screen position to world coordinates first
+				let worldPos = view ? view.worldPositionWithOffset(position.x, position.y) : position;
 				nodePos = this.view.screenPosition(node.getPosition());
+				// Now we need to compare in world space, so use node's actual world position
+				if (Position.distance(worldPos, node.getPosition()) < lowestDistance && node != avoid) {
+					lowestDistance = Position.distance(worldPos, node.getPosition());
+					closest = node;
+				}
+				continue; // Skip the distance calculation below for world nodes
 			}
 			
 			if (Position.distance(position, nodePos) < lowestDistance && node != avoid) {
@@ -564,13 +572,18 @@ class TrussNode extends Node {
 				let screenX2 = (tensor.node2.displayPositionX / 100) * this.view.screenSize.x;
 				let screenY2 = this.view.screenSize.y - (tensor.node2.displayPositionY / 100) * this.view.screenSize.y;
 				tensorPos = new Position((screenX1 + screenX2) / 2, (screenY1 + screenY2) / 2);
+				
+				if (Position.distance(position, tensorPos) < lowestDistance && tensor != avoid) {
+					lowestDistance = Position.distance(position, tensorPos);
+					closest = tensor;
+				}
 			} else {
-				tensorPos = this.view.screenPosition(tensor.getPosition());
-			}
-			
-			if (Position.distance(position, tensorPos) < lowestDistance && tensor != avoid) {
-				lowestDistance = Position.distance(position, tensorPos);
-				closest = tensor;
+				// World coordinate tensor - convert screen position to world first
+				let worldPos = view ? view.worldPositionWithOffset(position.x, position.y) : position;
+				if (Position.distance(worldPos, tensor.getPosition()) < lowestDistance && tensor != avoid) {
+					lowestDistance = Position.distance(worldPos, tensor.getPosition());
+					closest = tensor;
+				}
 			}
 		}
 		
