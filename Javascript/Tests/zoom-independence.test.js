@@ -40,8 +40,9 @@ class BannerPositionTest {
 
 	/**
 	 * Find the closest gravity well node in the world, or create one if none exist
+	 * 
 	 * @param {Object} world - World object containing nodes
-	 * @param {Vector} referencePosition - Position to measure distance from
+	 * @param {Vector} referencePosition - Position to measure distance from (in world coordinates)
 	 * @return {Node} Gravity well node
 	 */
 	_findOrCreateGravityWell(world, referencePosition) {
@@ -58,7 +59,7 @@ class BannerPositionTest {
 			let minDistance = Number.MAX_VALUE;
 
 			gravityWells.forEach(well => {
-				const wellPos = well.getPosition();
+				const wellPos = well.getPosition ? well.getPosition() : well.localPosition;
 				const dx = wellPos.x - referencePosition.x;
 				const dy = wellPos.y - referencePosition.y;
 				const distance = Math.sqrt(dx * dx + dy * dy);
@@ -72,7 +73,9 @@ class BannerPositionTest {
 			return closestWell;
 		}
 
-		// No gravity well exists, so create one far below the banner
+		// No gravity well exists, create one far DOWN (negative Y in world coordinates)
+		// World coordinates: origin at lower-left, positive Y is UP, negative Y is DOWN
+		// To pull banner downward toward "earth", place gravity well at large negative Y
 		const gravityWellNode = new Node(
 			world,
 			null,
@@ -80,9 +83,9 @@ class BannerPositionTest {
 			{
 				localPosition: new Position(
 					referencePosition.x,
-					referencePosition.y + 10000 // Place far below
+					referencePosition.y - 50000  // NEGATIVE Y = down in world coordinates
 				),
-				mass: Number.POSITIVE_INFINITY, // Immovable
+				mass: Number.POSITIVE_INFINITY,  // Immovable
 				name: 'gravityWell',
 			}
 		);
