@@ -134,12 +134,12 @@ class BannerNode extends Node {
 		});
 
 		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
-			'constant': 0.1,
+			'constant': 0.00001,
 			'color': 'transparent',
 		});
 
 		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
-			'constant': 0.1,
+			'constant': 0.00001,
 			'color': 'transparent',
 		});
 
