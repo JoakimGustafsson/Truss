@@ -6,15 +6,23 @@ import { Position, Vector } from '../../Primitives.js';
 
 /**
  * @class
- * @extends Node
+ * BannerNode manages banner UI and display coordinate physics nodes.
+ * NOT a world node - it doesn't extend Node or get added to physics.
  */
-class BannerNode extends Node {
+class BannerNode {
 	/** This class displays a banner containing a HTML element.
 	 * @param  {TrussNode} truss
 	 * @param  {HTMLElement} editParameterElement
 	 * @param  {HTMLElement} propertyElement
 	 */
 	constructor(truss, editParameterElement, propertyElement) {
+		this.truss = truss;
+		this.name = 'bannerNode';
+		this.element = editParameterElement;
+		this.propertyElement = propertyElement;
+		this.isListening = false;
+		
+		// Get world and parentTrussNode from truss for creating display nodes
 		let anchorTrussNode = truss.parentTrussNode;
 		if (!anchorTrussNode) {
 			anchorTrussNode = truss;
@@ -23,13 +31,9 @@ class BannerNode extends Node {
 		if (!anchorWorld) {
 			anchorWorld = truss.world;
 		}
-		super(anchorWorld, anchorTrussNode, 'banner sensor');
-		this.truss = truss;
-		this.name = 'bannerNode';
-		this.visible = false;  // Hide BannerNode from rendering - it's just a container for UI
-		this.element = editParameterElement;
-		this.propertyElement = propertyElement;
-		this.isListening = false;
+		this.world = anchorWorld;
+		this.parentTrussNode = anchorTrussNode;
+		
 		let _this=this;
 
 		this.eventListenerFunction = function(e) {
@@ -247,7 +251,6 @@ class BannerNode extends Node {
 	 * @param  {number} graphicDebugLevel=0
 	 */
 	show(truss, time, graphicDebugLevel = 0) {
-		super.show(truss, time, graphicDebugLevel);
 		this.highLight(truss.view.context);
 
 		// Always render banner components (nodes and tensors)
