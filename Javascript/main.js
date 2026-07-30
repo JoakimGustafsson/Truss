@@ -44,7 +44,6 @@ function init() {
 	document.getElementById('mainArea').onmousemove = function(e) {
 		// Store viewport-relative coordinates (for world coordinate system)
 		// Display coordinate system will convert these as needed
-		console.log(`🖱️ Mouse move: viewport (${e.clientX}, ${e.clientY}); button state: ${e.buttons}`);
 		setMyX(e.clientX);
 		setMyY(e.clientY);
 	};

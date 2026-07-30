@@ -528,6 +528,14 @@ class TrussNode extends Node {
 		let lowestDistanceDisplay = 1000000000;  // Separate tracker for display coordinate distances
 		let closest;
 		
+		// Debug: show all display coordinate nodes
+		let displayNodes = this.nodes.filter(n => {
+			let coordLabel = n.labels && n.labels.find(l => l.name === 'coordinatesystem');
+			return coordLabel && coordLabel.coordinatesystemProperty === 'display';
+		});
+		if (displayNodes.length > 0) {
+			console.log(`📊 Display nodes found: ${displayNodes.map(n => `${n.name}(${n.displayPositionX.toFixed(1)}%, ${n.displayPositionY.toFixed(1)}%)`).join(', ')}`);
+		}
 		// For display nodes, we need canvas-relative coordinates
 		// Position.x and position.y are viewport-relative (clientX/clientY)
 		// We need to convert to canvas-relative, then to display percentages
@@ -539,9 +547,6 @@ class TrussNode extends Node {
 		let displayPercY = 100 - (canvasRelY / this.view.screenSize.y) * 100;
 		let displayPosition = new Position(displayPercX, displayPercY);
 		
-		// Debug: log screen size info
-		console.log(`📐 Screen size in use: ${this.view.screenSize.x} x ${this.view.screenSize.y}; Canvas rect offset: (${this.view.elemRectleft}, ${this.view.elemRecttop}); Viewport coords: (${position.x}, ${position.y}) -> Canvas coords: (${canvasRelX}, ${canvasRelY})`);
-		
 		for (let node of this.nodes) {
 			// Check if node is in display coordinate system
 			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
@@ -551,15 +556,6 @@ class TrussNode extends Node {
 				// For display nodes, compare in percentage space (not screen pixels!)
 				let nodeDisplayPos = new Position(node.displayPositionX, node.displayPositionY);
 				let distance = Position.distance(displayPosition, nodeDisplayPos);
-				
-				// Debug logging
-				if (node.name === 'nail') {
-					console.log(`\n🎯 NAIL COORDINATE DEBUG:`);
-					console.log(`   Input mouse screenPixels: (${position.x.toFixed(1)}, ${position.y.toFixed(1)})`);
-					console.log(`   Converted to displayPercent: (${displayPercX.toFixed(2)}%, ${displayPercY.toFixed(2)}%)`);
-					console.log(`   Nail displayPos: (${node.displayPositionX.toFixed(2)}%, ${node.displayPositionY.toFixed(2)}%)`);
-					console.log(`   Distance in %: ${distance.toFixed(2)} (threshold: 2%)`);
-				}
 				
 				if (distance < lowestDistanceDisplay && node != avoid) {
 					lowestDistanceDisplay = distance;
