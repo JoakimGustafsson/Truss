@@ -634,7 +634,8 @@ class Node extends StoreableObject {
 			isDisplayCoordinates = this.labels.some(label => label.name === 'displaycoordinates');
 		}
 
-		if (graphicDebugLevel >= 3) {
+		// Render display nodes always, world nodes only in debug mode
+		if (graphicDebugLevel >= 3 || isDisplayCoordinates) {
 			if (this.pictureReference) {
 				this.pictureShow(truss, time);
 			}
