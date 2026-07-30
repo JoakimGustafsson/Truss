@@ -5,9 +5,13 @@ import { Selector } from './Nodes/Sensors.js';
 import { Position } from './Primitives.js';
 
 /**
- *
+ * Coordinate System Reference:
+ * - World coordinates use mathematical convention: origin at lower-left
+ * - Positive Y = UP, Negative Y = DOWN
+ * - Earth (gravity well) must be at NEGATIVE Y to pull objects downward
+ * - See COORDINATE-SYSTEMS.md for detailed explanation
  */
-const EARTH_CENTER = new Position(0, 6371e3);
+const EARTH_CENTER = new Position(0, -6371e3);  // NEGATIVE Y = far down (toward gravity)
 const EARTH_MASS = 5.97219e24;
 const GRAVITY_CONSTANT = 6.67e-11;
 
@@ -33,29 +37,29 @@ function createDefaultPerformanceScene(trussNode) {
 
 	trussNode.protagonist = new ProtagonistNode(trussNode.world, trussNode, 'moveable node color', {
 		'name': 'Protagonist',
-		'localPosition': new Position(4, 3),
+		'localPosition': new Position(4, 100),  // Positive Y = above Earth, will fall down
 		'mass': 70,
 		'color': 'yellow',
 	});
 
 	const nodeA = new Node(trussNode.world, trussNode, 'moveable node', {
 		'name': 'Node A',
-		'localPosition': new Position(3, 5),
+		'localPosition': new Position(3, 50),  // Positive Y = above Earth
 		'mass': 20,
 	});
 	const nodeB = new Node(trussNode.world, trussNode, 'moveable node', {
 		'name': 'Node B',
-		'localPosition': new Position(6, 5),
+		'localPosition': new Position(6, 50),  // Positive Y = above Earth
 		'mass': 20,
 	});
 	const anchorLeft = new Node(trussNode.world, trussNode, 'node', {
 		'name': 'Anchor Left',
-		'localPosition': new Position(2, 8),
+		'localPosition': new Position(2, 120),  // Positive Y = well above
 		'mass': NaN,
 	});
 	const anchorRight = new Node(trussNode.world, trussNode, 'node', {
 		'name': 'Anchor Right',
-		'localPosition': new Position(7, 8),
+		'localPosition': new Position(7, 120),  // Positive Y = well above
 		'mass': NaN,
 	});
 
