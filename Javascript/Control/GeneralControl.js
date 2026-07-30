@@ -1,5 +1,4 @@
 /* global Tensor Spring */
-import { setMyX, setMyY } from '../globals.js';
 
 /**
  * @class
@@ -29,34 +28,19 @@ class GeneralControl {
 			}
 		}, true);
 
-
-		this.myX = 3;
-		this.myY = 3;
-		this.mouseSet = false;
-
 		this.connectionNode;
 		this.connectionNodeEventListener;
 
 		this.connectionTensor;
 		this.connectionEventListener;
 
-		document.getElementById('mainArea').onmousemove =  (e) => {this.myMove(e);};
-
+		// Mouse move handler is already set in main.js
+		// Don't override it here - just ensure setMyX/setMyY are called
+		// which happens via the main.js handler
 
 		document.addEventListener('selectionEvent', (e) => {this.highlightAndModifyPropertyButtons(e);}			, false);
 
 
-	}
-
-	/**
-	 * @param  {Event} e
-	 */
-	myMove(e) {
-		// Store viewport-relative coordinates (for world coordinate system)
-		// Display coordinate system will convert these as needed
-		// Update the GLOBAL myX/myY (from globals.js) via the setters
-		setMyX(e.clientX);
-		setMyY(e.clientY);
 	}
 
 	/**
