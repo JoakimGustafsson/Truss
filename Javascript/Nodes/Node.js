@@ -436,6 +436,17 @@ class Node extends StoreableObject {
 	updatePosition(trussTime, timeFactor) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
 		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
+		
+		// For display coordinate nodes, also update displayPositionX/Y based on velocity
+		let coordinateSystemLabel = this.labels && this.labels.find(label => label.name === 'coordinatesystem');
+		if (coordinateSystemLabel && coordinateSystemLabel.coordinatesystemProperty === 'display') {
+			// Update display positions proportionally to velocity
+			if (this.displayPositionX !== undefined && this.displayPositionY !== undefined) {
+				this.displayPositionX += this.velocity.x * timeFactor;
+				this.displayPositionY += this.velocity.y * timeFactor;
+			}
+		}
+		
 		if (this.positionFunction) {
 			this.setPosition(this.positionFunction(this, trussTime));
 			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);

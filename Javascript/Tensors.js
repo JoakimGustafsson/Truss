@@ -616,6 +616,20 @@ class Tensor extends StoreableObject {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
+		
+		// For display coordinate tensors, use displayPositionX instead of world coordinates
+		let node1CoordLabel = this.node1.labels && this.node1.labels.find(l => l.name === 'coordinatesystem');
+		let node2CoordLabel = this.node2.labels && this.node2.labels.find(l => l.name === 'coordinatesystem');
+		let node1IsDisplay = node1CoordLabel && node1CoordLabel.coordinatesystemProperty === 'display';
+		let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
+		
+		if (node1IsDisplay && node2IsDisplay) {
+			// Both nodes use display coordinates
+			let x1 = this.node1.displayPositionX !== undefined ? this.node1.displayPositionX : 0;
+			let x2 = this.node2.displayPositionX !== undefined ? this.node2.displayPositionX : 0;
+			return (x2 - x1);
+		}
+		
 		return (this.node2.getPosition().x - this.node1.getPosition().x);
 	};
 
@@ -635,6 +649,20 @@ class Tensor extends StoreableObject {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
+		
+		// For display coordinate tensors, use displayPositionY instead of world coordinates
+		let node1CoordLabel = this.node1.labels && this.node1.labels.find(l => l.name === 'coordinatesystem');
+		let node2CoordLabel = this.node2.labels && this.node2.labels.find(l => l.name === 'coordinatesystem');
+		let node1IsDisplay = node1CoordLabel && node1CoordLabel.coordinatesystemProperty === 'display';
+		let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
+		
+		if (node1IsDisplay && node2IsDisplay) {
+			// Both nodes use display coordinates
+			let y1 = this.node1.displayPositionY !== undefined ? this.node1.displayPositionY : 0;
+			let y2 = this.node2.displayPositionY !== undefined ? this.node2.displayPositionY : 0;
+			return (y2 - y1);
+		}
+		
 		return this.node2.getPosition().y - this.node1.getPosition().y;
 	};
 
