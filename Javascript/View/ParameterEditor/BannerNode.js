@@ -66,32 +66,27 @@ class BannerNode extends Node {
 		
 		console.log(`ℹ️ BannerNode creating banner at screenPos (${topScreenPos.x}, ${topScreenPos.y}), size ${screenWidth}x${screenHeight}`);
 
-		// Debug: Log world positions being calculated
-		let leftTop_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x, topScreenPos.y) : new Position(0, 0);
-		let rightTop_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y) : new Position(screenWidth, 0);
-		let leftBottom_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight) : new Position(0, screenHeight);
-		let rightBottom_world = truss.view && truss.view.worldPosition ? truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight) : new Position(screenWidth, screenHeight);
-		
-		console.log(`🔍 Banner node world positions:`);
-		console.log(`  leftTop: (${leftTop_world.x.toFixed(2)}, ${leftTop_world.y.toFixed(2)})`);
-		console.log(`  rightTop: (${rightTop_world.x.toFixed(2)}, ${rightTop_world.y.toFixed(2)})`);
-		console.log(`  leftBottom: (${leftBottom_world.x.toFixed(2)}, ${leftBottom_world.y.toFixed(2)})`);
-		console.log(`  rightBottom: (${rightBottom_world.x.toFixed(2)}, ${rightBottom_world.y.toFixed(2)})`);
-
 		// DISPLAY COORDINATE SYSTEM
-		// Banner operates in display coordinates (screen-relative, 1 world unit = 100 display units)
-		// This keeps banner size consistent across zoom levels
-		// Scale: 10m world banner → 0.1m display = ~10cm on screen
+		// Banner operates in display coordinates (screen-relative)
+		// Positions are in pure display space, NOT world coordinates
+		// This keeps banner independent of zoom/pan transforms
+		// Scale: screen coordinates scaled 0.01x for physics simulation
 		const DISPLAY_SCALE = 0.01;  // 1:100 scaling
 		
-		// Scale all positions and dimensions for display coordinate system
-		const scaledScreenWidth = screenWidth * DISPLAY_SCALE;
-		const scaledScreenHeight = screenHeight * DISPLAY_SCALE;
-		const scaledLeftTop = new Position(leftTop_world.x * DISPLAY_SCALE, leftTop_world.y * DISPLAY_SCALE);
-		const scaledRightTop = new Position(rightTop_world.x * DISPLAY_SCALE, rightTop_world.y * DISPLAY_SCALE);
-		const scaledLeftBottom = new Position(leftBottom_world.x * DISPLAY_SCALE, leftBottom_world.y * DISPLAY_SCALE);
-		const scaledRightBottom = new Position(rightBottom_world.x * DISPLAY_SCALE, rightBottom_world.y * DISPLAY_SCALE);
+		// Keep positions in pure display space (screen coordinates scaled)
+		// Do NOT convert through view.worldPosition() - that's for world coordinates!
+		const scaledLeftTop = new Position(topScreenPos.x * DISPLAY_SCALE, topScreenPos.y * DISPLAY_SCALE);
+		const scaledRightTop = new Position((topScreenPos.x + screenWidth) * DISPLAY_SCALE, topScreenPos.y * DISPLAY_SCALE);
+		const scaledLeftBottom = new Position(topScreenPos.x * DISPLAY_SCALE, (topScreenPos.y + screenHeight) * DISPLAY_SCALE);
+		const scaledRightBottom = new Position((topScreenPos.x + screenWidth) * DISPLAY_SCALE, (topScreenPos.y + screenHeight) * DISPLAY_SCALE);
 		const scaledNailPos = new Position((topScreenPos.x + screenWidth / 2) * DISPLAY_SCALE, (topScreenPos.y / 2) * DISPLAY_SCALE);
+		
+		console.log(`✓ Banner created in display coordinate space (zoom-independent):`);
+		console.log(`  nail: (${scaledNailPos.x.toFixed(2)}, ${scaledNailPos.y.toFixed(2)})`);
+		console.log(`  leftTop: (${scaledLeftTop.x.toFixed(2)}, ${scaledLeftTop.y.toFixed(2)})`);
+		console.log(`  rightTop: (${scaledRightTop.x.toFixed(2)}, ${scaledRightTop.y.toFixed(2)})`);
+		console.log(`  leftBottom: (${scaledLeftBottom.x.toFixed(2)}, ${scaledLeftBottom.y.toFixed(2)})`);
+		console.log(`  rightBottom: (${scaledRightBottom.x.toFixed(2)}, ${scaledRightBottom.y.toFixed(2)})`);
 
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner nogravity displaycoordinates', {
 			'localPosition': scaledNailPos,
