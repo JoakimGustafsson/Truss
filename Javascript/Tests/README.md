@@ -2,13 +2,34 @@
 
 ## Overview
 
-This test suite verifies that Truss banner physics and coordinate transformations work correctly across extreme zoom levels, from nano (10^-9) to lightyear (10^15) scales.
+This test suite verifies that Truss banner physics and coordinate transformations work correctly across extreme zoom levels, from nano (10^-14) to lightyear (10^14) scales.
 
-## Files
+## Test Types
 
-- **`Javascript/Tests/zoom-independence.test.js`** - Core test framework and test methods
-- **`test-zoom-runner.html`** - Interactive browser-based test runner with UI
-- **`README.md`** - This file
+### 1. Banner Position Tests (PRIMARY)
+**File**: `banner-position-test.js`
+
+Tests that banner nodes settle into predictable screen positions after physics stabilization at each zoom level.
+
+**Success Criteria**: After 3 seconds of simulation:
+- Upper right node: X at 98-100% (±10%), Y at 0-20% (±10%)
+- Upper left node: X at 70% (±10%), Y at 0-20% (±10%)
+- Bottom nodes: Same X as upper, Y at 60-100% (±10%)
+
+**Duration**: ~87 seconds for full suite (3s per 29 zoom levels)
+
+**Learn more**: See `BANNER-POSITION-TESTS.md`
+
+### 2. Coordinate Transformation Tests
+**File**: `zoom-independence.test.js` (legacy)
+
+Tests screen-to-world and world-to-screen coordinate conversion accuracy.
+
+### 3. Pan Consistency Tests  
+Tests that pan offsets remain stable through zoom operations.
+
+### 4. Pointer Mapping Tests
+Tests that pointer-to-world coordinate mapping is consistent at all scales.
 
 ## Running Tests
 
