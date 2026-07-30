@@ -144,6 +144,7 @@ class BannerNode extends Node {
 			'equilibriumLength': 18 * DISPLAY_SCALE,
 			'dampeningConstant': 10,
 			'constant': 3000 * DISPLAY_SCALE,
+			'visible': 1,
 		});
 
 
@@ -152,6 +153,7 @@ class BannerNode extends Node {
 			'dampeningConstant': 40,
 			'constant': 20000 * DISPLAY_SCALE,
 			'color': 'transparent',
+			'visible': 1,
 		});
 
 		this.rightSpring = new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
@@ -159,6 +161,7 @@ class BannerNode extends Node {
 			'dampeningConstant': 40,
 			'constant': 20000 * DISPLAY_SCALE,
 			'color': 'transparent',
+			'visible': 1,
 		});
 
 		// Banner bottom nodes (leftBottomNode, rightBottomNode) are in display coordinates

@@ -762,19 +762,46 @@ class Tensor extends StoreableObject {
 		if (this.isGhost() || !this.visible || this.visible=='0') {
 			return;
 		}
+
+		// Check if either node is in display coordinates
+		let isDisplayCoordinates = false;
+		if (node1 && node1.labels && Array.isArray(node1.labels)) {
+			isDisplayCoordinates = node1.labels.some(label => label.name === 'displaycoordinates');
+		}
+		if (!isDisplayCoordinates && node2 && node2.labels && Array.isArray(node2.labels)) {
+			isDisplayCoordinates = node2.labels.some(label => label.name === 'displaycoordinates');
+		}
+
 		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||
-			(graphicDebugLevel >= 6)) {
+			(graphicDebugLevel >= 6) || isDisplayCoordinates) {  // Always show display tensors
 			this.highLight(ctx);
 			ctx.beginPath();
-			view.drawLine(node1.getPosition(), node2.getPosition());
+			
+			let pos1 = node1.getPosition();
+			let pos2 = node2.getPosition();
+			
+			if (isDisplayCoordinates) {
+				// Display coordinates: draw directly in screen space
+				ctx.moveTo(pos1.x, pos1.y);
+				ctx.lineTo(pos2.x, pos2.y);
+			} else {
+				// World coordinates: use view transforms
+				view.drawLine(pos1, pos2);
+			}
 			ctx.stroke();
+			
 			if (graphicDebugLevel >= 10) { // Show debug text
 				ctx.beginPath();
 				ctx.fillStyle = 'cyan';
 				ctx.font = '20px Arial';
 				ctx.textAlign = 'left';
-				let textPos = Vector.addVectors(node1.getPosition(), Vector.divideVector(this.getActual(), 2));
-				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
+				let textPos = Vector.addVectors(pos1, Vector.divideVector(this.getActual(), 2));
+				
+				if (isDisplayCoordinates) {
+					ctx.fillText(Math.trunc(10 * this.getLength()) / 10, textPos.x, textPos.y);
+				} else {
+					view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
+				}
 			}
 		}
 	};
