@@ -538,12 +538,12 @@ class Node extends StoreableObject {
 			acceleration = new Vector(0, 0);
 		}
 		
-		// Determine velocity loss from backgroundfriction label if present, otherwise use node property
+		// Determine velocity loss from velocityloss label if present, otherwise use node property
 		let velocityLossFactor = this.velocityLoss;
 		if (this.labels && Array.isArray(this.labels)) {
-			const bgfrictionLabel = this.labels.find(label => label.name === 'backgroundfriction');
-			if (bgfrictionLabel && bgfrictionLabel.backgroundfriction !== undefined) {
-				velocityLossFactor = bgfrictionLabel.backgroundfriction;
+			const velocityLossLabel = this.labels.find(label => label.name === 'velocityloss');
+			if (velocityLossLabel && velocityLossLabel.velocityLoss !== undefined) {
+				velocityLossFactor = velocityLossLabel.velocityLoss;
 			}
 		}
 		

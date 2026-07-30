@@ -44,9 +44,9 @@ class Labels {
 		this.nodeFrictionProperty = new NumberProperty(
 			'velocityLoss', 'velocityLoss', 'Node friction', ParameterCategory.CONTENT,
 			'How much velocity bleeds of the node (0-1, where 1 is no bleed of).');
-		this.backgroundFrictionProperty = new NumberProperty(
-			'backgroundfriction', 'backgroundfriction', 'Background friction', ParameterCategory.CONTENT,
-			'How much velocity is retained per frame when backgroundfriction label applied (0-1, where 1 is no friction).');
+		this.velocityLossLabelProperty = new NumberProperty(
+			'velocityLoss', 'velocityLoss', 'Velocity loss', ParameterCategory.CONTENT,
+			'How much velocity is lost per frame when velocityloss label applied (0-1, where 1 is no loss).');
 		this.colorProperty = new StringProperty(
 			'color', 'color', 'Colour', ParameterCategory.CONTENT,
 			'The colour of the node.');
@@ -211,14 +211,14 @@ class Labels {
 		let bannerLabel = this.addLabel('banner', [nodeLabel], {
 			// Nodes with this label are part of the banner UI system
 		});
-		let backgroundfrictionLabel = this.addLabel('backgroundfriction', [nodeLabel], {
-			'backgroundFrictionProperty': 0.99,
-			// Nodes with this label have tunable friction/damping applied to velocity each frame
-			// backgroundfriction value (0-1): how much velocity is retained per frame
-			// 0.99 = 1% damping (default, minimal)
-			// 0.95 = 5% damping (moderate)
-			// 0.9 = 10% damping (heavy)
-			// Lower values = more friction/damping = slower falling
+		let velocityLossLabel = this.addLabel('velocityloss', [nodeLabel], {
+			'velocityLossLabelProperty': 0.99,
+			// Nodes with this label have tunable velocity loss applied per physics frame
+			// velocityLoss value (0-1): fraction of velocity retained per frame
+			// 0.99 = 1% loss (default, minimal damping)
+			// 0.95 = 5% loss (moderate damping)
+			// 0.9 = 10% loss (heavy damping)
+			// Lower values = more damping = slower falling
 		});
 	}
 
