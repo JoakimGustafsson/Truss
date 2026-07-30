@@ -42,12 +42,13 @@ function init() {
 	window.requestAnimationFrame(mainLoop);
 
 	document.getElementById('mainArea').onmousemove = function(e) {
-		let mainArea = document.getElementById('mainArea');
-		let rect = mainArea.getBoundingClientRect();
+		// Get the actual canvas element from the event
+		let canvas = e.currentTarget.querySelector('canvas') || e.currentTarget;
+		let rect = canvas.getBoundingClientRect();
 		// Convert from viewport coordinates to canvas-relative coordinates
 		let relX = e.clientX - rect.left;
 		let relY = e.clientY - rect.top;
-		console.log(`🖱️ Mouse move: viewport (${e.clientX}, ${e.clientY}) -> canvas-relative (${relX.toFixed(1)}, ${relY.toFixed(1)}); mainArea size: ${mainArea.clientWidth} x ${mainArea.clientHeight}`);
+		console.log(`🖱️ Mouse move: viewport (${e.clientX}, ${e.clientY}) -> canvas-relative (${relX.toFixed(1)}, ${relY.toFixed(1)}); canvas size: ${canvas.clientWidth} x ${canvas.clientHeight}`);
 		setMyX(relX);
 		setMyY(relY);
 	};

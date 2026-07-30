@@ -51,8 +51,9 @@ class GeneralControl {
 	 * @param  {Event} e
 	 */
 	myMove(e) {
-		let mainArea = document.getElementById('mainArea');
-		let rect = mainArea.getBoundingClientRect();
+		// Get the actual canvas element from the event
+		let canvas = e.currentTarget.querySelector('canvas') || e.currentTarget;
+		let rect = canvas.getBoundingClientRect();
 		// Convert from viewport coordinates to canvas-relative coordinates
 		this.myX = e.clientX - rect.left;
 		this.myY = e.clientY - rect.top;
