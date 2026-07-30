@@ -12,6 +12,13 @@ Merge conflict markers have been removed in this branch, keeping the newer `Univ
 - **Impact:** Pan/zoom behavior is visually incorrect after scaling; pointer coordinates don't map correctly to canvas position.
 - **TODO:** Review `PanZoomHandler.pointermove_handler()` zoom calculation logic, particularly lines 140–157 and the `updateScale()` method call.
 
+### Touchpad scroll/pan behavior
+- **Location:** `Javascript/View/PanZoomHandler.js` (_onWheel method, wheel event handling)
+- **Description:** Touchpad two-finger scroll and pan works but exhibits rigid directional locking. When moving fingers in circular or diagonal motions, the pan sometimes locks to cardinal directions (horizontal/vertical only) instead of following smoothly. Behavior varies unpredictably between attempts.
+- **Impact:** Touchpad pan/zoom experience is suboptimal but usable. Pinch-zoom on touchscreen works well; mouse wheel zoom also works correctly.
+- **Status:** Acceptable for current development phase. Not blocking. Future improvement recommended if touchpad usability becomes priority.
+- **TODO:** Could investigate multi-touch event coalescing, pointer event coordinate smoothing, or alternative wheel event detection strategies in future refactor.
+
 ## Conflict cleanup status
 
 The following files were conflict-resolved:

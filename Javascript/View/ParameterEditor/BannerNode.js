@@ -100,20 +100,22 @@ class BannerNode extends Node {
 		// Banner gravity is provided by Earth's gravity well (if it exists)
 		// See gravity connections below
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable backgroundfriction', {
 			'localPosition': leftBottom_world,
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
-			'velocityLoss': 0.9,
+			'velocityLoss': 0.99,
+			'backgroundfriction': 0.99,
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable backgroundfriction', {
 			'localPosition': rightBottom_world,
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
-			'velocityLoss': 0.9,
+			'velocityLoss': 0.99,
+			'backgroundfriction': 0.99,
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {

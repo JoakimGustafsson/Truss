@@ -537,7 +537,17 @@ class Node extends StoreableObject {
 		} else {
 			acceleration = new Vector(0, 0);
 		}
-		this.velocity = Vector.addVectors(Vector.multiplyVector(this.velocityLoss, this.velocity),
+		
+		// Determine velocity loss from backgroundfriction label if present, otherwise use node property
+		let velocityLossFactor = this.velocityLoss;
+		if (this.labels && Array.isArray(this.labels)) {
+			const bgfrictionLabel = this.labels.find(label => label.name === 'backgroundfriction');
+			if (bgfrictionLabel && bgfrictionLabel.backgroundfriction !== undefined) {
+				velocityLossFactor = bgfrictionLabel.backgroundfriction;
+			}
+		}
+		
+		this.velocity = Vector.addVectors(Vector.multiplyVector(velocityLossFactor, this.velocity),
 			Vector.multiplyVector(timeFactor, acceleration));
 	}
 
