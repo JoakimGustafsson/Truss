@@ -528,28 +528,28 @@ class TrussNode extends Node {
 		let lowestDistanceDisplay = 1000000000;  // Separate tracker for display coordinate distances
 		let closest;
 		
+		// Convert input screen position to display percentages for comparing with display nodes
+		let displayPercX = (position.x / this.view.screenSize.x) * 100;
+		let displayPercY = 100 - (position.y / this.view.screenSize.y) * 100;
+		let displayPosition = new Position(displayPercX, displayPercY);
+		
 		for (let node of this.nodes) {
 			// Check if node is in display coordinate system
 			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
 			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
 			
 			if (nodeIsDisplay) {
-				// For display nodes, input position is already in screen pixels
-				// Convert node's display position percentages to screen pixels
-				let screenX = (node.displayPositionX / 100) * this.view.screenSize.x;
-				let screenY = this.view.screenSize.y - (node.displayPositionY / 100) * this.view.screenSize.y;
-				let nodePos = new Position(screenX, screenY);
-				
-				let distance = Position.distance(position, nodePos);
+				// For display nodes, compare in percentage space (not screen pixels!)
+				let nodeDisplayPos = new Position(node.displayPositionX, node.displayPositionY);
+				let distance = Position.distance(displayPosition, nodeDisplayPos);
 				
 				// Debug logging
 				if (node.name === 'nail') {
 					console.log(`\n🎯 NAIL COORDINATE DEBUG:`);
-					console.log(`   Input mouse screenPos: (${position.x.toFixed(1)}, ${position.y.toFixed(1)})`);
-					console.log(`   Nail displayPercent: (${node.displayPositionX.toFixed(2)}%, ${node.displayPositionY.toFixed(2)}%)`);
-					console.log(`   Canvas size: ${this.view.screenSize.x}x${this.view.screenSize.y}`);
-					console.log(`   Nail computed screenPos: (${screenX.toFixed(1)}, ${screenY.toFixed(1)})`);
-					console.log(`   Distance: ${distance.toFixed(1)} (threshold: 20px)`);
+					console.log(`   Input mouse screenPixels: (${position.x.toFixed(1)}, ${position.y.toFixed(1)})`);
+					console.log(`   Converted to displayPercent: (${displayPercX.toFixed(2)}%, ${displayPercY.toFixed(2)}%)`);
+					console.log(`   Nail displayPos: (${node.displayPositionX.toFixed(2)}%, ${node.displayPositionY.toFixed(2)}%)`);
+					console.log(`   Distance in %: ${distance.toFixed(2)} (threshold: 2%)`);
 				}
 				
 				if (distance < lowestDistanceDisplay && node != avoid) {
@@ -575,14 +575,12 @@ class TrussNode extends Node {
 			let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
 			
 			if (node1IsDisplay && node2IsDisplay) {
-				// Both ends in display space - compute midpoint in screen pixels
-				let screenX1 = (tensor.node1.displayPositionX / 100) * this.view.screenSize.x;
-				let screenY1 = this.view.screenSize.y - (tensor.node1.displayPositionY / 100) * this.view.screenSize.y;
-				let screenX2 = (tensor.node2.displayPositionX / 100) * this.view.screenSize.x;
-				let screenY2 = this.view.screenSize.y - (tensor.node2.displayPositionY / 100) * this.view.screenSize.y;
-				let tensorPos = new Position((screenX1 + screenX2) / 2, (screenY1 + screenY2) / 2);
+				// Both ends in display space - use percentage distances
+				let tensorPos1 = new Position(tensor.node1.displayPositionX, tensor.node1.displayPositionY);
+				let tensorPos2 = new Position(tensor.node2.displayPositionX, tensor.node2.displayPositionY);
+				let tensorPosMid = new Position((tensorPos1.x + tensorPos2.x) / 2, (tensorPos1.y + tensorPos2.y) / 2);
 				
-				let distance = Position.distance(position, tensorPos);
+				let distance = Position.distance(displayPosition, tensorPosMid);
 				if (distance < lowestDistanceDisplay && tensor != avoid) {
 					lowestDistanceDisplay = distance;
 					closest = tensor;
@@ -603,10 +601,10 @@ class TrussNode extends Node {
 			let closestCoordLabel = closest.labels && closest.labels.find(l => l.name === 'coordinatesystem');
 			let closestIsDisplay = closestCoordLabel && closestCoordLabel.coordinatesystemProperty === 'display';
 			
-			// For display nodes, use pixel-based threshold (20 pixels)
+			// For display nodes, use percentage-based threshold (2% of screen)
 			// For world nodes, use the provided maxDistance threshold
 			if (closestIsDisplay) {
-				if (lowestDistanceDisplay > 20) {
+				if (lowestDistanceDisplay > 2) {
 					return undefined;
 				}
 			} else {
