@@ -54,10 +54,27 @@ class BannerNode extends Node {
 			topScreenPos = new Position(truss.view.screenSize.x - screenWidth, 0);
 		}
 
+		// Convert screen positions to percentage coordinates
+		// X: 0 = left, 100 = right; Y: 0 = bottom, 100 = top
+		const canvasWidth = truss.view.screenSize.x;
+		const canvasHeight = truss.view.screenSize.y;
+		
+		const topLeftPercentX = (topScreenPos.x / canvasWidth) * 100;
+		const topLeftPercentY = 100 - (topScreenPos.y / canvasHeight) * 100;
+		const topRightPercentX = ((topScreenPos.x + screenWidth) / canvasWidth) * 100;
+		const centerPercentX = ((topScreenPos.x + screenWidth / 2) / canvasWidth) * 100;
+		const centerPercentY = 100 - ((topScreenPos.y + screenHeight / 2) / canvasHeight) * 100;
+		const bottomPercentY = 100 - ((topScreenPos.y + screenHeight) / canvasHeight) * 100;
+
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
 			'name': 'nail',
 			'mass': NaN,
+			'labels': [
+				{'name': 'displaycoordinates'},
+				{'name': 'positionX', 'value': centerPercentX},
+				{'name': 'positionY', 'value': centerPercentY},
+			]
 		});
 
 		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
@@ -65,16 +82,31 @@ class BannerNode extends Node {
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
+			'labels': [
+				{'name': 'displaycoordinates'},
+				{'name': 'positionX', 'value': topLeftPercentX},
+				{'name': 'positionY', 'value': topLeftPercentY},
+			]
 		});
 		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
+			'labels': [
+				{'name': 'displaycoordinates'},
+				{'name': 'positionX', 'value': topRightPercentX},
+				{'name': 'positionY', 'value': topLeftPercentY},
+			]
 		});
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
 			'name': 'bannerGravityWell',
+			'labels': [
+				{'name': 'displaycoordinates'},
+				{'name': 'positionX', 'value': centerPercentX},
+				{'name': 'positionY', 'value': -900},
+			]
 		});
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
@@ -83,6 +115,11 @@ class BannerNode extends Node {
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
+			'labels': [
+				{'name': 'displaycoordinates'},
+				{'name': 'positionX', 'value': topLeftPercentX},
+				{'name': 'positionY', 'value': bottomPercentY},
+			]
 		});
 
 		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
@@ -91,6 +128,11 @@ class BannerNode extends Node {
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
+			'labels': [
+				{'name': 'displaycoordinates'},
+				{'name': 'positionX', 'value': topRightPercentX},
+				{'name': 'positionY', 'value': bottomPercentY},
+			]
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
@@ -182,6 +224,22 @@ class BannerNode extends Node {
 	show(truss, time, graphicDebugLevel = 0) {
 		super.show(truss, time, graphicDebugLevel);
 		this.highLight(truss.view.context);
+
+		// Always render banner components (nodes and tensors)
+		if (this.nail) this.nail.show(truss, time, 3);
+		if (this.leftTopNode) this.leftTopNode.show(truss, time, 3);
+		if (this.rightTopNode) this.rightTopNode.show(truss, time, 3);
+		if (this.leftBottomNode) this.leftBottomNode.show(truss, time, 3);
+		if (this.rightBottomNode) this.rightBottomNode.show(truss, time, 3);
+		
+		// Render tensors
+		if (this.leftBand) this.leftBand.show(truss, 2);
+		if (this.rightBand) this.rightBand.show(truss, 2);
+		if (this.topBand) this.topBand.show(truss, 2);
+		if (this.leftSpring) this.leftSpring.show(truss, 2);
+		if (this.rightSpring) this.rightSpring.show(truss, 2);
+		if (this.leftBottomField) this.leftBottomField.show(truss, 2);
+		if (this.rightBottomField) this.rightBottomField.show(truss, 2);
 
 		if (graphicDebugLevel > 0) {
 			if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {

@@ -735,6 +735,34 @@ class Tensor extends StoreableObject {
 		if (this.isGhost() || !this.visible || this.visible=='0') {
 			return;
 		}
+
+		// Handle display coordinate rendering
+		let node1IsDisplay = node1.labels && node1.labels.some(label => label.name === 'displaycoordinates');
+		let node2IsDisplay = node2.labels && node2.labels.some(label => label.name === 'displaycoordinates');
+		
+		if (node1IsDisplay && node2IsDisplay) {
+			// Both nodes in display coordinates - render directly to screen
+			let pos1XLabel = node1.labels.find(label => label.name === 'positionX');
+			let pos1YLabel = node1.labels.find(label => label.name === 'positionY');
+			let pos2XLabel = node2.labels.find(label => label.name === 'positionX');
+			let pos2YLabel = node2.labels.find(label => label.name === 'positionY');
+			
+			if (pos1XLabel && pos1YLabel && pos2XLabel && pos2YLabel) {
+				// Convert percentages to screen pixels
+				let screenX1 = (pos1XLabel.value / 100) * view.screenSize.x;
+				let screenY1 = view.screenSize.y - (pos1YLabel.value / 100) * view.screenSize.y;
+				let screenX2 = (pos2XLabel.value / 100) * view.screenSize.x;
+				let screenY2 = view.screenSize.y - (pos2YLabel.value / 100) * view.screenSize.y;
+				
+				this.highLight(ctx);
+				ctx.beginPath();
+				ctx.moveTo(screenX1, screenY1);
+				ctx.lineTo(screenX2, screenY2);
+				ctx.stroke();
+				return; // Don't render as world coordinate
+			}
+		}
+		
 		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||
 			(graphicDebugLevel >= 6)) {
 			this.highLight(ctx);

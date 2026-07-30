@@ -566,6 +566,35 @@ class Node extends StoreableObject {
 		}
 		cxt.strokeStyle = this.color;
 
+		// Handle display coordinate rendering (percentage-based)
+		let isDisplayCoordinates = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
+		if (isDisplayCoordinates) {
+			let posXLabel = this.labels.find(label => label.name === 'positionX');
+			let posYLabel = this.labels.find(label => label.name === 'positionY');
+			
+			if (posXLabel && posYLabel) {
+				// Convert percentages to screen pixels
+				// X: 0 = left, 100 = right
+				// Y: 0 = bottom, 100 = top
+				let screenX = (posXLabel.value / 100) * view.screenSize.x;
+				let screenY = view.screenSize.y - (posYLabel.value / 100) * view.screenSize.y;
+				
+				this.highLight(cxt);
+				cxt.beginPath();
+				if (this.mass) {
+					cxt.arc(screenX, screenY, 4, 0, 2 * Math.PI);
+				} else {
+					// Draw crosshairs for nodes without mass
+					cxt.moveTo(screenX - 10, screenY - 10);
+					cxt.lineTo(screenX + 10, screenY + 10);
+					cxt.moveTo(screenX + 10, screenY - 10);
+					cxt.lineTo(screenX - 10, screenY + 10);
+				}
+				cxt.stroke();
+				return; // Don't render as world coordinate
+			}
+		}
+
 		if (graphicDebugLevel >= 3) {
 			if (this.pictureReference) {
 				this.pictureShow(truss, time);
