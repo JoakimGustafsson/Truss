@@ -83,6 +83,10 @@ class BannerNode extends Node {
 			'displayPositionX': centerPercentX,
 			'displayPositionY': centerPercentY,
 		});
+		
+		// Verify coordinatesystem label was applied
+		let nailCoordLabel = this.nail.labels && this.nail.labels.find(l => l.name === 'coordinatesystem');
+		console.log(`✓ Banner nail created with coordinatesystem label:`, nailCoordLabel ? `${nailCoordLabel.name}=${nailCoordLabel.coordinatesystemProperty}` : 'NOT FOUND');
 
 		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
