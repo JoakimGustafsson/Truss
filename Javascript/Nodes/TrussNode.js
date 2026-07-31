@@ -35,6 +35,9 @@ class TrussNode extends Node {
 		this.element = document.createElement('div');
 		this.view= new View(viewSize, this);
 		this.canvas = document.createElement('canvas');
+		
+		// Track mouse position for display coordinate debugging
+		this.mouseDisplayPos = new Position(0, 0);
 
 		/** When true, xScale is forced equal to yScale (uniform/square world display). */
 		this.lockedRatio = true;
@@ -195,6 +198,21 @@ class TrussNode extends Node {
 
 		this.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
 		this.panZoom = new PanZoomHandler(this);
+		
+		// Track mouse position on canvas for display coordinate debugging
+		this.canvas.addEventListener('mousemove', (e) => {
+			const rect = this.canvas.getBoundingClientRect();
+			const canvasX = e.clientX - rect.left;
+			const canvasY = e.clientY - rect.top;
+			
+			// Convert screen pixels to display coordinate percentages
+			// Display X: 0% = left, 100% = right
+			// Display Y: 0% = bottom, 100% = top (inverted)
+			const displayX = (canvasX / this.canvas.width) * 100;
+			const displayY = (1 - (canvasY / this.canvas.height)) * 100;
+			
+			this.mouseDisplayPos = new Position(displayX, displayY);
+		});
 	}
 	
 	/**
@@ -569,101 +587,31 @@ class TrussNode extends Node {
 	};
 
 	/**
-	 * @param  {Position} position - Position in SCREEN coordinates (pixels)
+	 * @param  {Position} position
 	 * @param  {number} maxDistance
 	 * @param  {Node} avoid
-	 * @param  {View} view - Optional View to convert screen to world coordinates
 	 * @return {Object}
 	 */
-	getClosestObject(position, maxDistance, avoid, view) {
+	getClosestObject(position, maxDistance, avoid) {
 		let lowestDistance = 1000000000;
 		let closest;
 		
-		// For display nodes, we need viewport-relative coordinates
-		// Get fresh container position from the actual canvas container element
-		const canvasContainer = document.getElementById('TrussBackground') || this.element;
-		const containerRect = canvasContainer.getBoundingClientRect();
-		const containerLeft = containerRect.left;
-		const containerTop = containerRect.top;
-		const containerWidth = containerRect.width;
-		const containerHeight = containerRect.height;
-		
-		// Use ACTUAL viewport coordinates (myX, myY from mouse event)
-		let canvasPixelX = myX - containerLeft;
-		let canvasPixelY = myY - containerTop;
-		
-		// Current screen position (in pixels)
-		let screenMousePos = new Position(canvasPixelX, canvasPixelY);
-		
 		for (let node of this.nodes) {
-			// Check if node is in display coordinate system
-			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
-			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
-			
-			if (nodeIsDisplay) {
-				// For display nodes, convert percentage position to screen pixels and compare
-				let nodeScreenPixelX = (node.displayPositionX / 100) * containerWidth;
-				let nodeScreenPixelY = containerHeight - (node.displayPositionY / 100) * containerHeight;
-				let nodeScreenPos = new Position(nodeScreenPixelX, nodeScreenPixelY);
-				
-				let distance = Position.distance(screenMousePos, nodeScreenPos);
-				if (distance < lowestDistance && node != avoid) {
-					lowestDistance = distance;
-					closest = node;
-				}
-			} else if (view) {
-				// For world nodes, convert to screen coordinates using view
-				let nodeWorldPos = node.getPosition();
-				let nodeScreenPos = view.screenPosition(nodeWorldPos);
-				
-				let distance = Position.distance(screenMousePos, nodeScreenPos);
-				if (distance < lowestDistance && node != avoid) {
-					lowestDistance = distance;
-					closest = node;
-				}
+			if (Position.distance(position, node.getPosition()) < lowestDistance && node != avoid) {
+				lowestDistance = Position.distance(position, node.getPosition());
+				closest = node;
 			}
 		}
 		
 		for (let tensor of this.tensors) {
-			// Similar check for tensors - if both nodes are display coordinates
-			let node1CoordLabel = tensor.node1 && tensor.node1.labels && tensor.node1.labels.find(l => l.name === 'coordinatesystem');
-			let node2CoordLabel = tensor.node2 && tensor.node2.labels && tensor.node2.labels.find(l => l.name === 'coordinatesystem');
-			let node1IsDisplay = node1CoordLabel && node1CoordLabel.coordinatesystemProperty === 'display';
-			let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
-			
-			if (node1IsDisplay && node2IsDisplay) {
-				// Both ends in display space - convert to screen pixels
-				let tensorScreenPixel1X = (tensor.node1.displayPositionX / 100) * containerWidth;
-				let tensorScreenPixel1Y = containerHeight - (tensor.node1.displayPositionY / 100) * containerHeight;
-				let tensorScreenPixel2X = (tensor.node2.displayPositionX / 100) * containerWidth;
-				let tensorScreenPixel2Y = containerHeight - (tensor.node2.displayPositionY / 100) * containerHeight;
-				
-				let tensorScreenPosMid = new Position(
-					(tensorScreenPixel1X + tensorScreenPixel2X) / 2,
-					(tensorScreenPixel1Y + tensorScreenPixel2Y) / 2
-				);
-				
-				let distance = Position.distance(screenMousePos, tensorScreenPosMid);
-				if (distance < lowestDistance && tensor != avoid) {
-					lowestDistance = distance;
-					closest = tensor;
-				}
-			} else if (view) {
-				// World coordinate tensor
-				let tensorWorldPos = tensor.getPosition();
-				let tensorScreenPos = view.screenPosition(tensorWorldPos);
-				
-				let distance = Position.distance(screenMousePos, tensorScreenPos);
-				if (distance < lowestDistance && tensor != avoid) {
-					lowestDistance = distance;
-					closest = tensor;
-				}
+			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
+				lowestDistance = Position.distance(position, tensor.getPosition());
+				closest = tensor;
 			}
 		}
 		
-		// Check if closest object is within threshold (all distances now in screen pixels)
-		if (closest && lowestDistance > maxDistance) {
-			return undefined;
+		if (lowestDistance > maxDistance) {
+			return;
 		}
 		
 		return closest;
@@ -745,7 +693,7 @@ class TrussNode extends Node {
 		if (this.editWindow && this.editWindow.bannerNode) {
 			this.editWindow.bannerNode.show(this, time, resolvedDebugLevel);
 			// Update banner property values in real-time
-			this.editWindow.bannerNode.updateProperties();
+			this.editWindow.bannerNode.sense(0, this);
 		}
 		
 		// Draw finger position indicators for debugging
@@ -756,6 +704,83 @@ class TrussNode extends Node {
 			// Draw screen-space circles (larger, at screen level to show tracking)
 			const screenPositions = Array.from(this.panZoom.activePointers.values());
 			this.view.drawFingerScreenIndicators(screenPositions);
+		}
+		
+		// DEBUG: Draw display coordinate nodes with circles and mouse position
+		const ctx = this.view.context;
+		const screenWidth = this.view.screenSize.x;
+		const screenHeight = this.view.screenSize.y;
+		
+		// Draw white circle at mouse position (display coordinates)
+		const mouseScreenX = (this.mouseDisplayPos.x / 100) * screenWidth;
+		const mouseScreenY = screenHeight - (this.mouseDisplayPos.y / 100) * screenHeight;
+		
+		ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+		ctx.strokeStyle = 'lime';
+		ctx.lineWidth = 3;
+		ctx.beginPath();
+		ctx.arc(mouseScreenX, mouseScreenY, 20, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.stroke();
+		
+		// Label mouse position
+		ctx.fillStyle = 'lime';
+		ctx.font = 'bold 14px Arial';
+		ctx.fillText(`Mouse: ${this.mouseDisplayPos.x.toFixed(1)}%, ${this.mouseDisplayPos.y.toFixed(1)}%`, mouseScreenX + 25, mouseScreenY - 10);
+		
+		// Find nail through banner, not through main nodes
+		let nailNode = null;
+		if (this.editWindow && this.editWindow.bannerNode) {
+			nailNode = this.editWindow.bannerNode.nail;
+		}
+		
+		for (let node of this.nodes) {
+			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
+			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
+			
+			if (nodeIsDisplay && node.localPosition) {
+				// Convert display percentage coordinates to screen pixels
+				const screenX = (node.localPosition.x / 100) * screenWidth;
+				const screenY = screenHeight - (node.localPosition.y / 100) * screenHeight;
+				
+				// Draw white circle at display node position
+				ctx.fillStyle = 'white';
+				ctx.strokeStyle = 'yellow';
+				ctx.lineWidth = 2;
+				ctx.beginPath();
+				ctx.arc(screenX, screenY, 15, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.stroke();
+				
+				// Label it
+				ctx.fillStyle = 'black';
+				ctx.font = '12px Arial';
+				ctx.fillText(node.name, screenX + 20, screenY - 10);
+			}
+		}
+		
+		// Display distance to nail if it exists
+		if (nailNode && nailNode.localPosition) {
+			const nailScreenX = (nailNode.localPosition.x / 100) * screenWidth;
+			const nailScreenY = screenHeight - (nailNode.localPosition.y / 100) * screenHeight;
+			
+			const dx = this.mouseDisplayPos.x - nailNode.localPosition.x;
+			const dy = this.mouseDisplayPos.y - nailNode.localPosition.y;
+			const distance = Math.sqrt(dx * dx + dy * dy);
+			
+			ctx.fillStyle = 'red';
+			ctx.font = 'bold 16px Arial';
+			ctx.fillText(`Distance to nail: ${distance.toFixed(2)}%`, nailScreenX - 100, nailScreenY + 50);
+			
+			// Draw line from mouse to nail
+			ctx.strokeStyle = 'red';
+			ctx.lineWidth = 2;
+			ctx.setLineDash([5, 5]);
+			ctx.beginPath();
+			ctx.moveTo(mouseScreenX, mouseScreenY);
+			ctx.lineTo(nailScreenX, nailScreenY);
+			ctx.stroke();
+			ctx.setLineDash([]);
 		}
 	}
 }

@@ -384,6 +384,13 @@ class AbsorbCalculator extends Behaviour {
 		}
 		
 		let internalSpeed = Vector.subtractVectors(this.node1.velocity, this.node2.velocity);
+		
+		// Guard against NaN velocities (e.g., when node has mass: NaN)
+		if (!this.node1.velocity || !this.node2.velocity ||
+			isNaN(internalSpeed.x) || isNaN(internalSpeed.y)) {
+			return new Vector(0, 0);
+		}
+		
 		let lengthSquare = this.getLengthSquare();
 		
 		// Safety check: if length is too small (near zero), skip calculation to avoid division issues

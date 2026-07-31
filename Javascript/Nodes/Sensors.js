@@ -537,7 +537,20 @@ class Selector extends SensorNode {
 		}
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
 		// Use screen pixels as distance metric: 20px is a comfortable click target
-		let closest = trussNode.getClosestObject(this.cursorPosition, 20, this, trussNode.view);
+		// For display coordinates, use a larger threshold (about 8% of screen) to account for scale differences
+		let maxDistance = 20;
+		
+		// Check if we have display nodes - if so, increase distance threshold
+		for (let node of trussNode.nodes) {
+			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
+			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
+			if (nodeIsDisplay) {
+				maxDistance = 8;  // 8 percentage units for display coordinates
+				break;
+			}
+		}
+		
+		let closest = trussNode.getClosestObject(this.cursorPosition, maxDistance, this, trussNode.view);
 
 		if (!mouseSet && !universe.newNode) {
 			if (!closest) {

@@ -1,0 +1,17 @@
+{
+  "name": "Truss Main Development",
+  "path": "C:\\Code\\Truss",
+  "defaultBranch": "master",
+  "agentConfig": {
+    "alwaysWorkInPath": "C:\\Code\\Truss",
+    "alwaysCheckoutBranch": "master",
+    "avoidWorktrees": true,
+    "commitDirectlyToMaster": true
+  },
+  "rules": [
+    "Do not create worktree sessions",
+    "Do not switch branches without user permission",
+    "Always merge feature branches back to master before creating new sessions",
+    "Report current branch and path at start of every session"
+  ]
+}

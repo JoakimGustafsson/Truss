@@ -59,17 +59,19 @@ class BannerNode extends Node {
 		const canvasWidth = truss.view.screenSize.x;
 		const canvasHeight = truss.view.screenSize.y;
 		
-		const topLeftPercentX = (topScreenPos.x / canvasWidth) * 100;
-		const topLeftPercentY = 100 - (topScreenPos.y / canvasHeight) * 100;
-		const topRightPercentX = ((topScreenPos.x + screenWidth) / canvasWidth) * 100;
-		const centerPercentX = ((topScreenPos.x + screenWidth / 2) / canvasWidth) * 100;
-		const centerPercentY = 100 - ((topScreenPos.y + screenHeight / 2) / canvasHeight) * 100;
-		const bottomPercentY = 100 - ((topScreenPos.y + screenHeight) / canvasHeight) * 100;
+		const topLeftPercentX = 60;
+		const topLeftPercentY = 80;
+		const topRightPercentX = 99;
+		const centerPercentX = 80;
+		const centerPercentY = 99;
+		const bottomPercentY = 30;
 
-		// Earth gravity well: position at Earth's center distance below screen
-		// 100% screen = 40 cm (physical), Earth radius = 6,371 km
-		// Distance in percentages: (6.371e13 cm / 40 cm) * 100 = 1.59e16 %
-		const EARTH_GRAVITY_WELL_Y = -1.59e16; // Far below, at Earth's center distance
+		// Gravity well: simulate Earth gravity (9.82 m/s²) at screen scale
+		// Screen = 40 cm = 0.4 m physical
+		// Gravity well positioned 2m below (500% units, since 100% = 0.4m)
+		// Step 10 of 10: 5.89e10 kg (full Earth gravity)
+		const GRAVITY_WELL_Y = -500;
+		const GRAVITY_WELL_MASS = 5.89e10;
 
 		// Get the pre-created display coordinate system from the view
 		const displayCoordinateSystem = truss.view.displayCoordinateSystem;
@@ -86,21 +88,21 @@ class BannerNode extends Node {
 			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftTop',
-			'mass': 1,
+			'mass': 0.1,
 			'velocityLoss': 0.9,
 		});
 		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topRightPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightTop',
-			'mass': 1,
+			'mass': 0.1,
 			'velocityLoss': 0.9,
 		});
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
-			'localPosition': new Position(centerPercentX, EARTH_GRAVITY_WELL_Y),
+			'localPosition': new Position(centerPercentX, GRAVITY_WELL_Y),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'bannerGravityWell',
-			'mass': 5.972e24,
+			'mass': GRAVITY_WELL_MASS,
 			'velocityLoss': 1.0,
 		});
 
@@ -108,7 +110,7 @@ class BannerNode extends Node {
 			'localPosition': new Position(topLeftPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftBottomNode',
-			'mass': 3,
+			'mass': 0.3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
 		});
@@ -117,57 +119,57 @@ class BannerNode extends Node {
 			'localPosition': new Position(topRightPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightBottomNode',
-			'mass': 3,
+			'mass': 0.3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
-			'equilibriumLength': 6,
-			'dampeningConstant': 10,
-			'constant': 5000,
+			'equilibriumLength': 20,
+			'dampeningConstant': 15,
+			'constant': 500,
 			'visible': 1,
 		});
 
 		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
-			'equilibriumLength': 6,
-			'dampeningConstant': 10,
-			'constant': 5000,
+			'equilibriumLength': 20,
+			'dampeningConstant': 15,
+			'constant': 500,
 			'visible': 1,
 		});
 
 		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
-			'equilibriumLength': 18,
-			'dampeningConstant': 10,
-			'constant': 3000,
+			'equilibriumLength': 40,
+			'dampeningConstant': 12,
+			'constant': 350,
 		});
 
 
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 8,
-			'dampeningConstant': 10,
-			'constant': 600,
+			'equilibriumLength': 50,
+			'dampeningConstant': 13,
+			'constant': 650,
 			'color': 'transparent',
 		});
 
 		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
-			'equilibriumLength': 8,
-			'dampeningConstant': 10,
-			'constant': 600,
+			'equilibriumLength': 50,
+			'dampeningConstant': 13,
+			'constant': 650,
 			'color': 'transparent',
 		});
 
 		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 0,
+			'equilibriumLength': 10,
 			'dampeningConstant': 10,
-			'constant': 0.1,
+			'constant': 1,  // Gravitational attraction constant
 			'color': 'transparent',
 		});
 
 		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 0,
+			'equilibriumLength': 10,
 			'dampeningConstant': 10,
-			'constant': 0.1,
+			'constant': 1,  // Gravitational attraction constant
 			'color': 'transparent',
 		});
 
