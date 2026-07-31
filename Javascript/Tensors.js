@@ -858,32 +858,29 @@ class Tensor extends StoreableObject {
 			return;
 		}
 
-		// Handle display coordinate rendering
-		// Use the tensor's coordinate system to determine rendering behavior
+		// Use the tensor's coordinate system to convert nodes to screen pixels
 		const tensorCoordSys = this.coordinateSystem;
-		const isDisplay = tensorCoordSys && tensorCoordSys.name === 'display';
-		
-		if (isDisplay) {
-			// Both nodes in display coordinates - render directly to screen
-			let pos1XLabel = node1.labels && node1.labels.find(label => label.name === 'positionX');
-			let pos1YLabel = node1.labels && node1.labels.find(label => label.name === 'positionY');
-			let pos2XLabel = node2.labels && node2.labels.find(label => label.name === 'positionX');
-			let pos2YLabel = node2.labels && node2.labels.find(label => label.name === 'positionY');
+		if (tensorCoordSys) {
+			// Let the coordinate system handle the conversion (works for both world and display)
+			const screenPos1 = tensorCoordSys.convertToScreenPixels(node1);
+			const screenPos2 = tensorCoordSys.convertToScreenPixels(node2);
 			
-			if (pos1XLabel && pos1YLabel && pos2XLabel && pos2YLabel) {
-				// Convert percentages to screen pixels
-				let screenX1 = (pos1XLabel.value / 100) * view.screenSize.x;
-				let screenY1 = view.screenSize.y - (pos1YLabel.value / 100) * view.screenSize.y;
-				let screenX2 = (pos2XLabel.value / 100) * view.screenSize.x;
-				let screenY2 = view.screenSize.y - (pos2YLabel.value / 100) * view.screenSize.y;
-				
-				this.highLight(ctx);
+			this.highLight(ctx);
+			ctx.beginPath();
+			ctx.moveTo(screenPos1.x, screenPos1.y);
+			ctx.lineTo(screenPos2.x, screenPos2.y);
+			ctx.stroke();
+			
+			// Only show debug text for world coordinates to avoid clutter
+			if ((graphicDebugLevel >= 10) && tensorCoordSys.name === 'world') {
 				ctx.beginPath();
-				ctx.moveTo(screenX1, screenY1);
-				ctx.lineTo(screenX2, screenY2);
-				ctx.stroke();
-				return; // Don't render as world coordinate
+				ctx.fillStyle = 'cyan';
+				ctx.font = '20px Arial';
+				ctx.textAlign = 'left';
+				let textPos = Vector.addVectors(node1.getPosition(), Vector.divideVector(this.getActual(), 2));
+				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
 			}
+			return;
 		}
 		
 		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||

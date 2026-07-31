@@ -127,7 +127,8 @@ class Node extends StoreableObject {
 					return this.parentTrussNode.view.worldCoordinateSystem;
 				}
 				
-				// Fallback (should rarely happen)
+				// Fallback - log warning as this indicates a problem
+				console.warn(`⚠️  Node ${this.name || 'unnamed'} could not get coordinate system - parentTrussNode or view not available`);
 				return null;
 			},
 			set: function(value) {
