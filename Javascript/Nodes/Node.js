@@ -153,6 +153,12 @@ class Node extends StoreableObject {
 			},
 			enumerable: true,  // Make visible in property listings
 		});
+		
+		// Explicitly assign coordinateSystem from valueObject if provided
+		// This ensures it's set after the property definition is in place
+		if (valueObject && valueObject.coordinateSystem) {
+			this.coordinateSystem = valueObject.coordinateSystem;
+		}
 
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
