@@ -79,6 +79,7 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node1 = value;
+				this._checkCoordinateSystemMismatch(value, 'node1');
 				// this.angle1 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
 			},
@@ -96,6 +97,7 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node2 = value;
+				this._checkCoordinateSystemMismatch(value, 'node2');
 				// this.angle2 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
 			},
@@ -192,6 +194,44 @@ class Tensor extends StoreableObject {
 		}
 		if (this.attachFunction) {
 			document.removeEventListener('selectionEvent', this.attachFunction);
+		}
+	}
+
+	/**
+	 * Check if a node's coordinate system is compatible with the tensor's connected nodes.
+	 * Log a warning if coordinate systems mismatch.
+	 * 
+	 * Coordinate system rules:
+	 * - No label = world coordinate system (default)
+	 * - 'displaycoordinates' label = display coordinate system
+	 * - Tensors should connect nodes in the SAME coordinate system
+	 * 
+	 * @param {Node} node - The node being connected
+	 * @param {string} nodeName - "node1" or "node2" for logging
+	 * @private
+	 */
+	_checkCoordinateSystemMismatch(node, nodeName) {
+		if (!node || !node.coordinateSystem) {
+			return;
+		}
+
+		// Check if this tensor already has a node connected
+		const otherNode = nodeName === 'node1' ? this._node2 : this._node1;
+		if (!otherNode || !otherNode.coordinateSystem) {
+			return;
+		}
+
+		const newCoordSystem = node.coordinateSystem.name;
+		const otherCoordSystem = otherNode.coordinateSystem.name;
+
+		if (newCoordSystem !== otherCoordSystem) {
+			console.warn(
+				`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.getName ? this.getName() : 'unnamed'}`,
+				`\n  ${nodeName} (${node.name}): ${newCoordSystem}`,
+				`\n  ${nodeName === 'node1' ? 'node2' : 'node1'} (${otherNode.name}): ${otherCoordSystem}`,
+				`\n  Tensor=${this.name}, Distance calculations may be incorrect`,
+				`\n  Consider connecting nodes in the same coordinate system`
+			);
 		}
 	}
 

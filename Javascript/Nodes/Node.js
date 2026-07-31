@@ -120,6 +120,7 @@ class Node extends StoreableObject {
 					if (isDisplay && this.parentTrussNode && this.parentTrussNode.view) {
 						this._coordinateSystem = createDisplayCoordinateSystem(this.parentTrussNode.view);
 					} else if (this.parentTrussNode && this.parentTrussNode.view) {
+						// Default to world coordinate system
 						this._coordinateSystem = createWorldCoordinateSystem(this.parentTrussNode.view);
 					}
 				}
