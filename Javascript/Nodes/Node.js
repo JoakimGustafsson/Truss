@@ -112,36 +112,23 @@ class Node extends StoreableObject {
 		});
 
 		// Coordinate system property - determines rendering and physics behavior
-		// Detection priority:
-		// 1. Direct _coordinateSystem property (passed in valueObject)
-		// 2. Label-based detection (coordinatesystem label with 'display'/'world' value)
-		// 3. Default to world coordinate system
+		// - If explicitly set via coordinateSystem property in valueObject, returns that reference
+		// - If not set, defaults to the world coordinate system from the view
+		// - localPosition is agnostic of coordinate system - the coordinate system interprets it
 		Object.defineProperty(this, 'coordinateSystem', {
 			get: function() {
-				// If a direct reference was provided, use it
+				// If explicitly set, return the direct reference
 				if (this._coordinateSystem) {
 					return this._coordinateSystem;
 				}
 				
-				// Fall back to label-based detection
-				if (this.parentTrussNode && this.parentTrussNode.view) {
-					// Check for 'coordinatesystem' label
-					const coordSystemLabel = this.labels && 
-						this.labels.find(label => label.name === 'coordinatesystem');
-					
-					// Determine if display coordinate system
-					const isDisplay = coordSystemLabel && 
-						coordSystemLabel.value && 
-						coordSystemLabel.value.toLowerCase() === 'display';
-					
-					if (isDisplay) {
-						this._coordinateSystem = createDisplayCoordinateSystem(this.parentTrussNode.view);
-					} else {
-						// Default to world coordinate system
-						this._coordinateSystem = createWorldCoordinateSystem(this.parentTrussNode.view);
-					}
+				// Default to world coordinate system
+				if (this.parentTrussNode && this.parentTrussNode.view && this.parentTrussNode.view.worldCoordinateSystem) {
+					return this.parentTrussNode.view.worldCoordinateSystem;
 				}
-				return this._coordinateSystem;
+				
+				// Fallback (should rarely happen)
+				return null;
 			},
 			set: function(value) {
 				this._coordinateSystem = value;
