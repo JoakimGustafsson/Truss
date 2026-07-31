@@ -112,22 +112,24 @@ class Node extends StoreableObject {
 		});
 
 		// Coordinate system property - determines rendering and physics behavior
-		// Detection based on labels: nodes with 'localcoordinates' + specific coordinate system labels
-		// Position is stored in localPosition and interpreted according to the coordinate system
+		// Detection based on 'coordinatesystem' label with property value 'world' or 'display'
+		// If label is missing, defaults to world coordinate system
 		Object.defineProperty(this, 'coordinateSystem', {
 			get: function() {
 				if (!this._coordinateSystem) {
-					// Determine coordinate system from labels
-					// Check for coordinate system labels: 'world' or 'display'
-					const hasWorldLabel = this.labels && this.labels.some(label => label.name === 'world');
-					const hasDisplayLabel = this.labels && this.labels.some(label => label.name === 'display');
+					// Check for 'coordinatesystem' label
+					const coordSystemLabel = this.labels && 
+						this.labels.find(label => label.name === 'coordinatesystem');
 					
-					const isDisplay = hasDisplayLabel;  // Explicit 'display' label
+					// Determine if display coordinate system
+					const isDisplay = coordSystemLabel && 
+						coordSystemLabel.value && 
+						coordSystemLabel.value.toLowerCase() === 'display';
 					
 					if (isDisplay && this.parentTrussNode && this.parentTrussNode.view) {
 						this._coordinateSystem = createDisplayCoordinateSystem(this.parentTrussNode.view);
 					} else if (this.parentTrussNode && this.parentTrussNode.view) {
-						// Default to world coordinate system (explicit 'world' label or no label)
+						// Default to world coordinate system
 						this._coordinateSystem = createWorldCoordinateSystem(this.parentTrussNode.view);
 					}
 				}

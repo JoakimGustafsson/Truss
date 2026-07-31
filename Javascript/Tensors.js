@@ -855,9 +855,16 @@ class Tensor extends StoreableObject {
 		}
 
 		// Handle display coordinate rendering
-		// Nodes with 'display' label are in display coordinate system
-		let node1IsDisplay = node1.labels && node1.labels.some(label => label.name === 'display');
-		let node2IsDisplay = node2.labels && node2.labels.some(label => label.name === 'display');
+		// Check for 'coordinatesystem' label with value 'display'
+		const coordSysLabel1 = node1.labels && node1.labels.find(label => label.name === 'coordinatesystem');
+		const coordSysLabel2 = node2.labels && node2.labels.find(label => label.name === 'coordinatesystem');
+		
+		let node1IsDisplay = coordSysLabel1 && 
+			coordSysLabel1.value && 
+			coordSysLabel1.value.toLowerCase() === 'display';
+		let node2IsDisplay = coordSysLabel2 && 
+			coordSysLabel2.value && 
+			coordSysLabel2.value.toLowerCase() === 'display';
 		
 		if (node1IsDisplay && node2IsDisplay) {
 			// Both nodes in display coordinates - render directly to screen
