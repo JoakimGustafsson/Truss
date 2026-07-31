@@ -79,7 +79,6 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node1 = value;
-				this._coordinateSystem = undefined;  // Clear cached coordinate system
 				this._checkCoordinateSystemMismatch(value, 'node1');
 				// this.angle1 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
@@ -98,7 +97,6 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node2 = value;
-				this._coordinateSystem = undefined;  // Clear cached coordinate system
 				this._checkCoordinateSystemMismatch(value, 'node2');
 				// this.angle2 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
@@ -107,31 +105,29 @@ class Tensor extends StoreableObject {
 
 		Object.defineProperty(this, 'coordinateSystem', {
 			get: function() {
-				if (!this._coordinateSystem) {
-					// Determine coordinate system from connected nodes
-					// If both nodes have the same coordinate system, use that
-					// If they differ, log a warning and default to first node's system
-					if (this.node1 && this.node1.coordinateSystem) {
-						this._coordinateSystem = this.node1.coordinateSystem;
-						
-						// Check if node2 has a different coordinate system
-						if (this.node2 && this.node2.coordinateSystem) {
-							if (this.node2.coordinateSystem.name !== this._coordinateSystem.name) {
-								console.warn(
-									`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.name || 'unnamed'}`,
-									`\n  node1 (${this.node1.name}): ${this._coordinateSystem.name}`,
-									`\n  node2 (${this.node2.name}): ${this.node2.coordinateSystem.name}`,
-									`\n  Tensor=${this.name}, Distance calculations may be incorrect`,
-									`\n  Consider connecting nodes in the same coordinate system`
-								);
-								// Use node1's coordinate system anyway
-							}
+				// Forward coordinate system query to the first connected node
+				// The tensor's coordinate system is determined by its nodes
+				if (this.node1) {
+					// Check for coordinate system mismatch on first access
+					if (this.node2 && this.node2.coordinateSystem) {
+						if (this.node2.coordinateSystem.name !== this.node1.coordinateSystem.name) {
+							console.warn(
+								`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.name || 'unnamed'}`,
+								`\n  node1 (${this.node1.name}): ${this.node1.coordinateSystem.name}`,
+								`\n  node2 (${this.node2.name}): ${this.node2.coordinateSystem.name}`,
+								`\n  Tensor=${this.name}, Distance calculations may be incorrect`,
+								`\n  Consider connecting nodes in the same coordinate system`
+							);
 						}
-					} else if (this.node2 && this.node2.coordinateSystem) {
-						this._coordinateSystem = this.node2.coordinateSystem;
 					}
+					// Return reference to node1's coordinate system
+					return this.node1.coordinateSystem;
+				} else if (this.node2) {
+					// Return reference to node2's coordinate system if node1 not available
+					return this.node2.coordinateSystem;
 				}
-				return this._coordinateSystem;
+				// Fallback: should not happen if tensor is properly connected
+				return null;
 			}
 		});
 
