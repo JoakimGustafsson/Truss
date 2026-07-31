@@ -4,6 +4,7 @@ import { universe } from '../globals.js';
 import { warpMatrix } from '../View/Pictures.js';
 import { calculateNodeTorques, updateNodeRotation } from '../Behaviours/Angles.js';
 import { evaluateScriptFunction } from '../Behaviours/Scripts.js';
+import { createWorldCoordinateSystem, createDisplayCoordinateSystem } from './CoordinateSystem.js';
 
 /**
  * @class
@@ -108,6 +109,22 @@ class Node extends StoreableObject {
 			set: function(value) {
 				this.angle = value * Math.PI / 180;
 			},
+		});
+
+		// Coordinate system property - determines rendering and physics behavior
+		Object.defineProperty(this, 'coordinateSystem', {
+			get: function() {
+				if (!this._coordinateSystem) {
+					// Lazy initialization based on whether node has 'displaycoordinates' label
+					const isDisplay = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
+					if (isDisplay && this.parentTrussNode && this.parentTrussNode.view) {
+						this._coordinateSystem = createDisplayCoordinateSystem(this.parentTrussNode.view);
+					} else if (this.parentTrussNode && this.parentTrussNode.view) {
+						this._coordinateSystem = createWorldCoordinateSystem(this.parentTrussNode.view);
+					}
+				}
+				return this._coordinateSystem;
+			}
 		});
 
 		if (this.pictureReference) {
@@ -330,16 +347,28 @@ class Node extends StoreableObject {
 		this.velocity.y = 0;
 	}
 	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
-	 * @param  {Position} position
+	 * For display nodes, converts screen pixels to percentages based on coordinate system.
+	 * @param  {Position} position - Position in appropriate coordinate space for this node
 	 */
 	copyPosition(position) {
-		this.localPosition.x = position.x;
-		this.localPosition.y = position.y;
-		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
-			let x=position.x + this.parentTrussNode.gridSize/2;
-			let y=position.y + this.parentTrussNode.gridSize/2;
-			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
-			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
+		// For display nodes, position is in screen pixels and needs conversion to percentages
+		if (this.coordinateSystem && this.coordinateSystem.isDisplay()) {
+			const screenWidth = this.parentTrussNode.view.screenSize.x;
+			const screenHeight = this.parentTrussNode.view.screenSize.y;
+			this.localPosition.x = (position.x / screenWidth) * 100;
+			this.localPosition.y = 100 - (position.y / screenHeight) * 100;  // Y is inverted
+		} else {
+			// For world nodes, just copy the position directly
+			this.localPosition.x = position.x;
+			this.localPosition.y = position.y;
+		}
+		
+		// Apply grid snapping if enabled
+		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize != '0') {
+			let x = this.localPosition.x + this.parentTrussNode.gridSize / 2;
+			let y = this.localPosition.y + this.parentTrussNode.gridSize / 2;
+			this.localPosition.x = x - x % this.parentTrussNode.gridSize;
+			this.localPosition.y = y - y % this.parentTrussNode.gridSize;
 		}
 	};
 
@@ -575,32 +604,26 @@ class Node extends StoreableObject {
 		}
 		cxt.strokeStyle = this.color;
 
-		// Handle display coordinate rendering (percentage-based)
-		let isDisplayCoordinates = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
-		if (isDisplayCoordinates) {
-			let posXLabel = this.labels.find(label => label.name === 'positionX');
-			let posYLabel = this.labels.find(label => label.name === 'positionY');
+		// Render node using its coordinate system (world or display)
+		let cs = this.coordinateSystem;
+		if (cs) {
+			const screenPos = cs.convertToScreenPixels(this);
+			this.highLight(cxt);
+			cxt.beginPath();
+			if (this.mass && !isNaN(this.mass)) {
+				cxt.arc(screenPos.x, screenPos.y, 4, 0, 2 * Math.PI);
+			} else {
+				// Draw crosshairs for nodes without mass
+				cxt.moveTo(screenPos.x - 10, screenPos.y - 10);
+				cxt.lineTo(screenPos.x + 10, screenPos.y + 10);
+				cxt.moveTo(screenPos.x + 10, screenPos.y - 10);
+				cxt.lineTo(screenPos.x - 10, screenPos.y + 10);
+			}
+			cxt.stroke();
 			
-			if (posXLabel && posYLabel) {
-				// Convert percentages to screen pixels
-				// X: 0 = left, 100 = right
-				// Y: 0 = bottom, 100 = top
-				let screenX = (posXLabel.value / 100) * view.screenSize.x;
-				let screenY = view.screenSize.y - (posYLabel.value / 100) * view.screenSize.y;
-				
-				this.highLight(cxt);
-				cxt.beginPath();
-				if (this.mass) {
-					cxt.arc(screenX, screenY, 4, 0, 2 * Math.PI);
-				} else {
-					// Draw crosshairs for nodes without mass
-					cxt.moveTo(screenX - 10, screenY - 10);
-					cxt.lineTo(screenX + 10, screenY + 10);
-					cxt.moveTo(screenX + 10, screenY - 10);
-					cxt.lineTo(screenX - 10, screenY + 10);
-				}
-				cxt.stroke();
-				return; // Don't render as world coordinate
+			// For display nodes, skip world-coordinate debug rendering
+			if (cs.isDisplay()) {
+				return;
 			}
 		}
 

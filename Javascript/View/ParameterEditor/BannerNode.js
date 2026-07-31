@@ -72,74 +72,62 @@ class BannerNode extends Node {
 		const EARTH_GRAVITY_WELL_Y = -1.59e16; // Far below, at Earth's center distance
 
 		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
+			'localPosition': new Position(centerPercentX, centerPercentY),
 			'name': 'nail',
 			'mass': NaN,
 			'velocityLoss': 1.0,
 			'labels': [
 				{'name': 'displaycoordinates'},
-				{'name': 'positionX', 'value': centerPercentX},
-				{'name': 'positionY', 'value': centerPercentY},
 			]
 		});
 
 		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
+			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
 			'labels': [
 				{'name': 'displaycoordinates'},
-				{'name': 'positionX', 'value': topLeftPercentX},
-				{'name': 'positionY', 'value': topLeftPercentY},
 			]
 		});
 		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
+			'localPosition': new Position(topRightPercentX, topLeftPercentY),
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
 			'labels': [
 				{'name': 'displaycoordinates'},
-				{'name': 'positionX', 'value': topRightPercentX},
-				{'name': 'positionY', 'value': topLeftPercentY},
 			]
 		});
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
-			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
+			'localPosition': new Position(centerPercentX, EARTH_GRAVITY_WELL_Y),
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,
 			'velocityLoss': 1.0,
 			'labels': [
 				{'name': 'displaycoordinates'},
-				{'name': 'positionX', 'value': centerPercentX},
-				{'name': 'positionY', 'value': EARTH_GRAVITY_WELL_Y},
 			]
 		});
 
 		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight),
+			'localPosition': new Position(topLeftPercentX, bottomPercentY),
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
 			'labels': [
 				{'name': 'displaycoordinates'},
-				{'name': 'positionX', 'value': topLeftPercentX},
-				{'name': 'positionY', 'value': bottomPercentY},
 			]
 		});
 
 		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight),
+			'localPosition': new Position(topRightPercentX, bottomPercentY),
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
 			'labels': [
 				{'name': 'displaycoordinates'},
-				{'name': 'positionX', 'value': topRightPercentX},
-				{'name': 'positionY', 'value': bottomPercentY},
 			]
 		});
 
