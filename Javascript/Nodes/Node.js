@@ -119,9 +119,15 @@ class Node extends StoreableObject {
 					const isDisplay = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
 					if (isDisplay && this.parentTrussNode && this.parentTrussNode.view) {
 						this._coordinateSystem = createDisplayCoordinateSystem(this.parentTrussNode.view);
+						if (this.name && this.name.includes('nail')) {
+							console.log(`✓ Node "${this.name}" initialized with DISPLAY coordinate system (zoomFactor: ${this._coordinateSystem.zoomFactor}, panFactor: ${this._coordinateSystem.panFactor})`);
+						}
 					} else if (this.parentTrussNode && this.parentTrussNode.view) {
 						// Default to world coordinate system
 						this._coordinateSystem = createWorldCoordinateSystem(this.parentTrussNode.view);
+						if (this.name && this.name.includes('nail')) {
+							console.log(`✗ Node "${this.name}" initialized with WORLD coordinate system (should be DISPLAY!)`);
+						}
 					}
 				}
 				return this._coordinateSystem;
@@ -609,6 +615,13 @@ class Node extends StoreableObject {
 		let cs = this.coordinateSystem;
 		if (cs) {
 			const screenPos = cs.convertToScreenPixels(this);
+			
+			// Debug logging for nail
+			if (this.name === 'nail' && !this._shownNailDebug) {
+				console.log(`Rendering nail at screenPos: (${screenPos.x}, ${screenPos.y}), coordinate system: ${cs.name} (zoom: ${cs.zoomFactor}, pan: ${cs.panFactor})`);
+				this._shownNailDebug = true;
+			}
+			
 			this.highLight(cxt);
 			cxt.beginPath();
 			if (this.mass && !isNaN(this.mass)) {
