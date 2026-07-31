@@ -75,6 +75,9 @@ class PropertyList {
 
 		this.populateRest(otherArea, ownerObject);
 		element.appendChild(otherArea);
+		
+		// Update all property values to show actual values from the object
+		this.updatePropertyValues(ownerObject);
 	}
 
 	/**

@@ -16,10 +16,14 @@ function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
 	let element = obj.element;
 	timelog('inside warpMatrix', 1);
 	
-	// Check if this object has displaycoordinates label - if so, don't apply zoom/pan transform
+	// Check if this object has displaycoordinates label OR is a BannerNode - if so, don't apply zoom/pan transform
 	let isDisplayCoordinates = false;
 	if (obj.labels && Array.isArray(obj.labels)) {
 		isDisplayCoordinates = obj.labels.some(label => label.name === 'displaycoordinates');
+	}
+	// BannerNode uses display coordinates (fixed on screen regardless of zoom/pan)
+	if (obj.name === 'bannerNode') {
+		isDisplayCoordinates = true;
 	}
 	
 	// For display coordinates, use positions as-is (already in screen space)

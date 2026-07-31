@@ -1,7 +1,7 @@
 import { Node } from './Node.js';
 import { View } from '../View/TrussView.js';
 import { PropertyEditor } from '../View/ParameterEditor/PropertyEditor.js';
-import { FPSdisplay, universe } from '../globals.js';
+import { FPSdisplay, universe, myX, myY } from '../globals.js';
 import { Position, Vector } from '../Primitives.js';
 import { PanZoomHandler } from '../View/PanZoomHandler.js';
 
@@ -160,11 +160,15 @@ class TrussNode extends Node {
 	setView() {
 		this.view.context = this.canvas.getContext('2d');
 		
-		// Get container dimensions from the element
+		// Get container dimensions and position from the element
 		// The canvas will always match the container size exactly
 		const containerRect = this.element.getBoundingClientRect();
 		const width = Math.max(containerRect.width, 856) || 856;  // Minimum 856
 		const height = Math.max(containerRect.height, 972) || 972;  // Minimum 972
+		
+		// Store container's viewport position for coordinate calculations
+		this.view.elemRectleft = containerRect.left;
+		this.view.elemRecttop = containerRect.top;
 		
 		// Update canvas internal dimensions (affects rendering)
 		this.canvas.width = Math.floor(width);
@@ -179,7 +183,7 @@ class TrussNode extends Node {
 		this.view.screenSize.x = Math.floor(width);
 		this.view.screenSize.y = Math.floor(height);
 		
-		console.log(`✓ Canvas resized to match container: ${width}px × ${height}px`);
+		console.log(`✓ Canvas resized to match container: ${width}px × ${height}px at viewport (${this.view.elemRectleft}px, ${this.view.elemRecttop}px)`);
 		
 		// Add ResizeObserver to update canvas when container is resized
 		if (!this.resizeObserver) {
@@ -201,6 +205,10 @@ class TrussNode extends Node {
 		const width = Math.max(containerRect.width, 856) || 856;
 		const height = Math.max(containerRect.height, 972) || 972;
 		
+		// Store container's viewport position for coordinate calculations
+		this.view.elemRectleft = containerRect.left;
+		this.view.elemRecttop = containerRect.top;
+		
 		if (this.canvas.width !== Math.floor(width) || this.canvas.height !== Math.floor(height)) {
 			this.canvas.width = Math.floor(width);
 			this.canvas.height = Math.floor(height);
@@ -211,7 +219,7 @@ class TrussNode extends Node {
 			this.view.screenSize.x = Math.floor(width);
 			this.view.screenSize.y = Math.floor(height);
 			
-			console.log(`✓ Canvas updated to: ${width}px × ${height}px`);
+			console.log(`✓ Canvas updated to: ${width}px × ${height}px at viewport (${this.view.elemRectleft}px, ${this.view.elemRecttop}px)`);
 		}
 	}
 
@@ -569,36 +577,23 @@ class TrussNode extends Node {
 	 */
 	getClosestObject(position, maxDistance, avoid, view) {
 		let lowestDistance = 1000000000;
-		let lowestDistanceDisplay = 1000000000;  // Separate tracker for display coordinate distances
 		let closest;
 		
-		// Debug: show display coordinate nodes (one-time only)
-		let displayNodes = this.nodes.filter(n => {
-			let coordLabel = n.labels && n.labels.find(l => l.name === 'coordinatesystem');
-			return coordLabel && coordLabel.coordinatesystemProperty === 'display';
-		});
-		
-		if (displayNodes.length > 0 && displayNodes.length < 20) {  // Only log once or first time
-			console.log(`📊 Display nodes found (${displayNodes.length} total):`);
-			displayNodes.forEach(n => {
-				console.log(`  - ${n.name}: (${n.displayPositionX.toFixed(1)}%, ${n.displayPositionY.toFixed(1)}%)`);
-			});
-		}
-		
 		// For display nodes, we need viewport-relative coordinates
-		// Display coordinates are screen-based (0-100% of visible screen)
-		// Independent of canvas element positioning
+		// Get fresh container position from the actual canvas container element
+		const canvasContainer = document.getElementById('TrussBackground') || this.element;
+		const containerRect = canvasContainer.getBoundingClientRect();
+		const containerLeft = containerRect.left;
+		const containerTop = containerRect.top;
+		const containerWidth = containerRect.width;
+		const containerHeight = containerRect.height;
 		
-		// Convert viewport pixels to display percentages directly
-		// Don't use elemRectleft/elemRecttop since display is screen-independent
-		let displayPercX = (position.x / this.view.screenSize.x) * 100;
-		let displayPercY = 100 - (position.y / this.view.screenSize.y) * 100;
-		let displayPosition = new Position(displayPercX, displayPercY);
+		// Use ACTUAL viewport coordinates (myX, myY from mouse event)
+		let canvasPixelX = myX - containerLeft;
+		let canvasPixelY = myY - containerTop;
 		
-		// Log canvas pixel position (for visual correlation with banner corners)
-		let canvasPixelX = position.x - (this.view.elemRectleft || 0);
-		let canvasPixelY = position.y - (this.view.elemRecttop || 0);
-		console.log(`🖱️ Canvas pixel: (${canvasPixelX.toFixed(0)}px, ${canvasPixelY.toFixed(0)}px) -> display: (${displayPercX.toFixed(2)}%, ${displayPercY.toFixed(2)}%)`);
+		// Current screen position (in pixels)
+		let screenMousePos = new Position(canvasPixelX, canvasPixelY);
 		
 		for (let node of this.nodes) {
 			// Check if node is in display coordinate system
@@ -606,27 +601,28 @@ class TrussNode extends Node {
 			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
 			
 			if (nodeIsDisplay) {
-				// For display nodes, compare in percentage space (not screen pixels!)
-				let nodeDisplayPos = new Position(node.displayPositionX, node.displayPositionY);
-				let distance = Position.distance(displayPosition, nodeDisplayPos);
+				// For display nodes, convert percentage position to screen pixels and compare
+				let nodeScreenPixelX = (node.displayPositionX / 100) * containerWidth;
+				let nodeScreenPixelY = containerHeight - (node.displayPositionY / 100) * containerHeight;
+				let nodeScreenPos = new Position(nodeScreenPixelX, nodeScreenPixelY);
 				
-				console.log(`  📍 ${node.name}: dist=${distance.toFixed(2)}% (threshold: 2%)`);
-				
-				if (distance < lowestDistanceDisplay && node != avoid) {
-					lowestDistanceDisplay = distance;
+				let distance = Position.distance(screenMousePos, nodeScreenPos);
+				if (distance < lowestDistance && node != avoid) {
+					lowestDistance = distance;
 					closest = node;
 				}
-			} else {
-				// For world nodes, convert input screen position to world coordinates first
-				let worldPos = view ? view.worldPositionWithOffset(position.x, position.y) : position;
-				let distance = Position.distance(worldPos, node.getPosition());
+			} else if (view) {
+				// For world nodes, convert to screen coordinates using view
+				let nodeWorldPos = node.getPosition();
+				let nodeScreenPos = view.screenPosition(nodeWorldPos);
+				
+				let distance = Position.distance(screenMousePos, nodeScreenPos);
 				if (distance < lowestDistance && node != avoid) {
 					lowestDistance = distance;
 					closest = node;
 				}
 			}
 		}
-		
 		
 		for (let tensor of this.tensors) {
 			// Similar check for tensors - if both nodes are display coordinates
@@ -636,20 +632,28 @@ class TrussNode extends Node {
 			let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
 			
 			if (node1IsDisplay && node2IsDisplay) {
-				// Both ends in display space - use percentage distances
-				let tensorPos1 = new Position(tensor.node1.displayPositionX, tensor.node1.displayPositionY);
-				let tensorPos2 = new Position(tensor.node2.displayPositionX, tensor.node2.displayPositionY);
-				let tensorPosMid = new Position((tensorPos1.x + tensorPos2.x) / 2, (tensorPos1.y + tensorPos2.y) / 2);
+				// Both ends in display space - convert to screen pixels
+				let tensorScreenPixel1X = (tensor.node1.displayPositionX / 100) * containerWidth;
+				let tensorScreenPixel1Y = containerHeight - (tensor.node1.displayPositionY / 100) * containerHeight;
+				let tensorScreenPixel2X = (tensor.node2.displayPositionX / 100) * containerWidth;
+				let tensorScreenPixel2Y = containerHeight - (tensor.node2.displayPositionY / 100) * containerHeight;
 				
-				let distance = Position.distance(displayPosition, tensorPosMid);
-				if (distance < lowestDistanceDisplay && tensor != avoid) {
-					lowestDistanceDisplay = distance;
+				let tensorScreenPosMid = new Position(
+					(tensorScreenPixel1X + tensorScreenPixel2X) / 2,
+					(tensorScreenPixel1Y + tensorScreenPixel2Y) / 2
+				);
+				
+				let distance = Position.distance(screenMousePos, tensorScreenPosMid);
+				if (distance < lowestDistance && tensor != avoid) {
+					lowestDistance = distance;
 					closest = tensor;
 				}
-			} else {
-				// World coordinate tensor - convert screen position to world first
-				let worldPos = view ? view.worldPositionWithOffset(position.x, position.y) : position;
-				let distance = Position.distance(worldPos, tensor.getPosition());
+			} else if (view) {
+				// World coordinate tensor
+				let tensorWorldPos = tensor.getPosition();
+				let tensorScreenPos = view.screenPosition(tensorWorldPos);
+				
+				let distance = Position.distance(screenMousePos, tensorScreenPos);
 				if (distance < lowestDistance && tensor != avoid) {
 					lowestDistance = distance;
 					closest = tensor;
@@ -657,22 +661,9 @@ class TrussNode extends Node {
 			}
 		}
 		
-		// Check if closest object is within threshold for its coordinate system
-		if (closest) {
-			let closestCoordLabel = closest.labels && closest.labels.find(l => l.name === 'coordinatesystem');
-			let closestIsDisplay = closestCoordLabel && closestCoordLabel.coordinatesystemProperty === 'display';
-			
-			// For display nodes, use percentage-based threshold (2% of screen)
-			// For world nodes, use the provided maxDistance threshold
-			if (closestIsDisplay) {
-				if (lowestDistanceDisplay > 2) {
-					return undefined;
-				}
-			} else {
-				if (lowestDistance > maxDistance) {
-					return undefined;
-				}
-			}
+		// Check if closest object is within threshold (all distances now in screen pixels)
+		if (closest && lowestDistance > maxDistance) {
+			return undefined;
 		}
 		
 		return closest;
@@ -748,6 +739,13 @@ class TrussNode extends Node {
 
 		for (let node of this.nodes) {
 			node.show(this, time, resolvedDebugLevel);
+		}
+		
+		// Render banner if it exists
+		if (this.editWindow && this.editWindow.bannerNode) {
+			this.editWindow.bannerNode.show(this, time, resolvedDebugLevel);
+			// Update banner property values in real-time
+			this.editWindow.bannerNode.updateProperties();
 		}
 		
 		// Draw finger position indicators for debugging

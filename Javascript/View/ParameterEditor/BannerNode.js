@@ -43,33 +43,31 @@ class BannerNode {
 		};
 	}
 
-	/**
-	 * @param  {TrussNode} truss
-	 * @param  {Position} topScreenPos
-	 * @return {Node}
-	 */
 	create(truss, topScreenPos) {
 		this.element.style.display = 'block';
 		this.truss = truss;
 		this.width = this.element.offsetWidth;
 		this.height = this.element.offsetHeight;
 		let screenWidth = this.element.offsetWidth;
-		let screenHeight = this.element.offsetHeight + 500;
+		let screenHeight = this.element.offsetHeight;
 		if (!topScreenPos) {
 			topScreenPos = new Position(truss.view.screenSize.x - screenWidth, 0);
 		}
+
+		// Get the pre-created display coordinate system from the view
+		const displayCoordinateSystem = truss.view.displayCoordinateSystem;
 
 		// Convert screen positions to percentage coordinates
 		// X: 0 = left, 100 = right; Y: 0 = bottom, 100 = top
 		const canvasWidth = truss.view.screenSize.x;
 		const canvasHeight = truss.view.screenSize.y;
 		
-		const topLeftPercentX = (topScreenPos.x / canvasWidth) * 100;
-		const topLeftPercentY = 100 - (topScreenPos.y / canvasHeight) * 100;
-		const topRightPercentX = ((topScreenPos.x + screenWidth) / canvasWidth) * 100;
-		const centerPercentX = ((topScreenPos.x + screenWidth / 2) / canvasWidth) * 100;
-		const centerPercentY = 100 - ((topScreenPos.y + screenHeight / 2) / canvasHeight) * 100;
-		const bottomPercentY = 100 - ((topScreenPos.y + screenHeight) / canvasHeight) * 100;
+		const topLeftPercentX = 70;
+		const topLeftPercentY = 90;
+		const topRightPercentX = 95;
+		const centerPercentX = 85;
+		const centerPercentY = 100;
+		const bottomPercentY = 20;
 
 		// Earth gravity well: calculate distance to Earth's center
 		// 100% screen = 40 cm (physical)
@@ -81,128 +79,99 @@ class BannerNode {
 		// This creates noticeable downward force on banner nodes
 		const GRAVITY_CONSTANT = -0.001;  // Scaled for display coordinate space
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth / 2, topScreenPos.y / 2),
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
+			'localPosition': new Position(centerPercentX, centerPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'nail',
-			'mass': NaN,
+			'mass': 1,
 			'velocityLoss': 1.0,
-			'displayPositionX': centerPercentX,
-			'displayPositionY': centerPercentY,
 		});
-		
-		
-		// Explicitly set coordinatesystem label property to 'display'
-		let nailCoordLabel = this.nail.labels && this.nail.labels.find(l => l.name === 'coordinatesystem');
-		if (nailCoordLabel) {
-			nailCoordLabel.coordinatesystemProperty = 'display';
-			console.log(`✓ Banner nail coordinatesystem set to: ${nailCoordLabel.coordinatesystemProperty}`);
-		} else {
-			console.warn(`⚠️ Banner nail missing coordinatesystem label!`);
-		}
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y),
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftTop',
 			'mass': 1,
-			'velocityLoss': 0.9,
-			'displayPositionX': topLeftPercentX,
-			'displayPositionY': topLeftPercentY,
+			'velocityLoss': 0.99,
 		});
-		
-		let leftTopCoordLabel = this.leftTopNode.labels && this.leftTopNode.labels.find(l => l.name === 'coordinatesystem');
-		if (leftTopCoordLabel) leftTopCoordLabel.coordinatesystemProperty = 'display';
 
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y),
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': new Position(topRightPercentX, topLeftPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightTop',
 			'mass': 1,
-			'velocityLoss': 0.9,
-			'displayPositionX': topRightPercentX,
-			'displayPositionY': topLeftPercentY,
+			'velocityLoss': 0.99,
 		});
-		
-		let rightTopCoordLabel = this.rightTopNode.labels && this.rightTopNode.labels.find(l => l.name === 'coordinatesystem');
-		if (rightTopCoordLabel) rightTopCoordLabel.coordinatesystemProperty = 'display';
 
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
-			'localPosition': truss.view.worldPosition(screenWidth / 2, screenHeight * 1000),
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
+			'localPosition': new Position(0, -EARTH_CENTER_DISTANCE_PERCENT),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,  // Earth's mass
 			'velocityLoss': 1.0,
-			'displayPositionX': centerPercentX,
-			'displayPositionY': EARTH_CENTER_DISTANCE_PERCENT,
 		});
-		
-		let gravityCoordLabel = this.bannerGravityWell.labels && this.bannerGravityWell.labels.find(l => l.name === 'coordinatesystem');
-		if (gravityCoordLabel) gravityCoordLabel.coordinatesystemProperty = 'display';
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x, topScreenPos.y + screenHeight),
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': new Position(topLeftPercentX, bottomPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'displayPositionX': topLeftPercentX,
-			'displayPositionY': bottomPercentY,
 		});
-		
-		let leftBottomCoordLabel = this.leftBottomNode.labels && this.leftBottomNode.labels.find(l => l.name === 'coordinatesystem');
-		if (leftBottomCoordLabel) leftBottomCoordLabel.coordinatesystemProperty = 'display';
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner coordinatesystem', {
-			'localPosition': truss.view.worldPosition(topScreenPos.x + screenWidth, topScreenPos.y + screenHeight),
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+			'localPosition': new Position(topRightPercentX, bottomPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'displayPositionX': topRightPercentX,
-			'displayPositionY': bottomPercentY,
+			'coordinatesystem': displayCoordinateSystem,
 		});
-		
-		let rightBottomCoordLabel = this.rightBottomNode.labels && this.rightBottomNode.labels.find(l => l.name === 'coordinatesystem');
-		if (rightBottomCoordLabel) rightBottomCoordLabel.coordinatesystemProperty = 'display';
 
-		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
+		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner', {
 			'constant': GRAVITY_CONSTANT,  // Newton's gravitational constant
 			'color': 'transparent',
 		});
 
-		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'field banner coordinatesystem', {
+		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'field banner', {
 			'constant': GRAVITY_CONSTANT,  // Newton's gravitational constant
 			'color': 'transparent',
+			'coordinatesystem': displayCoordinateSystem,
 		});
 
-		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner coordinatesystem', {
-			'equilibriumLength': 6,
-			'dampeningConstant': 10,
-			'constant': 5000,
-			'visible': 1,
-		});
-
-		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner coordinatesystem', {
-			'equilibriumLength': 6,
-			'dampeningConstant': 10,
-			'constant': 5000,
-			'visible': 1,
-		});
-
-		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner coordinatesystem', {
+		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
 			'equilibriumLength': 18,
+			'dampeningConstant': 10,
+			'constant': 5000,
+			'visible': 1,
+		});
+
+		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
+			'equilibriumLength': 18,
+			'dampeningConstant': 10,
+			'constant': 5000,
+			'visible': 1,
+		});
+
+		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
+			'equilibriumLength': 54,
 			'dampeningConstant': 10,
 			'constant': 3000,
 		});
 
 
-		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner coordinatesystem', {
-			'equilibriumLength': 8,
+		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
+			'equilibriumLength': 24,
 			'dampeningConstant': 10,
 			'constant': 2000,
 			'color': 'rgba(100, 200, 100, 0.5)',  // Semi-transparent green
 			'visible': 1,
 		});
 
-		this.rightSpring = new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner coordinatesystem', {
-			'equilibriumLength': 8,
+		this.rightSpring = new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
+			'equilibriumLength': 24,
 			'dampeningConstant': 10,
 			'constant': 2000,
 			'color': 'rgba(100, 200, 100, 0.5)',  // Semi-transparent green
@@ -250,9 +219,17 @@ class BannerNode {
 	 * @param  {number} time
 	 * @param  {number} graphicDebugLevel=0
 	 */
-	show(truss, time, graphicDebugLevel = 0) {
-		this.highLight(truss.view.context);
+	/**
+	 * Set visibility of the banner element
+	 * @param {boolean} visible
+	 */
+	setVisible(visible) {
+		if (this.element) {
+			this.element.style.display = visible ? 'block' : 'none';
+		}
+	}
 
+	show(truss, time, graphicDebugLevel = 0) {
 		// Always render banner components (nodes and tensors)
 		if (this.nail) this.nail.show(truss, time, 3);
 		if (this.leftTopNode) this.leftTopNode.show(truss, time, 3);
@@ -269,39 +246,43 @@ class BannerNode {
 		if (this.leftBottomField) this.leftBottomField.show(truss, 2);
 		if (this.rightBottomField) this.rightBottomField.show(truss, 2);
 
+		// Position banner content using DISPLAY coordinates (stays fixed on screen regardless of zoom/pan)
+		if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
+			// Convert display percentages to screen pixels
+			let screenWidth = truss.view.screenSize.x;
+			let screenHeight = truss.view.screenSize.y;
+			
+			// Convert from display percentages (0-100%) to screen pixels
+			let topLeftScreenPos = new Position(
+				(this.leftTopNode.displayPositionX / 100) * screenWidth,
+				screenHeight - (this.leftTopNode.displayPositionY / 100) * screenHeight
+			);
+			let topRightScreenPos = new Position(
+				(this.rightTopNode.displayPositionX / 100) * screenWidth,
+				screenHeight - (this.rightTopNode.displayPositionY / 100) * screenHeight
+			);
+			let bottomLeftScreenPos = new Position(
+				(this.leftBottomNode.displayPositionX / 100) * screenWidth,
+				screenHeight - (this.leftBottomNode.displayPositionY / 100) * screenHeight
+			);
+			let bottomRightScreenPos = new Position(
+				(this.rightBottomNode.displayPositionX / 100) * screenWidth,
+				screenHeight - (this.rightBottomNode.displayPositionY / 100) * screenHeight
+			);
+			
+			// Pass screen positions to warpMatrix - we'll tell it to skip view transformation
+			// by setting a label that marks this as display coordinates
+			warpMatrix(truss, this,
+				topLeftScreenPos,
+				topRightScreenPos,
+				bottomLeftScreenPos,
+				bottomRightScreenPos,
+				this.width,
+				this.height);
+		}
+
 		if (graphicDebugLevel > 0) {
-			if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
-				// Use display coordinate positions instead of world positions
-				// Convert from percentages to screen pixels
-				let screenWidth = truss.view.screenSize.x;
-				let screenHeight = truss.view.screenSize.y;
-				
-				// Create Position objects for warpMatrix using display coordinates
-				let topLeftScreenPos = new Position(
-					(this.leftTopNode.displayPositionX / 100) * screenWidth,
-					screenHeight - (this.leftTopNode.displayPositionY / 100) * screenHeight
-				);
-				let topRightScreenPos = new Position(
-					(this.rightTopNode.displayPositionX / 100) * screenWidth,
-					screenHeight - (this.rightTopNode.displayPositionY / 100) * screenHeight
-				);
-				let bottomLeftScreenPos = new Position(
-					(this.leftBottomNode.displayPositionX / 100) * screenWidth,
-					screenHeight - (this.leftBottomNode.displayPositionY / 100) * screenHeight
-				);
-				let bottomRightScreenPos = new Position(
-					(this.rightBottomNode.displayPositionX / 100) * screenWidth,
-					screenHeight - (this.rightBottomNode.displayPositionY / 100) * screenHeight
-				);
-				
-				warpMatrix(truss, this,
-					topLeftScreenPos,
-					topRightScreenPos,
-					bottomLeftScreenPos,
-					bottomRightScreenPos,
-					this.width,
-					this.height);
-			}
+			// Additional debug rendering if needed
 		}
 	};
 
@@ -315,6 +296,15 @@ class BannerNode {
 		if (this.iO) {
 			// this.iO.properties.populateProperties(this.element);
 			this.iO.populateProperties(this.propertyElement);
+		}
+	}
+
+	/**
+	 * Update property values continuously (called from render loop)
+	 */
+	updateProperties() {
+		if (this.iO && this.iO.properties) {
+			this.iO.properties.updatePropertyValues(this.iO);
 		}
 	}
 

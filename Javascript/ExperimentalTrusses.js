@@ -44,29 +44,29 @@ function createDefaultPerformanceScene(trussNode) {
 
 	trussNode.protagonist = new ProtagonistNode(trussNode.world, trussNode, 'moveable node color', {
 		'name': 'Protagonist',
-		'localPosition': new Position(4, 100),  // Positive Y = above Earth, will fall down
+		'localPosition': new Position(4, 10),  // Positive Y = above Earth, will fall down
 		'mass': 70,
 		'color': 'yellow',
 	});
 
 	const nodeA = new Node(trussNode.world, trussNode, 'moveable node', {
 		'name': 'Node A',
-		'localPosition': new Position(3, 50),  // Positive Y = above Earth
+		'localPosition': new Position(3, 20),  // Positive Y = above Earth
 		'mass': 20,
 	});
 	const nodeB = new Node(trussNode.world, trussNode, 'moveable node', {
 		'name': 'Node B',
-		'localPosition': new Position(6, 50),  // Positive Y = above Earth
+		'localPosition': new Position(6, 20),  // Positive Y = above Earth
 		'mass': 20,
 	});
 	const anchorLeft = new Node(trussNode.world, trussNode, 'node', {
 		'name': 'Anchor Left',
-		'localPosition': new Position(2, 120),  // Positive Y = well above
+		'localPosition': new Position(2, 40),  // Positive Y = well above
 		'mass': NaN,
 	});
 	const anchorRight = new Node(trussNode.world, trussNode, 'node', {
 		'name': 'Anchor Right',
-		'localPosition': new Position(7, 120),  // Positive Y = well above
+		'localPosition': new Position(7, 40),  // Positive Y = well above
 		'mass': NaN,
 	});
 
@@ -117,6 +117,60 @@ function createDefaultPerformanceScene(trussNode) {
 		'name': 'gravity-nodeB',
 		'constant': GRAVITY_CONSTANT,
 		'visible': 0,
+	});
+
+	// Create a 10x10 meter test square in world coordinates at origin
+	const testNode1 = new Node(trussNode.world, trussNode, 'node test', {
+		'localPosition': new Position(0, 0),
+		'name': 'testSquare_0_0',
+		'mass': 1,
+	});
+	
+	const testNode2 = new Node(trussNode.world, trussNode, 'node test', {
+		'localPosition': new Position(10, 0),
+		'name': 'testSquare_10_0',
+		'mass': 1,
+	});
+	
+	const testNode3 = new Node(trussNode.world, trussNode, 'node test', {
+		'localPosition': new Position(10, 10),
+		'name': 'testSquare_10_10',
+		'mass': 1,
+	});
+	
+	const testNode4 = new Node(trussNode.world, trussNode, 'node test', {
+		'localPosition': new Position(0, 10),
+		'name': 'testSquare_0_10',
+		'mass': 1,
+	});
+	
+	// Connect with springs to form a square
+	new Tensor(testNode1, testNode2, 'spring test', {
+		'equilibriumLength': 10,
+		'dampeningConstant': 5,
+		'constant': 1000,
+		'color': 'cyan',
+	});
+	
+	new Tensor(testNode2, testNode3, 'spring test', {
+		'equilibriumLength': 10,
+		'dampeningConstant': 5,
+		'constant': 1000,
+		'color': 'cyan',
+	});
+	
+	new Tensor(testNode3, testNode4, 'spring test', {
+		'equilibriumLength': 10,
+		'dampeningConstant': 5,
+		'constant': 1000,
+		'color': 'cyan',
+	});
+	
+	new Tensor(testNode4, testNode1, 'spring test', {
+		'equilibriumLength': 10,
+		'dampeningConstant': 5,
+		'constant': 1000,
+		'color': 'cyan',
 	});
 }
 

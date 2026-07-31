@@ -536,7 +536,8 @@ class Selector extends SensorNode {
 			return;
 		}
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
-		let closest = trussNode.getClosestObject(this.cursorPosition, 20*trussNode.view.getDistanceMultiplier(), this);
+		// Use screen pixels as distance metric: 20px is a comfortable click target
+		let closest = trussNode.getClosestObject(this.cursorPosition, 20, this, trussNode.view);
 
 		if (!mouseSet && !universe.newNode) {
 			if (!closest) {
@@ -578,7 +579,30 @@ class Selector extends SensorNode {
 		} else if (mouseSet || universe.newNode) { // Mouse is continually pressed
 			if (universe.selectedObject && universe.selectedObject.isNode) {
 				universe.selectedObject.resetVelocity();
-				universe.selectedObject.copyPosition(this.cursorPosition);
+				
+				// Check if selected object is a display node
+				let selectedCoordLabel = universe.selectedObject.labels && universe.selectedObject.labels.find(l => l.name === 'coordinatesystem');
+				let selectedIsDisplay = selectedCoordLabel && selectedCoordLabel.coordinatesystemProperty === 'display';
+				
+				if (selectedIsDisplay) {
+					// For display nodes, calculate and set display coordinates directly
+					const canvasContainer = document.getElementById('TrussBackground') || trussNode.element;
+					const containerRect = canvasContainer.getBoundingClientRect();
+					const containerWidth = containerRect.width;
+					const containerHeight = containerRect.height;
+					
+					let canvasPixelX = myX - containerRect.left;
+					let canvasPixelY = myY - containerRect.top;
+					
+					let displayPercX = (canvasPixelX / containerWidth) * 100;
+					let displayPercY = 100 - (canvasPixelY / containerHeight) * 100;
+					
+					universe.selectedObject.displayPositionX = displayPercX;
+					universe.selectedObject.displayPositionY = displayPercY;
+				} else {
+					// For world nodes, use world coordinates as before
+					universe.selectedObject.copyPosition(this.cursorPosition);
+				}
 			}
 		}
 
