@@ -87,7 +87,7 @@ class BannerNode {
 			'velocityLoss': 1.0,
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable, coordinatesystem', {
 			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftTop',
@@ -95,7 +95,7 @@ class BannerNode {
 			'velocityLoss': 0.99,
 		});
 
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': new Position(topRightPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightTop',
@@ -103,15 +103,15 @@ class BannerNode {
 			'velocityLoss': 0.99,
 		});
 
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
-			'localPosition': new Position(0, -EARTH_CENTER_DISTANCE_PERCENT),
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
+			'localPosition': new Position(0, EARTH_CENTER_DISTANCE_PERCENT),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,  // Earth's mass
 			'velocityLoss': 1.0,
 		});
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': new Position(topLeftPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftBottomNode',
@@ -120,17 +120,16 @@ class BannerNode {
 			'velocityLoss': 0.9,
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
 			'localPosition': new Position(topRightPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'coordinatesystem': displayCoordinateSystem,
 		});
 
-		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner', {
+		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'field banner ', {
 			'constant': GRAVITY_CONSTANT,  // Newton's gravitational constant
 			'color': 'transparent',
 		});

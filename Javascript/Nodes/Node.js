@@ -110,6 +110,32 @@ class Node extends StoreableObject {
 			},
 		});
 
+		// Coordinate system property - determines rendering and physics behavior
+		// - If explicitly set via coordinateSystem property in valueObject, returns that reference
+		// - If not set, defaults to the world coordinate system from the view
+		// - localPosition is agnostic of coordinate system - the coordinate system interprets it
+		Object.defineProperty(this, 'coordinateSystem', {
+			get: function() {
+				// If explicitly set, return the direct reference
+				if (this._coordinateSystem) {
+					return this._coordinateSystem;
+				}
+				
+				// Default to world coordinate system
+				if (this.parentTrussNode && this.parentTrussNode.view && this.parentTrussNode.view.worldCoordinateSystem) {
+					return this.parentTrussNode.view.worldCoordinateSystem;
+				}
+				
+				// Fallback - log warning as this indicates a problem
+				console.warn(`⚠️  Node ${this.name || 'unnamed'} could not get coordinate system - parentTrussNode or view not available`);
+				return null;
+			},
+			set: function(value) {
+				this._coordinateSystem = value;
+			},
+			enumerable: true,  // Make visible in property listings
+		});
+
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
 		}
