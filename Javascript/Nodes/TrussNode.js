@@ -159,16 +159,60 @@ class TrussNode extends Node {
 	 */
 	setView() {
 		this.view.context = this.canvas.getContext('2d');
-		// Ensure canvas has valid dimensions before setting
-		const width = this.view.screenSize.x || 1123;
-		const height = this.view.screenSize.y || 974;
-		this.canvas.width = width;
-		this.canvas.height = height;
+		
+		// Get container dimensions from the element
+		// The canvas will always match the container size exactly
+		const containerRect = this.element.getBoundingClientRect();
+		const width = Math.max(containerRect.width, 856) || 856;  // Minimum 856
+		const height = Math.max(containerRect.height, 972) || 972;  // Minimum 972
+		
+		// Update canvas internal dimensions (affects rendering)
+		this.canvas.width = Math.floor(width);
+		this.canvas.height = Math.floor(height);
+		
+		// Update canvas display dimensions (affects layout)
 		this.canvas.style.width = width + 'px';
 		this.canvas.style.height = height + 'px';
+		this.canvas.style.border = '3px solid purple';  // Visual boundary for display coordinates
+		
+		// Update view screen size to match canvas
+		this.view.screenSize.x = Math.floor(width);
+		this.view.screenSize.y = Math.floor(height);
+		
+		console.log(`✓ Canvas resized to match container: ${width}px × ${height}px`);
+		
+		// Add ResizeObserver to update canvas when container is resized
+		if (!this.resizeObserver) {
+			this.resizeObserver = new ResizeObserver(() => {
+				this.updateCanvasSize();
+			});
+			this.resizeObserver.observe(this.element);
+		}
 
 		this.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
 		this.panZoom = new PanZoomHandler(this);
+	}
+	
+	/**
+	 * Updates canvas size when container is resized
+	 */
+	updateCanvasSize() {
+		const containerRect = this.element.getBoundingClientRect();
+		const width = Math.max(containerRect.width, 856) || 856;
+		const height = Math.max(containerRect.height, 972) || 972;
+		
+		if (this.canvas.width !== Math.floor(width) || this.canvas.height !== Math.floor(height)) {
+			this.canvas.width = Math.floor(width);
+			this.canvas.height = Math.floor(height);
+			this.canvas.style.width = width + 'px';
+			this.canvas.style.height = height + 'px';
+			
+			// Update view screen size
+			this.view.screenSize.x = Math.floor(width);
+			this.view.screenSize.y = Math.floor(height);
+			
+			console.log(`✓ Canvas updated to: ${width}px × ${height}px`);
+		}
 	}
 
 	/**
@@ -528,40 +572,33 @@ class TrussNode extends Node {
 		let lowestDistanceDisplay = 1000000000;  // Separate tracker for display coordinate distances
 		let closest;
 		
-		// Debug: show all coordinate nodes
+		// Debug: show display coordinate nodes (one-time only)
 		let displayNodes = this.nodes.filter(n => {
 			let coordLabel = n.labels && n.labels.find(l => l.name === 'coordinatesystem');
 			return coordLabel && coordLabel.coordinatesystemProperty === 'display';
-		});
-		let worldNodes = this.nodes.filter(n => {
-			let coordLabel = n.labels && n.labels.find(l => l.name === 'coordinatesystem');
-			return !coordLabel || coordLabel.coordinatesystemProperty !== 'display';
 		});
 		
 		if (displayNodes.length > 0 && displayNodes.length < 20) {  // Only log once or first time
 			console.log(`📊 Display nodes found (${displayNodes.length} total):`);
 			displayNodes.forEach(n => {
-				console.log(`  - ${n.name}: (${n.displayPositionX.toFixed(1)}%, ${n.displayPositionY.toFixed(1)}%) mass=${n.mass}`);
+				console.log(`  - ${n.name}: (${n.displayPositionX.toFixed(1)}%, ${n.displayPositionY.toFixed(1)}%)`);
 			});
 		}
 		
-		if (worldNodes.length > 0 && worldNodes.length < 20) {
-			console.log(`🌍 World nodes found (${worldNodes.length} total):`);
-			worldNodes.forEach(n => {
-				let pos = n.getPosition();
-				console.log(`  - ${n.name}: (${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}) mass=${n.mass}`);
-			});
-		}
-		// For display nodes, we need canvas-relative coordinates
-		// Position.x and position.y are viewport-relative (clientX/clientY)
-		// We need to convert to canvas-relative, then to display percentages
-		let canvasRelX = position.x - (this.view.elemRectleft || 0);
-		let canvasRelY = position.y - (this.view.elemRecttop || 0);
+		// For display nodes, we need viewport-relative coordinates
+		// Display coordinates are screen-based (0-100% of visible screen)
+		// Independent of canvas element positioning
 		
-		// Convert canvas-relative pixels to display percentages
-		let displayPercX = (canvasRelX / this.view.screenSize.x) * 100;
-		let displayPercY = 100 - (canvasRelY / this.view.screenSize.y) * 100;
+		// Convert viewport pixels to display percentages directly
+		// Don't use elemRectleft/elemRecttop since display is screen-independent
+		let displayPercX = (position.x / this.view.screenSize.x) * 100;
+		let displayPercY = 100 - (position.y / this.view.screenSize.y) * 100;
 		let displayPosition = new Position(displayPercX, displayPercY);
+		
+		// Log canvas pixel position (for visual correlation with banner corners)
+		let canvasPixelX = position.x - (this.view.elemRectleft || 0);
+		let canvasPixelY = position.y - (this.view.elemRecttop || 0);
+		console.log(`🖱️ Canvas pixel: (${canvasPixelX.toFixed(0)}px, ${canvasPixelY.toFixed(0)}px) -> display: (${displayPercX.toFixed(2)}%, ${displayPercY.toFixed(2)}%)`);
 		
 		for (let node of this.nodes) {
 			// Check if node is in display coordinate system
@@ -572,6 +609,8 @@ class TrussNode extends Node {
 				// For display nodes, compare in percentage space (not screen pixels!)
 				let nodeDisplayPos = new Position(node.displayPositionX, node.displayPositionY);
 				let distance = Position.distance(displayPosition, nodeDisplayPos);
+				
+				console.log(`  📍 ${node.name}: dist=${distance.toFixed(2)}% (threshold: 2%)`);
 				
 				if (distance < lowestDistanceDisplay && node != avoid) {
 					lowestDistanceDisplay = distance;
@@ -587,6 +626,7 @@ class TrussNode extends Node {
 				}
 			}
 		}
+		
 		
 		for (let tensor of this.tensors) {
 			// Similar check for tensors - if both nodes are display coordinates
