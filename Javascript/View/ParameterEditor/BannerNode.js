@@ -87,7 +87,7 @@ class BannerNode {
 			'velocityLoss': 1.0,
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable, coordinatesystem', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftTop',
@@ -95,7 +95,7 @@ class BannerNode {
 			'velocityLoss': 0.99,
 		});
 
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topRightPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightTop',
@@ -103,7 +103,7 @@ class BannerNode {
 			'velocityLoss': 0.99,
 		});
 
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': new Position(0, EARTH_CENTER_DISTANCE_PERCENT),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'bannerGravityWell',
@@ -111,7 +111,7 @@ class BannerNode {
 			'velocityLoss': 1.0,
 		});
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topLeftPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftBottomNode',
@@ -120,7 +120,7 @@ class BannerNode {
 			'velocityLoss': 0.9,
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topRightPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightBottomNode',
