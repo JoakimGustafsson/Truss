@@ -4,6 +4,7 @@ import { universe } from '../globals.js';
 import { warpMatrix } from '../View/Pictures.js';
 import { calculateNodeTorques, updateNodeRotation } from '../Behaviours/Angles.js';
 import { evaluateScriptFunction } from '../Behaviours/Scripts.js';
+import { createWorldCoordinateSystem, createDisplayCoordinateSystem } from './CoordinateSystem.js';
 
 /**
  * @class
@@ -113,7 +114,6 @@ class Node extends StoreableObject {
 		// Coordinate system property - determines rendering and physics behavior
 		// - If explicitly set via coordinateSystem property in valueObject, returns that reference
 		// - If not set, defaults to the world coordinate system from the view
-		// - Displays the coordinate system name for non-world systems
 		// - localPosition is agnostic of coordinate system - the coordinate system interprets it
 		Object.defineProperty(this, 'coordinateSystem', {
 			get: function() {
@@ -133,32 +133,8 @@ class Node extends StoreableObject {
 			},
 			set: function(value) {
 				this._coordinateSystem = value;
-			},
-			enumerable: true,  // Make visible in property listings
+			}
 		});
-		
-		// coordinateSystemName property - displays the name of the coordinate system
-		// Only shows for non-world systems, for clarity
-		Object.defineProperty(this, 'coordinateSystemName', {
-			get: function() {
-				const coordSys = this.coordinateSystem;
-				if (!coordSys) {
-					return 'unknown';
-				}
-				// Only return the name if it's NOT the default world system
-				if (coordSys.name && coordSys.name !== 'world') {
-					return coordSys.name;
-				}
-				return undefined;  // Don't show property if it's the default world
-			},
-			enumerable: true,  // Make visible in property listings
-		});
-		
-		// Explicitly assign coordinateSystem from valueObject if provided
-		// This ensures it's set after the property definition is in place
-		if (valueObject && valueObject.coordinateSystem) {
-			this.coordinateSystem = valueObject.coordinateSystem;
-		}
 
 		if (this.pictureReference) {
 			this.createHTMLPicture(this.pictureReference);
@@ -380,16 +356,28 @@ class Node extends StoreableObject {
 		this.velocity.y = 0;
 	}
 	/** copy the values of a position to the node. This avoid having a strong relationship to the assigned position.
-	 * @param  {Position} position
+	 * For display nodes, converts screen pixels to percentages based on coordinate system.
+	 * @param  {Position} position - Position in appropriate coordinate space for this node
 	 */
 	copyPosition(position) {
-		this.localPosition.x = position.x;
-		this.localPosition.y = position.y;
-		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize!='0') {
-			let x=position.x + this.parentTrussNode.gridSize/2;
-			let y=position.y + this.parentTrussNode.gridSize/2;
-			this.localPosition.x= x - x%this.parentTrussNode.gridSize;
-			this.localPosition.y= y - y%this.parentTrussNode.gridSize;
+		// For display nodes, position is in screen pixels and needs conversion to percentages
+		if (this.coordinateSystem && this.coordinateSystem.isDisplay()) {
+			const screenWidth = this.parentTrussNode.view.screenSize.x;
+			const screenHeight = this.parentTrussNode.view.screenSize.y;
+			this.localPosition.x = (position.x / screenWidth) * 100;
+			this.localPosition.y = 100 - (position.y / screenHeight) * 100;  // Y is inverted
+		} else {
+			// For world nodes, just copy the position directly
+			this.localPosition.x = position.x;
+			this.localPosition.y = position.y;
+		}
+		
+		// Apply grid snapping if enabled
+		if (this.parentTrussNode.gridSize && this.parentTrussNode.gridSize != '0') {
+			let x = this.localPosition.x + this.parentTrussNode.gridSize / 2;
+			let y = this.localPosition.y + this.parentTrussNode.gridSize / 2;
+			this.localPosition.x = x - x % this.parentTrussNode.gridSize;
+			this.localPosition.y = y - y % this.parentTrussNode.gridSize;
 		}
 	};
 
@@ -486,17 +474,6 @@ class Node extends StoreableObject {
 	updatePosition(trussTime, timeFactor) {
 		let oldPosition = new Position(this.getPosition().x, this.getPosition().y);
 		this.localPosition.add(Vector.multiplyVector(timeFactor, this.velocity));
-		
-		// For display coordinate nodes, also update displayPositionX/Y based on velocity
-		let coordinateSystemLabel = this.labels && this.labels.find(label => label.name === 'coordinatesystem');
-		if (coordinateSystemLabel && coordinateSystemLabel.coordinatesystemProperty === 'display') {
-			// Update display positions proportionally to velocity
-			if (this.displayPositionX !== undefined && this.displayPositionY !== undefined) {
-				this.displayPositionX += this.velocity.x * timeFactor;
-				this.displayPositionY += this.velocity.y * timeFactor;
-			}
-		}
-		
 		if (this.positionFunction) {
 			this.setPosition(this.positionFunction(this, trussTime));
 			this.velocity = Vector.subtractVectors(this.getPosition(), oldPosition);
@@ -631,44 +608,38 @@ class Node extends StoreableObject {
 		if (!this.visible || this.visible=='0') {
 			return;
 		}
-		// Hide gravity wells and other huge mass nodes (they're not meant to be rendered)
-		if (this.mass && this.mass > 1e20) {
-			return;
-		}
 		if (!this.color) {
 			this.color='lightgrey';
 		}
 		cxt.strokeStyle = this.color;
 
-		// Handle display coordinate rendering (percentage-based)
-		// Check coordinatesystem label for 'display' value
-		let coordinateSystemLabel = this.labels && this.labels.find(label => label.name === 'coordinatesystem');
-		let isDisplayCoordinates = coordinateSystemLabel && coordinateSystemLabel.coordinatesystemProperty === 'display';
-		
-		if (isDisplayCoordinates) {
-			let displayX = this.displayPositionX;
-			let displayY = this.displayPositionY;
+		// Render node using its coordinate system (world or display)
+		let cs = this.coordinateSystem;
+		if (cs) {
+			const screenPos = cs.convertToScreenPixels(this);
 			
-			if (displayX !== undefined && displayY !== undefined) {
-				// Convert percentages to screen pixels
-				// X: 0 = left, 100 = right
-				// Y: 0 = bottom, 100 = top
-				let screenX = (displayX / 100) * view.screenSize.x;
-				let screenY = view.screenSize.y - (displayY / 100) * view.screenSize.y;
-				
-				this.highLight(cxt);
-				cxt.beginPath();
-				if (this.mass) {
-					cxt.arc(screenX, screenY, 4, 0, 2 * Math.PI);
-				} else {
-					// Draw crosshairs for nodes without mass
-					cxt.moveTo(screenX - 10, screenY - 10);
-					cxt.lineTo(screenX + 10, screenY + 10);
-					cxt.moveTo(screenX + 10, screenY - 10);
-					cxt.lineTo(screenX - 10, screenY + 10);
-				}
-				cxt.stroke();
-				return; // Don't render as world coordinate
+			// Debug logging for nail
+			if (this.name === 'nail' && !this._shownNailDebug) {
+				console.log(`Rendering nail at screenPos: (${screenPos.x}, ${screenPos.y}), coordinate system: ${cs.name} (zoom: ${cs.zoomFactor}, pan: ${cs.panFactor})`);
+				this._shownNailDebug = true;
+			}
+			
+			this.highLight(cxt);
+			cxt.beginPath();
+			if (this.mass && !isNaN(this.mass)) {
+				cxt.arc(screenPos.x, screenPos.y, 4, 0, 2 * Math.PI);
+			} else {
+				// Draw crosshairs for nodes without mass
+				cxt.moveTo(screenPos.x - 10, screenPos.y - 10);
+				cxt.lineTo(screenPos.x + 10, screenPos.y + 10);
+				cxt.moveTo(screenPos.x + 10, screenPos.y - 10);
+				cxt.lineTo(screenPos.x - 10, screenPos.y + 10);
+			}
+			cxt.stroke();
+			
+			// For display nodes, skip world-coordinate debug rendering
+			if (cs.isDisplay()) {
+				return;
 			}
 		}
 

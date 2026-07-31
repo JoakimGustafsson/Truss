@@ -103,7 +103,6 @@ class Tensor extends StoreableObject {
 			},
 		});
 
-		// Coordinate system property - forward to connected node's coordinate system
 		Object.defineProperty(this, 'coordinateSystem', {
 			get: function() {
 				// Forward coordinate system query to the first connected node
@@ -252,19 +251,30 @@ class Tensor extends StoreableObject {
 			return;
 		}
 
-		// If we have both nodes connected, check if they match
+		// Check if this tensor already has a node connected
 		const otherNode = nodeName === 'node1' ? this._node2 : this._node1;
-		if (otherNode) {
-			const otherCoordSys = otherNode.coordinateSystem;
-			if (otherCoordSys && nodeCoordSys.name !== otherCoordSys.name) {
-				console.warn(
-					`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.name || 'unnamed'}`,
-					`\n  node1 (${this._node1?.name}): ${this._node1?.coordinateSystem?.name}`,
-					`\n  node2 (${this._node2?.name}): ${this._node2?.coordinateSystem?.name}`,
-					`\n  Tensor may produce incorrect results`,
-					`\n  Consider connecting nodes in the same coordinate system`
-				);
-			}
+		if (!otherNode) {
+			return;  // Other node not set yet, can't check for mismatch
+		}
+
+		// Get the other node's coordinate system
+		const otherCoordSys = otherNode.coordinateSystem;
+		if (!otherCoordSys) {
+			console.warn(`⚠️  Failed to get coordinate system for other node (${otherNode.name})`);
+			return;
+		}
+
+		const newCoordSystem = nodeCoordSys.name;
+		const otherCoordSystem = otherCoordSys.name;
+
+		if (newCoordSystem !== otherCoordSystem) {
+			console.warn(
+				`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.name || 'unnamed'}`,
+				`\n  ${nodeName} (${node.name}): ${newCoordSystem}`,
+				`\n  ${nodeName === 'node1' ? 'node2' : 'node1'} (${otherNode.name}): ${otherCoordSystem}`,
+				`\n  Tensor=${this.name}, Distance calculations may be incorrect`,
+				`\n  Consider connecting nodes in the same coordinate system`
+			);
 		}
 	}
 
@@ -682,27 +692,19 @@ class Tensor extends StoreableObject {
 	};
 
 	/**
-	 * Returns the vertical difference between the nodes
+	 * Returns the horizontal difference between the nodes
+	 * 
+	 * IMPORTANT: Uses the coordinate system of the connected nodes.
+	 * Both nodes MUST be in the same coordinate system (verified by _checkCoordinateSystemMismatch).
+	 * - If both nodes are world coordinates: difference is in world units
+	 * - If both nodes are display coordinates: difference is in percentages (0-100%)
+	 * 
 	 * @return {number}
 	 */
 	getXDifference() {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
-		
-		// For display coordinate tensors, use displayPositionX instead of world coordinates
-		let node1CoordLabel = this.node1.labels && this.node1.labels.find(l => l.name === 'coordinatesystem');
-		let node2CoordLabel = this.node2.labels && this.node2.labels.find(l => l.name === 'coordinatesystem');
-		let node1IsDisplay = node1CoordLabel && node1CoordLabel.coordinatesystemProperty === 'display';
-		let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
-		
-		if (node1IsDisplay && node2IsDisplay) {
-			// Both nodes use display coordinates
-			let x1 = this.node1.displayPositionX !== undefined ? this.node1.displayPositionX : 0;
-			let x2 = this.node2.displayPositionX !== undefined ? this.node2.displayPositionX : 0;
-			return (x2 - x1);
-		}
-		
 		return (this.node2.getPosition().x - this.node1.getPosition().x);
 	};
 
@@ -715,27 +717,19 @@ class Tensor extends StoreableObject {
 	};
 
 	/**
-	 * Returns the horizontal difference between the nodes
+	 * Returns the vertical difference between the nodes
+	 * 
+	 * IMPORTANT: Uses the coordinate system of the connected nodes.
+	 * Both nodes MUST be in the same coordinate system (verified by _checkCoordinateSystemMismatch).
+	 * - If both nodes are world coordinates: difference is in world units
+	 * - If both nodes are display coordinates: difference is in percentages (0-100%)
+	 * 
 	 * @return {number}
 	 */
 	getYDifference() {
 		if (!this.node1 || !this.node2) {
 			return 0;
 		}
-		
-		// For display coordinate tensors, use displayPositionY instead of world coordinates
-		let node1CoordLabel = this.node1.labels && this.node1.labels.find(l => l.name === 'coordinatesystem');
-		let node2CoordLabel = this.node2.labels && this.node2.labels.find(l => l.name === 'coordinatesystem');
-		let node1IsDisplay = node1CoordLabel && node1CoordLabel.coordinatesystemProperty === 'display';
-		let node2IsDisplay = node2CoordLabel && node2CoordLabel.coordinatesystemProperty === 'display';
-		
-		if (node1IsDisplay && node2IsDisplay) {
-			// Both nodes use display coordinates
-			let y1 = this.node1.displayPositionY !== undefined ? this.node1.displayPositionY : 0;
-			let y2 = this.node2.displayPositionY !== undefined ? this.node2.displayPositionY : 0;
-			return (y2 - y1);
-		}
-		
 		return this.node2.getPosition().y - this.node1.getPosition().y;
 	};
 
@@ -751,12 +745,29 @@ class Tensor extends StoreableObject {
 	 * Returns the distance between the nodes
 	 * @return {number}
 	 */
+	/**
+	 * Returns the distance between the nodes in their coordinate system
+	 * 
+	 * Units depend on connected nodes' coordinate system:
+	 * - World nodes: distance in world units
+	 * - Display nodes: distance in percentages (0-100%)
+	 * 
+	 * @return {number}
+	 */
 	getLength() {
-		return Math.sqrt(this.getLengthSquare());
+		if (!this.coordinateSystem) {
+			return 0;
+		}
+		return this.coordinateSystem.calculateDistance(this.node1, this.node2);
 	};
 
 	/**
-	 * Returns the Vector representation of the Tensor.
+	 * Returns the Vector representation of the Tensor (position difference)
+	 * 
+	 * Components depend on connected nodes' coordinate system:
+	 * - World nodes: vector in world units
+	 * - Display nodes: vector in percentages (0-100%)
+	 * 
 	 * @return {Vector}
 	 */
 	getActual() {
@@ -765,10 +776,20 @@ class Tensor extends StoreableObject {
 
 	/**
 	 * Returns the squared length of the tensor. Used for efficiency reasons in some cases instead of getLength().
-	 * @return {number} The squared length.
+	 * 
+	 * Uses the coordinate system's calculateDistanceSquared method for accurate distance in the appropriate coordinate space:
+	 * - World nodes: squared distance in world units²
+	 * - Display nodes: squared distance in percentages²
+	 * 
+	 * This is more efficient than getLength() when only comparing distances.
+	 * 
+	 * @return {number}
 	 */
 	getLengthSquare() {
-		return Math.pow(this.getXDifference(), 2) + Math.pow(this.getYDifference(), 2);
+		if (!this.coordinateSystem) {
+			return 0;
+		}
+		return this.coordinateSystem.calculateDistanceSquared(this.node1, this.node2);
 	};
 
 	/**
@@ -837,33 +858,29 @@ class Tensor extends StoreableObject {
 			return;
 		}
 
-		// Handle display coordinate rendering
-		let node1CoordSystem = node1.labels && node1.labels.find(label => label.name === 'coordinatesystem');
-		let node2CoordSystem = node2.labels && node2.labels.find(label => label.name === 'coordinatesystem');
-		let node1IsDisplay = node1CoordSystem && node1CoordSystem.coordinatesystemProperty === 'display';
-		let node2IsDisplay = node2CoordSystem && node2CoordSystem.coordinatesystemProperty === 'display';
-		
-		if (node1IsDisplay && node2IsDisplay) {
-			// Both nodes in display coordinates - render directly to screen
-			let pos1X = node1.displayPositionX;
-			let pos1Y = node1.displayPositionY;
-			let pos2X = node2.displayPositionX;
-			let pos2Y = node2.displayPositionY;
+		// Use the tensor's coordinate system to convert nodes to screen pixels
+		const tensorCoordSys = this.coordinateSystem;
+		if (tensorCoordSys) {
+			// Let the coordinate system handle the conversion (works for both world and display)
+			const screenPos1 = tensorCoordSys.convertToScreenPixels(node1);
+			const screenPos2 = tensorCoordSys.convertToScreenPixels(node2);
 			
-			if (pos1X !== undefined && pos1Y !== undefined && pos2X !== undefined && pos2Y !== undefined) {
-				// Convert percentages to screen pixels
-				let screenX1 = (pos1X / 100) * view.screenSize.x;
-				let screenY1 = view.screenSize.y - (pos1Y / 100) * view.screenSize.y;
-				let screenX2 = (pos2X / 100) * view.screenSize.x;
-				let screenY2 = view.screenSize.y - (pos2Y / 100) * view.screenSize.y;
-				
-				this.highLight(ctx);
+			this.highLight(ctx);
+			ctx.beginPath();
+			ctx.moveTo(screenPos1.x, screenPos1.y);
+			ctx.lineTo(screenPos2.x, screenPos2.y);
+			ctx.stroke();
+			
+			// Only show debug text for world coordinates to avoid clutter
+			if ((graphicDebugLevel >= 10) && tensorCoordSys.name === 'world') {
 				ctx.beginPath();
-				ctx.moveTo(screenX1, screenY1);
-				ctx.lineTo(screenX2, screenY2);
-				ctx.stroke();
-				return; // Don't render as world coordinate
+				ctx.fillStyle = 'cyan';
+				ctx.font = '20px Arial';
+				ctx.textAlign = 'left';
+				let textPos = Vector.addVectors(node1.getPosition(), Vector.divideVector(this.getActual(), 2));
+				view.drawText(textPos, Math.trunc(10 * this.getLength()) / 10);
 			}
+			return;
 		}
 		
 		if ( ( ((graphicDebugLevel >= 4) || graphicDebugLevel==2)) ||

@@ -1,47 +1,41 @@
 import { timelog } from '../Primitives.js';
 
 /**
+ * Position the HTML banner element by transforming it to match four corner nodes.
  * @param  {TrussNode} truss
- * @param  {Object} obj
- * @param  {Position} ar Upper left
- * @param  {Position} br Upper right
- * @param  {Position} cr Lower left
- * @param  {Position} dr Lower right
- * @param  {Position} width The elements original width
- * @param  {Position} height The elements original height
+ * @param  {Object} obj - The BannerNode with element property
+ * @param  {Node} nodeA - Upper left corner node
+ * @param  {Node} nodeB - Upper right corner node
+ * @param  {Node} nodeC - Lower left corner node (top in display coords)
+ * @param  {Node} nodeD - Lower right corner node (top in display coords)
+ * @param  {number} width The elements original width
+ * @param  {number} height The elements original height
+ * 
+ * CRITICAL: Uses each node's coordinate system to convert to screen pixels.
+ * - Display nodes: positions converted directly (no zoom/pan applied)
+ * - World nodes: positions converted with zoom/pan applied
  */
-function warpMatrix(truss, obj, ar, br, cr, dr, width, height) {
+function warpMatrix(truss, obj, nodeA, nodeB, nodeC, nodeD, width, height) {
 	// restoreMatrix(element);
 	// return;
 	let element = obj.element;
 	timelog('inside warpMatrix', 1);
 	
-	// Check if this object has displaycoordinates label OR is a BannerNode - if so, don't apply zoom/pan transform
-	let isDisplayCoordinates = false;
-	if (obj.labels && Array.isArray(obj.labels)) {
-		isDisplayCoordinates = obj.labels.some(label => label.name === 'displaycoordinates');
-	}
-	// BannerNode uses display coordinates (fixed on screen regardless of zoom/pan)
-	if (obj.name === 'bannerNode') {
-		isDisplayCoordinates = true;
-	}
+	// Convert each node's position to screen pixels using its coordinate system
+	// This ensures display nodes stay fixed on screen, world nodes move with zoom/pan
+	const getScreenPos = (node) => {
+		if (node.coordinateSystem) {
+			return node.coordinateSystem.convertToScreenPixels(node);
+		} else {
+			// Fallback for nodes without coordinate system (shouldn't happen)
+			return truss.view.screenPosition(node.getPosition());
+		}
+	};
 	
-	// For display coordinates, use positions as-is (already in screen space)
-	// For world coordinates, apply view transformation
-	let a, b, c, d;
-	if (isDisplayCoordinates) {
-		// Positions are already in screen coordinates, use directly
-		a = ar;
-		b = br;
-		c = cr;
-		d = dr;
-	} else {
-		// Apply view transformation for world coordinates
-		a = truss.view.screenPosition(ar);
-		b = truss.view.screenPosition(br);
-		c = truss.view.screenPosition(cr);
-		d = truss.view.screenPosition(dr);
-	}
+	let a = getScreenPos(nodeA);
+	let b = getScreenPos(nodeB);
+	let c = getScreenPos(nodeC);
+	let d = getScreenPos(nodeD);
 
 	// Always use the live DOM size of the warped element.
 	// The property panel content can change its effective size after creation.
