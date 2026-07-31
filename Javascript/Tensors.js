@@ -211,22 +211,36 @@ class Tensor extends StoreableObject {
 	 * @private
 	 */
 	_checkCoordinateSystemMismatch(node, nodeName) {
-		if (!node || !node.coordinateSystem) {
+		if (!node) {
+			return;
+		}
+
+		// Get the coordinate system (forces lazy initialization)
+		const nodeCoordSys = node.coordinateSystem;
+		if (!nodeCoordSys) {
+			console.warn(`⚠️  Failed to get coordinate system for ${nodeName} (${node.name})`);
 			return;
 		}
 
 		// Check if this tensor already has a node connected
 		const otherNode = nodeName === 'node1' ? this._node2 : this._node1;
-		if (!otherNode || !otherNode.coordinateSystem) {
+		if (!otherNode) {
+			return;  // Other node not set yet, can't check for mismatch
+		}
+
+		// Get the other node's coordinate system
+		const otherCoordSys = otherNode.coordinateSystem;
+		if (!otherCoordSys) {
+			console.warn(`⚠️  Failed to get coordinate system for other node (${otherNode.name})`);
 			return;
 		}
 
-		const newCoordSystem = node.coordinateSystem.name;
-		const otherCoordSystem = otherNode.coordinateSystem.name;
+		const newCoordSystem = nodeCoordSys.name;
+		const otherCoordSystem = otherCoordSys.name;
 
 		if (newCoordSystem !== otherCoordSystem) {
 			console.warn(
-				`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.getName ? this.getName() : 'unnamed'}`,
+				`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.name || 'unnamed'}`,
 				`\n  ${nodeName} (${node.name}): ${newCoordSystem}`,
 				`\n  ${nodeName === 'node1' ? 'node2' : 'node1'} (${otherNode.name}): ${otherCoordSystem}`,
 				`\n  Tensor=${this.name}, Distance calculations may be incorrect`,
