@@ -131,49 +131,49 @@ class BannerNode extends Node {
 			]
 		});
 
-		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
+		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner displaycoordinates', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 5000,
 			'visible': 1,
 		});
 
-		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
+		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner displaycoordinates', {
 			'equilibriumLength': 6,
 			'dampeningConstant': 10,
 			'constant': 5000,
 			'visible': 1,
 		});
 
-		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
+		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner displaycoordinates', {
 			'equilibriumLength': 18,
 			'dampeningConstant': 10,
 			'constant': 3000,
 		});
 
 
-		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
+		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner displaycoordinates', {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 600,
 			'color': 'transparent',
 		});
 
-		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
+		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner displaycoordinates', {
 			'equilibriumLength': 8,
 			'dampeningConstant': 10,
 			'constant': 600,
 			'color': 'transparent',
 		});
 
-		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
+		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner displaycoordinates', {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
 			'color': 'transparent',
 		});
 
-		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
+		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner displaycoordinates', {
 			'equilibriumLength': 0,
 			'dampeningConstant': 10,
 			'constant': 0.1,
