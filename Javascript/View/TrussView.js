@@ -43,8 +43,8 @@ class View {
 			y = element.clientHeight || element.offsetHeight;
 		}
 		this.screenSize = new AlertVector(new Vector(x, y), function(v) {
-			element.offsetWidth = v.x;
-			element.offsetHeight = v.y;
+			// Don't try to set offsetWidth/offsetHeight - they're read-only
+			// Canvas resizing is now handled by ResizeObserver
 			_this.recalculate();
 		});
 		if (worldViewSize) {
