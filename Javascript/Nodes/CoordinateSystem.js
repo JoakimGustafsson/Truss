@@ -11,6 +11,20 @@ import { Vector } from '../Primitives.js';
  * - Converting positions to screen pixels for rendering
  * - Calculating distances within the coordinate space
  * - Applying or skipping view transforms
+ * 
+ * ZOOM & PAN FACTORS:
+ * - zoomFactor (0-1): How much this coordinate system is affected by view zoom
+ *   * 0 = never zooms (display coordinates)
+ *   * 1 = fully zooms (world coordinates)
+ *   * 0.5 = half-zoom effect (useful for UI elements that should zoom slower than world)
+ * 
+ * - panFactor (0-1): How much this coordinate system is affected by view pan
+ *   * 0 = never pans (display coordinates, fixed on screen)
+ *   * 1 = fully pans (world coordinates)
+ *   * 0.5 = half-pan effect (useful for parallax or semi-fixed elements)
+ * 
+ * This design allows creating intermediate coordinate systems that respond partially to zoom/pan,
+ * useful for creating visual effects like parallax scrolling or semi-fixed UI elements.
  */
 
 class CoordinateSystem {
@@ -19,12 +33,16 @@ class CoordinateSystem {
 	 * @param {Function} convertToScreenPixels - Function(node) => Vector in screen pixels
 	 * @param {Function} calculateDistance - Function(pos1, pos2) => number in this coordinate space
 	 * @param {Function} applyViewTransform - Function(screenPos) => transformed screen position
+	 * @param {number} zoomFactor - 0=no zoom, 1=full zoom, 0.5=half zoom (for intermediate systems)
+	 * @param {number} panFactor - 0=no pan, 1=full pan, 0.5=half pan (for intermediate systems)
 	 */
-	constructor(name, convertToScreenPixels, calculateDistance, applyViewTransform) {
+	constructor(name, convertToScreenPixels, calculateDistance, applyViewTransform, zoomFactor = 1, panFactor = 1) {
 		this.name = name;
 		this._convertToScreenPixels = convertToScreenPixels;
 		this._calculateDistance = calculateDistance;
 		this._applyViewTransform = applyViewTransform;
+		this.zoomFactor = zoomFactor;  // How much this system is affected by zoom (0-1)
+		this.panFactor = panFactor;    // How much this system is affected by pan (0-1)
 	}
 
 	/**
@@ -66,6 +84,8 @@ class CoordinateSystem {
  * - node.localPosition stored in world units
  * - Distances measured in world units
  * - View transforms (zoom/pan) are applied for rendering
+ * - zoomFactor=1: FULLY affected by zoom
+ * - panFactor=1: FULLY affected by pan
  */
 function createWorldCoordinateSystem(trussView) {
 	return new CoordinateSystem(
@@ -104,7 +124,10 @@ function createWorldCoordinateSystem(trussView) {
 		// applyViewTransform: Already applied in screenPosition, so identity here
 		function(screenPosition, view) {
 			return screenPosition;
-		}
+		},
+		
+		1,  // zoomFactor: 1 = fully affected by zoom
+		1   // panFactor: 1 = fully affected by pan
 	);
 }
 
@@ -113,6 +136,8 @@ function createWorldCoordinateSystem(trussView) {
  * - node.localPosition stored in percentages (0-100% of screen)
  * - Distances measured in percentage units
  * - View transforms (zoom/pan) are NOT applied
+ * - zoomFactor=0: NOT affected by zoom
+ * - panFactor=0: NOT affected by pan
  */
 function createDisplayCoordinateSystem(trussView) {
 	return new CoordinateSystem(
@@ -161,7 +186,10 @@ function createDisplayCoordinateSystem(trussView) {
 		// applyViewTransform: No transform for display coordinates (already in screen space)
 		function(screenPosition, view) {
 			return screenPosition;
-		}
+		},
+		
+		0,  // zoomFactor: 0 = NOT affected by zoom
+		0   // panFactor: 0 = NOT affected by pan
 	);
 }
 
