@@ -649,7 +649,13 @@ class Tensor extends StoreableObject {
 	};
 
 	/**
-	 * Returns the vertical difference between the nodes
+	 * Returns the horizontal difference between the nodes
+	 * 
+	 * IMPORTANT: Uses the coordinate system of the connected nodes.
+	 * Both nodes MUST be in the same coordinate system (verified by _checkCoordinateSystemMismatch).
+	 * - If both nodes are world coordinates: difference is in world units
+	 * - If both nodes are display coordinates: difference is in percentages (0-100%)
+	 * 
 	 * @return {number}
 	 */
 	getXDifference() {
@@ -668,7 +674,13 @@ class Tensor extends StoreableObject {
 	};
 
 	/**
-	 * Returns the horizontal difference between the nodes
+	 * Returns the vertical difference between the nodes
+	 * 
+	 * IMPORTANT: Uses the coordinate system of the connected nodes.
+	 * Both nodes MUST be in the same coordinate system (verified by _checkCoordinateSystemMismatch).
+	 * - If both nodes are world coordinates: difference is in world units
+	 * - If both nodes are display coordinates: difference is in percentages (0-100%)
+	 * 
 	 * @return {number}
 	 */
 	getYDifference() {
@@ -690,12 +702,26 @@ class Tensor extends StoreableObject {
 	 * Returns the distance between the nodes
 	 * @return {number}
 	 */
+	/**
+	 * Returns the distance between the nodes in their coordinate system
+	 * 
+	 * Units depend on connected nodes' coordinate system:
+	 * - World nodes: distance in world units
+	 * - Display nodes: distance in percentages (0-100%)
+	 * 
+	 * @return {number}
+	 */
 	getLength() {
 		return Math.sqrt(this.getLengthSquare());
 	};
 
 	/**
-	 * Returns the Vector representation of the Tensor.
+	 * Returns the Vector representation of the Tensor (position difference)
+	 * 
+	 * Components depend on connected nodes' coordinate system:
+	 * - World nodes: vector in world units
+	 * - Display nodes: vector in percentages (0-100%)
+	 * 
 	 * @return {Vector}
 	 */
 	getActual() {
@@ -704,7 +730,12 @@ class Tensor extends StoreableObject {
 
 	/**
 	 * Returns the squared length of the tensor. Used for efficiency reasons in some cases instead of getLength().
-	 * @return {number} The squared length.
+	 * 
+	 * Square of distance in nodes' coordinate system:
+	 * - World nodes: squared distance in world units²
+	 * - Display nodes: squared distance in percentages²
+	 * 
+	 * @return {number}
 	 */
 	getLengthSquare() {
 		return Math.pow(this.getXDifference(), 2) + Math.pow(this.getYDifference(), 2);
