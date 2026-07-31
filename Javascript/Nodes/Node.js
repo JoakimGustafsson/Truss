@@ -119,14 +119,18 @@ class Node extends StoreableObject {
 					const isDisplay = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
 					if (isDisplay && this.parentTrussNode && this.parentTrussNode.view) {
 						this._coordinateSystem = createDisplayCoordinateSystem(this.parentTrussNode.view);
-						if (this.name && this.name.includes('nail')) {
-							console.log(`✓ Node "${this.name}" initialized with DISPLAY coordinate system (zoomFactor: ${this._coordinateSystem.zoomFactor}, panFactor: ${this._coordinateSystem.panFactor})`);
+						console.log(`✓ Node "${this.name}" (${this.constructor.name}) initialized with DISPLAY coordinate system`);
+						if (this.name === 'nail') {
+							console.log(`  Labels:`, this.labels.map(l => l.name));
+							console.log(`  Zoom Factor: ${this._coordinateSystem.zoomFactor}, Pan Factor: ${this._coordinateSystem.panFactor}`);
 						}
 					} else if (this.parentTrussNode && this.parentTrussNode.view) {
 						// Default to world coordinate system
 						this._coordinateSystem = createWorldCoordinateSystem(this.parentTrussNode.view);
-						if (this.name && this.name.includes('nail')) {
-							console.log(`✗ Node "${this.name}" initialized with WORLD coordinate system (should be DISPLAY!)`);
+						if (this.name === 'nail') {
+							console.log(`✗ Node "${this.name}" (${this.constructor.name}) initialized with WORLD coordinate system (SHOULD BE DISPLAY!)`);
+							console.log(`  Labels:`, this.labels ? this.labels.map(l => l.name) : 'NO LABELS');
+							console.log(`  Zoom Factor: ${this._coordinateSystem.zoomFactor}, Pan Factor: ${this._coordinateSystem.panFactor}`);
 						}
 					}
 				}
