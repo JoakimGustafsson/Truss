@@ -71,64 +71,46 @@ class BannerNode extends Node {
 		// Distance in percentages: (6.371e13 cm / 40 cm) * 100 = 1.59e16 %
 		const EARTH_GRAVITY_WELL_Y = -1.59e16; // Far below, at Earth's center distance
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner localcoordinates display', {
 			'localPosition': new Position(centerPercentX, centerPercentY),
 			'name': 'nail',
 			'mass': NaN,
 			'velocityLoss': 1.0,
-			'labels': [
-				{'name': 'displaycoordinates'},
-			]
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable localcoordinates display', {
 			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'labels': [
-				{'name': 'displaycoordinates'},
-			]
 		});
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable localcoordinates display', {
 			'localPosition': new Position(topRightPercentX, topLeftPercentY),
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'labels': [
-				{'name': 'displaycoordinates'},
-			]
 		});
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner localcoordinates display', {
 			'localPosition': new Position(centerPercentX, EARTH_GRAVITY_WELL_Y),
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,
 			'velocityLoss': 1.0,
-			'labels': [
-				{'name': 'displaycoordinates'},
-			]
 		});
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable localcoordinates display', {
 			'localPosition': new Position(topLeftPercentX, bottomPercentY),
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'labels': [
-				{'name': 'displaycoordinates'},
-			]
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable banner localcoordinates display', {
 			'localPosition': new Position(topRightPercentX, bottomPercentY),
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'labels': [
-				{'name': 'displaycoordinates'},
-			]
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {

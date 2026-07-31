@@ -112,26 +112,23 @@ class Node extends StoreableObject {
 		});
 
 		// Coordinate system property - determines rendering and physics behavior
+		// Detection based on labels: nodes with 'localcoordinates' + specific coordinate system labels
+		// Position is stored in localPosition and interpreted according to the coordinate system
 		Object.defineProperty(this, 'coordinateSystem', {
 			get: function() {
 				if (!this._coordinateSystem) {
-					// Lazy initialization based on whether node has 'displaycoordinates' label
-					const isDisplay = this.labels && this.labels.some(label => label.name === 'displaycoordinates');
+					// Determine coordinate system from labels
+					// Check for coordinate system labels: 'world' or 'display'
+					const hasWorldLabel = this.labels && this.labels.some(label => label.name === 'world');
+					const hasDisplayLabel = this.labels && this.labels.some(label => label.name === 'display');
+					
+					const isDisplay = hasDisplayLabel;  // Explicit 'display' label
+					
 					if (isDisplay && this.parentTrussNode && this.parentTrussNode.view) {
 						this._coordinateSystem = createDisplayCoordinateSystem(this.parentTrussNode.view);
-						console.log(`✓ Node "${this.name}" (${this.constructor.name}) initialized with DISPLAY coordinate system`);
-						if (this.name === 'nail') {
-							console.log(`  Labels:`, this.labels.map(l => l.name));
-							console.log(`  Zoom Factor: ${this._coordinateSystem.zoomFactor}, Pan Factor: ${this._coordinateSystem.panFactor}`);
-						}
 					} else if (this.parentTrussNode && this.parentTrussNode.view) {
-						// Default to world coordinate system
+						// Default to world coordinate system (explicit 'world' label or no label)
 						this._coordinateSystem = createWorldCoordinateSystem(this.parentTrussNode.view);
-						if (this.name === 'nail') {
-							console.log(`✗ Node "${this.name}" (${this.constructor.name}) initialized with WORLD coordinate system (SHOULD BE DISPLAY!)`);
-							console.log(`  Labels:`, this.labels ? this.labels.map(l => l.name) : 'NO LABELS');
-							console.log(`  Zoom Factor: ${this._coordinateSystem.zoomFactor}, Pan Factor: ${this._coordinateSystem.panFactor}`);
-						}
 					}
 				}
 				return this._coordinateSystem;

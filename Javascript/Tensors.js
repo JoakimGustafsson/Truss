@@ -234,9 +234,10 @@ class Tensor extends StoreableObject {
 	 * Log a warning if coordinate systems mismatch.
 	 * 
 	 * Coordinate system rules:
-	 * - No label = world coordinate system (default)
-	 * - 'displaycoordinates' label = display coordinate system
+	 * - No 'display' label = world coordinate system (default)
+	 * - 'display' label = display coordinate system
 	 * - Tensors should connect nodes in the SAME coordinate system
+	 * - All nodes should have 'localcoordinates' label to mark they use localPosition
 	 * 
 	 * @param {Node} node - The node being connected
 	 * @param {string} nodeName - "node1" or "node2" for logging
@@ -854,8 +855,9 @@ class Tensor extends StoreableObject {
 		}
 
 		// Handle display coordinate rendering
-		let node1IsDisplay = node1.labels && node1.labels.some(label => label.name === 'displaycoordinates');
-		let node2IsDisplay = node2.labels && node2.labels.some(label => label.name === 'displaycoordinates');
+		// Nodes with 'display' label are in display coordinate system
+		let node1IsDisplay = node1.labels && node1.labels.some(label => label.name === 'display');
+		let node2IsDisplay = node2.labels && node2.labels.some(label => label.name === 'display');
 		
 		if (node1IsDisplay && node2IsDisplay) {
 			// Both nodes in display coordinates - render directly to screen
