@@ -240,10 +240,10 @@ class BannerNode extends Node {
 		if (graphicDebugLevel > 0) {
 			if (this.element && this.leftTopNode && this.rightTopNode && this.leftBottomNode && this.rightBottomNode) {
 				warpMatrix(truss, this,
-					this.leftTopNode.getPosition(),
-					this.rightTopNode.getPosition(),
-					this.leftBottomNode.getPosition(),
-					this.rightBottomNode.getPosition(),
+					this.leftTopNode,
+					this.rightTopNode,
+					this.leftBottomNode,
+					this.rightBottomNode,
 					this.width,
 					this.height);
 			}
