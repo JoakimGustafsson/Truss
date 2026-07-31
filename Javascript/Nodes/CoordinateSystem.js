@@ -32,14 +32,16 @@ class CoordinateSystem {
 	 * @param {string} name - "world" or "display"
 	 * @param {Function} convertToScreenPixels - Function(node) => Vector in screen pixels
 	 * @param {Function} calculateDistance - Function(pos1, pos2) => number in this coordinate space
+	 * @param {Function} calculateDistanceSquared - Function(pos1, pos2) => squared distance (for efficiency)
 	 * @param {Function} applyViewTransform - Function(screenPos) => transformed screen position
 	 * @param {number} zoomFactor - 0=no zoom, 1=full zoom, 0.5=half zoom (for intermediate systems)
 	 * @param {number} panFactor - 0=no pan, 1=full pan, 0.5=half pan (for intermediate systems)
 	 */
-	constructor(name, convertToScreenPixels, calculateDistance, applyViewTransform, zoomFactor = 1, panFactor = 1) {
+	constructor(name, convertToScreenPixels, calculateDistance, calculateDistanceSquared, applyViewTransform, zoomFactor = 1, panFactor = 1) {
 		this.name = name;
 		this._convertToScreenPixels = convertToScreenPixels;
 		this._calculateDistance = calculateDistance;
+		this._calculateDistanceSquared = calculateDistanceSquared;
 		this._applyViewTransform = applyViewTransform;
 		this.zoomFactor = zoomFactor;  // How much this system is affected by zoom (0-1)
 		this.panFactor = panFactor;    // How much this system is affected by pan (0-1)
@@ -62,6 +64,17 @@ class CoordinateSystem {
 	 */
 	calculateDistance(pos1, pos2) {
 		return this._calculateDistance(pos1, pos2);
+	}
+
+	/**
+	 * Calculate squared distance between two positions in this coordinate space
+	 * More efficient than calculateDistance for Cartesian systems when only comparison is needed
+	 * @param {Vector|Object} pos1 - First position (or node)
+	 * @param {Vector|Object} pos2 - Second position (or node)
+	 * @returns {number} Squared distance in this coordinate space's units²
+	 */
+	calculateDistanceSquared(pos1, pos2) {
+		return this._calculateDistanceSquared(pos1, pos2);
 	}
 
 	/**
@@ -119,6 +132,28 @@ function createWorldCoordinateSystem(trussView) {
 				Math.pow(p1_val.x - p2_val.x, 2) + 
 				Math.pow(p1_val.y - p2_val.y, 2)
 			);
+		},
+		
+		// calculateDistanceSquared: Squared Euclidean distance in world units² (for efficiency)
+		function(pos1, pos2) {
+			let p1 = pos1;
+			let p2 = pos2;
+			
+			// Handle node objects
+			if (pos1 && typeof pos1 === 'object' && pos1.localPosition !== undefined) {
+				p1 = pos1.localPosition;
+			}
+			if (pos2 && typeof pos2 === 'object' && pos2.localPosition !== undefined) {
+				p2 = pos2.localPosition;
+			}
+			
+			if (!p1 || !p2) return Infinity;
+			
+			const p1_val = p1.v ? p1.v : p1;
+			const p2_val = p2.v ? p2.v : p2;
+			
+			return Math.pow(p1_val.x - p2_val.x, 2) + 
+				   Math.pow(p1_val.y - p2_val.y, 2);
 		},
 		
 		// applyViewTransform: Already applied in screenPosition, so identity here
@@ -181,6 +216,28 @@ function createDisplayCoordinateSystem(trussView) {
 				Math.pow(p1_val.x - p2_val.x, 2) + 
 				Math.pow(p1_val.y - p2_val.y, 2)
 			);
+		},
+		
+		// calculateDistanceSquared: Squared Euclidean distance in percentage units² (for efficiency)
+		function(pos1, pos2) {
+			let p1 = pos1;
+			let p2 = pos2;
+			
+			// Handle node objects
+			if (pos1 && typeof pos1 === 'object' && pos1.localPosition !== undefined) {
+				p1 = pos1.localPosition;
+			}
+			if (pos2 && typeof pos2 === 'object' && pos2.localPosition !== undefined) {
+				p2 = pos2.localPosition;
+			}
+			
+			if (!p1 || !p2) return Infinity;
+			
+			const p1_val = p1.v ? p1.v : p1;
+			const p2_val = p2.v ? p2.v : p2;
+			
+			return Math.pow(p1_val.x - p2_val.x, 2) + 
+				   Math.pow(p1_val.y - p2_val.y, 2);
 		},
 		
 		// applyViewTransform: No transform for display coordinates (already in screen space)

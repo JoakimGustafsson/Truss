@@ -755,7 +755,10 @@ class Tensor extends StoreableObject {
 	 * @return {number}
 	 */
 	getLength() {
-		return Math.sqrt(this.getLengthSquare());
+		if (!this.coordinateSystem) {
+			return 0;
+		}
+		return this.coordinateSystem.calculateDistance(this.node1, this.node2);
 	};
 
 	/**
@@ -774,14 +777,19 @@ class Tensor extends StoreableObject {
 	/**
 	 * Returns the squared length of the tensor. Used for efficiency reasons in some cases instead of getLength().
 	 * 
-	 * Square of distance in nodes' coordinate system:
+	 * Uses the coordinate system's calculateDistanceSquared method for accurate distance in the appropriate coordinate space:
 	 * - World nodes: squared distance in world units²
 	 * - Display nodes: squared distance in percentages²
+	 * 
+	 * This is more efficient than getLength() when only comparing distances.
 	 * 
 	 * @return {number}
 	 */
 	getLengthSquare() {
-		return Math.pow(this.getXDifference(), 2) + Math.pow(this.getYDifference(), 2);
+		if (!this.coordinateSystem) {
+			return 0;
+		}
+		return this.coordinateSystem.calculateDistanceSquared(this.node1, this.node2);
 	};
 
 	/**
