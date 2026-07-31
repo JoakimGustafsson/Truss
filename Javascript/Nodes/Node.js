@@ -113,6 +113,7 @@ class Node extends StoreableObject {
 		// Coordinate system property - determines rendering and physics behavior
 		// - If explicitly set via coordinateSystem property in valueObject, returns that reference
 		// - If not set, defaults to the world coordinate system from the view
+		// - Displays the coordinate system name for non-world systems
 		// - localPosition is agnostic of coordinate system - the coordinate system interprets it
 		Object.defineProperty(this, 'coordinateSystem', {
 			get: function() {
@@ -132,6 +133,23 @@ class Node extends StoreableObject {
 			},
 			set: function(value) {
 				this._coordinateSystem = value;
+			},
+			enumerable: true,  // Make visible in property listings
+		});
+		
+		// coordinateSystemName property - displays the name of the coordinate system
+		// Only shows for non-world systems, for clarity
+		Object.defineProperty(this, 'coordinateSystemName', {
+			get: function() {
+				const coordSys = this.coordinateSystem;
+				if (!coordSys) {
+					return 'unknown';
+				}
+				// Only return the name if it's NOT the default world system
+				if (coordSys.name && coordSys.name !== 'world') {
+					return coordSys.name;
+				}
+				return undefined;  // Don't show property if it's the default world
 			},
 			enumerable: true,  // Make visible in property listings
 		});
