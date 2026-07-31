@@ -71,52 +71,55 @@ class BannerNode extends Node {
 		// Distance in percentages: (6.371e13 cm / 40 cm) * 100 = 1.59e16 %
 		const EARTH_GRAVITY_WELL_Y = -1.59e16; // Far below, at Earth's center distance
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
+		// Get the pre-created display coordinate system from the view
+		const displayCoordinateSystem = truss.view.displayCoordinateSystem;
+
+		this.nail = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': new Position(centerPercentX, centerPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'nail',
 			'mass': NaN,
 			'velocityLoss': 1.0,
-			'coordinatesystem': 'display',
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
 		});
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topRightPercentX, topLeftPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightTop',
 			'mass': 1,
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
 		});
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner coordinatesystem', {
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'node banner', {
 			'localPosition': new Position(centerPercentX, EARTH_GRAVITY_WELL_Y),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'bannerGravityWell',
 			'mass': 5.972e24,
 			'velocityLoss': 1.0,
-			'coordinatesystem': 'display',
 		});
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topLeftPercentX, bottomPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable coordinatesystem', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'node banner moveable', {
 			'localPosition': new Position(topRightPercentX, bottomPercentY),
+			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightBottomNode',
 			'mass': 3,
 			'color': 'transparent',
 			'velocityLoss': 0.9,
-			'coordinatesystem': 'display',
 		});
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
