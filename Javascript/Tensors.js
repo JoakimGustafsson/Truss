@@ -79,6 +79,7 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node1 = value;
+				this._checkCoordinateSystemMismatch(value, 'node1');
 				// this.angle1 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
 			},
@@ -96,9 +97,39 @@ class Tensor extends StoreableObject {
 					return;
 				}
 				this._node2 = value;
+				this._checkCoordinateSystemMismatch(value, 'node2');
 				// this.angle2 = angleSubstract(this.getTensorAngle(value), value.getAngle());
 				value.addTensor(this);
 			},
+		});
+
+		// Coordinate system property - forward to connected node's coordinate system
+		Object.defineProperty(this, 'coordinateSystem', {
+			get: function() {
+				// Forward coordinate system query to the first connected node
+				// The tensor's coordinate system is determined by its nodes
+				if (this.node1) {
+					// Check for coordinate system mismatch on first access
+					if (this.node2 && this.node2.coordinateSystem) {
+						if (this.node2.coordinateSystem.name !== this.node1.coordinateSystem.name) {
+							console.warn(
+								`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.name || 'unnamed'}`,
+								`\n  node1 (${this.node1.name}): ${this.node1.coordinateSystem.name}`,
+								`\n  node2 (${this.node2.name}): ${this.node2.coordinateSystem.name}`,
+								`\n  Tensor=${this.name}, Distance calculations may be incorrect`,
+								`\n  Consider connecting nodes in the same coordinate system`
+							);
+						}
+					}
+					// Return reference to node1's coordinate system
+					return this.node1.coordinateSystem;
+				} else if (this.node2) {
+					// Return reference to node2's coordinate system if node1 not available
+					return this.node2.coordinateSystem;
+				}
+				// Fallback: should not happen if tensor is properly connected
+				return null;
+			}
 		});
 
 		this.node1 = node1;
@@ -192,6 +223,48 @@ class Tensor extends StoreableObject {
 		}
 		if (this.attachFunction) {
 			document.removeEventListener('selectionEvent', this.attachFunction);
+		}
+	}
+
+	/**
+	 * Check if a node's coordinate system is compatible with the tensor's connected nodes.
+	 * Log a warning if coordinate systems mismatch.
+	 * 
+	 * Coordinate system rules:
+	 * - No 'display' label = world coordinate system (default)
+	 * - 'display' label = display coordinate system
+	 * - Tensors should connect nodes in the SAME coordinate system
+	 * - All nodes should have 'localcoordinates' label to mark they use localPosition
+	 * 
+	 * @param {Node} node - The node being connected
+	 * @param {string} nodeName - "node1" or "node2" for logging
+	 * @private
+	 */
+	_checkCoordinateSystemMismatch(node, nodeName) {
+		if (!node) {
+			return;
+		}
+
+		// Get the coordinate system (forces lazy initialization)
+		const nodeCoordSys = node.coordinateSystem;
+		if (!nodeCoordSys) {
+			console.warn(`⚠️  Failed to get coordinate system for ${nodeName} (${node.name})`);
+			return;
+		}
+
+		// If we have both nodes connected, check if they match
+		const otherNode = nodeName === 'node1' ? this._node2 : this._node1;
+		if (otherNode) {
+			const otherCoordSys = otherNode.coordinateSystem;
+			if (otherCoordSys && nodeCoordSys.name !== otherCoordSys.name) {
+				console.warn(
+					`⚠️  COORDINATE SYSTEM MISMATCH in Tensor: ${this.name || 'unnamed'}`,
+					`\n  node1 (${this._node1?.name}): ${this._node1?.coordinateSystem?.name}`,
+					`\n  node2 (${this._node2?.name}): ${this._node2?.coordinateSystem?.name}`,
+					`\n  Tensor may produce incorrect results`,
+					`\n  Consider connecting nodes in the same coordinate system`
+				);
+			}
 		}
 	}
 
