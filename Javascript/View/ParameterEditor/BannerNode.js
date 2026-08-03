@@ -76,12 +76,11 @@ class BannerNode extends Node {
 		// Get the pre-created display coordinate system from the view
 		const displayCoordinateSystem = truss.view.displayCoordinateSystem;
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
+		this.nail = new Node(this.world, this.parentTrussNode, 'banner node moveable plane anchor', {
 			'localPosition': new Position(centerPercentX, centerPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'nail',
 			'mass': NaN,
-			'velocityLoss': 1.0,
 			'plane': 'display',
 		});
 

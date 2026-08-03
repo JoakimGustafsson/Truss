@@ -209,6 +209,12 @@ class Labels {
 			// Nodes with this label should not be affected by gravity fields
 			// Used for UI elements like banner top nodes that are anchored or controlled by springs
 		});
+		let anchorLabel = this.addLabel('anchor', [nodeLabel], {
+			'velocityLossProperty': 1.0,
+			// Nodes with this label are pinned/anchored in place
+			// Velocity is zeroed each frame (velocityLoss = 1.0 means all velocity is retained, then zeroed)
+			// Still draggable in editor but won't move from physics forces
+		});
 		let planeLabel = this.addLabel('plane', [], {
 			'planeProperty': 'world',
 			// Plane for node or tensor: 'world', 'display', or 'admin'
