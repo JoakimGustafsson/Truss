@@ -537,6 +537,13 @@ class Selector extends SensorNode {
 		}
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
 		
+		// Update Selector node's position to follow mouse in display plane coordinates
+		const screenWidth = trussNode.view.screenSize.x;
+		const screenHeight = trussNode.view.screenSize.y;
+		const displayPercX = (myX / screenWidth) * 100;
+		const displayPercY = (1 - (myY / screenHeight)) * 100;
+		this.localPosition = new Position(displayPercX, displayPercY);
+		
 		let closest = trussNode.getClosestObject(this.cursorPosition);
 
 		if (!mouseSet && !universe.newNode) {

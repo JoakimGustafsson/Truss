@@ -772,7 +772,13 @@ class TrussNode extends Node {
 				
 				// Draw white circle at display node position
 				ctx.fillStyle = 'white';
-				ctx.strokeStyle = 'yellow';
+				
+				// Use different color for Selector vs other display nodes
+				if (node.name === 'Selector') {
+					ctx.strokeStyle = 'magenta';  // Magenta outline for Selector
+				} else {
+					ctx.strokeStyle = 'yellow';   // Yellow outline for other display nodes
+				}
 				ctx.lineWidth = 2;
 				ctx.beginPath();
 				ctx.arc(screenX, screenY, 15, 0, Math.PI * 2);
