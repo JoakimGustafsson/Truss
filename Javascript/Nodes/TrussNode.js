@@ -774,33 +774,6 @@ class TrussNode extends Node {
 				ctx.font = '12px Arial';
 				ctx.fillText(node.name, screenX + 20, screenY - 10);
 			}
-		}
-		
-		// Display distance to nail if it exists
-		if (nailNode && nailNode.localPosition) {
-			// Convert nail display percentages to screen pixels only for drawing
-			const nailScreenX = (nailNode.localPosition.x / 100) * screenWidth;
-			const nailScreenY = screenHeight - (nailNode.localPosition.y / 100) * screenHeight;
-			
-			// Calculate distance using display percentages (already stored globally)
-			const dx = displayMousePercentX - nailNode.localPosition.x;
-			const dy = displayMousePercentY - nailNode.localPosition.y;
-			const distance = Math.sqrt(dx * dx + dy * dy);
-			
-			ctx.fillStyle = 'red';
-			ctx.font = 'bold 16px Arial';
-			ctx.fillText(`Distance to nail: ${distance.toFixed(2)}%`, nailScreenX - 100, nailScreenY + 50);
-			
-			// Draw line from mouse to nail
-			ctx.strokeStyle = 'red';
-			ctx.lineWidth = 2;
-			ctx.setLineDash([5, 5]);
-			ctx.beginPath();
-			ctx.moveTo(mouseScreenX, mouseScreenY);
-			ctx.lineTo(nailScreenX, nailScreenY);
-			ctx.stroke();
-			ctx.setLineDash([]);
-		}
 	}
 }
 
