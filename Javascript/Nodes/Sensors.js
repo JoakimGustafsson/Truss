@@ -538,10 +538,16 @@ class Selector extends SensorNode {
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
 		
 		// Update Selector node's position to follow mouse in display plane coordinates
+		// Convert screen coordinates to canvas-relative coordinates
+		const canvasContainer = document.getElementById('TrussBackground') || trussNode.element;
+		const containerRect = canvasContainer.getBoundingClientRect();
+		const canvasX = myX - containerRect.left;
+		const canvasY = myY - containerRect.top;
+		
 		const screenWidth = trussNode.view.screenSize.x;
 		const screenHeight = trussNode.view.screenSize.y;
-		const displayPercX = (myX / screenWidth) * 100;
-		const displayPercY = (1 - (myY / screenHeight)) * 100;
+		const displayPercX = (canvasX / screenWidth) * 100;
+		const displayPercY = (1 - (canvasY / screenHeight)) * 100;
 		this.localPosition = new Position(displayPercX, displayPercY);
 		
 		let closest = trussNode.getClosestObject(this.cursorPosition);
