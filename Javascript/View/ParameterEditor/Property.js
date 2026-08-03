@@ -167,6 +167,7 @@ class PropertyList {
 		}
 		if (propertyName == 'mass' || propertyName == 'constant' ||
 			propertyName == 'dampeningConstant' || propertyName == 'velocityLoss' ||
+			propertyName == 'angleVelocityLoss' ||
 			propertyName == 'equilibriumLength' || propertyName == 'torqueConstant') {
 			return { key: 'physics', title: 'Physics' };
 		}

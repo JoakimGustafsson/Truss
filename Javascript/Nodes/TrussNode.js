@@ -1,9 +1,10 @@
 import { Node } from './Node.js';
 import { View } from '../View/TrussView.js';
 import { PropertyEditor } from '../View/ParameterEditor/PropertyEditor.js';
-import { FPSdisplay, universe, displayMousePercentX, displayMousePercentY } from '../globals.js';
+import { FPSdisplay, universe } from '../globals.js';
 import { Position, Vector } from '../Primitives.js';
 import { PanZoomHandler } from '../View/PanZoomHandler.js';
+import { getClosestObject as getClosestDisplayObject, getDisplayPosition as getDisplayObjectPosition } from '../View/DisplayPicking.js';
 
 /**
  * @class
@@ -569,44 +570,7 @@ class TrussNode extends Node {
 	 * @return {Object}
 	 */
 	getClosestObject(maxDisplayDistance = 3, avoid) {
-		let lowestDistance = 1000000000;
-		let closest;
-		
-		const distanceToMouse = (object) => {
-			const displayPosition = this.getDisplayPosition(object);
-			if (!displayPosition) {
-				return Infinity;
-			}
-			const dx = displayMousePercentX - displayPosition.x;
-			const dy = displayMousePercentY - displayPosition.y;
-			return Math.sqrt(dx * dx + dy * dy);
-		};
-		
-		for (let node of this.nodes) {
-			if (node == avoid || node == this.selector) {
-				continue;
-			}
-			const distance = distanceToMouse(node);
-			
-			if (distance < lowestDistance && distance < maxDisplayDistance) {
-				lowestDistance = distance;
-				closest = node;
-			}
-		}
-		
-		for (let tensor of this.tensors) {
-			if (tensor == avoid) {
-				continue;
-			}
-			const distance = distanceToMouse(tensor);
-			
-			if (distance < lowestDistance && distance < maxDisplayDistance) {
-				lowestDistance = distance;
-				closest = tensor;
-			}
-		}
-		
-		return closest;
+		return getClosestDisplayObject(this, maxDisplayDistance, avoid);
 	}
 
 	/**
@@ -615,29 +579,7 @@ class TrussNode extends Node {
 	 * @return {Position}
 	 */
 	getDisplayPosition(object) {
-		if (!object || !object.getPosition) {
-			return undefined;
-		}
-
-		const position = object.getPosition();
-		if (!position) {
-			return undefined;
-		}
-
-		if (object.coordinateSystem && object.coordinateSystem.isDisplay()) {
-			return new Position(position.x, position.y);
-		}
-
-		const screenWidth = this.view.screenSize.x;
-		const screenHeight = this.view.screenSize.y;
-		if (!screenWidth || !screenHeight) {
-			return undefined;
-		}
-
-		return new Position(
-			(this.view.x(position) / screenWidth) * 100,
-			(1 - (this.view.y(position) / screenHeight)) * 100
-		);
+		return getDisplayObjectPosition(this, object);
 	}
 
 	/**
@@ -729,46 +671,31 @@ class TrussNode extends Node {
 			this.view.drawFingerScreenIndicators(screenPositions);
 		}
 		
-		// DEBUG: Draw display coordinate nodes with circles and mouse position
-		const ctx = this.view.context;
-		const screenWidth = this.view.screenSize.x;
-		// Use globally-stored display plane percentages (already calculated in mousemove)
-		// Selector visualization handles world coordinate feedback now
-		
-		// Find nail through banner, not through main nodes
-		let nailNode = null;
-		if (this.editWindow && this.editWindow.bannerNode) {
-			nailNode = this.editWindow.bannerNode.nail;
-		}
-		
-		for (let node of this.nodes) {
-			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'plane');
-			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.planeProperty === 'display';
-			
-			if (nodeIsDisplay && node.localPosition) {
-				// Convert display percentage coordinates to screen pixels
-				const screenX = (node.localPosition.x / 100) * screenWidth;
-				const screenY = screenHeight - (node.localPosition.y / 100) * screenHeight;
-				
-				// Draw white circle at display node position
-				ctx.fillStyle = 'white';
-				
-				// Use different color for Selector vs other display nodes
-				if (node.name === 'Selector') {
-					ctx.strokeStyle = 'magenta';  // Magenta outline for Selector
-				} else {
-					ctx.strokeStyle = 'yellow';   // Yellow outline for other display nodes
+		if (resolvedDebugLevel >= 8) {
+			const ctx = this.view.context;
+			const screenWidth = this.view.screenSize.x;
+			const screenHeight = this.view.screenSize.y;
+
+			for (let node of this.nodes) {
+				let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'plane');
+				let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.planeProperty === 'display';
+
+				if (nodeIsDisplay && node.localPosition) {
+					const screenX = (node.localPosition.x / 100) * screenWidth;
+					const screenY = screenHeight - (node.localPosition.y / 100) * screenHeight;
+
+					ctx.fillStyle = 'white';
+					ctx.strokeStyle = node.name === 'Selector' ? 'magenta' : 'yellow';
+					ctx.lineWidth = 2;
+					ctx.beginPath();
+					ctx.arc(screenX, screenY, 15, 0, Math.PI * 2);
+					ctx.fill();
+					ctx.stroke();
+
+					ctx.fillStyle = 'black';
+					ctx.font = '12px Arial';
+					ctx.fillText(node.name, screenX + 20, screenY - 10);
 				}
-				ctx.lineWidth = 2;
-				ctx.beginPath();
-				ctx.arc(screenX, screenY, 15, 0, Math.PI * 2);
-				ctx.fill();
-				ctx.stroke();
-				
-				// Label it
-				ctx.fillStyle = 'black';
-				ctx.font = '12px Arial';
-				ctx.fillText(node.name, screenX + 20, screenY - 10);
 			}
 		}
 	}

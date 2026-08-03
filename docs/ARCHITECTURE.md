@@ -51,6 +51,20 @@ Truss is a browser-based simulation/editor with a lightweight Node backend. The 
 
 Behavior should be expressed through labels where possible. A node/tensor role such as `moveable`, `field`, `gravitywell`, `banner`, or `nogravity` should be discoverable in `Label.js` and queryable through the Label API instead of being hidden in ad-hoc flags. See [Labels](LABELS.md).
 
+Current state:
+
+- Labels define object categories, dependencies, editable properties, defaults, and label-list membership.
+- Runtime systems often apply behavior by querying label membership directly, e.g. force loops over `field`, `spring`, or `absorber` tensors.
+- The `Behaviour`/`BehaviourOverride` classes now include a central `Behaviours` registry. Physics and angle labels register their behavior classes, and label reparsing attaches/detaches behavior overrides on the affected object.
+- Some runtime paths still call legacy direct methods such as `calculateForceSpring(...)` while the registry coverage is expanded.
+
+Target state:
+
+- Labels describe **what an object is**.
+- Behaviours describe **what an object does during a lifecycle phase**.
+- A label should be able to declare its behavior modules, editable properties, validation rules, and dependencies in one place.
+- Re-parsing labels should attach/detach the corresponding behaviors consistently.
+
 ## Physics architecture
 
 Physics is tensor-driven. Springs and absorbers provide local constraints and damping; field tensors provide long-range force behavior such as gravity. Current gravity behavior, sign conventions, and banner-specific details are documented in [Gravity and physics](GRAVITY-AND-PHYSICS.md).

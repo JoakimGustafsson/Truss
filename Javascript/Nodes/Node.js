@@ -535,7 +535,7 @@ class Node extends StoreableObject {
 	 * @return {number} timeFactor
 	 */
 	turnable() {
-		return (this.torqueConstant && this.torqueConstant != 0);
+		return this.hasLabel('angle');
 	}
 
 	/** Loop through all springs connected to this node and sum them p

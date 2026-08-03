@@ -65,7 +65,7 @@ class AngleNode extends Behaviour {
 		this.sumTorque = 0;
 
 		for (let tensor of this.connectedTensors) {
-			if (tensor.angleTensor) {
+			if (tensor.hasLabel('angletensor') || tensor.angleTensor) {
 				this.sumTorque += getTorque(this, tensor);
 			}
 		}
@@ -84,7 +84,11 @@ class AngleNode extends Behaviour {
 		} else {
 			this.turnrate = 0; // weightless cannot turn
 		}
-		this.turnrate *= parseFloat(this.turnLoss);
+		let angleVelocityLoss = this.angleVelocityLoss;
+		if (angleVelocityLoss === undefined) {
+			angleVelocityLoss = this.turnLoss === undefined ? 1 : this.turnLoss;
+		}
+		this.turnrate *= parseFloat(angleVelocityLoss);
 		if (isNaN(this.turnrate)) {
 			this.turnrate = 0;
 		}

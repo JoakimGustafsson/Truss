@@ -7,9 +7,9 @@ This file tracks current known blockers and cleanup status for the repository.
 ### Zoom in/out corrupts offsets
 
 - **Location:** `Javascript\View\PanZoomHandler.js`
-- **Description:** Pinch gestures and mouse wheel zoom can corrupt pointer position offsets. The pan position drifts after zoom operations.
-- **Impact:** Pan/zoom behavior can become visually incorrect and pointer coordinates may not map cleanly to canvas position.
-- **TODO:** Review `PanZoomHandler.pointermove_handler()` zoom calculation logic and `updateScale()` interactions.
+- **Description:** Mouse wheel zoom previously used element-local coordinates as viewport coordinates when updating scale.
+- **Status:** A regression test now verifies that zooming around an element-local point keeps the same world point under the cursor. `TrussView.updateScale()` now treats its zoom origin as element-local.
+- **TODO:** Browser-smoke-test wheel zoom and separately review two-pointer pinch behavior for the same invariant.
 
 ### Touchpad scroll/pan behavior
 
@@ -36,4 +36,4 @@ Documentation has been consolidated into the smaller set linked from `README.md`
 
 1. Run a browser smoke test with either the Vite dev server or the backend server.
 2. Validate save/load and editor interaction paths.
-3. Review/fix pan/zoom offset corruption before deeper coordinate or banner physics work.
+3. Browser-smoke-test pan/zoom, selector alignment, and banner behavior after the new regression tests.

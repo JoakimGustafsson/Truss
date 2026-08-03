@@ -13,8 +13,8 @@ Use a **label** when something identifies what an object is, how it should be pr
 | Behavior/type/role | Label | `moveable`, `field`, `banner`, `nogravity`, `gravitywell` |
 | On/off processing rule | Label | skip gravity, anchor-like role, display-plane role |
 | Query "find all X" | Label | all `spring` tensors, all `gravitywell` nodes |
-| Numeric/vector/string value | Property | `mass`, `localPosition`, `velocityLoss`, `constant`, `name` |
-| Tunable coefficient | Property, often supplied by a label | `equilibriumLength`, `dampeningConstant`, `constant` |
+| Numeric/vector/string value | Property | `mass`, `localPosition`, `velocityLoss`, `angleVelocityLoss`, `constant`, `name` |
+| Tunable coefficient | Property, often supplied by a label | `equilibriumLength`, `dampeningConstant`, `angleVelocityLoss`, `constant` |
 
 Before adding behavior to `Node` or `Tensor`, ask: **could this be a label instead?**
 
@@ -71,8 +71,9 @@ Current definitions are in `Javascript\Label.js`.
 | `field` | Tensor | Field/gravity-style inverse-square force behavior |
 | `absorber` | Tensor | Damping behavior |
 | `dampenedspring` | Tensor | Spring plus absorber dependencies |
+| `angletensor` | Tensor | Tensor endpoint angle targets and endpoint torque constants |
 | `moveable` | Node | Node affected by velocity/force updates |
-| `angle` | Node | Node with angle/torque properties |
+| `angle` | Node | Node with editable angle and angular velocity damping |
 | `gravitywell` | Node | Gravity source; defaults include Earth mass, constant, and negative-Y position |
 | `truss` | Node | Main truss/container node |
 | `sensor`, `selector`, `keysensor` | Node | Input/sensor roles |
@@ -111,6 +112,29 @@ tensor.equilibriumLength = 40;
 new Node(world, parent, 'node moveable banner plane', { name: 'leftTop' });
 new Tensor(nodeA, nodeB, 'spring absorber banner', { constant: 350 });
 ```
+
+## Labels and behaviours
+
+Labels and behaviours are related but not identical:
+
+| Concept | Responsibility | Current implementation |
+|---|---|---|
+| Label | Describes object identity/category and contributes editable properties | `Label.js`, `StoreableObject.refreshPropertiesAfterLabelChange()` |
+| Label dependency | Adds required parent labels/properties | `Labels.recursiveDependencies(...)` |
+| Behaviour | Implements runtime actions for lifecycle phases such as calculate, sense, show, update, or collide | Classes in `Javascript\Behaviours\` |
+| Behaviour override | Hook point that lets a behavior replace/extend an object method | `BehaviourOverride` enum and `registerOverride(...)` users |
+
+Today, many labels govern behavior indirectly through label queries. For example, `TrussNode.calculatePositionBasedForces()` asks the `field`, `spring`, and `pullspring` labels for tensors and calls the matching force calculator. This is label-driven, but it is not yet behavior-registry-driven.
+
+The desired direction is:
+
+```text
+label string -> parsed labels -> properties + behavior attachments + validation
+```
+
+In that model, labels remain the user-facing and serialization-facing concept, while behaviours become implementation modules registered behind labels.
+
+Current registry coverage includes physics and angle labels: `spring`, `pullspring`, `pushspring`, `field`, `absorber`, `angle`, and `angletensor`. When these labels are added or removed, their behavior overrides are attached or detached from the selected object. Some older runtime loops still call direct tensor/node helper methods while those paths are migrated to registry-driven execution.
 
 ## Adding a label
 
@@ -192,3 +216,9 @@ Banner UI objects use labels such as `banner`, `plane`, and node/tensor behavior
 ### `velocityloss`
 
 `velocityloss` is the current label for tunable velocity retention/damping. Older notes about `backgroundfriction` were consolidated away because the live code uses `velocityloss`/`velocityLoss`.
+
+### `angletensor`
+
+`angletensor` is the tensor-side label for angle constraints. Adding it to a tensor exposes editable `degree1`, `degree2`, `torqueConstant1`, and `torqueConstant2` properties. Runtime angle torque checks this label, so the label is the user-facing behavior switch while the properties remain the tunable values.
+
+The stiffness belongs to the tensor endpoint. An `angle` node receives torque from connected `angletensor` tensors, then its mass controls how quickly that torque changes angular velocity. The node-side damping is `angleVelocityLoss`, where `1` retains all angular velocity and lower values bleed angular velocity off more quickly.

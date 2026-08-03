@@ -585,9 +585,6 @@ class Tensor extends StoreableObject {
 	 */
 	calculateTorqueForce(node) {
 		let opposite = this.getOppositeNode(node);
-		if (opposite.getTorqueConstant()==0) {
-			return new Force(0, 0);
-		}
 		let torque = this.getStoredTorque(opposite);
 		if (!torque) {
 			return new Force(0, 0);

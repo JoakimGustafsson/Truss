@@ -1,5 +1,13 @@
 import { Position, removeIfPresent } from './Primitives.js';
 import { Behaviours } from './Behaviours/Behaviour.js';
+import { AngleNode, AngleTensor } from './Behaviours/Angles.js';
+import {
+	SpringCalculator,
+	PullCalculator,
+	PushCalculator,
+	FieldCalculator,
+	AbsorbCalculator,
+} from './Behaviours/TensorForces.js';
 import {
 	NumberProperty, StringProperty, PositionProperty, SwitchProperty,
 	NodeProperty, TensorListProperty, LabelListProperty, PropertyListProperty,
@@ -38,9 +46,15 @@ class Labels {
 		this.angleProperty = new NumberProperty(
 			'degree', 'degree', 'Angle', ParameterCategory.CONTENT,
 			'The angle of the node.');
-		this.torqueConstantProperty = new NumberProperty(
-			'torqueConstant', 'torqueConstant', 'Torque constant', ParameterCategory.CONTENT,
-			'How stiff the node is with respect to attempts angle differences.');
+		this.angleVelocityLossProperty = new NumberProperty(
+			'angleVelocityLoss', 'angleVelocityLoss', 'Angle velocity loss', ParameterCategory.CONTENT,
+			'How much angular velocity is retained per frame (0-1, where 1 is no loss).');
+		this.torqueConstant1Property = new NumberProperty(
+			'torqueConstant1', 'torqueConstant1', 'Start torque constant', ParameterCategory.CONTENT,
+			'How strongly this tensor resists angle differences at the start node.');
+		this.torqueConstant2Property = new NumberProperty(
+			'torqueConstant2', 'torqueConstant2', 'End torque constant', ParameterCategory.CONTENT,
+			'How strongly this tensor resists angle differences at the end node.');
 		this.velocityLossProperty = new NumberProperty(
 			'velocityLoss', 'velocityLoss', 'Velocity loss', ParameterCategory.CONTENT,
 			'How much velocity is lost per frame (0-1, where 1 is no loss).');
@@ -160,7 +174,13 @@ class Labels {
 		});
 		let angleLabel = this.addLabel('angle', [nodeLabel], {
 			'angleProperty': 1,
-			'torqueConstantProperty': 1,
+			'angleVelocityLossProperty': 0.9999,
+		});
+		let angleTensorLabel = this.addLabel('angletensor', [tensorLabel], {
+			'degree1Property': 0,
+			'degree2Property': 0,
+			'torqueConstant1Property': 1,
+			'torqueConstant2Property': 1,
 		});
 		let debugtensorLabel = this.addLabel('debugtensor', [], {
 			'degree1Property': 1,
@@ -178,10 +198,7 @@ class Labels {
 			'sizeProperty': 1,
 			'visibilityProperty': 1,
 		});
-		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], {
-			'angleProperty': 1,
-			'torqueConstantProperty': 1,
-		});
+		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], {});
 		let gravityLabel = this.addLabel('gravitywell', [nodeLabel], {
 			'constantProperty': 6.67e-11,
 			'massProperty': 5.97219e24,
@@ -243,6 +260,20 @@ class Labels {
 			// Used for UI elements like banner that should maintain fixed screen size
 			// Display coordinates operate independently: no physics connections to world nodes
 		});
+
+		this.registerDefaultBehaviours();
+	}
+
+	/**
+	 */
+	registerDefaultBehaviours() {
+		this.behaviours.register('spring', SpringCalculator);
+		this.behaviours.register('pullspring', PullCalculator);
+		this.behaviours.register('pushspring', PushCalculator);
+		this.behaviours.register('field', FieldCalculator);
+		this.behaviours.register('absorber', AbsorbCalculator);
+		this.behaviours.register('angle', AngleNode);
+		this.behaviours.register('angletensor', AngleTensor);
 	}
 
 	/**

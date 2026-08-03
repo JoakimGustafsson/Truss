@@ -3,6 +3,7 @@ import { Node } from './Nodes/Node.js';
 import { Tensor } from './Tensors.js';
 import { Selector } from './Nodes/Sensors.js';
 import { Position } from './Primitives.js';
+import { createAngleTensorDemo } from './AngleTensorDemo.js';
 
 /**
  * Coordinate System Reference:
@@ -122,59 +123,7 @@ function createDefaultPerformanceScene(trussNode) {
 		'visible': 0,
 	});
 
-	// Create a 10x10 meter test square in world coordinates at origin
-	const testNode1 = new Node(trussNode.world, trussNode, 'node test', {
-		'localPosition': new Position(0, 0),
-		'name': 'testSquare_0_0',
-		'mass': 1,
-	});
-	
-	const testNode2 = new Node(trussNode.world, trussNode, 'node test', {
-		'localPosition': new Position(10, 0),
-		'name': 'testSquare_10_0',
-		'mass': 1,
-	});
-	
-	const testNode3 = new Node(trussNode.world, trussNode, 'node test', {
-		'localPosition': new Position(10, 10),
-		'name': 'testSquare_10_10',
-		'mass': 1,
-	});
-	
-	const testNode4 = new Node(trussNode.world, trussNode, 'node test', {
-		'localPosition': new Position(0, 10),
-		'name': 'testSquare_0_10',
-		'mass': 1,
-	});
-	
-	// Connect with springs to form a square
-	new Tensor(testNode1, testNode2, 'spring test', {
-		'equilibriumLength': 10,
-		'dampeningConstant': 5,
-		'constant': 1000,
-		'color': 'cyan',
-	});
-	
-	new Tensor(testNode2, testNode3, 'spring test', {
-		'equilibriumLength': 10,
-		'dampeningConstant': 5,
-		'constant': 1000,
-		'color': 'cyan',
-	});
-	
-	new Tensor(testNode3, testNode4, 'spring test', {
-		'equilibriumLength': 10,
-		'dampeningConstant': 5,
-		'constant': 1000,
-		'color': 'cyan',
-	});
-	
-	new Tensor(testNode4, testNode1, 'spring test', {
-		'equilibriumLength': 10,
-		'dampeningConstant': 5,
-		'constant': 1000,
-		'color': 'cyan',
-	});
+	createAngleTensorDemo(trussNode);
 }
 
 /**
@@ -316,4 +265,12 @@ class ProtagonistNode extends Node {
 	}
 }
 
-export { createDefaultPerformanceScene, WalkTruss, GovenorTruss, ScrollerTruss, PerformanceTrussNode, ProtagonistNode };
+export {
+	createAngleTensorDemo,
+	createDefaultPerformanceScene,
+	WalkTruss,
+	GovenorTruss,
+	ScrollerTruss,
+	PerformanceTrussNode,
+	ProtagonistNode,
+};

@@ -318,12 +318,12 @@ class View {
 	};
 
 	/**
-	 * Zoom in/out around the given screen-space center point.
+	 * Zoom in/out around the given element-local screen-space center point.
 	 * @param  {Object} deltaScaleOnScreen  {x, y} fractional scale delta (e.g. 0.1 = 10%)
-	 * @param  {Object} screenCenter        {x, y} viewport zoom origin in pixels
+	 * @param  {Object} screenCenter        {x, y} element-local zoom origin in pixels
 	 */
 	updateScale(deltaScaleOnScreen, screenCenter) {
-		const center = this.worldPositionWithOffset(screenCenter.x, screenCenter.y);
+		const center = this.worldPosition(screenCenter.x, screenCenter.y);
 		this.worldViewSize.x -= deltaScaleOnScreen.x * this.worldViewSize.x;
 		this.worldViewSize.y -= deltaScaleOnScreen.y * this.worldViewSize.y;
 		// Shift the offset so the point under the cursor stays fixed

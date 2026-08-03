@@ -74,6 +74,8 @@ class StoreableObject {
 	constructor(world, initialLabels='', valueObject={}) {
 		this.name='Unnamed';
 		this.properties = new PropertyList();
+		this.overrides = new Map();
+		this.behaviourAttachments = new Map();
 		this.labelString=initialLabels;
 		this.valueObject=valueObject;
 		this.world=world;
@@ -85,7 +87,11 @@ class StoreableObject {
 				return this._labels;
 			},
 			set: function(value) {
+				let previousLabels = this._labels || [];
 				this._labels=value;
+				if (this.world && this.world.labels && this.world.labels.behaviours) {
+					this.world.labels.behaviours.sync(this, previousLabels, value);
+				}
 				if (this.labelChange) {
 					this.labelChange(value);
 				}
@@ -135,6 +141,66 @@ class StoreableObject {
 			// Object.assign(propObject, label.properties);
 		}
 		return propObject;
+	}
+
+	/**
+	 * @param {string|Label} label
+	 * @return {boolean}
+	 */
+	hasLabel(label) {
+		if (!this.labels) {
+			return false;
+		}
+		let labelName = typeof label == 'string' ? label : label.name;
+		return this.labels.some((currentLabel) => currentLabel.name == labelName);
+	}
+
+	/**
+	 * @param {number} overrideType
+	 * @param {Function} override
+	 */
+	registerOverride(overrideType, override) {
+		if (!this.overrides.has(overrideType)) {
+			this.overrides.set(overrideType, new Set());
+		}
+		this.overrides.get(overrideType).add(override);
+	}
+
+	/**
+	 * @param {number} overrideType
+	 * @param {Function} override
+	 */
+	unregisterOverride(overrideType, override) {
+		let overrides = this.overrides.get(overrideType);
+		if (!overrides) {
+			return;
+		}
+		overrides.delete(override);
+		if (overrides.size == 0) {
+			this.overrides.delete(overrideType);
+		}
+	}
+
+	/**
+	 * @param {number} overrideType
+	 * @param {...*} args
+	 * @return {Array}
+	 */
+	runOverrides(overrideType, ...args) {
+		let overrides = this.overrides.get(overrideType);
+		if (!overrides) {
+			return [];
+		}
+		return Array.from(overrides).map((override) => override.call(this, ...args));
+	}
+
+	/**
+	 * @param {number} overrideType
+	 * @return {number}
+	 */
+	getOverrideCount(overrideType) {
+		let overrides = this.overrides.get(overrideType);
+		return overrides ? overrides.size : 0;
 	}
 
 	/**
