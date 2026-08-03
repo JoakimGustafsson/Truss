@@ -541,7 +541,7 @@ class Selector extends SensorNode {
 		// This is calculated once in the mousemove handler
 		this.localPosition = new Position(displayMousePercentX, displayMousePercentY);
 		
-		let closest = trussNode.getClosestObject(this.cursorPosition);
+		let closest = trussNode.getClosestObject();
 
 		if (!mouseSet && !universe.newNode) {
 			if (!closest) {

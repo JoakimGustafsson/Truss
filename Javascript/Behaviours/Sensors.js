@@ -132,7 +132,6 @@ class SelectorBehaviour extends Behaviour {
 		// Cursor position in screen pixels
 		let cursorScreenX = control.myX;
 		let cursorScreenY = control.myY;
-		let screenPosition = new Position(cursorScreenX, cursorScreenY);
 		
 		// Check if selectedObject is in display plane
 		let selectedIsDisplay = false;
@@ -156,8 +155,7 @@ class SelectorBehaviour extends Behaviour {
 			this.cursorPosition = trussNode.view.worldPositionWithOffset(cursorScreenX, cursorScreenY);
 		}
 		
-		// Pass view to getClosestObject so it can handle both coordinate systems
-		let closest = trussNode.getClosestObject(screenPosition, 20 * trussNode.view.getDistanceMultiplier(), this, trussNode.view);
+		let closest = trussNode.getClosestObject(3, this);
 
 		if (!control.mouseSet) {
 			if (!closest) {

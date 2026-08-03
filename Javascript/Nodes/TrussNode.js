@@ -1,7 +1,7 @@
 import { Node } from './Node.js';
 import { View } from '../View/TrussView.js';
 import { PropertyEditor } from '../View/ParameterEditor/PropertyEditor.js';
-import { FPSdisplay, universe, myX, myY, displayMousePercentX, displayMousePercentY } from '../globals.js';
+import { FPSdisplay, universe, displayMousePercentX, displayMousePercentY } from '../globals.js';
 import { Position, Vector } from '../Primitives.js';
 import { PanZoomHandler } from '../View/PanZoomHandler.js';
 
@@ -564,57 +564,74 @@ class TrussNode extends Node {
 	};
 
 	/**
-	 * @param  {Position} position
-	 * @param  {number} maxDistance
+	 * @param  {number} maxDisplayDistance
 	 * @param  {Node} avoid
 	 * @return {Object}
 	 */
-	getClosestObject(position, maxDistance, avoid) {
+	getClosestObject(maxDisplayDistance = 3, avoid) {
 		let lowestDistance = 1000000000;
 		let closest;
 		
-		// Use globally-stored display plane mouse percentages (set once in mousemove)
-		// No recalculation needed - just use the values as-is
+		const distanceToMouse = (object) => {
+			const displayPosition = this.getDisplayPosition(object);
+			if (!displayPosition) {
+				return Infinity;
+			}
+			const dx = displayMousePercentX - displayPosition.x;
+			const dy = displayMousePercentY - displayPosition.y;
+			return Math.sqrt(dx * dx + dy * dy);
+		};
 		
 		for (let node of this.nodes) {
-			// Check if the node is in the display plane by checking its coordinateSystem
-			let nodeIsDisplay = node.coordinateSystem && node.coordinateSystem.isDisplay();
+			const distance = distanceToMouse(node);
 			
-			let distance;
-			let threshold;
-			
-			if (nodeIsDisplay) {
-				// For display nodes, use globally-stored display percentages (percentages only)
-				const nodeDisplayX = node.localPosition ? node.localPosition.x : 50;
-				const nodeDisplayY = node.localPosition ? node.localPosition.y : 50;
-				const dx = displayMousePercentX - nodeDisplayX;
-				const dy = displayMousePercentY - nodeDisplayY;
-				distance = Math.sqrt(dx * dx + dy * dy);
-				threshold = 3;  // 3% for display coordinates
-			} else {
-				// For world nodes, use world coordinate distance
-				distance = Position.distance(position, node.getPosition());
-				threshold = 20;  // 20 world units for world coordinates
-			}
-			
-			if (distance < lowestDistance && distance < threshold && node != avoid) {
+			if (distance < lowestDistance && distance < maxDisplayDistance && node != avoid) {
 				lowestDistance = distance;
 				closest = node;
 			}
 		}
 		
 		for (let tensor of this.tensors) {
-			// Tensors are world nodes - use world coordinate distance
-			const distance = Position.distance(position, tensor.getPosition());
-			const threshold = 20;  // 20 world units for world coordinates
+			const distance = distanceToMouse(tensor);
 			
-			if (distance < lowestDistance && distance < threshold && tensor != avoid) {
+			if (distance < lowestDistance && distance < maxDisplayDistance && tensor != avoid) {
 				lowestDistance = distance;
 				closest = tensor;
 			}
 		}
 		
 		return closest;
+	}
+
+	/**
+	 * Project an object's position onto the display plane in percentages.
+	 * @param  {Object} object
+	 * @return {Position}
+	 */
+	getDisplayPosition(object) {
+		if (!object || !object.getPosition) {
+			return undefined;
+		}
+
+		const position = object.getPosition();
+		if (!position) {
+			return undefined;
+		}
+
+		if (object.coordinateSystem && object.coordinateSystem.isDisplay()) {
+			return new Position(position.x, position.y);
+		}
+
+		const screenWidth = this.view.screenSize.x;
+		const screenHeight = this.view.screenSize.y;
+		if (!screenWidth || !screenHeight) {
+			return undefined;
+		}
+
+		return new Position(
+			(this.view.x(position) / screenWidth) * 100,
+			(1 - (this.view.y(position) / screenHeight)) * 100
+		);
 	}
 
 	/**
