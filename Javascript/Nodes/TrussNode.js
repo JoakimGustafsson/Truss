@@ -755,6 +755,7 @@ class TrussNode extends Node {
 				ctx.font = '12px Arial';
 				ctx.fillText(node.name, screenX + 20, screenY - 10);
 			}
+		}
 	}
 }
 
