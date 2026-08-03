@@ -141,11 +141,7 @@ class StoreableObject {
 		this.labels = this.world.labels.parse(this.labelString, this);
 		this.properties.clearProperties(this.labelProperty);
 
-		const propObj = this.getPropertyObject();
-		if (this.name && this.name !== 'Unnamed') {
-			console.log(`${this.constructor.name} "${this.name}" has properties:`, Object.keys(propObj));
-		}
-		for (let [key, value] of Object.entries(propObj)) {
+		for (let [key, value] of Object.entries(this.getPropertyObject())) {
 			this.properties.addProperty(value.propertyObject, value.defaultValue);
 			if (this[value.propertyObject.propertyName]==undefined ||
                 Number.isNaN(this[value.propertyObject.propertyName]) ||
