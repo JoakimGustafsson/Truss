@@ -627,7 +627,6 @@ class TrussNode extends Node {
 				const dx = mouseDisplayPerc.x - nodeDisplayX;
 				const dy = mouseDisplayPerc.y - nodeDisplayY;
 				distance = Math.sqrt(dx * dx + dy * dy);
-				console.log(`Display node ${node.name}: mouse=[${mouseDisplayPerc.x.toFixed(1)}, ${mouseDisplayPerc.y.toFixed(1)}], node=[${nodeDisplayX.toFixed(1)}, ${nodeDisplayY.toFixed(1)}], distance=${distance.toFixed(2)}`);
 				threshold = 3;  // 3% for display coordinates
 			} else {
 				// For world nodes, use world coordinate distance
