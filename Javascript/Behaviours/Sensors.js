@@ -141,6 +141,10 @@ class SelectorBehaviour extends Behaviour {
 			selectedIsDisplay = coordLabel && coordLabel.planeProperty === 'display';
 		}
 		
+		if (shouldLog && control.mouseSet) {
+			console.log(`sense: mouseSet=${control.mouseSet}, selectedObject=${universe.selectedObject?.name}, selectedIsDisplay=${selectedIsDisplay}`);
+		}
+		
 		// For dragging display nodes, use pre-calculated display percentages
 		if (selectedIsDisplay) {
 			if (shouldLog) {
