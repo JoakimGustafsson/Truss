@@ -135,12 +135,9 @@ class SelectorBehaviour extends Behaviour {
 			selectedIsDisplay = coordLabel && coordLabel.planeProperty === 'display';
 		}
 		
-		// For dragging display nodes, convert screen pixels to percentages
+		// For dragging display nodes, use pre-calculated display percentages
 		if (selectedIsDisplay) {
-			this.cursorPosition = new Position(
-				(cursorScreenX / trussNode.view.screenSize.x) * 100,
-				100 - (cursorScreenY / trussNode.view.screenSize.y) * 100
-			);
+			this.cursorPosition = new Position(displayMousePercentX, displayMousePercentY);
 		} else {
 			// For world coordinates, use standard conversion
 			this.cursorPosition = trussNode.view.worldPositionWithOffset(cursorScreenX, cursorScreenY);
