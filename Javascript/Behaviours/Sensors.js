@@ -174,10 +174,9 @@ class SelectorBehaviour extends Behaviour {
 		} else if (control.mouseSet) { // Mouse is continually pressed
 			if (universe.selectedObject && universe.selectedObject.isNode) {
 				universe.selectedObject.resetVelocity();
-				// For display nodes, update displayPositionX/Y directly
+				// For display nodes, update localPosition directly
 				if (selectedIsDisplay) {
-					universe.selectedObject.displayPositionX = this.cursorPosition.x;
-					universe.selectedObject.displayPositionY = this.cursorPosition.y;
+					universe.selectedObject.localPosition = new Position(this.cursorPosition.x, this.cursorPosition.y);
 				} else {
 					universe.selectedObject.copyPosition(this.cursorPosition);
 				}

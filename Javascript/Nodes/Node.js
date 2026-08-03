@@ -1,6 +1,6 @@
 import { StoreableObject } from '../StoreableObject.js';
 import { Position, Velocity, Vector, Force, serializeList, deserializeList, removeIfPresent } from '../Primitives.js';
-import { universe } from '../globals.js';
+import { universe, getPlane } from '../globals.js';
 import { warpMatrix } from '../View/Pictures.js';
 import { calculateNodeTorques, updateNodeRotation } from '../Behaviours/Angles.js';
 import { evaluateScriptFunction } from '../Behaviours/Scripts.js';
@@ -133,6 +133,33 @@ class Node extends StoreableObject {
 			},
 			set: function(value) {
 				this._coordinateSystem = value;
+			}
+		});
+
+		// Plane property - which plane this node belongs to (world, display, admin, etc)
+		// - If node has a 'plane' label, reads its planeProperty to find the plane
+		// - Otherwise defaults to world plane
+		Object.defineProperty(this, 'plane', {
+			get: function() {
+				if (this._plane) {
+					return this._plane;
+				}
+				
+				// Check for plane label
+				if (this.labels) {
+					const planeLabel = this.labels.find(l => l.name === 'plane');
+					if (planeLabel && planeLabel.planeProperty) {
+						const plane = getPlane(planeLabel.planeProperty);
+						this._plane = plane;
+						return plane;
+					}
+				}
+				
+				// Default to world plane
+				return getPlane('world');
+			},
+			set: function(value) {
+				this._plane = value;
 			}
 		});
 

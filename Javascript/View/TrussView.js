@@ -1,6 +1,7 @@
 ﻿
 import { Vector, AlertVector, Position } from '../Primitives.js';
 import { createWorldCoordinateSystem, createDisplayCoordinateSystem } from '../Nodes/CoordinateSystem.js';
+import { initializePlanes } from '../globals.js';
 
 /**
  * @class
@@ -35,6 +36,9 @@ class View {
 		// These are reused throughout the application for efficient rendering and physics
 		this.worldCoordinateSystem = createWorldCoordinateSystem(this);
 		this.displayCoordinateSystem = createDisplayCoordinateSystem(this);
+		
+		// Initialize planes with this view
+		initializePlanes(this);
 	}
 	/**
 	 * @param  {Element} element

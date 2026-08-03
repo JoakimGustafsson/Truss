@@ -596,22 +596,49 @@ class TrussNode extends Node {
 		let lowestDistance = 1000000000;
 		let closest;
 		
+		// Convert cursor position to display percentage coordinates
+		const screenWidth = this.view.screenSize.x;
+		const screenHeight = this.view.screenSize.y;
+		const cursorDisplayPercX = (position.x / screenWidth) * 100;
+		const cursorDisplayPercY = (1 - (position.y / screenHeight)) * 100;
+		
 		for (let node of this.nodes) {
-			if (Position.distance(position, node.getPosition()) < lowestDistance && node != avoid) {
-				lowestDistance = Position.distance(position, node.getPosition());
+			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
+			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
+			
+			let distance;
+			let threshold;
+			
+			if (nodeIsDisplay) {
+				// For display nodes, use display coordinate distance with localPosition
+				const nodeDisplayX = node.localPosition ? node.localPosition.x : 50;
+				const nodeDisplayY = node.localPosition ? node.localPosition.y : 50;
+				distance = Math.sqrt(
+					Math.pow(cursorDisplayPercX - nodeDisplayX, 2) +
+					Math.pow(cursorDisplayPercY - nodeDisplayY, 2)
+				);
+				threshold = 3;  // 3% for display coordinates
+			} else {
+				// For world nodes, use world coordinate distance
+				distance = Position.distance(position, node.getPosition());
+				threshold = 20;  // 20 world units for world coordinates
+			}
+			
+			if (distance < lowestDistance && distance < threshold && node != avoid) {
+				lowestDistance = distance;
 				closest = node;
 			}
 		}
 		
 		for (let tensor of this.tensors) {
-			if (Position.distance(position, tensor.getPosition()) < lowestDistance && tensor != avoid) {
-				lowestDistance = Position.distance(position, tensor.getPosition());
+			// Tensors are world nodes - use world coordinate distance
+			const distance = Position.distance(position, tensor.getPosition());
+			const threshold = 20;  // 20 world units for world coordinates
+			
+			if (distance < lowestDistance && distance < threshold && tensor != avoid) {
+				lowestDistance = distance;
 				closest = tensor;
 			}
-		}
-		
-		if (lowestDistance > maxDistance) {
-			return;
 		}
 		
 		return closest;

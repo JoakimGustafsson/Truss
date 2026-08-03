@@ -536,21 +536,8 @@ class Selector extends SensorNode {
 			return;
 		}
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
-		// Use screen pixels as distance metric: 20px is a comfortable click target
-		// For display coordinates, use a larger threshold (about 8% of screen) to account for scale differences
-		let maxDistance = 20;
 		
-		// Check if we have display nodes - if so, increase distance threshold
-		for (let node of trussNode.nodes) {
-			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
-			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
-			if (nodeIsDisplay) {
-				maxDistance = 8;  // 8 percentage units for display coordinates
-				break;
-			}
-		}
-		
-		let closest = trussNode.getClosestObject(this.cursorPosition, maxDistance, this, trussNode.view);
+		let closest = trussNode.getClosestObject(this.cursorPosition);
 
 		if (!mouseSet && !universe.newNode) {
 			if (!closest) {
@@ -598,7 +585,7 @@ class Selector extends SensorNode {
 				let selectedIsDisplay = selectedCoordLabel && selectedCoordLabel.coordinatesystemProperty === 'display';
 				
 				if (selectedIsDisplay) {
-					// For display nodes, calculate and set display coordinates directly
+					// For display nodes, calculate and set local position in display coordinates
 					const canvasContainer = document.getElementById('TrussBackground') || trussNode.element;
 					const containerRect = canvasContainer.getBoundingClientRect();
 					const containerWidth = containerRect.width;
@@ -610,8 +597,7 @@ class Selector extends SensorNode {
 					let displayPercX = (canvasPixelX / containerWidth) * 100;
 					let displayPercY = 100 - (canvasPixelY / containerHeight) * 100;
 					
-					universe.selectedObject.displayPositionX = displayPercX;
-					universe.selectedObject.displayPositionY = displayPercY;
+					universe.selectedObject.localPosition = new Position(displayPercX, displayPercY);
 				} else {
 					// For world nodes, use world coordinates as before
 					universe.selectedObject.copyPosition(this.cursorPosition);
