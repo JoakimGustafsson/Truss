@@ -206,6 +206,12 @@ class TrussNode extends Node {
 	 * @return {Position} Mouse position in display percentages (0-100% for both X and Y)
 	 */
 	getMouseDisplayPosition() {
+		// Safety check
+		if (!this.view || !this.view.screenSize) {
+			console.warn('TrussNode.getMouseDisplayPosition(): view or screenSize not available');
+			return new Position(0, 0);
+		}
+		
 		// Get canvas position relative to screen
 		const canvasContainer = document.getElementById('TrussBackground') || this.element;
 		const containerRect = canvasContainer.getBoundingClientRect();
