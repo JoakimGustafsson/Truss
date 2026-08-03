@@ -589,19 +589,8 @@ class Selector extends SensorNode {
 				let selectedIsDisplay = selectedCoordLabel && selectedCoordLabel.planeProperty === 'display';
 				
 				if (selectedIsDisplay) {
-					// For display nodes, calculate and set local position in display coordinates
-					const canvasContainer = document.getElementById('TrussBackground') || trussNode.element;
-					const containerRect = canvasContainer.getBoundingClientRect();
-					const containerWidth = containerRect.width;
-					const containerHeight = containerRect.height;
-					
-					let canvasPixelX = myX - containerRect.left;
-					let canvasPixelY = myY - containerRect.top;
-					
-					let displayPercX = (canvasPixelX / containerWidth) * 100;
-					let displayPercY = 100 - (canvasPixelY / containerHeight) * 100;
-					
-					universe.selectedObject.localPosition = new Position(displayPercX, displayPercY);
+					// For display nodes, use globally-calculated display percentages
+					universe.selectedObject.localPosition = new Position(displayMousePercentX, displayMousePercentY);
 				} else {
 					// For world nodes, use world coordinates as before
 					universe.selectedObject.copyPosition(this.cursorPosition);
