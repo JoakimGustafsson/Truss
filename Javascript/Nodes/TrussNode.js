@@ -624,10 +624,10 @@ class TrussNode extends Node {
 				// For display nodes, compare in display percentage space
 				const nodeDisplayX = node.localPosition ? node.localPosition.x : 50;
 				const nodeDisplayY = node.localPosition ? node.localPosition.y : 50;
-				distance = Math.sqrt(
-					Math.pow(mouseDisplayPerc.x - nodeDisplayX, 2) +
-					Math.pow(mouseDisplayPerc.y - nodeDisplayY, 2)
-				);
+				const dx = mouseDisplayPerc.x - nodeDisplayX;
+				const dy = mouseDisplayPerc.y - nodeDisplayY;
+				distance = Math.sqrt(dx * dx + dy * dy);
+				console.log(`Display node ${node.name}: mouse=[${mouseDisplayPerc.x.toFixed(1)}, ${mouseDisplayPerc.y.toFixed(1)}], node=[${nodeDisplayX.toFixed(1)}, ${nodeDisplayY.toFixed(1)}], distance=${distance.toFixed(2)}`);
 				threshold = 3;  // 3% for display coordinates
 			} else {
 				// For world nodes, use world coordinate distance
