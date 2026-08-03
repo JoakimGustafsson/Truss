@@ -612,25 +612,46 @@ class Selector extends SensorNode {
 	}
 
 	/**
-	 * Draw the circle representing the node
+	 * Draw the crosshair representing the selector at mouse position in world coordinates
+	 * Scales with zoom level so it remains visible at extreme zoom levels
 	 * @param {Trussnode} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
 	 */
 	show(truss, time, graphicDebugLevel = 0) {
-		let view=truss.view;
-		this.highLight(view.context);
-		if (view.inside(this.getPosition())) {
-			view.context.strokeStyle = 'Yellow';
-			view.context.lineWidth = 1;
-			view.context.beginPath();
-			view.drawCircle(this.getPosition(), 0.1);
-			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 0.5)),
-				Vector.addVectors(this.getPosition(), new Position(0, 0.5)));
-			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0.5, 0)),
-				Vector.addVectors(this.getPosition(), new Position(0.5, 0)));
-			view.context.stroke();
+		let view = truss.view;
+		
+		// Only show if visible on screen
+		if (!view.inside(this.getPosition())) {
+			return;
 		}
+		
+		// Scale crosshair with zoom level so it remains visible
+		const distMultiplier = view.getDistanceMultiplier();
+		const crosshairLength = 0.3 * distMultiplier;  // Scales with zoom
+		const circleRadius = 0.1 * distMultiplier;
+		
+		// Draw in yellow
+		view.context.strokeStyle = 'Yellow';
+		view.context.lineWidth = Math.max(1, 2 * distMultiplier);
+		view.context.beginPath();
+		
+		// Draw circle at center
+		view.drawCircle(this.getPosition(), circleRadius);
+		
+		// Draw vertical line through center
+		view.drawLine(
+			Vector.subtractVectors(this.getPosition(), new Position(0, crosshairLength)),
+			Vector.addVectors(this.getPosition(), new Position(0, crosshairLength))
+		);
+		
+		// Draw horizontal line through center
+		view.drawLine(
+			Vector.subtractVectors(this.getPosition(), new Position(crosshairLength, 0)),
+			Vector.addVectors(this.getPosition(), new Position(crosshairLength, 0))
+		);
+		
+		view.context.stroke();
 	}
 }
 

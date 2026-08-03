@@ -717,27 +717,8 @@ class TrussNode extends Node {
 		// DEBUG: Draw display coordinate nodes with circles and mouse position
 		const ctx = this.view.context;
 		const screenWidth = this.view.screenSize.x;
-		const screenHeight = this.view.screenSize.y;
-		
 		// Use globally-stored display plane percentages (already calculated in mousemove)
-		// No recalculation - just use percentages throughout
-		
-		// Convert display percentages to screen pixels ONLY for drawing
-		const mouseScreenX = (displayMousePercentX / 100) * screenWidth;
-		const mouseScreenY = screenHeight - (displayMousePercentY / 100) * screenHeight;
-		
-		ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-		ctx.strokeStyle = 'lime';
-		ctx.lineWidth = 3;
-		ctx.beginPath();
-		ctx.arc(mouseScreenX, mouseScreenY, 20, 0, Math.PI * 2);
-		ctx.fill();
-		ctx.stroke();
-		
-		// Label mouse position (in percentages)
-		ctx.fillStyle = 'lime';
-		ctx.font = 'bold 14px Arial';
-		ctx.fillText(`Mouse: ${displayMousePercentX.toFixed(1)}%, ${displayMousePercentY.toFixed(1)}%`, mouseScreenX + 25, mouseScreenY - 10);
+		// Selector visualization handles world coordinate feedback now
 		
 		// Find nail through banner, not through main nodes
 		let nailNode = null;
