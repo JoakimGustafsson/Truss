@@ -48,9 +48,9 @@ function init() {
 		
 		// Calculate and store display plane percentages once, here
 		// All other code uses these percentages without further conversion
-		const canvas = document.getElementById('canvas');
-		if (canvas) {
-			const containerRect = canvas.getBoundingClientRect();
+		if (_universe && _universe.currentNode && _universe.currentNode.view) {
+			const view = _universe.currentNode.view;
+			const containerRect = view.element.getBoundingClientRect();
 			const canvasX = e.clientX - containerRect.left;
 			const canvasY = e.clientY - containerRect.top;
 			
