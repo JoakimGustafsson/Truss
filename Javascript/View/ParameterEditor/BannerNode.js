@@ -76,7 +76,7 @@ class BannerNode extends Node {
 		// Get the pre-created display coordinate system from the view
 		const displayCoordinateSystem = truss.view.displayCoordinateSystem;
 
-		this.nail = new Node(this.world, this.parentTrussNode, 'banner', {
+		this.nail = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
 			'localPosition': new Position(centerPercentX, centerPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'nail',
@@ -85,7 +85,7 @@ class BannerNode extends Node {
 			'plane': 'display',
 		});
 
-		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'banner', {
+		this.leftTopNode = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
 			'localPosition': new Position(topLeftPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftTop',
@@ -93,7 +93,7 @@ class BannerNode extends Node {
 			'velocityLoss': 0.9,
 			'plane': 'display',
 		});
-		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'banner', {
+		this.rightTopNode = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
 			'localPosition': new Position(topRightPercentX, topLeftPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightTop',
@@ -101,7 +101,7 @@ class BannerNode extends Node {
 			'velocityLoss': 0.9,
 			'plane': 'display',
 		});
-		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'banner', {
+		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
 			'localPosition': new Position(centerPercentX, GRAVITY_WELL_Y),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'bannerGravityWell',
@@ -110,7 +110,7 @@ class BannerNode extends Node {
 			'plane': 'display',
 		});
 
-		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'banner', {
+		this.leftBottomNode = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
 			'localPosition': new Position(topLeftPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'leftBottomNode',
@@ -120,7 +120,7 @@ class BannerNode extends Node {
 			'plane': 'display',
 		});
 
-		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'banner', {
+		this.rightBottomNode = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
 			'localPosition': new Position(topRightPercentX, bottomPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'rightBottomNode',
