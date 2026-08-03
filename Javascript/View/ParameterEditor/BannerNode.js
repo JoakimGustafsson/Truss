@@ -80,7 +80,7 @@ class BannerNode extends Node {
 			'localPosition': new Position(centerPercentX, centerPercentY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'nail',
-			'mass': NaN,
+			'mass': Infinity,
 			'plane': 'display',
 		});
 
