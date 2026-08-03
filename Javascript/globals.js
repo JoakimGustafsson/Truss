@@ -11,6 +11,15 @@ export function setMyX(v) { myX = v; }
 export function setMyY(v) { myY = v; }
 export function setMouseSet(v) { mouseSet = v; }
 
+// Display plane mouse position in percentages (0-100%)
+// This is calculated early from screen coordinates and used throughout the system
+export let displayMousePercentX = 50;
+export let displayMousePercentY = 50;
+export function setDisplayMousePercent(x, y) { 
+	displayMousePercentX = x; 
+	displayMousePercentY = y; 
+}
+
 // Create control object for backwards compatibility
 export const control = {
 	get myX() { return myX; },

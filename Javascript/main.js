@@ -1,7 +1,7 @@
 import { Universe, World } from './Universe.js';
 import { PerformanceTrussNode } from './ExperimentalTrusses.js';
 import { Position, Vector } from './Primitives.js';
-import { setUniverse, setFPSdisplay, setMyX, setMyY } from './globals.js';
+import { setUniverse, setFPSdisplay, setMyX, setMyY, setDisplayMousePercent } from './globals.js';
 import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTensor, downMouse, upMouse } from './ui-actions.js';
 
 let _universe;
@@ -43,9 +43,22 @@ function init() {
 
 	document.getElementById('mainArea').onmousemove = function(e) {
 		// Store viewport-relative coordinates (for world coordinate system)
-		// Display coordinate system will convert these as needed
 		setMyX(e.clientX);
 		setMyY(e.clientY);
+		
+		// Calculate and store display plane percentages once, here
+		// All other code uses these percentages without further conversion
+		const canvas = document.getElementById('canvas');
+		if (canvas) {
+			const containerRect = canvas.getBoundingClientRect();
+			const canvasX = e.clientX - containerRect.left;
+			const canvasY = e.clientY - containerRect.top;
+			
+			const displayPercX = (canvasX / containerRect.width) * 100;
+			const displayPercY = (1 - (canvasY / containerRect.height)) * 100;
+			
+			setDisplayMousePercent(displayPercX, displayPercY);
+		}
 	};
 	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);
 	window.addEventListener('mouseup', upMouse, false);

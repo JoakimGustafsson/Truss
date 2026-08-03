@@ -1,7 +1,7 @@
 import { Node } from './Node.js';
 import { View } from '../View/TrussView.js';
 import { PropertyEditor } from '../View/ParameterEditor/PropertyEditor.js';
-import { FPSdisplay, universe, myX, myY } from '../globals.js';
+import { FPSdisplay, universe, myX, myY, displayMousePercentX, displayMousePercentY } from '../globals.js';
 import { Position, Vector } from '../Primitives.js';
 import { PanZoomHandler } from '../View/PanZoomHandler.js';
 
@@ -198,35 +198,6 @@ class TrussNode extends Node {
 
 		this.editWindow = new PropertyEditor(this, new Position(100, 100), 500, 500);
 		this.panZoom = new PanZoomHandler(this);
-	}
-
-	/**
-	 * Central function for all mouse position detection in display coordinates.
-	 * All mouse position access must go through this function.
-	 * @return {Position} Mouse position in display percentages (0-100% for both X and Y)
-	 */
-	getMouseDisplayPosition() {
-		// Safety check
-		if (!this.view || !this.view.screenSize) {
-			console.warn('TrussNode.getMouseDisplayPosition(): view or screenSize not available');
-			return new Position(0, 0);
-		}
-		
-		// Get canvas position relative to screen
-		const canvasContainer = document.getElementById('TrussBackground') || this.element;
-		const containerRect = canvasContainer.getBoundingClientRect();
-		
-		// Convert screen coordinates to canvas-relative coordinates
-		const canvasX = myX - containerRect.left;
-		const canvasY = myY - containerRect.top;
-		
-		// Convert canvas pixels to display percentages
-		const screenWidth = this.view.screenSize.x;
-		const screenHeight = this.view.screenSize.y;
-		const displayPercX = (canvasX / screenWidth) * 100;
-		const displayPercY = (1 - (canvasY / screenHeight)) * 100;
-		
-		return new Position(displayPercX, displayPercY);
 	}
 
 	/**
@@ -610,8 +581,8 @@ class TrussNode extends Node {
 		let lowestDistance = 1000000000;
 		let closest;
 		
-		// Get display coordinates using the centralized function
-		const mouseDisplayPerc = this.getMouseDisplayPosition();
+		// Use globally-stored display plane mouse percentages (set once in mousemove)
+		// No recalculation needed - just use the values as-is
 		
 		for (let node of this.nodes) {
 			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'plane');
@@ -621,11 +592,11 @@ class TrussNode extends Node {
 			let threshold;
 			
 			if (nodeIsDisplay) {
-				// For display nodes, compare in display percentage space
+				// For display nodes, use globally-stored display percentages (percentages only)
 				const nodeDisplayX = node.localPosition ? node.localPosition.x : 50;
 				const nodeDisplayY = node.localPosition ? node.localPosition.y : 50;
-				const dx = mouseDisplayPerc.x - nodeDisplayX;
-				const dy = mouseDisplayPerc.y - nodeDisplayY;
+				const dx = displayMousePercentX - nodeDisplayX;
+				const dy = displayMousePercentY - nodeDisplayY;
 				distance = Math.sqrt(dx * dx + dy * dy);
 				threshold = 3;  // 3% for display coordinates
 			} else {
@@ -748,13 +719,12 @@ class TrussNode extends Node {
 		const screenWidth = this.view.screenSize.x;
 		const screenHeight = this.view.screenSize.y;
 		
-		// Get mouse position through centralized function
-		const mouseDisplayPerc = this.getMouseDisplayPosition();
-		this.mouseDisplayPos = mouseDisplayPerc;  // Update for reference
+		// Use globally-stored display plane percentages (already calculated in mousemove)
+		// No recalculation - just use percentages throughout
 		
-		// Draw white circle at mouse position (display coordinates)
-		const mouseScreenX = (mouseDisplayPerc.x / 100) * screenWidth;
-		const mouseScreenY = screenHeight - (mouseDisplayPerc.y / 100) * screenHeight;
+		// Convert display percentages to screen pixels ONLY for drawing
+		const mouseScreenX = (displayMousePercentX / 100) * screenWidth;
+		const mouseScreenY = screenHeight - (displayMousePercentY / 100) * screenHeight;
 		
 		ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
 		ctx.strokeStyle = 'lime';
@@ -764,10 +734,10 @@ class TrussNode extends Node {
 		ctx.fill();
 		ctx.stroke();
 		
-		// Label mouse position
+		// Label mouse position (in percentages)
 		ctx.fillStyle = 'lime';
 		ctx.font = 'bold 14px Arial';
-		ctx.fillText(`Mouse: ${mouseDisplayPerc.x.toFixed(1)}%, ${mouseDisplayPerc.y.toFixed(1)}%`, mouseScreenX + 25, mouseScreenY - 10);
+		ctx.fillText(`Mouse: ${displayMousePercentX.toFixed(1)}%, ${displayMousePercentY.toFixed(1)}%`, mouseScreenX + 25, mouseScreenY - 10);
 		
 		// Find nail through banner, not through main nodes
 		let nailNode = null;
@@ -808,11 +778,13 @@ class TrussNode extends Node {
 		
 		// Display distance to nail if it exists
 		if (nailNode && nailNode.localPosition) {
+			// Convert nail display percentages to screen pixels only for drawing
 			const nailScreenX = (nailNode.localPosition.x / 100) * screenWidth;
 			const nailScreenY = screenHeight - (nailNode.localPosition.y / 100) * screenHeight;
 			
-			const dx = this.mouseDisplayPos.x - nailNode.localPosition.x;
-			const dy = this.mouseDisplayPos.y - nailNode.localPosition.y;
+			// Calculate distance using display percentages (already stored globally)
+			const dx = displayMousePercentX - nailNode.localPosition.x;
+			const dy = displayMousePercentY - nailNode.localPosition.y;
 			const distance = Math.sqrt(dx * dx + dy * dy);
 			
 			ctx.fillStyle = 'red';

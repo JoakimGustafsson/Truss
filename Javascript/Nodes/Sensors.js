@@ -1,6 +1,6 @@
 import { Node } from './Node.js';
 import { Position, Vector } from '../Primitives.js';
-import { universe, myX, myY, mouseSet } from '../globals.js';
+import { universe, myX, myY, mouseSet, displayMousePercentX, displayMousePercentY } from '../globals.js';
 
 /**
  *
@@ -537,9 +537,9 @@ class Selector extends SensorNode {
 		}
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
 		
-		// Update Selector node's position using centralized mouse position function
-		const mouseDisplayPerc = trussNode.getMouseDisplayPosition();
-		this.localPosition = new Position(mouseDisplayPerc.x, mouseDisplayPerc.y);
+		// Use globally-stored display plane mouse position (percentages)
+		// This is calculated once in the mousemove handler
+		this.localPosition = new Position(displayMousePercentX, displayMousePercentY);
 		
 		let closest = trussNode.getClosestObject(this.cursorPosition);
 
