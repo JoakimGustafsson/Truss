@@ -128,11 +128,11 @@ class SelectorBehaviour extends Behaviour {
 		let cursorScreenY = control.myY;
 		let screenPosition = new Position(cursorScreenX, cursorScreenY);
 		
-		// Check if selectedObject is in display coordinates
+		// Check if selectedObject is in display plane
 		let selectedIsDisplay = false;
 		if (universe.selectedObject && universe.selectedObject.labels) {
-			let coordLabel = universe.selectedObject.labels.find(l => l.name === 'coordinatesystem');
-			selectedIsDisplay = coordLabel && coordLabel.coordinatesystemProperty === 'display';
+			let coordLabel = universe.selectedObject.labels.find(l => l.name === 'plane');
+			selectedIsDisplay = coordLabel && coordLabel.planeProperty === 'display';
 		}
 		
 		// For dragging display nodes, convert screen pixels to percentages

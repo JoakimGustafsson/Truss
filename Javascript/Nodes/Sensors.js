@@ -581,8 +581,8 @@ class Selector extends SensorNode {
 				universe.selectedObject.resetVelocity();
 				
 				// Check if selected object is a display node
-				let selectedCoordLabel = universe.selectedObject.labels && universe.selectedObject.labels.find(l => l.name === 'coordinatesystem');
-				let selectedIsDisplay = selectedCoordLabel && selectedCoordLabel.coordinatesystemProperty === 'display';
+				let selectedCoordLabel = universe.selectedObject.labels && universe.selectedObject.labels.find(l => l.name === 'plane');
+				let selectedIsDisplay = selectedCoordLabel && selectedCoordLabel.planeProperty === 'display';
 				
 				if (selectedIsDisplay) {
 					// For display nodes, calculate and set local position in display coordinates

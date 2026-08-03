@@ -603,8 +603,8 @@ class TrussNode extends Node {
 		const cursorDisplayPercY = (1 - (position.y / screenHeight)) * 100;
 		
 		for (let node of this.nodes) {
-			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
-			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
+			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'plane');
+			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.planeProperty === 'display';
 			
 			let distance;
 			let threshold;
@@ -762,8 +762,8 @@ class TrussNode extends Node {
 		}
 		
 		for (let node of this.nodes) {
-			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'coordinatesystem');
-			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.coordinatesystemProperty === 'display';
+			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'plane');
+			let nodeIsDisplay = nodeCoordLabel && nodeCoordLabel.planeProperty === 'display';
 			
 			if (nodeIsDisplay && node.localPosition) {
 				// Convert display percentage coordinates to screen pixels

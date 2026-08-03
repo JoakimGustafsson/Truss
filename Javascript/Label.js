@@ -90,9 +90,9 @@ class Labels {
 			'enforced', 'enforced', 'Enforced', ParameterCategory.CONTENT,
 			'Special parameter that only is used in labels to enforce all parameter values are enforced.');
 
-		this.coordinatesystemProperty = new StringProperty(
-			'coordinatesystem', 'coordinatesystem', 'Coordinate System', ParameterCategory.CONTENT,
-			'The coordinate system for this node: "world" or "display".');
+		this.planeProperty = new StringProperty(
+			'plane', 'plane', 'Plane', ParameterCategory.CONTENT,
+			'The plane this node belongs to: "world", "display", or "admin".');
 
 		this.startNodeProperty = new NodeProperty(
 			'node1', 'node1', 'Start node', ParameterCategory.CONTENT,
@@ -227,11 +227,12 @@ class Labels {
 			// Used for UI elements like banner that should maintain fixed screen size
 			// Display coordinates operate independently: no physics connections to world nodes
 		});
-		let coordinateSystemLabel = this.addLabel('coordinatesystem', [nodeLabel], {
-			'coordinatesystemProperty': 'world',
-			// Coordinate system for node positioning: 'world' or 'display'
-			// 'world': standard world coordinates, affected by zoom/pan
-			// 'display': screen-relative coordinates, independent of zoom/pan
+		let planeLabel = this.addLabel('plane', [nodeLabel], {
+			'planeProperty': 'world',
+			// Plane for node: 'world', 'display', or 'admin'
+			// 'world': standard world coordinates, affected by zoom/pan, interactive via display plane hover/select
+			// 'display': screen-fixed coordinates, used for UI elements, independent of zoom/pan
+			// 'admin': system/backend plane
 			// Defaults to 'world' if not specified
 		});
 	}
