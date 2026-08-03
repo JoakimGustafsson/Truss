@@ -1,6 +1,6 @@
 import { Node } from './Node.js';
 import { Position, Vector } from '../Primitives.js';
-import { universe, myX, myY, mouseSet, displayMousePercentX, displayMousePercentY, Planes } from '../globals.js';
+import { universe, myX, myY, mouseSet, displayMousePercentX, displayMousePercentY } from '../globals.js';
 
 /**
  *
@@ -585,9 +585,9 @@ class Selector extends SensorNode {
 				universe.selectedObject.resetVelocity();
 				
 				// Check if selected object is in the display plane
-				let selectedIsDisplay = universe.selectedObject.plane === Planes.display;
+				let selectedIsDisplay = universe.selectedObject.coordinateSystem && universe.selectedObject.coordinateSystem.isDisplay();
 				
-				console.log(`🎯 Selector dragging: obj=${universe.selectedObject.name}, plane=${universe.selectedObject.plane?.name}, isDisplay=${selectedIsDisplay}, displayPercent=(${displayMousePercentX.toFixed(1)}, ${displayMousePercentY.toFixed(1)})`);
+				console.log(`🎯 Selector dragging: obj=${universe.selectedObject.name}, coordSys=${universe.selectedObject.coordinateSystem?.name}, isDisplay=${selectedIsDisplay}, displayPercent=(${displayMousePercentX.toFixed(1)}, ${displayMousePercentY.toFixed(1)})`);
 				
 				if (selectedIsDisplay) {
 					// For display nodes, use globally-calculated display percentages
