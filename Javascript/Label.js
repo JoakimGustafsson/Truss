@@ -132,6 +132,7 @@ class Labels {
 			'connectedTensorsProperty': undefined,
 		});
 		let tensorLabel = this.addLabel('tensor', [], {
+			'nameProperty': '',
 			'visibilityProperty': 1,
 			'startNodeProperty': undefined,
 			'endNodeProperty': undefined,
