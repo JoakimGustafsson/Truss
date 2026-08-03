@@ -1,7 +1,7 @@
 import { Node } from './Node.js';
 import { View } from '../View/TrussView.js';
 import { PropertyEditor } from '../View/ParameterEditor/PropertyEditor.js';
-import { FPSdisplay, universe, myX, myY, displayMousePercentX, displayMousePercentY } from '../globals.js';
+import { FPSdisplay, universe, myX, myY, displayMousePercentX, displayMousePercentY, Planes } from '../globals.js';
 import { Position, Vector } from '../Primitives.js';
 import { PanZoomHandler } from '../View/PanZoomHandler.js';
 
@@ -585,8 +585,8 @@ class TrussNode extends Node {
 		// No recalculation needed - just use the values as-is
 		
 		for (let node of this.nodes) {
-			// Check the NODE's plane property value
-			let nodeIsDisplay = node.plane === 'display';
+			// Check if the node is in the display plane
+			let nodeIsDisplay = node.plane === Planes.display;
 			
 			let distance;
 			let threshold;
