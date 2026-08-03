@@ -585,8 +585,10 @@ class Selector extends SensorNode {
 				universe.selectedObject.resetVelocity();
 				
 				// Check if selected object is a display node
-				let selectedCoordLabel = universe.selectedObject.labels && universe.selectedObject.labels.find(l => l.name === 'plane');
-				let selectedIsDisplay = selectedCoordLabel && selectedCoordLabel.planeProperty === 'display';
+				// Look at the NODE's actual planeProperty value, not the label descriptor
+				let selectedIsDisplay = universe.selectedObject.planeProperty === 'display';
+				
+				console.log(`🎯 Selector dragging: obj=${universe.selectedObject.name}, isDisplay=${selectedIsDisplay}, displayPercent=(${displayMousePercentX.toFixed(1)}, ${displayMousePercentY.toFixed(1)})`);
 				
 				if (selectedIsDisplay) {
 					// For display nodes, use globally-calculated display percentages
