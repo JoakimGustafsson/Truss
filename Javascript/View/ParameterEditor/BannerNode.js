@@ -131,6 +131,7 @@ class BannerNode extends Node {
 
 		this.leftBand = new Tensor(this.leftTopNode, this.nail, 'absorber pullspring banner', {
 			'equilibriumLength': 20,
+		  'name': 'hangerLeft',
 			'dampeningConstant': 15,
 			'constant': 500,
 			'visible': 1,
@@ -138,6 +139,7 @@ class BannerNode extends Node {
 
 		this.rightBand = new Tensor(this.rightTopNode, this.nail, 'pullspring absorber banner', {
 			'equilibriumLength': 20,
+		  'name': 'hangerRight',
 			'dampeningConstant': 15,
 			'constant': 500,
 			'visible': 1,
@@ -145,6 +147,7 @@ class BannerNode extends Node {
 
 		this.topBand = new Tensor(this.leftTopNode, this.rightTopNode, 'spring absorber banner', {
 			'equilibriumLength': 40,
+		  'name': 'hangerBar',
 			'dampeningConstant': 12,
 			'constant': 350,
 		});
@@ -152,6 +155,7 @@ class BannerNode extends Node {
 
 		this.leftSpring = new Tensor(this.leftTopNode, this.leftBottomNode, 'spring absorber banner', {
 			'equilibriumLength': 50,
+		  'name': 'bannerLeftGuard',
 			'dampeningConstant': 13,
 			'constant': 650,
 			'color': 'transparent',
@@ -159,6 +163,7 @@ class BannerNode extends Node {
 
 		this.rightSpring =new Tensor(this.rightTopNode, this.rightBottomNode, 'spring absorber banner', {
 			'equilibriumLength': 50,
+		  'name': 'bannerRightGuard',
 			'dampeningConstant': 13,
 			'constant': 650,
 			'color': 'transparent',
