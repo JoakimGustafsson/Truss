@@ -536,10 +536,7 @@ class Selector extends SensorNode {
 			return;
 		}
 		this.cursorPosition = trussNode.view.worldPositionWithOffset(myX, myY);
-		
-		// Use globally-stored display plane mouse position (percentages)
-		// This is calculated once in the mousemove handler
-		this.localPosition = new Position(displayMousePercentX, displayMousePercentY);
+		this.setPosition(this.cursorPosition);
 		
 		let closest = trussNode.getClosestObject();
 
@@ -612,8 +609,7 @@ class Selector extends SensorNode {
 	}
 
 	/**
-	 * Draw the crosshair representing the selector at mouse position in world coordinates
-	 * Scales with zoom level so it remains visible at extreme zoom levels
+	 * Draw the selector at its world position using a fixed display size.
 	 * @param {Trussnode} truss
 	 * @param {number} time
 	 * @param {number} graphicDebugLevel
@@ -626,31 +622,19 @@ class Selector extends SensorNode {
 			return;
 		}
 		
-		// Scale crosshair with zoom level so it remains visible
-		const distMultiplier = view.getDistanceMultiplier();
-		const crosshairLength = 0.3 * distMultiplier;  // Scales with zoom
-		const circleRadius = 0.1 * distMultiplier;
+		const centerX = view.x(this.getPosition());
+		const centerY = view.y(this.getPosition());
+		const crosshairLength = 12;
+		const circleRadius = 4;
 		
-		// Draw in yellow
 		view.context.strokeStyle = 'Yellow';
-		view.context.lineWidth = Math.max(1, 2 * distMultiplier);
+		view.context.lineWidth = 2;
 		view.context.beginPath();
-		
-		// Draw circle at center
-		view.drawCircle(this.getPosition(), circleRadius);
-		
-		// Draw vertical line through center
-		view.drawLine(
-			Vector.subtractVectors(this.getPosition(), new Position(0, crosshairLength)),
-			Vector.addVectors(this.getPosition(), new Position(0, crosshairLength))
-		);
-		
-		// Draw horizontal line through center
-		view.drawLine(
-			Vector.subtractVectors(this.getPosition(), new Position(crosshairLength, 0)),
-			Vector.addVectors(this.getPosition(), new Position(crosshairLength, 0))
-		);
-		
+		view.context.arc(centerX, centerY, circleRadius, 0, 2 * Math.PI);
+		view.context.moveTo(centerX, centerY - crosshairLength);
+		view.context.lineTo(centerX, centerY + crosshairLength);
+		view.context.moveTo(centerX - crosshairLength, centerY);
+		view.context.lineTo(centerX + crosshairLength, centerY);
 		view.context.stroke();
 	}
 }

@@ -583,18 +583,24 @@ class TrussNode extends Node {
 		};
 		
 		for (let node of this.nodes) {
+			if (node == avoid || node == this.selector) {
+				continue;
+			}
 			const distance = distanceToMouse(node);
 			
-			if (distance < lowestDistance && distance < maxDisplayDistance && node != avoid) {
+			if (distance < lowestDistance && distance < maxDisplayDistance) {
 				lowestDistance = distance;
 				closest = node;
 			}
 		}
 		
 		for (let tensor of this.tensors) {
+			if (tensor == avoid) {
+				continue;
+			}
 			const distance = distanceToMouse(tensor);
 			
-			if (distance < lowestDistance && distance < maxDisplayDistance && tensor != avoid) {
+			if (distance < lowestDistance && distance < maxDisplayDistance) {
 				lowestDistance = distance;
 				closest = tensor;
 			}

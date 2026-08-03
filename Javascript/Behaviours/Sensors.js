@@ -132,6 +132,8 @@ class SelectorBehaviour extends Behaviour {
 		// Cursor position in screen pixels
 		let cursorScreenX = control.myX;
 		let cursorScreenY = control.myY;
+		this.cursorPosition = trussNode.view.worldPositionWithOffset(cursorScreenX, cursorScreenY);
+		this.displayCursorPosition = new Position(displayMousePercentX, displayMousePercentY);
 		
 		// Check if selectedObject is in display plane
 		let selectedIsDisplay = false;
@@ -144,16 +146,7 @@ class SelectorBehaviour extends Behaviour {
 			console.log(`sense: mouseSet=${control.mouseSet}, selectedObject=${universe.selectedObject?.name}, selectedIsDisplay=${selectedIsDisplay}`);
 		}
 		
-		// For dragging display nodes, use pre-calculated display percentages
-		if (selectedIsDisplay) {
-			if (shouldLog) {
-				console.log(`Dragging display node: displayMousePercentX=${displayMousePercentX}, displayMousePercentY=${displayMousePercentY}`);
-			}
-			this.cursorPosition = new Position(displayMousePercentX, displayMousePercentY);
-		} else {
-			// For world coordinates, use standard conversion
-			this.cursorPosition = trussNode.view.worldPositionWithOffset(cursorScreenX, cursorScreenY);
-		}
+		this.setPosition(this.cursorPosition);
 		
 		let closest = trussNode.getClosestObject(3, this);
 
@@ -184,7 +177,10 @@ class SelectorBehaviour extends Behaviour {
 				universe.selectedObject.resetVelocity();
 				// For display nodes, update localPosition directly
 				if (selectedIsDisplay) {
-					universe.selectedObject.localPosition = new Position(this.cursorPosition.x, this.cursorPosition.y);
+					universe.selectedObject.localPosition = new Position(
+						this.displayCursorPosition.x,
+						this.displayCursorPosition.y
+					);
 					if (shouldLog && universe.selectedObject.name !== 'nail') {
 						const cs = universe.selectedObject.coordinateSystem;
 						const screenPixels = cs ? cs.convertToScreenPixels(universe.selectedObject) : {x: 0, y: 0};
@@ -216,14 +212,19 @@ class SelectorBehaviour extends Behaviour {
 		let view = truss.view;
 		this.highLight(view.context);
 		if (view.inside(this.getPosition())) {
+			const centerX = view.x(this.getPosition());
+			const centerY = view.y(this.getPosition());
+			const crosshairLength = 12;
+			const circleRadius = 4;
+
 			view.context.strokeStyle = 'Yellow';
-			view.context.lineWidth = 1;
+			view.context.lineWidth = 2;
 			view.context.beginPath();
-			view.drawCircle(this.getPosition(), 0.1);
-			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(0, 1)),
-				Vector.addVectors(this.getPosition(), new Position(0, 1)));
-			view.drawLine(Vector.subtractVectors(this.getPosition(), new Position(1, 0)),
-				Vector.addVectors(this.getPosition(), new Position(1, 0)));
+			view.context.arc(centerX, centerY, circleRadius, 0, 2 * Math.PI);
+			view.context.moveTo(centerX, centerY - crosshairLength);
+			view.context.lineTo(centerX, centerY + crosshairLength);
+			view.context.moveTo(centerX - crosshairLength, centerY);
+			view.context.lineTo(centerX + crosshairLength, centerY);
 			view.context.stroke();
 		}
 	}

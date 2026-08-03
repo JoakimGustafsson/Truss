@@ -5,6 +5,13 @@ import { universe } from '../../globals.js';
 import { Position, Vector } from '../../Primitives.js';
 import { updateBannerInspectorHeader } from './BannerInspector.js';
 
+const EARTH_MASS_KG = 5.97219e24;
+const EARTH_RADIUS_METERS = 6371e3;
+const EARTH_GRAVITY_CONSTANT = 6.6743e-11;
+const DISPLAY_METERS_PER_PERCENT = 0.004;
+const DISPLAY_EARTH_RADIUS = EARTH_RADIUS_METERS / DISPLAY_METERS_PER_PERCENT;
+const DISPLAY_GRAVITY_CONSTANT = -EARTH_GRAVITY_CONSTANT / Math.pow(DISPLAY_METERS_PER_PERCENT, 3);
+
 /**
  * @class
  * @extends Node
@@ -74,12 +81,7 @@ class BannerNode extends Node {
 		const centerPercentY = 99;
 		const bottomPercentY = 30;
 
-		// Gravity well: simulate Earth gravity (9.82 m/s²) at screen scale
-		// Screen = 40 cm = 0.4 m physical
-		// Gravity well positioned 2m below (500% units, since 100% = 0.4m)
-		// Step 10 of 10: 5.89e10 kg (full Earth gravity)
-		const GRAVITY_WELL_Y = -500;
-		const GRAVITY_WELL_MASS = 5.89e10;
+		const gravityWellY = bottomPercentY - DISPLAY_EARTH_RADIUS;
 
 		// Get the pre-created display coordinate system from the view
 		const displayCoordinateSystem = truss.view.displayCoordinateSystem;
@@ -109,10 +111,10 @@ class BannerNode extends Node {
 			'plane': 'display',
 		});
 		this.bannerGravityWell = new Node(this.world, this.parentTrussNode, 'banner node moveable plane', {
-			'localPosition': new Position(centerPercentX, GRAVITY_WELL_Y),
+			'localPosition': new Position(centerPercentX, gravityWellY),
 			'coordinateSystem': displayCoordinateSystem,
 			'name': 'bannerGravityWell',
-			'mass': GRAVITY_WELL_MASS,
+			'mass': EARTH_MASS_KG,
 			'velocityLoss': 1.0,
 			'plane': 'display',
 		});
@@ -177,18 +179,18 @@ class BannerNode extends Node {
 			'color': 'transparent',
 		});
 
-		this.leftBottomField = new Tensor(this.leftBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 10,
-			'dampeningConstant': 10,
-			'constant': 1,  // Gravitational attraction constant
+		this.leftBottomField = new Tensor(this.bannerGravityWell, this.leftBottomNode, 'field banner', {
+			'name': 'bannerLeftGravity',
+			'constant': DISPLAY_GRAVITY_CONSTANT,
 			'color': 'transparent',
+			'visible': 0,
 		});
 
-		this.rightBottomField = new Tensor(this.rightBottomNode, this.bannerGravityWell, 'pullspring banner', {
-			'equilibriumLength': 10,
-			'dampeningConstant': 10,
-			'constant': 1,  // Gravitational attraction constant
+		this.rightBottomField = new Tensor(this.bannerGravityWell, this.rightBottomNode, 'field banner', {
+			'name': 'bannerRightGravity',
+			'constant': DISPLAY_GRAVITY_CONSTANT,
 			'color': 'transparent',
+			'visible': 0,
 		});
 
 		this.visible = true;

@@ -42,22 +42,25 @@ function createDefaultPerformanceScene(trussNode) {
 		'mass': EARTH_MASS,
 	});
 
-	trussNode.protagonist = new ProtagonistNode(trussNode.world, trussNode, 'moveable node color', {
+	trussNode.protagonist = new ProtagonistNode(trussNode.world, trussNode, 'moveable velocityloss node color', {
 		'name': 'Protagonist',
 		'localPosition': new Position(4, 10),  // Positive Y = above Earth, will fall down
 		'mass': 70,
+		'velocityLoss': 0.9999,
 		'color': 'yellow',
 	});
 
-	const nodeA = new Node(trussNode.world, trussNode, 'moveable node', {
+	const nodeA = new Node(trussNode.world, trussNode, 'moveable velocityloss node', {
 		'name': 'Node A',
 		'localPosition': new Position(3, 20),  // Positive Y = above Earth
 		'mass': 20,
+		'velocityLoss': 0.9999,
 	});
-	const nodeB = new Node(trussNode.world, trussNode, 'moveable node', {
+	const nodeB = new Node(trussNode.world, trussNode, 'moveable velocityloss node', {
 		'name': 'Node B',
 		'localPosition': new Position(6, 20),  // Positive Y = above Earth
 		'mass': 20,
+		'velocityLoss': 0.95,
 	});
 	const anchorLeft = new Node(trussNode.world, trussNode, 'node', {
 		'name': 'Anchor Left',
