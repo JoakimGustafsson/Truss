@@ -210,9 +210,9 @@ class Labels {
 			// Used for UI elements like banner top nodes that are anchored or controlled by springs
 		});
 		let anchorLabel = this.addLabel('anchor', [nodeLabel], {
-			'velocityLossProperty': 1.0,
+			'velocityLossProperty': 0.0,
 			// Nodes with this label are pinned/anchored in place
-			// Velocity is zeroed each frame (velocityLoss = 1.0 means all velocity is retained, then zeroed)
+			// Velocity is zeroed each frame (velocityLoss = 0.0 means velocity becomes 0)
 			// Still draggable in editor but won't move from physics forces
 		});
 		let planeLabel = this.addLabel('plane', [], {
