@@ -58,7 +58,6 @@ function init() {
 			const displayPercY = (1 - (canvasY / containerRect.height)) * 100;
 			
 			setDisplayMousePercent(displayPercX, displayPercY);
-			console.log(`📍 main.js mousemove: displayPercent=(${displayPercX.toFixed(1)}, ${displayPercY.toFixed(1)})`);
 		}
 	};
 	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);
