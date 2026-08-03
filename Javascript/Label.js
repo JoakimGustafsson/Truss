@@ -217,9 +217,9 @@ class Labels {
 			// 'admin': system/backend plane
 			// Defaults to 'world' if not specified
 		});
-		let bannerLabel = this.addLabel('banner', [nodeLabel, moveabelLabel, planeLabel], {
-			// Nodes with this label are part of the banner UI system
-			// Automatically includes: node, moveable, and plane behaviors via dependencies
+		let bannerLabel = this.addLabel('banner', [], {
+			// Objects with this label are part of the banner UI system
+			// No automatic inheritance - nodes need to add 'node plane', tensors use their own labels
 		});
 		let velocityLossLabel = this.addLabel('velocityloss', [nodeLabel], {
 			'velocityLossProperty': 0.9999,
