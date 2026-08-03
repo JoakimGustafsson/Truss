@@ -123,6 +123,12 @@ class SelectorBehaviour extends Behaviour {
 			return;
 		}
 		
+		// Throttle debug logging to once per second
+		if (!this._lastDebugLog) this._lastDebugLog = 0;
+		const now = Date.now();
+		const shouldLog = (now - this._lastDebugLog) > 1000;
+		if (shouldLog) this._lastDebugLog = now;
+		
 		// Cursor position in screen pixels
 		let cursorScreenX = control.myX;
 		let cursorScreenY = control.myY;
@@ -137,6 +143,9 @@ class SelectorBehaviour extends Behaviour {
 		
 		// For dragging display nodes, use pre-calculated display percentages
 		if (selectedIsDisplay) {
+			if (shouldLog) {
+				console.log(`Dragging display node: displayMousePercentX=${displayMousePercentX}, displayMousePercentY=${displayMousePercentY}`);
+			}
 			this.cursorPosition = new Position(displayMousePercentX, displayMousePercentY);
 		} else {
 			// For world coordinates, use standard conversion
@@ -174,6 +183,11 @@ class SelectorBehaviour extends Behaviour {
 				// For display nodes, update localPosition directly
 				if (selectedIsDisplay) {
 					universe.selectedObject.localPosition = new Position(this.cursorPosition.x, this.cursorPosition.y);
+					if (shouldLog && universe.selectedObject.name !== 'nail') {
+						const cs = universe.selectedObject.coordinateSystem;
+						const screenPixels = cs ? cs.convertToScreenPixels(universe.selectedObject) : {x: 0, y: 0};
+						console.log(`${universe.selectedObject.name}: localPosition=(${universe.selectedObject.localPosition.x.toFixed(1)}, ${universe.selectedObject.localPosition.y.toFixed(1)}) → screenPixels=(${screenPixels.x.toFixed(0)}, ${screenPixels.y.toFixed(0)})`);
+					}
 				} else {
 					universe.selectedObject.copyPosition(this.cursorPosition);
 				}
