@@ -108,13 +108,13 @@ class StoreableObject {
      *
      */
 	initialRefresh() {
-		if (this.world) {
-			this.refreshPropertiesAfterLabelChange();
-		}
 		if (this.valueObject) {
 			for (let [key, value] of Object.entries(this.valueObject)) {
 				this[key]=value;
 			}
+		}
+		if (this.world) {
+			this.refreshPropertiesAfterLabelChange();
 		}
 	}
 
@@ -141,7 +141,11 @@ class StoreableObject {
 		this.labels = this.world.labels.parse(this.labelString, this);
 		this.properties.clearProperties(this.labelProperty);
 
-		for (let [key, value] of Object.entries(this.getPropertyObject())) {
+		const propObj = this.getPropertyObject();
+		if (this.name && this.name !== 'Unnamed') {
+			console.log(`${this.constructor.name} "${this.name}" has properties:`, Object.keys(propObj));
+		}
+		for (let [key, value] of Object.entries(propObj)) {
 			this.properties.addProperty(value.propertyObject, value.defaultValue);
 			if (this[value.propertyObject.propertyName]==undefined ||
                 Number.isNaN(this[value.propertyObject.propertyName]) ||

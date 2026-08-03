@@ -134,6 +134,9 @@ class Tensor extends StoreableObject {
 		this.node1 = node1;
 		this.node2 = node2;
 		this.initialRefresh();
+		if (this.name !== 'Unnamed') {
+			console.log(`Tensor created with name: ${this.name}, valueObject was:`, valueObject);
+		}
 	}
 
 	/**
