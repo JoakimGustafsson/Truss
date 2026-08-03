@@ -11,6 +11,7 @@ import { Tensor } from '../Tensors.js';
 import { BehaviourOverride } from '../Behaviours/Behaviour.js';
 import { updateNodeRotation } from '../Behaviours/Angles.js';
 import { createAngleTensorDemo } from '../AngleTensorDemo.js';
+import { GRAVITY_FIELD_CONSTANT } from '../Gravity.js';
 
 function makeView() {
 	return {
@@ -279,4 +280,40 @@ test('experimental truss angle tensor demo has fixed support, angle center, and 
 	assert.equal(demo.leftAngleTensor.torqueConstant1, 90);
 	assert.equal(demo.leftAngleTensor.torqueConstant2, 90);
 	assert.equal(demo.rightAngleTensor.torqueConstant1, 90);
+});
+
+test('gravitywell owns mass while gravity field owns attraction constant', () => {
+	const coordinateSystem = {
+		name: 'world',
+		calculateDistance(node1, node2) {
+			return Math.sqrt(this.calculateDistanceSquared(node1, node2));
+		},
+		calculateDistanceSquared(node1, node2) {
+			return Math.pow(node2.localPosition.x - node1.localPosition.x, 2) +
+				Math.pow(node2.localPosition.y - node1.localPosition.y, 2);
+		},
+	};
+	const world = { labels: new Labels() };
+	const earth = new Node(world, undefined, 'gravitywell node', {
+		name: 'Earth',
+		localPosition: new Position(0, -100),
+		mass: 1000000,
+		coordinateSystem,
+	});
+	const handle = new Node(world, undefined, 'node moveable', {
+		name: 'Handle',
+		localPosition: new Position(0, 10),
+		mass: 1,
+		coordinateSystem,
+	});
+	const gravity = new Tensor(earth, handle, 'gravity field', {
+		constant: GRAVITY_FIELD_CONSTANT,
+	});
+
+	assert.equal(earth.constant, undefined);
+	assert.equal(gravity.constant, GRAVITY_FIELD_CONSTANT);
+
+	gravity.calculateForceField();
+	const forceOnHandle = gravity.getForce(handle);
+	assert.ok(forceOnHandle.y < 0, `expected downward gravity, got y=${forceOnHandle.y}`);
 });

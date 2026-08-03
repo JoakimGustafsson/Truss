@@ -1,5 +1,7 @@
 /* global Tensor Spring */
 
+const GRAVITY_FIELD_CONSTANT = -6.67e-11;
+
 /**
  * @class
  */
@@ -211,15 +213,10 @@ class GeneralControl {
 		} else {
 			gravityWell = nodes[0];
 		}
-		/*let constant = gravityWell.constant;
-		if (!constant) {
-			alert('Could not find gravitywell labeled node or field constant for gravity.');
-			return;
-		}*/
 
 		universe.currentNode.addTensor(
-			new Tensor(universe.selectedObject, gravityWell, 'gravity field').initiate({
-				'constant': 6.67e-11,
+			new Tensor(gravityWell, universe.selectedObject, 'gravity field').initiate({
+				'constant': GRAVITY_FIELD_CONSTANT,
 				'visible': 1,
 			}));
 	}

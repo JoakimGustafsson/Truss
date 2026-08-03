@@ -4,6 +4,7 @@ import { Tensor } from './Tensors.js';
 import { Selector } from './Nodes/Sensors.js';
 import { Position } from './Primitives.js';
 import { createAngleTensorDemo } from './AngleTensorDemo.js';
+import { EARTH_CENTER, EARTH_MASS, GRAVITY_FIELD_CONSTANT } from './Gravity.js';
 
 /**
  * Coordinate System Reference:
@@ -19,10 +20,6 @@ import { createAngleTensorDemo } from './AngleTensorDemo.js';
  * - The negative sign is applied in FieldCalculator.calculate()
  * - For gravity: use NEGATIVE constant so that positive field math gives attraction
  */
-const EARTH_CENTER = new Position(0, -6371e3);  // NEGATIVE Y = far down (toward gravity)
-const EARTH_MASS = 5.97219e24;
-const GRAVITY_CONSTANT = -6.67e-11;  // NEGATIVE for attractive force (gravity)
-
 /**
  * @param  {TrussNode} trussNode
  */
@@ -106,7 +103,7 @@ function createDefaultPerformanceScene(trussNode) {
 	});
 	new Tensor(trussNode.earth, trussNode.protagonist, 'field', {
 		'name': 'gravity',
-		'constant': GRAVITY_CONSTANT,
+		'constant': GRAVITY_FIELD_CONSTANT,
 		'visible': 0,
 	});
 
@@ -114,12 +111,12 @@ function createDefaultPerformanceScene(trussNode) {
 	// Bottom nodes experience stronger gravity pull to create the draping effect
 	new Tensor(trussNode.earth, nodeA, 'field', {
 		'name': 'gravity-nodeA',
-		'constant': GRAVITY_CONSTANT,
+		'constant': GRAVITY_FIELD_CONSTANT,
 		'visible': 0,
 	});
 	new Tensor(trussNode.earth, nodeB, 'field', {
 		'name': 'gravity-nodeB',
-		'constant': GRAVITY_CONSTANT,
+		'constant': GRAVITY_FIELD_CONSTANT,
 		'visible': 0,
 	});
 

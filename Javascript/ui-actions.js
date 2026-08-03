@@ -2,6 +2,7 @@ import { universe, setMouseSet } from './globals.js';
 import { Node } from './Nodes/Node.js';
 import { Tensor } from './Tensors.js';
 import { Position } from './Primitives.js';
+import { GRAVITY_FIELD_CONSTANT } from './Gravity.js';
 
 export function downMouse(e) {
 	if (e && e.target && e.target.closest && e.target.closest('.configareaouter')) {
@@ -152,14 +153,9 @@ export function addGravityCheat() {
 	let nodes = gravityWellLabel.getNodes();
 	if (!nodes || nodes.length == 0) return;
 	let gravityWell = nodes[0];
-	let constant = gravityWell.constant;
-	if (!constant) {
-		console.error('Could not find gravitywell labeled node or field constant for gravity.');
-		return;
-	}
 	universe.currentNode.addTensor(
-		new Tensor(universe.selectedObject, gravityWell, 'gravity field', {
-			'constant': constant,
+		new Tensor(gravityWell, universe.selectedObject, 'gravity field', {
+			'constant': GRAVITY_FIELD_CONSTANT,
 			'visible': 0,
 		}));
 }

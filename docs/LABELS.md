@@ -74,7 +74,7 @@ Current definitions are in `Javascript\Label.js`.
 | `angletensor` | Tensor | Tensor endpoint angle targets and endpoint torque constants |
 | `moveable` | Node | Node affected by velocity/force updates |
 | `angle` | Node | Node with editable angle and angular velocity damping |
-| `gravitywell` | Node | Gravity source; defaults include Earth mass, constant, and negative-Y position |
+| `gravitywell` | Node | Gravity source; defaults include Earth mass and negative-Y position |
 | `truss` | Node | Main truss/container node |
 | `sensor`, `selector`, `keysensor` | Node | Input/sensor roles |
 | `picture` | Node | Image-backed node |

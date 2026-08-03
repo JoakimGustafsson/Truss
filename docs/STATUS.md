@@ -18,6 +18,12 @@ This file tracks current known blockers and cleanup status for the repository.
 - **Impact:** Touchpad interaction is usable but not smooth.
 - **Status:** Not currently blocking; future improvement recommended if touchpad usability becomes a priority.
 
+### Banner div stretches content
+
+- **Location:** Banner rendering/layout
+- **Description:** The banner div stretches its content in a strange way and needs layout cleanup.
+- **TODO:** Make the banner div taller initially and review how its content sizing is constrained.
+
 ## Cleanup status
 
 Historical merge-conflict markers were removed in this branch, keeping the newer `Universe`/`World` runtime path as canonical.

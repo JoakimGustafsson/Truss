@@ -200,7 +200,6 @@ class Labels {
 		});
 		let dampLabel = this.addLabel('dampenedspring', [springLabel, absorbLabel], {});
 		let gravityLabel = this.addLabel('gravitywell', [nodeLabel], {
-			'constantProperty': 6.67e-11,
 			'massProperty': 5.97219e24,
 			'nameProperty': 'Earth',
 			'positionProperty': new Position(0, -6371000),
