@@ -585,8 +585,8 @@ class TrussNode extends Node {
 		// No recalculation needed - just use the values as-is
 		
 		for (let node of this.nodes) {
-			// Check the NODE's actual planeProperty value, not the label descriptor
-			let nodeIsDisplay = node.planeProperty === 'display';
+			// Check the NODE's plane property value
+			let nodeIsDisplay = node.plane === 'display';
 			
 			let distance;
 			let threshold;
