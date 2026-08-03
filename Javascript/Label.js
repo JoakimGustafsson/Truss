@@ -208,8 +208,17 @@ class Labels {
 			// Nodes with this label should not be affected by gravity fields
 			// Used for UI elements like banner top nodes that are anchored or controlled by springs
 		});
-		let bannerLabel = this.addLabel('banner', [nodeLabel], {
+		let planeLabel = this.addLabel('plane', [nodeLabel], {
+			'planeProperty': 'world',
+			// Plane for node: 'world', 'display', or 'admin'
+			// 'world': standard world coordinates, affected by zoom/pan, interactive via display plane hover/select
+			// 'display': screen-fixed coordinates, used for UI elements, independent of zoom/pan
+			// 'admin': system/backend plane
+			// Defaults to 'world' if not specified
+		});
+		let bannerLabel = this.addLabel('banner', [nodeLabel, moveabelLabel, planeLabel], {
 			// Nodes with this label are part of the banner UI system
+			// Automatically includes: node, moveable, and plane (display) behaviors
 		});
 		let velocityLossLabel = this.addLabel('velocityloss', [nodeLabel], {
 			'velocityLossProperty': 0.9999,
@@ -226,14 +235,6 @@ class Labels {
 			// Their positions are NOT affected by zoom/pan transformations
 			// Used for UI elements like banner that should maintain fixed screen size
 			// Display coordinates operate independently: no physics connections to world nodes
-		});
-		let planeLabel = this.addLabel('plane', [nodeLabel], {
-			'planeProperty': 'world',
-			// Plane for node: 'world', 'display', or 'admin'
-			// 'world': standard world coordinates, affected by zoom/pan, interactive via display plane hover/select
-			// 'display': screen-fixed coordinates, used for UI elements, independent of zoom/pan
-			// 'admin': system/backend plane
-			// Defaults to 'world' if not specified
 		});
 	}
 
