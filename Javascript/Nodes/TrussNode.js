@@ -604,11 +604,8 @@ class TrussNode extends Node {
 		let lowestDistance = 1000000000;
 		let closest;
 		
-		// Convert cursor position to display percentage coordinates
-		const screenWidth = this.view.screenSize.x;
-		const screenHeight = this.view.screenSize.y;
-		const cursorDisplayPercX = (position.x / screenWidth) * 100;
-		const cursorDisplayPercY = (1 - (position.y / screenHeight)) * 100;
+		// Get display coordinates using the centralized function
+		const mouseDisplayPerc = this.getMouseDisplayPosition();
 		
 		for (let node of this.nodes) {
 			let nodeCoordLabel = node.labels && node.labels.find(l => l.name === 'plane');
@@ -618,12 +615,12 @@ class TrussNode extends Node {
 			let threshold;
 			
 			if (nodeIsDisplay) {
-				// For display nodes, use display coordinate distance with localPosition
+				// For display nodes, compare in display percentage space
 				const nodeDisplayX = node.localPosition ? node.localPosition.x : 50;
 				const nodeDisplayY = node.localPosition ? node.localPosition.y : 50;
 				distance = Math.sqrt(
-					Math.pow(cursorDisplayPercX - nodeDisplayX, 2) +
-					Math.pow(cursorDisplayPercY - nodeDisplayY, 2)
+					Math.pow(mouseDisplayPerc.x - nodeDisplayX, 2) +
+					Math.pow(mouseDisplayPerc.y - nodeDisplayY, 2)
 				);
 				threshold = 3;  // 3% for display coordinates
 			} else {
