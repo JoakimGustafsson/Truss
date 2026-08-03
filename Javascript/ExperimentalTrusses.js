@@ -33,9 +33,6 @@ function createDefaultPerformanceScene(trussNode) {
 	trussNode.selector = new Selector(trussNode.world, trussNode, 'selector', {
 		'name': 'Selector',
 		'localPosition': new Position(1, 1),
-		'labels': [
-			{ name: 'plane', planeProperty: 'display' }
-		]
 	});
 	trussNode.sensorNodes = [trussNode.selector];
 
