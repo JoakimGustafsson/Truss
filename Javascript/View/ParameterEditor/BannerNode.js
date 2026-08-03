@@ -7,14 +7,21 @@ import { Position, Vector } from '../../Primitives.js';
 /**
  * @class
  * @extends Node
+ * 
+ * TERMINOLOGY: "Banner"
+ * A banner is a parameter editor window that pops up on the display plane
+ * when a node or tensor is selected. It appears as a floating UI element
+ * suspended by animated springs (banner nodes) and allows the user to view
+ * and modify properties of the selected node or tensor in real-time.
+ * The banner is positioned using physics simulation for smooth, natural movement.
  */
 class BannerNode extends Node {
 	/** This class displays a banner containing a HTML element.
 	 * @param  {TrussNode} truss
-	 * @param  {HTMLElement} editParameterElement
+	 * @param  {HTMLElement} bannerContainer
 	 * @param  {HTMLElement} propertyElement
 	 */
-	constructor(truss, editParameterElement, propertyElement) {
+	constructor(truss, bannerContainer, propertyElement) {
 		let anchorTrussNode = truss.parentTrussNode;
 		if (!anchorTrussNode) {
 			anchorTrussNode = truss;
@@ -26,7 +33,7 @@ class BannerNode extends Node {
 		super(anchorWorld, anchorTrussNode, 'banner sensor');
 		this.truss = truss;
 		this.name = 'bannerNode';
-		this.element = editParameterElement;
+		this.element = bannerContainer;
 		this.propertyElement = propertyElement;
 		this.isListening = false;
 		let _this=this;
@@ -44,7 +51,7 @@ class BannerNode extends Node {
 	 * @return {Node}
 	 */
 	create(truss, topScreenPos) {
-		this.element.style.display = 'block';
+		this.element.classList.remove('hidden');
 		this.truss = truss;
 		this.width = this.element.offsetWidth;
 		this.height = this.element.offsetHeight;
@@ -194,7 +201,7 @@ class BannerNode extends Node {
 		if (!this.truss) {
 			return;
 		}
-		this.element.style.display = 'none';
+		this.element.classList.add('hidden');
 		let bannerWorld = this.truss.parentTrussNode && this.truss.parentTrussNode.world ? this.truss.parentTrussNode.world : this.world;
 		let bannerLabel = bannerWorld.labels.findLabel('banner');
 

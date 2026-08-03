@@ -10,8 +10,8 @@ function createConfigurationArea(id) {
 	// The area that will be influenced by the Matrix warping
 	let configArea = document.createElement('div');
 	configArea.id = id;
-	configArea.style.display = 'none';
 	configArea.classList.add('configareaouter');
+	configArea.classList.add('hidden');
 
 	// The actual whole configuration area
 	let configAreaInner = document.createElement('div');
@@ -132,6 +132,8 @@ function createConfigurationArea(id) {
 				createSimpleButton(propertyButtons, 'Pause', () => universe.currentNode.togglePause());
 				createSimpleButton(propertyButtons, 'Gravity', () => addGravityCheat(), 'gravityButton');
 				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
+				// FastEdit: Developer mode that enables keyboard shortcuts for rapid editing:
+				// N = Create new Node, T = Create new Tensor, B = Open banner (property editor)
 				let fastEditButton = createSimpleButton(propertyButtons, 'FastEdit',
 					function() {
 						universe.currentWorld.fastEdit=!universe.currentWorld.fastEdit;
@@ -141,6 +143,7 @@ function createConfigurationArea(id) {
 							this.classList.remove('activebutton');
 						}
 					});
+				fastEditButton.title = 'Enable keyboard shortcuts: N=Node, T=Tensor, B=Banner';
 				if (universe && universe.currentWorld && universe.currentWorld.fastEdit) { // set up correctly when added
 					fastEditButton.classList.add('activebutton');
 				} else {

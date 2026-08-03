@@ -186,8 +186,8 @@ class Property {
 		inputField.value = 'Default';
 		inputField.classList.add('text');
 		inputField.classList.add('inputcss');
+		inputField.classList.add('input-field-standard');
 		inputField.id = id;
-		inputField.style.width = '140px';
 		parameterValue.appendChild(inputField);
 		return inputField;
 	}
@@ -468,8 +468,8 @@ class PositionProperty extends Property {
 		xValuePair.appendChild(xparameterValue);
 
 		let xinputField = this.makeViewOfInputField(id + 'X', parameterValue);
-		xinputField.style.width = '50px';
-		xinputField.style.margin = '1px 0px 1px 0px';
+		xinputField.classList.add('input-field-small');
+		xinputField.classList.add('input-field-spacing');
 		xparameterValue.appendChild(xinputField);
 
 		this.xInput = xinputField;
@@ -487,8 +487,8 @@ class PositionProperty extends Property {
 		yValuePair.appendChild(yparameterValue);
 
 		let yinputField = this.makeViewOfInputField(id + 'Y', parameterValue);
-		yinputField.style.width = '50px';
-		yinputField.style.margin = '1px 0px 1px 0px';
+		yinputField.classList.add('input-field-small');
+		yinputField.classList.add('input-field-spacing');
 		yparameterValue.appendChild(yinputField);
 
 		this.yInput = yinputField;
@@ -582,7 +582,7 @@ class NodeProperty extends Property {
 
 		let parameterValue = this.createNameValuePair(element);
 		this.input = document.createElement('div');
-		this.input.style.display = 'inline';
+		this.input.classList.add('visible-inline');
 		parameterValue.appendChild(this.input);
 
 		let changeButton = document.createElement('button');
@@ -700,15 +700,14 @@ class TensorListProperty extends Property {
 			tensorButton.innerHTML = tensor.getName();
 			tensorButton.classList.add('trussButton');
 			tensorButton.classList.add('tensorButtonMiddle');
-
-			tensorButton.style.display = 'inline';
+			tensorButton.classList.add('visible-inline');
 			parameterValue.appendChild(tensorButton);
 			this.registerOnClick(tensorButton, tensor);
 		}
 
 		let inputField = document.createElement('div');
 		inputField.id = id;
-		inputField.style.width = '140px';
+		inputField.classList.add('input-field-standard');
 		parameterValue.appendChild(inputField);
 		this.input=inputField;
 	}
@@ -897,6 +896,7 @@ class PropertyListProperty extends Property {
 		addRowButton.innerHTML = 'Add Row';
 		addRowButton.classList.add('trussButton');
 		addRowButton.classList.add('tensorButtonMiddle');
+		addRowButton.classList.add('visible-inline');
 		addRowButton.addEventListener('click', () => {
 			let props = {};
 			let values = {};
@@ -917,7 +917,6 @@ class PropertyListProperty extends Property {
 			this.owner[this.propertyName+'Properties'].push(props);
 			this.generate();
 		});
-		addRowButton.style.display = 'inline';
 		valuePair.appendChild(addRowButton);
 		valuePair.appendChild(this.listArea);
 

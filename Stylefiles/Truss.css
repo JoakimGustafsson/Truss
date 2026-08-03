@@ -1,84 +1,40 @@
+/* ========================================
+   TRUSS APPLICATION STYLESHEET
+   Consolidated & Organized
+   ======================================== */
+
+/* ========================================
+   1. GLOBAL STYLES
+   ======================================== */
+
+body {
+	background-color: #343f48;
+	margin: 0px;
+	width: 100%;
+	height: 100vh;
+	overflow: hidden;
+}
+
 div {
 	font-family: "Arial";
-	/*"Stencil Regular"; */
-	/* 	font-weight: bold; */
-}
-
-/* parameter background color */
-
-.parameterEditArea,
-.sectionbase {
-	background-color: #f0fff0;
-	color: black;
-}
-
-.inputcss, input:checked + .slider,
-.fileList,
-.filename {
-	background-color: #ffdab9;
-}
-
-
-.inputcss, .slider,
-.fileList,
-.filename {
-	border: 1px solid grey;
-	border-radius: 2px;
 }
 
 option {
 	padding: 0px;
 }
 
-.parameterEditArea {
+/* ========================================
+   2. LAYOUT & STRUCTURE
+   ======================================== */
+
+/* Main container */
+section {
+	width: 100%;
+	height: 100%;
 	position: relative;
-	padding: 0px 0px 0px 0px;
+	padding: 0;
+	margin: 0;
 }
-
-/* button color */
-
-.ogbutton, .slider,
-.tabsectionbuttons,
-div.tab button,
-.trussButton,
-.simpleButton,
-.textbox {
-	background-color: #cdaf95;
-
-}
-
-.ogbutton,
-.tabsectionbuttons,
-div.tab button,
-.trussButton,
-.simpleButton,
-.textbox {
-	color: black;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	transition: 0.3s;
-}
-
-.trussButton:hover,
-div.tab button:hover,
-.simpleButton:hover,
-.selectedfilename {
-	background-color: #eecbad;
-}
-
-.trussButton:active,
-div.tab button:active,
-.simpleButton:active,
-div.tab button.active {
-	background-color: #ffdab9;
-}
-
-.configareainner {
-	background-color: #8b7765;
-	border: 2px solid black;
-}
-
 .trussBackgroundDiv {
 	border: 1px solid yellow;
 	position: absolute;
@@ -88,18 +44,31 @@ div.tab button.active {
 	bottom: 50px;
 	cursor: crosshair;
 	overflow: hidden;
+	box-sizing: border-box;
 }
 
 .mainTruss {
 	border: 1px solid yellow;
 	position: absolute;
-	left: 100px;
+	left: 50px;
 	right: 100px;
 	top: 50px;
-	bottom: 50px;
+	bottom: 10px;
 	cursor: crosshair;
+	box-sizing: border-box;
 }
 
+#TrussBackground {
+	position: absolute !important;
+	left: 50px !important;
+	right: 100px !important;
+	top: 50px !important;
+	bottom: 10px !important;
+	width: auto !important;
+	height: auto !important;
+}
+
+/* Governor/Stack display frames */
 .govenorTruss {
 	position: absolute;
 	right: 10px;
@@ -114,7 +83,7 @@ div.tab button.active {
 }
 
 .stackTrussFrame {
-	border: 1px solid red;
+	border: 1px solid yellow;
 	overflow: hidden;
 }
 
@@ -124,97 +93,10 @@ div.tab button.active {
 	height: 80px;
 	width: 80px;
 	cursor: crosshair;
-	background: "pink";
 	overflow: hidden;
 }
 
-.valuepair {
-	overflow: auto;
-	position: relative;
-	font-family: Arial;
-	margin: 0px 0px;
-}
-
-.xyvaluepair {
-	display: inline-block;
-	width: 70px;
-	margin-bottom: -4px;
-}
-
-.lname {
-	float: left;
-	position: relative;
-	font-family: Arial;
-}
-
-.dummy {
-	border: 1px solid red;
-	padding: 2px;
-	margin: 2px;
-}
-
-.rvalue {
-	float: right;
-	position: relative;
-	font-family: Arial;
-}
-
-#loadingScreen {
-	z-index: 3;
-	background-color: white;
-	border: solid black 1px;
-	width: 1000px;
-	height: 700px;
-}
-
-#simulateActivities {
-	top: 50px;
-	left: 1050px;
-	position: relative;
-}
-
-#atlas {
-	position: absolute;
-	z-index: 3;
-	width: 300px;
-	height: 150px;
-	left: 350px;
-	top: 150px;
-}
-
-#debugLevel {
-	width: 130px;
-}
-
-.sectionheader {
-	color: yellow;
-	border-radius: 4px 4px 0px 0px;
-	padding: 10px 0px 10px 15px;
-	margin: 10px 10px 0px 10px;
-	position: relative;
-	font-family: Arial;
-	font-size: 15px;
-}
-
-.tabsectionbuttons {
-	color: white;
-	opacity: 1;
-	border-radius: 4px 4px 0px 0px;
-	padding: 7px;
-	margin: 3px 5px 0px 10px;
-}
-
-.footerbackgroundarea {
-	margin: 0px;
-	padding: 0px 0px 10px 0px;
-	display: none;
-	overflow: hidden;
-}
-
-.activebutton {
-	background-color: red;
-}
-
+/* Configuration/Parameter areas */
 .configareaouter {
 	position: absolute;
 	top: 0px;
@@ -224,46 +106,10 @@ div.tab button.active {
 }
 
 .configareainner {
+	background-color: #8b7765;
+	border: 2px solid black;
 	opacity: 0.9;
 	border-radius: 14px;
-}
-
-.sectionbase {
-	border-radius: 0px 0px 4px 4px;
-	padding: 5px 10px 5px 10px;
-	margin: 0px 10px 10px 10px;
-	position: relative;
-	font-family: Arial;
-}
-
-.sectionmiddle {
-	padding: 5px 0px;
-	border-bottom: grey solid 2px;
-}
-
-.sectionlast {
-	padding: 5px 0px;
-}
-
-.ogbutton {
-	border-radius: 10px;
-	border: 0px;
-	padding: 5px;
-	font-family: Arial;
-	font-size: 30px;
-	color: white;
-	z-index: 999;
-}
-
-.savebackground {
-	display: none;
-	z-index: 100;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	background-color: rgba(52, 63, 72, 0.9);
 }
 
 .container {
@@ -287,26 +133,38 @@ div.tab button.active {
 	height: 700px;
 }
 
-.center {
-	display: -webkit-box;
-	-webkit-box-pack: center;
-	-webkit-box-align: center;
+#loadingScreen {
+	z-index: 3;
+	background-color: white;
+	border: solid black 1px;
+	width: 1000px;
+	height: 700px;
 }
 
-.right {
-	display: -webkit-box;
-	-webkit-box-pack: end;
-	-webkit-box-align: center;
+#atlas {
+	position: absolute;
+	z-index: 3;
+	width: 300px;
+	height: 150px;
+	left: 350px;
+	top: 150px;
 }
 
-.left {
-	display: -webkit-box;
-	-webkit-box-pack: start;
-	-webkit-box-align: center;
+#simulateActivities {
+	top: 50px;
+	left: 1050px;
+	position: relative;
+}
+
+#content {
+	background-image: url("../Resources/background_image-01.png");
+	width: 725px;
+	height: 650px;
+	top: 50px;
+	right: 0%;
 }
 
 #headBorder {
-	/*background-color: #FCDF07; yellow*/
 	background-color: #FCDF07;
 	width: 1000px;
 	height: 5px;
@@ -319,88 +177,101 @@ div.tab button.active {
 	top: 5px;
 }
 
-#content {
-	background-image: url("../Resources/background_image-01.png");
-	width: 725px;
-	height: 650px;
-	top: 50px;
-	right: 0%;
-}
-
-.textbox {
-	padding: 5px;
-	font-family: Arial;
-	font-size: 16px;
-}
-
-.fileList {
-	padding: 5px;
-	font-family: Arial;
-	font-size: 16px;
-}
-
-.filename {
-	font-family: Arial;
-	font-size: 16px;
-	border: 0px;
-	cursor: pointer;
-}
-
-.filenameInput {
-	text-align: right;
-	width: 140px;
-	margin: 5px 0px;
-}
-
-.selectedfilename {
-	cursor: pointer;
-}
-
-.footerbackgroundarea {
-	margin: 0px;
-	padding: 0px 0px 10px 0px;
-	display: none;
-	overflow: hidden;
-}
-
-/* Style the tab */
-
-div.tab {
-	overflow: hidden;
-	/* border: 1px solid #ccc; */
-}
-
-/* Style the buttons inside the tab
-
-div.tab button {
-	padding: 14px 16px;
-}*/
-
-/* Change background color of buttons on hover
-div.tab button:hover {
-    background-color: #ddd;
-}
-
-/* Create an active/current tablink class
-div.tab button.active {
-    background-color: #ccc;
-}*/
-
-/* Style the tab content */
-
-.tabcontent {
-	display: none;
-	/*     border: 1px solid #ccc; */
-	border-top: none;
+#FPSdisplay {
+	position: absolute;
+	left: 10px;
+	bottom: 10px;
 	color: white;
 }
 
-/* Style the tab content */
+#mainArea {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
 
-.tabresourcecontent {
-	display: none;
-	/*  border: 1px solid #ccc; */
-	border-top: none;
+/* ========================================
+   3. PANELS & SECTIONS
+   ======================================== */
+
+.parameterEditArea {
+	background-color: #f0fff0;
+	color: black;
+	position: relative;
+	padding: 0px 0px 0px 0px;
+}
+
+.sectionheader {
+	color: yellow;
+	border-radius: 4px 4px 0px 0px;
+	padding: 10px 0px 10px 15px;
+	margin: 10px 10px 0px 10px;
+	position: relative;
+	font-family: Arial;
+	font-size: 15px;
+}
+
+.sectionbase {
+	background-color: #f0fff0;
+	color: black;
+	border-radius: 0px 0px 4px 4px;
+	padding: 5px 10px 5px 10px;
+	margin: 0px 10px 10px 10px;
+	position: relative;
+	font-family: Arial;
+}
+
+.sectionmiddle {
+	padding: 5px 0px;
+	border-bottom: grey solid 2px;
+}
+
+.sectionlast {
+	padding: 5px 0px;
+}
+
+/* ========================================
+   4. BUTTONS & CONTROLS
+   ======================================== */
+
+.ogbutton {
+	border-radius: 10px;
+	border: 0px;
+	padding: 5px;
+	background-color: #cdaf95;
+	font-family: Arial;
+	font-size: 30px;
+	color: black;
+	outline: none;
+	cursor: pointer;
+	transition: 0.3s;
+	z-index: 999;
+}
+
+.trussButton {
+	border: none;
+	background-color: #cdaf95;
+	color: black;
+	outline: none;
+	display: inline;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.trussButton:hover {
+	background-color: #eecbad;
+}
+
+.trussButton:active {
+	background-color: #ffdab9;
+}
+
+.trussButtonDiv {
+	display: inline;
+	margin: 1px 10px 1px 1px;
 }
 
 .simpleButton {
@@ -409,28 +280,74 @@ div.tab button.active {
 	padding: 5px 5px 5px 5px;
 	margin: 1px 5px 1px 5px;
 	font-family: Arial;
-	outline: none;
-}
-
-.trussButtonDiv {
-	display: inline;
-	margin: 1px 10px 1px 1px;
-}
-
-.trussButton {
-	border: none;
-	/* 	background-color: #505E6B;
-	color: white; */
+	background-color: #cdaf95;
 	color: black;
 	outline: none;
-	display: inline;
 	cursor: pointer;
 	transition: 0.3s;
 }
 
+.simpleButton:hover {
+	background-color: #eecbad;
+}
+
+.simpleButton:active {
+	background-color: #ffdab9;
+}
+
+.activebutton {
+	background-color: red;
+}
+
+/* Tab buttons */
+div.tab {
+	overflow: hidden;
+}
+
+div.tab button {
+	background-color: #cdaf95;
+	color: black;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	transition: 0.3s;
+	float: left;
+	padding: 14px 16px;
+}
+
+div.tab button:hover {
+	background-color: #eecbad;
+}
+
+div.tab button.active {
+	background-color: #ffdab9;
+}
+
+.tabsectionbuttons {
+	color: white;
+	opacity: 1;
+	border-radius: 4px 4px 0px 0px;
+	padding: 7px;
+	margin: 3px 5px 0px 10px;
+	background-color: #cdaf95;
+	color: black;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.tabsectionbuttons:hover {
+	background-color: #eecbad;
+}
+
+.tabsectionbuttons.active {
+	background-color: #ffdab9;
+}
+
+/* Tensor/Node buttons */
 .nodeButton {
 	padding: 2px 5px 2px 5px;
-	padding: 5px;
 	margin: 1px 10px 1px 1px;
 }
 
@@ -452,6 +369,63 @@ div.tab button.active {
 	margin: 1px;
 }
 
+/* ========================================
+   5. INPUTS & FORMS
+   ======================================== */
+
+.inputcss, .slider,
+.fileList,
+.filename {
+	border: 1px solid grey;
+	border-radius: 2px;
+}
+
+.inputcss, input:checked + .slider,
+.fileList,
+.filename {
+	background-color: #ffdab9;
+}
+
+.textbox {
+	padding: 5px;
+	font-family: Arial;
+	font-size: 16px;
+	background-color: #cdaf95;
+	color: black;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.fileList {
+	padding: 5px;
+	font-family: Arial;
+	font-size: 16px;
+}
+
+.filename {
+	font-family: Arial;
+	font-size: 16px;
+	border: 0px;
+	cursor: pointer;
+}
+
+.selectedfilename {
+	background-color: #eecbad;
+	cursor: pointer;
+}
+
+.filenameInput {
+	text-align: right;
+	width: 140px;
+	margin: 5px 0px;
+}
+
+/* ========================================
+   6. LABELS & LISTS
+   ======================================== */
+
 .labelList {
 	margin: 1px 0px;
 	background-color: lightgray;
@@ -460,29 +434,18 @@ div.tab button.active {
 	font-size: 10px;
 }
 
-.dynamicPropertyList {
-	float: right;
-}
-
 .smallLabel {
 	display: inline-block;
 	font-family: Arial;
 	padding: 2px 2px;
 }
 
+/* ========================================
+   7. SLIDERS & SWITCHES
+   ======================================== */
 
-/* Switch */
-.switch {
-	position: relative;
-	display: inline-block;
-	width: 56px;
-	height: 18px;
-	margin: 1px 0px -3px 0px;
-  }
-
-  .switch input {display:none;}
-
-  .slider {
+.slider {
+	background-color: #cdaf95;
 	position: absolute;
 	cursor: pointer;
 	top: 0;
@@ -491,9 +454,9 @@ div.tab button.active {
 	bottom: 0;
 	-webkit-transition: .2s;
 	transition: .2s;
-  }
+}
 
-  .slider::before {
+.slider::before {
 	position: absolute;
 	content: "";
 	width: 20px;
@@ -503,24 +466,187 @@ div.tab button.active {
 	background-color: white;
 	-webkit-transition: .2s;
 	transition: .2s;
-  }
+}
 
-  input:focus + .slider {
+input:focus + .slider {
 	box-shadow: 0 0 1px green;
-  }
+}
 
-  input:checked + .slider:before {
+input:checked + .slider:before {
 	background-color: black;
 	-webkit-transform: translateX(26px);
 	-ms-transform: translateX(26px);
 	transform: translateX(26px);
-  }
+}
 
-  /* Rounded sliders */
-  .slider.round {
+.slider.round {
 	border-radius: 34px;
-  }
+}
 
-  .slider.round:before {
+.slider.round:before {
 	border-radius: 50%;
-  }
+}
+
+/* Switch */
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 56px;
+	height: 18px;
+	margin: 1px 0px -3px 0px;
+}
+
+.switch input {
+	display: none;
+}
+
+/* ========================================
+   8. TAB CONTENT
+   ======================================== */
+
+.tabcontent {
+	display: none;
+	border-top: none;
+	color: white;
+}
+
+.tabresourcecontent {
+	display: none;
+	border-top: none;
+}
+
+/* ========================================
+   9. STATE & VISIBILITY
+   ======================================== */
+
+.savebackground {
+	display: none;
+	z-index: 100;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	background-color: rgba(52, 63, 72, 0.9);
+}
+
+.footerbackgroundarea {
+	margin: 0px;
+	padding: 0px 0px 10px 0px;
+	display: none;
+	overflow: hidden;
+}
+
+/* ========================================
+   10. FLEXBOX HELPERS
+   ======================================== */
+
+.center {
+	display: -webkit-box;
+	-webkit-box-pack: center;
+	-webkit-box-align: center;
+}
+
+.right {
+	display: -webkit-box;
+	-webkit-box-pack: end;
+	-webkit-box-align: center;
+}
+
+.left {
+	display: -webkit-box;
+	-webkit-box-pack: start;
+	-webkit-box-align: center;
+}
+
+/* ========================================
+   11. LAYOUT UTILITIES
+   ======================================== */
+
+.valuepair {
+	overflow: auto;
+	position: relative;
+	font-family: Arial;
+	margin: 0px 0px;
+}
+
+.xyvaluepair {
+	display: inline-block;
+	width: 70px;
+	margin-bottom: -4px;
+}
+
+.lname {
+	float: left;
+	position: relative;
+	font-family: Arial;
+}
+
+.rvalue {
+	float: right;
+	position: relative;
+	font-family: Arial;
+}
+
+.dynamicPropertyList {
+	float: right;
+}
+
+/* Debug/Testing (minimal use) */
+.dummy {
+	border: 1px solid red;
+	padding: 2px;
+	margin: 2px;
+}
+
+/* ========================================
+   12. DYNAMIC STYLING CLASSES
+   ======================================== */
+
+/* Canvas positioning */
+.canvas-base {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	display: block;
+}
+
+/* Element positioning base */
+.element-base {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: -1000;
+}
+
+.element-relative {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+/* Visibility states */
+.hidden {
+	display: none !important;
+}
+
+.visible-block {
+	display: block !important;
+}
+
+.visible-inline {
+	display: inline !important;
+}
+
+/* Form inputs */
+.input-field-standard {
+	width: 140px;
+}
+
+.input-field-small {
+	width: 50px;
+}
+
+.input-field-spacing {
+	margin: 1px 0px 1px 0px;
+}

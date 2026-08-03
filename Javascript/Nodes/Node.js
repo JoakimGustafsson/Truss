@@ -642,16 +642,10 @@ class Node extends StoreableObject {
 
 		// Render node using its coordinate system (world or display)
 		let cs = this.coordinateSystem;
-		if (cs) {
-			const screenPos = cs.convertToScreenPixels(this);
+			if (cs) {
+				const screenPos = cs.convertToScreenPixels(this);
 			
-			// Debug logging for nail
-			if (this.name === 'nail' && !this._shownNailDebug) {
-				console.log(`Rendering nail at screenPos: (${screenPos.x}, ${screenPos.y}), coordinate system: ${cs.name} (zoom: ${cs.zoomFactor}, pan: ${cs.panFactor})`);
-				this._shownNailDebug = true;
-			}
-			
-			this.highLight(cxt);
+				this.highLight(cxt);
 			cxt.beginPath();
 			if (this.mass && !isNaN(this.mass)) {
 				cxt.arc(screenPos.x, screenPos.y, 4, 0, 2 * Math.PI);
@@ -757,16 +751,11 @@ class Node extends StoreableObject {
 		this.element = document.createElement('img');
 		let tempElement = this.element;
 		let tempParentElement= this.parentTrussNode.element;
-		this.element.style.position = 'absolute';
-		this.element.style.zIndex = '-1000';
+		this.element.classList.add('element-base');
 		this.element.onerror = function() {
 			tempParentElement.removeChild(tempElement);
 		};
 		this.element.src = 'Resources/' + pictureReference;
-		// this.element.style.width = '100%';
-		// this.element.style.height = '100%';
-		this.element.style.left = 0;
-		this.element.style.top = 0;
 		tempParentElement.appendChild(this.element);
 
 		this.setupScale();

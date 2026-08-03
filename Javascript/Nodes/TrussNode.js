@@ -149,11 +149,8 @@ class TrussNode extends Node {
 	 */
 	handleCanvas() {
 		this.canvas.name = this.name;
-		this.canvas.style.position = 'absolute';
-		this.canvas.style.top = '0px';
-		this.canvas.style.left = '0px';
-		this.canvas.style.display = 'block';
-		this.element.style.position = 'relative';
+		this.canvas.classList.add('canvas-base');
+		this.element.classList.add('element-relative');
 		this.element.appendChild(this.canvas);
 	}
 
@@ -180,13 +177,10 @@ class TrussNode extends Node {
 		// Update canvas display dimensions (affects layout)
 		this.canvas.style.width = width + 'px';
 		this.canvas.style.height = height + 'px';
-		this.canvas.style.border = '3px solid purple';  // Visual boundary for display coordinates
 		
 		// Update view screen size to match canvas
 		this.view.screenSize.x = Math.floor(width);
 		this.view.screenSize.y = Math.floor(height);
-		
-		console.log(`✓ Canvas resized to match container: ${width}px × ${height}px at viewport (${this.view.elemRectleft}px, ${this.view.elemRecttop}px)`);
 		
 		// Add ResizeObserver to update canvas when container is resized
 		if (!this.resizeObserver) {
@@ -221,8 +215,6 @@ class TrussNode extends Node {
 			// Update view screen size
 			this.view.screenSize.x = Math.floor(width);
 			this.view.screenSize.y = Math.floor(height);
-			
-			console.log(`✓ Canvas updated to: ${width}px × ${height}px at viewport (${this.view.elemRectleft}px, ${this.view.elemRecttop}px)`);
 		}
 	}
 

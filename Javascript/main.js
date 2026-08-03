@@ -92,6 +92,10 @@ function init() {
 }
 
 window.addEventListener('keydown', function(e) {
+	// FastEdit mode: Enable keyboard shortcuts for rapid node/tensor creation
+	// N = Create new Node
+	// T = Create new Tensor
+	// B = Open banner (property editor) for selected object
 	if (!_universe || !_universe.currentWorld || !_universe.currentWorld.fastEdit) return;
 	if (e.keyCode == 78) {
 		makeNode();

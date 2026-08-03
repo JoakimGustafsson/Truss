@@ -238,7 +238,6 @@ function loadFile(fileName) {
 			// Trigger resize to recalculate canvas and UI dimensions after load
 			if (newWorld.trussNode.resize) {
 				newWorld.trussNode.resize();
-				console.log('✓ Canvas dimensions recalculated');
 			}
 			
 			// Auto-select the main node to trigger banner creation

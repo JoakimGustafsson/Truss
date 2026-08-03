@@ -14,7 +14,7 @@ class PropertyEditor {
 	 * @param  {number} screenHeight
 	 */
 	constructor(parentTrussNode, topScreenPos, screenWidth, screenHeight) {
-		this.outerElement = createConfigurationArea('EditParameterElement');
+		this.outerElement = createConfigurationArea('bannerContainer');
 		this.propertyArea = this.outerElement.querySelectorAll('#configview')[0];
 		this.parentTrussNode = parentTrussNode;
 		this.parentTrussNode.element.appendChild(this.outerElement);

@@ -71,20 +71,18 @@ class GeneralControl {
 
 		// Get all elements with class='tabcontent' and hide them
 		tabcontent = universe.currentNode.getElements('.tabcontent');
-		// document.getElementsByClassName('tabcontent');
 		for (i = 0; i < tabcontent.length; i++) {
-			tabcontent[i].style.display = 'none';
+			tabcontent[i].classList.add('hidden');
 		}
 
 		// Get all elements with class='tablinks' and remove the class 'active'
 		tablinks = universe.currentNode.getElements('.tabsectionbuttons');
-		//document.getElementsByClassName('tabsectionbuttons');
 		for (i = 0; i < tablinks.length; i++) {
 			tablinks[i].classList.remove('active');
 		}
 
 		// Show the current tab, and add an 'active' class to the button that opened the tab
-		universe.currentNode.getElement('#' + divName).style.display = 'block';
+		universe.currentNode.getElement('#' + divName).classList.remove('hidden');
 
 		if (evt)
 			evt.currentTarget.classList.add('active');
@@ -116,11 +114,15 @@ class GeneralControl {
 		let tensorAdder = universe.currentNode.getElement('#tensorAdder');
 
 		if (select.isNode) {
-			gravityButton.style.display = 'inline';
-			tensorAdder.style.display = 'inline';
+			gravityButton.classList.add('visible-inline');
+			gravityButton.classList.remove('hidden');
+			tensorAdder.classList.add('visible-inline');
+			tensorAdder.classList.remove('hidden');
 		} else {
-			gravityButton.style.display = 'none';
-			tensorAdder.style.display = 'none';
+			gravityButton.classList.add('hidden');
+			gravityButton.classList.remove('visible-inline');
+			tensorAdder.classList.add('hidden');
+			tensorAdder.classList.remove('visible-inline');
 		}
 	}
 
