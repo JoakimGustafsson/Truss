@@ -3,6 +3,7 @@ import { Tensor } from '../../Tensors.js';
 import { warpMatrix } from '../Pictures.js';
 import { universe } from '../../globals.js';
 import { Position, Vector } from '../../Primitives.js';
+import { updateBannerInspectorHeader } from './BannerInspector.js';
 
 /**
  * @class
@@ -269,8 +270,9 @@ class BannerNode extends Node {
 		this.propertyElement.innerHTML='';
 		if (this.iO) {
 			// this.iO.properties.populateProperties(this.element);
-			this.iO.populateProperties(this.propertyElement);
+			this.iO.populateProperties(this.propertyElement, true);
 		}
+		updateBannerInspectorHeader(this.iO);
 	}
 
 	/**
@@ -301,7 +303,7 @@ class BannerNode extends Node {
 	sense(deltaTime, truss) {
 		// super.updatePosition(time, deltaTime);
 		if (this.iO) {
-			this.iO.properties.updatePropertyValues(this.iO);
+			this.iO.properties.updatePropertyValues(this.iO, true);
 		}
 	}
 }

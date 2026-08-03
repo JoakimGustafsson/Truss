@@ -26,7 +26,8 @@ export function openBottomPanel(evt, divName) {
 		tablinks[i].classList.remove('active');
 	}
 	universe.currentNode.getElement('#' + divName).style.display = 'block';
-	if (evt)
+	if (evt && evt.currentTarget && evt.currentTarget.classList &&
+		evt.currentTarget.classList.contains('tabsectionbuttons'))
 		evt.currentTarget.classList.add('active');
 	else
 		universe.currentNode.getElement('#propertiesButton').classList.add('active');
@@ -177,6 +178,7 @@ export function highlightAndModifyPropertyButtons(selectionEvent) {
 	}
 	if (!select) {
 		connectionDiv.innerHTML = '';
+		connectionDiv.appendChild(createEmptyConnectionState('No selection'));
 		return;
 	}
 	let previousSelectedObject = selectionEvent.detail.previousSelectedObject;
@@ -185,16 +187,27 @@ export function highlightAndModifyPropertyButtons(selectionEvent) {
 		previousSelectedObject.setHighlight(0);
 	}
 	connectionDiv.innerHTML = '';
-	connectionDiv.appendChild(select.generateconnectionHTML());
+	let connectionHtml = select.generateconnectionHTML();
+	connectionDiv.appendChild(connectionHtml);
+	if (!connectionHtml.hasChildNodes()) {
+		connectionDiv.appendChild(createEmptyConnectionState('No connections'));
+	}
 	let gravityButton = universe.currentNode.getElement('#gravityButton');
 	let tensorAdder = universe.currentNode.getElement('#tensorAdder');
 	if (select.isNode) {
-		gravityButton.style.display = 'inline';
-		tensorAdder.style.display = 'inline';
+		if (gravityButton) gravityButton.style.display = 'inline';
+		if (tensorAdder) tensorAdder.style.display = 'inline';
 	} else {
-		gravityButton.style.display = 'none';
-		tensorAdder.style.display = 'none';
+		if (gravityButton) gravityButton.style.display = 'none';
+		if (tensorAdder) tensorAdder.style.display = 'none';
 	}
+}
+
+function createEmptyConnectionState(message) {
+	let empty = document.createElement('div');
+	empty.classList.add('banner-empty-state');
+	empty.textContent = message;
+	return empty;
 }
 
 export function getlabel(label) {

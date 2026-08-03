@@ -126,7 +126,10 @@ class StoreableObject {
 		for (let label of this.labels) {
 			for (let k in label.properties) {
 				if (!propObject[k] || !propObject[k].enforced) {
-					propObject[k]=label.properties[k];
+					propObject[k]=Object.assign({
+						sourceLabelName: label.name,
+						propertyKey: k,
+					}, label.properties[k]);
 				}
 			}
 			// Object.assign(propObject, label.properties);
@@ -142,7 +145,7 @@ class StoreableObject {
 		this.properties.clearProperties(this.labelProperty);
 
 		for (let [key, value] of Object.entries(this.getPropertyObject())) {
-			this.properties.addProperty(value.propertyObject, value.defaultValue);
+			this.properties.addProperty(value.propertyObject, value.defaultValue, value);
 			if (this[value.propertyObject.propertyName]==undefined ||
                 Number.isNaN(this[value.propertyObject.propertyName]) ||
                 value.enforced) {

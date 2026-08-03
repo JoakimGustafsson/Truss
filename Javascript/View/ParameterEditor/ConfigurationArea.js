@@ -1,6 +1,7 @@
 import { universe } from '../../globals.js';
 import { openBottomPanel, movePropertyEdit, makeNode, makeTensor, changeDebugLevel, addGravityCheat, deleteSelected } from '../../ui-actions.js';
 import { saveFile, directory } from '../../FileSave.js';
+import { createBannerInspectorHeader, createBannerTagEditor } from './BannerInspector.js';
 
 /**
  * @param {string} id
@@ -11,6 +12,7 @@ function createConfigurationArea(id) {
 	let configArea = document.createElement('div');
 	configArea.id = id;
 	configArea.classList.add('configareaouter');
+	configArea.classList.add('banner-inspector');
 	configArea.classList.add('hidden');
 
 	// The actual whole configuration area
@@ -19,17 +21,20 @@ function createConfigurationArea(id) {
 	configArea.appendChild(configAreaInner);
 
 	{
+		configAreaInner.appendChild(createBannerInspectorHeader());
+
 		// The tab area at the top
 		let tabArea = document.createElement('div');
 		tabArea.classList.add('tab');
+		tabArea.classList.add('banner-tabs');
 		configAreaInner.appendChild(tabArea);
 
 
 		let propertiesButton = document.createElement('button');
 		propertiesButton.id = 'propertiesButton';
 		propertiesButton.classList.add('tabsectionbuttons');
-		propertiesButton.innerHTML = 'PROPERTIES';
-		propertiesButton.addEventListener('click', function() {
+		propertiesButton.innerHTML = 'Inspector';
+		propertiesButton.addEventListener('click', function(event) {
 			movePropertyEdit('propertyConfigArea');
 			openBottomPanel(event, 'propertiesDiv');
 		}, false);
@@ -49,8 +54,8 @@ function createConfigurationArea(id) {
 		let labelButton = document.createElement('button');
 		labelButton.classList.add('tabsectionbuttons');
 		labelButton.classList.add('active');
-		labelButton.innerHTML = 'LABELS';
-		labelButton.addEventListener('click', function() {
+		labelButton.innerHTML = 'Label Browser';
+		labelButton.addEventListener('click', function(event) {
 			openBottomPanel(event, 'labelDiv');
 			universe.currentWorld.labels.show('labelConfigArea');
 		}, false);
@@ -59,8 +64,8 @@ function createConfigurationArea(id) {
 		let fileButton = document.createElement('button');
 		fileButton.classList.add('tabsectionbuttons');
 		fileButton.classList.add('active');
-		fileButton.innerHTML = 'FILE';
-		fileButton.addEventListener('click', function() {
+		fileButton.innerHTML = 'Files';
+		fileButton.addEventListener('click', function(event) {
 			openBottomPanel(event, 'fileDiv');
 			directory('Saves');
 			universe.currentNode.getElement('.fileNameInput').value=universe.currentNode.name;
@@ -77,7 +82,11 @@ function createConfigurationArea(id) {
 		{
 			let propertyContainer = document.createElement('div');
 			propertyContainer.classList.add('sectionbase');
+			propertyContainer.classList.add('banner-inspector-content');
 			propertyArea.appendChild(propertyContainer);
+
+			tabArea.appendChild(createPropertyFilter(propertyContainer));
+			propertyContainer.appendChild(createBannerTagEditor());
 
 			{
 				let propertyConfigArea = document.createElement('div');
@@ -88,23 +97,37 @@ function createConfigurationArea(id) {
 					let configView = document.createElement('div');
 					configView.id = 'configview';
 					configView.classList.add('sectionmiddle');
+					configView.classList.add('banner-property-list');
 					propertyConfigArea.appendChild(configView);
 				}
+
+				let connectionHeader = document.createElement('div');
+				connectionHeader.classList.add('banner-section-title');
+				connectionHeader.innerHTML = 'Connections';
+				propertyContainer.appendChild(connectionHeader);
 
 				let connectionTempDiv = document.createElement('div');
 				connectionTempDiv.id = 'connectionDiv';
 				connectionTempDiv.classList.add('sectionmiddle');
+				connectionTempDiv.classList.add('banner-connections');
 				connectionTempDiv.align = 'left';
 				propertyContainer.appendChild(connectionTempDiv);
+
+				let addHeader = document.createElement('div');
+				addHeader.classList.add('banner-section-title');
+				addHeader.innerHTML = 'Create';
+				propertyContainer.appendChild(addHeader);
 
 				let addDiv = document.createElement('div');
 				addDiv.id = 'addDiv';
 				addDiv.classList.add('sectionlast');
+				addDiv.classList.add('banner-create-row');
 				addDiv.align = 'right';
 				propertyContainer.appendChild(addDiv);
 
 				{
 					let nodeAdder = document.createElement('div');
+					nodeAdder.classList.add('banner-create-group');
 					addDiv.appendChild(nodeAdder);
 
 					createNodeDropdown(nodeAdder);
@@ -115,6 +138,7 @@ function createConfigurationArea(id) {
 				{
 					let tensorAdder = document.createElement('div');
 					tensorAdder.id = 'tensorAdder';
+					tensorAdder.classList.add('banner-create-group');
 					addDiv.appendChild(tensorAdder);
 
 					// TODO: tensorDropdown;
@@ -126,17 +150,20 @@ function createConfigurationArea(id) {
 
 			let propertyButtons = document.createElement('div');
 			propertyButtons.classList.add('sectionlast');
+			propertyButtons.classList.add('banner-footer-actions');
 			propertyArea.appendChild(propertyButtons);
 
 			{
 				createSimpleButton(propertyButtons, 'Pause', () => universe.currentNode.togglePause());
 				createSimpleButton(propertyButtons, 'Gravity', () => addGravityCheat(), 'gravityButton');
-				createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
+				let deleteButton = createSimpleButton(propertyButtons, 'Delete', () => deleteSelected());
+				deleteButton.classList.add('dangerButton');
 				// FastEdit: Developer mode that enables keyboard shortcuts for rapid editing:
 				// N = Create new Node, T = Create new Tensor, B = Open banner (property editor)
 				let fastEditButton = createSimpleButton(propertyButtons, 'FastEdit',
 					function() {
 						universe.currentWorld.fastEdit=!universe.currentWorld.fastEdit;
+						this.innerHTML = universe.currentWorld.fastEdit ? 'FastEdit: On' : 'FastEdit: Off';
 						if (universe.currentWorld.fastEdit) {
 							this.classList.add('activebutton');
 						} else {
@@ -145,8 +172,10 @@ function createConfigurationArea(id) {
 					});
 				fastEditButton.title = 'Enable keyboard shortcuts: N=Node, T=Tensor, B=Banner';
 				if (universe && universe.currentWorld && universe.currentWorld.fastEdit) { // set up correctly when added
+					fastEditButton.innerHTML = 'FastEdit: On';
 					fastEditButton.classList.add('activebutton');
 				} else {
+					fastEditButton.innerHTML = 'FastEdit: Off';
 					fastEditButton.classList.remove('activebutton');
 				}
 
@@ -320,6 +349,31 @@ function createConfigurationArea(id) {
 		createOption(debugLevelSelect, 'Add speeds', '6');
 		createOption(debugLevelSelect, 'Add acceleration', '7');
 		createOption(debugLevelSelect, 'Add numbers', '10');
+	}
+
+	function createPropertyFilter(propertyContainer) {
+		let filterRow = document.createElement('div');
+		filterRow.classList.add('banner-property-filter-row');
+
+		let filterInput = document.createElement('input');
+		filterInput.id = 'bannerPropertyFilter';
+		filterInput.classList.add('banner-property-filter');
+		filterInput.type = 'search';
+		filterInput.placeholder = 'Filter properties...';
+		filterInput.addEventListener('input', function() {
+			let filter = filterInput.value.toLowerCase();
+			for (let row of propertyContainer.querySelectorAll('.banner-property-row')) {
+				let rowMatches = row.textContent.toLowerCase().indexOf(filter) != -1;
+				row.classList.toggle('banner-filter-hidden', !rowMatches);
+			}
+			for (let section of propertyContainer.querySelectorAll('.banner-property-section')) {
+				let rows = Array.from(section.querySelectorAll('.banner-property-row'));
+				section.classList.toggle('banner-filter-hidden', rows.length > 0 && !rows.some((row) =>
+					!row.classList.contains('banner-filter-hidden')));
+			}
+		});
+		filterRow.appendChild(filterInput);
+		return filterRow;
 	}
 
 	/**

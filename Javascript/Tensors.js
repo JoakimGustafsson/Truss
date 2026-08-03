@@ -148,34 +148,43 @@ class Tensor extends StoreableObject {
 	 * @return {Element}
 	 */
 	generateHTML(leftNode) {
-		let sign;
-		if (this.node1==leftNode) {
-			sign='>';
-		} else {
-			sign='<';
-		}
+		let pointsForward = this.node1==leftNode;
 		let div = document.createElement('div');
 		div.classList.add('trussButtonDiv');
+		div.classList.add('tensor-connection-control');
 		let leftButton=document.createElement('button');
 		leftButton.classList.add('trussButton');
 		leftButton.classList.add('tensorButtonLeft');
-		leftButton.innerHTML = sign;
+		leftButton.classList.add('tensor-endpoint-button');
+		leftButton.title = 'Reconnect left endpoint';
+		leftButton.innerHTML = '';
 		div.appendChild(leftButton);
 
 		let middleButton=document.createElement('button');
 		middleButton.classList.add('trussButton');
 		middleButton.classList.add('tensorButtonMiddle');
+		middleButton.classList.add('tensor-direction-button');
+		middleButton.classList.add(pointsForward ? 'tensor-direction-forward' : 'tensor-direction-reverse');
 		if (this.color!='transparent') {
 			middleButton.style.color=this.color;
 		}
-		middleButton.innerHTML = this.getName();
+		let nameSpan = document.createElement('span');
+		nameSpan.classList.add('tensor-direction-name');
+		nameSpan.textContent = this.getName();
+		middleButton.appendChild(nameSpan);
+		let arrowSpan = document.createElement('span');
+		arrowSpan.classList.add('tensor-direction-arrow');
+		arrowSpan.textContent = pointsForward ? '→' : '←';
+		middleButton.appendChild(arrowSpan);
 		this.registerOnClick(middleButton, this);
 		div.appendChild(middleButton);
 
 		let rightButton=document.createElement('button');
 		rightButton.classList.add('trussButton');
 		rightButton.classList.add('tensorButtonRight');
-		rightButton.innerHTML = sign;
+		rightButton.classList.add('tensor-endpoint-button');
+		rightButton.title = 'Reconnect right endpoint';
+		rightButton.innerHTML = '';
 
 		div.appendChild(rightButton);
 
@@ -283,6 +292,7 @@ class Tensor extends StoreableObject {
 	 * @return {string}
 	 */
 	generateconnectionHTML(left) {
+		let showingSelectedTensor = left == undefined;
 		let leftNode=left;
 		if (!leftNode) {
 			leftNode=this.node1;
@@ -290,14 +300,23 @@ class Tensor extends StoreableObject {
 		let rightNode= this.getOppositeNode(leftNode);
 
 		let div = document.createElement('div'); // Create the element in memory
+		div.classList.add('tensor-connection-row');
 
-		// let button0 = leftNode.generateHTML(this);
-		// div.appendChild(button0);
+		if (showingSelectedTensor) {
+			leftNode = this.node1;
+			rightNode = this.node2;
+			let startNodeButton = leftNode.generateHTML(this);
+			startNodeButton.classList.add('tensor-start-node-button');
+			startNodeButton.title = 'Start node: ' + leftNode.name;
+			div.appendChild(startNodeButton);
+		}
 
 		let button1 = this.generateHTML(leftNode);
 		div.appendChild(button1);
 
 		let button2 = rightNode.generateHTML(this);
+		button2.classList.add('tensor-end-node-button');
+		button2.title = (showingSelectedTensor ? 'End node: ' : 'Opposite node: ') + rightNode.name;
 		div.appendChild(button2);
 
 		return div;

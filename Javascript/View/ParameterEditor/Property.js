@@ -32,14 +32,16 @@ class PropertyList {
 	 */
 	constructor() {
 		this.list = [];
+		this.propertyMetadata = new Map();
 	}
 
 	/**
 	 * @param  {Property} prop
 	 * @return {Property}
 	 */
-	addProperty(prop) {
+	addProperty(prop, defaultValue, metadata = {}) {
 		this.list.push(prop);
+		this.propertyMetadata.set(prop, metadata);
 		return prop;
 	}
 
@@ -48,6 +50,7 @@ class PropertyList {
 	 */
 	clearProperties(labelProperty) {
 		this.list = [labelProperty];
+		this.propertyMetadata = new Map();
 	}
 
 	/**
@@ -65,19 +68,20 @@ class PropertyList {
 	populateProperties(element, ownerObject, ignoreLabels) {
 		element.innerHTML = '';
 
-		let labelArea = document.createElement('div');
-		// labelArea.classList.add('dummy');
-
 		let otherArea = document.createElement('div');
 
-		this.list[0].populateProperty(labelArea, ownerObject, otherArea);
-		element.appendChild(labelArea);
+		if (!ignoreLabels) {
+			let labelArea = document.createElement('div');
+			// labelArea.classList.add('dummy');
+			this.list[0].populateProperty(labelArea, ownerObject, otherArea);
+			element.appendChild(labelArea);
+		}
 
 		this.populateRest(otherArea, ownerObject);
 		element.appendChild(otherArea);
 		
 		// Update all property values to show actual values from the object
-		this.updatePropertyValues(ownerObject);
+		this.updatePropertyValues(ownerObject, ignoreLabels);
 	}
 
 	/**
@@ -86,18 +90,120 @@ class PropertyList {
 	 */
 	populateRest(element, ownerObject) {
 		element.innerHTML = '';
-		for (let prop of this.list) {
-			if (prop.propertyName != 'labelString') {
-				prop.populateProperty(element, ownerObject);
+		let groups = this.groupProperties();
+		for (let group of groups) {
+			if (group.properties.length == 0) {
+				continue;
 			}
+			let section = document.createElement('section');
+			section.classList.add('banner-property-section');
+			let heading = document.createElement('div');
+			heading.classList.add('banner-section-title');
+			heading.textContent = group.title;
+			section.appendChild(heading);
+
+			let body = document.createElement('div');
+			body.classList.add('banner-property-section-body');
+			for (let prop of group.properties) {
+				prop.populateProperty(body, ownerObject);
+			}
+			section.appendChild(body);
+			element.appendChild(section);
 		}
+	}
+
+	groupProperties() {
+		let groupMap = new Map();
+		let orderedGroups = [];
+		let ensureGroup = (key, title) => {
+			if (!groupMap.has(key)) {
+				let group = {
+					key: key,
+					title: title,
+					properties: [],
+				};
+				groupMap.set(key, group);
+				orderedGroups.push(group);
+			}
+			return groupMap.get(key);
+		};
+
+		for (let prop of this.list) {
+			if (prop.propertyName == 'labelString') {
+				continue;
+			}
+			let metadata = this.propertyMetadata.get(prop) || {};
+			let groupInfo = this.getPropertyGroup(prop, metadata);
+			if (!groupInfo) {
+				continue;
+			}
+			ensureGroup(groupInfo.key, groupInfo.title).properties.push(prop);
+		}
+		let groupOrder = {
+			'basic': 1,
+			'transform': 2,
+			'physics': 3,
+			'appearance': 4,
+			'references': 5,
+			'advanced': 90,
+		};
+		return orderedGroups.sort((a, b) => {
+			let aOrder = groupOrder[a.key] || (a.key.indexOf('behavior-') == 0 ? 50 : 99);
+			let bOrder = groupOrder[b.key] || (b.key.indexOf('behavior-') == 0 ? 50 : 99);
+			return aOrder - bOrder;
+		});
+	}
+
+	getPropertyGroup(prop, metadata) {
+		let propertyName = prop.propertyName;
+		if (propertyName == 'name' || propertyName == 'visible') {
+			return { key: 'basic', title: 'Basic' };
+		}
+		if (propertyName == 'localPosition' || propertyName == 'velocity' ||
+			propertyName == 'degree' || propertyName == 'plane' ||
+			propertyName == 'screenSize' || propertyName == 'worldSize' ||
+			propertyName == 'worldOffset') {
+			return { key: 'transform', title: 'Transform' };
+		}
+		if (propertyName == 'mass' || propertyName == 'constant' ||
+			propertyName == 'dampeningConstant' || propertyName == 'velocityLoss' ||
+			propertyName == 'equilibriumLength' || propertyName == 'torqueConstant') {
+			return { key: 'physics', title: 'Physics' };
+		}
+		if (propertyName == 'color' || propertyName == 'pictureReference' || propertyName == 'size') {
+			return { key: 'appearance', title: 'Appearance' };
+		}
+		if (propertyName == 'node1' || propertyName == 'node2' || propertyName == 'connectedTensors') {
+			return undefined;
+		}
+		if (propertyName == 'parentTrussNode') {
+			return { key: 'references', title: 'References' };
+		}
+		if (metadata.sourceLabelName == 'node' || metadata.sourceLabelName == 'tensor' ||
+			metadata.sourceLabelName == 'positiontensor') {
+			return { key: 'advanced', title: 'Advanced' };
+		}
+		if (metadata.sourceLabelName) {
+			return {
+				key: 'behavior-' + metadata.sourceLabelName,
+				title: 'Behavior: ' + metadata.sourceLabelName,
+			};
+		}
+		return { key: 'advanced', title: 'Advanced' };
 	}
 
 	/** Loop through all properties and display the values from the inputObject
 	 * @param  {Object} inputObject
 	 */
-	updatePropertyValues(inputObject) {
+	updatePropertyValues(inputObject, ignoreLabels) {
 		for (let i = 0; i < this.list.length; i++) {
+			if (ignoreLabels && this.list[i].propertyName == 'labelString') {
+				continue;
+			}
+			let metadata = this.propertyMetadata.get(this.list[i]) || {};
+			if (!this.getPropertyGroup(this.list[i], metadata)) {
+				continue;
+			}
 			this.list[i].updatePropertyValue(inputObject);
 		}
 	}
@@ -123,6 +229,7 @@ class Property {
 		this.identity = 'editWindowTruss' + idHTML;
 		this.title = displayTitle;
 		this.help = helpText;
+		this.parameterCategory = parameterCategory;
 		this.defaultValue = defaultValue;
 		this.index = index;
 	}
@@ -201,6 +308,7 @@ class Property {
 		outerDiv.id = this.identity + 'Container';
 		// outerDiv.style.position='absolute';
 		outerDiv.classList.add('parameterEditArea');
+		outerDiv.classList.add('banner-property-row');
 		element.appendChild(outerDiv);
 		let valuePair = document.createElement('div');
 		valuePair.classList.add('valuepair');
@@ -363,24 +471,13 @@ class SwitchProperty extends Property {
 		 * @return {Element}
 		 */
 	makeSwitchField(id, parameterValue) {
-		// let inputField = this.makeViewOfSwitchField(id, parameterValue);
-
-		let inputLabel = document.createElement('label');
-		inputLabel.classList.add('switch');
 		let inputField = document.createElement('input');
 		inputField.type = 'checkbox';
 		inputField.id = id;
-		inputLabel.appendChild(inputField);
+		inputField.classList.add('banner-checkbox');
 
-		let inputSpan = document.createElement('span');
-		inputSpan.classList.add('slider');
-		// inputSpan.classList.add('round');
-		inputLabel.appendChild(inputSpan);
+		parameterValue.appendChild(inputField);
 
-		parameterValue.appendChild(inputLabel);
-
-
-		let _this = this;
 		inputField.addEventListener('input', () => {
 			this.assignValue(inputField.checked);
 		});
@@ -458,13 +555,16 @@ class PositionProperty extends Property {
 		let xValuePair = document.createElement('div');
 		xValuePair.classList.add('valuepair');
 		xValuePair.classList.add('xyvaluepair');
+		xValuePair.classList.add('coordinate-value-pair');
 		parameterValue.appendChild(xValuePair);
 		let parameterName = document.createElement('div');
 		parameterName.classList.add('lname');
-		parameterName.innerHTML = 'X';
+		parameterName.classList.add('coordinate-axis-label');
+		parameterName.textContent = 'X:';
 		xValuePair.appendChild(parameterName);
 		let xparameterValue = document.createElement('div');
 		xparameterValue.classList.add('rvalue');
+		xparameterValue.classList.add('coordinate-axis-value');
 		xValuePair.appendChild(xparameterValue);
 
 		let xinputField = this.makeViewOfInputField(id + 'X', parameterValue);
@@ -477,13 +577,16 @@ class PositionProperty extends Property {
 		let yValuePair = document.createElement('div');
 		yValuePair.classList.add('valuepair');
 		yValuePair.classList.add('xyvaluepair');
+		yValuePair.classList.add('coordinate-value-pair');
 		parameterValue.appendChild(yValuePair);
 		let yparameterName = document.createElement('div');
 		yparameterName.classList.add('lname');
-		yparameterName.innerHTML = 'Y';
+		yparameterName.classList.add('coordinate-axis-label');
+		yparameterName.textContent = 'Y:';
 		yValuePair.appendChild(yparameterName);
 		let yparameterValue = document.createElement('div');
 		yparameterValue.classList.add('rvalue');
+		yparameterValue.classList.add('coordinate-axis-value');
 		yValuePair.appendChild(yparameterValue);
 
 		let yinputField = this.makeViewOfInputField(id + 'Y', parameterValue);
@@ -492,8 +595,6 @@ class PositionProperty extends Property {
 		yparameterValue.appendChild(yinputField);
 
 		this.yInput = yinputField;
-
-		let _this = this;
 
 		xinputField.addEventListener('input', () => {
 			this.assignValue(parseInt(xinputField.value), 'x');
@@ -604,7 +705,7 @@ class NodeProperty extends Property {
 
 		changeButton.onclick = () => {
 			this.assignValue(universe.currentNode.selector);
-			this.initialSelectedItem =_this.owner;
+			this.initialSelectedItem = this.owner;
 			this.active=true;
 			document.addEventListener('selectionEvent', this.attachFunction, false);
 		};
