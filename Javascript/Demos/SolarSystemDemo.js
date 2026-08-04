@@ -264,11 +264,11 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		});
 
 		// Create gravitational field tensor from Sun to planet
-		// Note: negative constant attracts, positive repels
-		// Gravity should attract, so negate the constant
+		// The field constant sign: positive = attractive, negative = repulsive
+		// (The field calculator applies one negation internally)
 		const fieldTensor = new Tensor(sun, planet, 'field', {
 			'name': `gravity-${planetData.name.toLowerCase()}`,
-			'constant': -scaling.gravityConstant,
+			'constant': scaling.gravityConstant,
 			'visible': 0,  // gravity fields typically invisible
 		});
 
