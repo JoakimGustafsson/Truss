@@ -527,7 +527,9 @@ test('gravitywell owns mass while gravity field owns attraction constant', () =>
 
 	gravity.calculateForceField();
 	const forceOnHandle = gravity.getForce(handle);
-	assert.ok(forceOnHandle.y < 0, `expected downward gravity, got y=${forceOnHandle.y}`);
+	// For world coordinates, gravity points directly from Handle toward Earth
+	// Earth is below Handle (at y=-100 vs y=10), so force should point downward (negative Y)
+	assert.ok(forceOnHandle.y < 0, `expected downward gravity toward Earth, got y=${forceOnHandle.y}`);
 });
 
 test('solar system demo creates sun and 8 planets with field tensors', () => {

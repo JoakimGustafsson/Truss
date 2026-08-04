@@ -329,8 +329,8 @@ class FieldCalculator extends Behaviour {
 		
 		// Y-axis negation is ONLY for display coordinate systems where Y is inverted for rendering
 		// For world coordinate systems (like solar system), skip the negation to maintain correct gravity direction
-		const node2HasDisplayCoordSys = this.node2.coordinateSystem && this.node2.coordinateSystem.isDisplay && this.node2.coordinateSystem.isDisplay();
-		if (node2HasDisplayCoordSys) {
+		const isDisplayCoordSystem = this.node2.coordinateSystem && typeof this.node2.coordinateSystem.isDisplay === 'function' && this.node2.coordinateSystem.isDisplay();
+		if (isDisplayCoordSystem) {
 			// With Y-axis flipped in display coords (up = positive), negate Y component to maintain correct direction
 			force.y = -force.y;
 		}

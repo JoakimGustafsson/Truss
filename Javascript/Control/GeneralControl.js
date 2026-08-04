@@ -1,6 +1,6 @@
 /* global Tensor Spring */
 
-const GRAVITY_FIELD_CONSTANT = -6.67e-11;
+const GRAVITY_FIELD_CONSTANT = 6.67e-11;
 
 /**
  * @class
