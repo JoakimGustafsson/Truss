@@ -142,11 +142,11 @@ function calculateSolarSystemScaling(earthOrbitPeriod) {
 function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 	const scaling = calculateSolarSystemScaling(earthOrbitPeriod);
 
-	// Create Sun at center (fixed, anchor mass)
-	const sun = new Node(trussNode.world, trussNode, 'node angle color', {
+	// Create Sun at center with realistic mass
+	const sun = new Node(trussNode.world, trussNode, 'moveable angle color', {
 		'name': 'Sun',
 		'localPosition': new Position(35, 25),  // positioned to right of other demos
-		'mass': NaN,                             // anchor (infinite mass)
+		'mass': scaling.sunMass,                 // realistic solar mass in simulation units
 		'degree': 0,
 		'angleVelocityLoss': 1,
 		'color': 'yellow',
