@@ -117,6 +117,14 @@ function calculateSolarSystemScaling(earthOrbitPeriod) {
 	const earthMassInSim = 1e20;  // kg-equivalent units
 	const sunMassInSim = sunMass;
 
+	console.log('🌍 Solar System Scaling:');
+	console.log(`  Earth distance: ${earthDistanceMeters.toExponential(2)} m`);
+	console.log(`  Earth period: ${earthPeriod.toExponential(2)} s`);
+	console.log(`  GM product: ${GM.toExponential(2)}`);
+	console.log(`  Sun mass: ${sunMassInSim.toExponential(2)}`);
+	console.log(`  Gravity constant: ${gravityConstant.toExponential(2)}`);
+	console.log(`  Planet mass scale factor: ${(earthMassInSim / earthData.massRelativeToSun).toExponential(2)}`);
+
 	return {
 		diameterScale,           // multiply planet diameters by this
 		distanceScale: 15,       // 1 AU = 15 meters
@@ -142,11 +150,11 @@ function calculateSolarSystemScaling(earthOrbitPeriod) {
 function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 	const scaling = calculateSolarSystemScaling(earthOrbitPeriod);
 
-	// Create Sun at center with realistic mass
-	const sun = new Node(trussNode.world, trussNode, 'moveable angle color', {
+	// Create Sun at center with anchor label (infinite mass, doesn't move)
+	// This allows planets to orbit correctly without Sun being accelerated by planets
+	const sun = new Node(trussNode.world, trussNode, 'anchor angle color', {
 		'name': 'Sun',
 		'localPosition': new Position(35, 25),  // positioned to right of other demos
-		'mass': scaling.sunMass,                 // realistic solar mass in simulation units
 		'degree': 0,
 		'angleVelocityLoss': 1,
 		'color': 'yellow',
@@ -193,6 +201,17 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 
 		// Planet mass scaled to simulation
 		const planetMass = planetData.massRelativeToSun * scaling.massScale;
+
+		if (planetData.name === 'Earth') {
+			console.log(`🌎 ${planetData.name} setup:`);
+			console.log(`  Orbital distance: ${orbitalDistance.toExponential(2)} m`);
+			console.log(`  Orbital period: ${orbitalPeriodCorrected.toExponential(2)} s`);
+			console.log(`  Orbital velocity: ${orbitalVelocity.toExponential(2)} m/s`);
+			console.log(`  Planet mass: ${planetMass.toExponential(2)}`);
+			console.log(`  Expected centripetal force: ${(planetMass * orbitalVelocity * orbitalVelocity / orbitalDistance).toExponential(2)} N`);
+			const expectedForce = scaling.gravityConstant * scaling.sunMass * planetMass / (orbitalDistance * orbitalDistance);
+			console.log(`  Actual gravity force: ${expectedForce.toExponential(2)} N`);
+		}
 
 		// Create planet node
 		const planet = new Node(trussNode.world, trussNode, 'node moveable velocityloss color', {
