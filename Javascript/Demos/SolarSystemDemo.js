@@ -357,6 +357,16 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		});
 		
 		fieldTensors.push(moonFieldTensor);
+		
+		// Create gravitational field tensor from Sun to Moon
+		// Moon experiences gravity from both Earth and Sun
+		const sunMoonFieldTensor = new Tensor(sun, moon, 'field', {
+			'name': 'gravity-sun-moon',
+			'constant': scaling.gravityConstant,
+			'visible': 0,
+		});
+		
+		fieldTensors.push(sunMoonFieldTensor);
 	}
 
 	return {

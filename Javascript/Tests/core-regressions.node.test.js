@@ -556,7 +556,7 @@ test('solar system demo creates sun and 8 planets with field tensors', () => {
 	assert.equal(result.sun.color, 'yellow', 'sun should be yellow');
 
 	assert.equal(result.planets.length, 9, 'should have 8 planets + 1 moon');
-	assert.equal(result.fieldTensors.length, 9, 'should have 8 planet field tensors + 1 moon field tensor');
+	assert.equal(result.fieldTensors.length, 10, 'should have 8 planet field tensors + 2 moon field tensors (Earth + Sun)');
 
 	// Verify planet data (planets 0-7 are the 8 planets, planet 8 is the Moon)
 	const planetNames = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
