@@ -6,6 +6,7 @@ import { Position } from './Primitives.js';
 import { createAngleTensorDemo } from './Demos/AngleTensorDemo.js';
 import { createKeyInputDemo } from './Demos/KeyInputDemo.js';
 import { createProtagonistDemo } from './Demos/ProtagonistDemo.js';
+import { createSolarSystemDemo } from './Demos/SolarSystemDemo.js';
 import { EARTH_CENTER, EARTH_MASS, GRAVITY_FIELD_CONSTANT } from './Gravity.js';
 
 /**
@@ -47,6 +48,7 @@ function createDefaultPerformanceScene(trussNode) {
 
 	createAngleTensorDemo(trussNode);
 	createKeyInputDemo(trussNode);
+	createSolarSystemDemo(trussNode);
 }
 
 /**
@@ -192,6 +194,7 @@ export {
 	createAngleTensorDemo,
 	createKeyInputDemo,
 	createProtagonistDemo,
+	createSolarSystemDemo,
 	createDefaultPerformanceScene,
 	WalkTruss,
 	GovenorTruss,

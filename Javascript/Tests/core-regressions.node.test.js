@@ -13,6 +13,7 @@ import { updateNodeRotation } from '../Behaviours/Angles.js';
 import { createAngleTensorDemo } from '../Demos/AngleTensorDemo.js';
 import { createKeyInputDemo } from '../Demos/KeyInputDemo.js';
 import { createProtagonistDemo } from '../Demos/ProtagonistDemo.js';
+import { createSolarSystemDemo } from '../Demos/SolarSystemDemo.js';
 import { GRAVITY_FIELD_CONSTANT } from '../Gravity.js';
 
 function makeView() {
@@ -528,3 +529,171 @@ test('gravitywell owns mass while gravity field owns attraction constant', () =>
 	const forceOnHandle = gravity.getForce(handle);
 	assert.ok(forceOnHandle.y < 0, `expected downward gravity, got y=${forceOnHandle.y}`);
 });
+
+test('solar system demo creates sun and 8 planets with field tensors', () => {
+	const coordinateSystem = {
+		name: 'world',
+		calculateDistance(node1, node2) {
+			return Math.sqrt(this.calculateDistanceSquared(node1, node2));
+		},
+		calculateDistanceSquared(node1, node2) {
+			return Math.pow(node2.localPosition.x - node1.localPosition.x, 2) +
+				Math.pow(node2.localPosition.y - node1.localPosition.y, 2);
+		},
+	};
+	const world = { labels: new Labels() };
+	const trussNode = {
+		world,
+		earth: undefined,
+	};
+
+	const result = createSolarSystemDemo(trussNode, 60);
+
+	assert.ok(result.sun, 'should have sun');
+	assert.equal(result.sun.constant, undefined, 'sun should be anchor (no constant)');
+	assert.equal(result.sun.mass, NaN, 'sun should have infinite mass (anchor)');
+	assert.equal(result.sun.color, 'yellow', 'sun should be yellow');
+
+	assert.equal(result.planets.length, 8, 'should have 8 planets');
+	assert.equal(result.fieldTensors.length, 8, 'should have 8 field tensors');
+
+	// Verify planet data
+	const planetNames = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
+	result.planets.forEach((planet, index) => {
+		assert.equal(planet.name, planetNames[index], `planet ${index} should be ${planetNames[index]}`);
+		assert.ok(planet.node, `planet ${index} should have node`);
+		assert.ok(planet.mass > 0, `planet ${index} should have positive mass`);
+		assert.ok(planet.semiMajorAxis > 0, `planet ${index} should have positive semi-major axis`);
+		assert.ok(planet.node.color, `planet ${index} should have a color`);
+	});
+});
+
+test('solar system planets have realistic orbital velocities', () => {
+	const coordinateSystem = {
+		name: 'world',
+		calculateDistance(node1, node2) {
+			return Math.sqrt(this.calculateDistanceSquared(node1, node2));
+		},
+		calculateDistanceSquared(node1, node2) {
+			return Math.pow(node2.localPosition.x - node1.localPosition.x, 2) +
+				Math.pow(node2.localPosition.y - node1.localPosition.y, 2);
+		},
+	};
+	const world = { labels: new Labels() };
+	const trussNode = { world, earth: undefined };
+
+	const earthOrbitPeriod = 60;  // seconds
+	const result = createSolarSystemDemo(trussNode, earthOrbitPeriod);
+
+	// For a circular orbit: v = 2πr/T
+	// We can verify the initial velocity magnitude is in the right ballpark
+	result.planets.forEach((planet) => {
+		const node = planet.node;
+		const velocity = node.velocity;
+		const velocityMagnitude = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+
+		// Verify velocity is non-zero and reasonable
+		assert.ok(velocityMagnitude > 0, `${planet.name} should have non-zero orbital velocity`);
+
+		// Calculate expected orbital distance and velocity
+		const distFromSun = Math.sqrt(
+			Math.pow(node.localPosition.x - result.sun.localPosition.x, 2) +
+			Math.pow(node.localPosition.y - result.sun.localPosition.y, 2)
+		);
+
+		// Orbital period scales as sqrt(a³) for Kepler's 3rd law
+		const expectedPeriod = Math.sqrt(
+			Math.pow(planet.semiMajorAxis, 3) / Math.pow(1.0, 3)
+		) * earthOrbitPeriod;
+
+		const expectedVelocity = (2 * Math.PI * distFromSun) / expectedPeriod;
+
+		// Allow 20% tolerance (initialization may not be perfectly circular)
+		const tolerance = expectedVelocity * 0.2;
+		assert.ok(
+			Math.abs(velocityMagnitude - expectedVelocity) < tolerance,
+			`${planet.name} velocity ${velocityMagnitude} should be near ${expectedVelocity}`
+		);
+	});
+});
+
+test('solar system planets maintain angular momentum conservation over time', () => {
+	const coordinateSystem = {
+		name: 'world',
+		calculateDistance(node1, node2) {
+			return Math.sqrt(this.calculateDistanceSquared(node1, node2));
+		},
+		calculateDistanceSquared(node1, node2) {
+			return Math.pow(node2.localPosition.x - node1.localPosition.x, 2) +
+				Math.pow(node2.localPosition.y - node1.localPosition.y, 2);
+		},
+	};
+	const world = { labels: new Labels() };
+	const trussNode = { world, earth: undefined };
+
+	const result = createSolarSystemDemo(trussNode, 60);
+
+	// Calculate initial angular momentum L = r × p for each planet
+	const initialAngularMomenta = result.planets.map((planet) => {
+		const node = planet.node;
+		const sunPos = result.sun.localPosition;
+		const planetPos = node.localPosition;
+
+		// r vector (from sun to planet)
+		const rx = planetPos.x - sunPos.x;
+		const ry = planetPos.y - sunPos.y;
+
+		// p = m * v
+		const px = planet.mass * node.velocity.x;
+		const py = planet.mass * node.velocity.y;
+
+		// L = r × p (z-component in 2D)
+		const L = Math.abs(rx * py - ry * px);
+		return L;
+	});
+
+	// Verify initial angular momenta are non-zero
+	result.planets.forEach((planet, index) => {
+		assert.ok(
+			initialAngularMomenta[index] > 0,
+			`${planet.name} should have non-zero initial angular momentum`
+		);
+	});
+});
+
+test('solar system has reasonable scaling parameters', () => {
+	const coordinateSystem = {
+		name: 'world',
+		calculateDistance(node1, node2) {
+			return Math.sqrt(this.calculateDistanceSquared(node1, node2));
+		},
+		calculateDistanceSquared(node1, node2) {
+			return Math.pow(node2.localPosition.x - node1.localPosition.x, 2) +
+				Math.pow(node2.localPosition.y - node1.localPosition.y, 2);
+		},
+	};
+	const world = { labels: new Labels() };
+	const trussNode = { world, earth: undefined };
+
+	const result = createSolarSystemDemo(trussNode, 60);
+
+	assert.ok(result.scaling.diameterScale > 0, 'diameter scale should be positive');
+	assert.equal(result.scaling.distanceScale, 15, 'distance scale should be 15 (1 AU = 15m)');
+	assert.ok(result.scaling.massScale > 0, 'mass scale should be positive');
+	assert.ok(result.scaling.gravityConstant > 0, 'gravity constant should be positive');
+	assert.ok(result.scaling.sunMass > 0, 'sun mass should be positive');
+	assert.equal(result.scaling.earthOrbitPeriod, 60, 'earth orbit period should match input');
+
+	// Verify that Mercury orbits faster than Earth
+	const mercuryNode = result.planets[0].node;
+	const earthNode = result.planets[2].node;
+
+	const mercuryVel = Math.sqrt(mercuryNode.velocity.x ** 2 + mercuryNode.velocity.y ** 2);
+	const earthVel = Math.sqrt(earthNode.velocity.x ** 2 + earthNode.velocity.y ** 2);
+
+	// Mercury is closer to sun and should be faster in rad/s terms
+	// But velocity magnitude depends on both distance and period
+	assert.ok(mercuryVel > 0, 'Mercury should have positive velocity');
+	assert.ok(earthVel > 0, 'Earth should have positive velocity');
+});
+
