@@ -326,9 +326,15 @@ class FieldCalculator extends Behaviour {
 		}
 		
 		let force = Vector.multiplyVector(-forceSize, normalized);
-		// With Y-axis flipped (up = positive), negate Y component of field forces to maintain correct direction
-		// (gravity should pull downward, which is now negative Y)
-		force.y = -force.y;
+		
+		// Y-axis negation is ONLY for display coordinate systems where Y is inverted for rendering
+		// For world coordinate systems (like solar system), skip the negation to maintain correct gravity direction
+		const node2HasDisplayCoordSys = this.node2.coordinateSystem && this.node2.coordinateSystem.isDisplay && this.node2.coordinateSystem.isDisplay();
+		if (node2HasDisplayCoordSys) {
+			// With Y-axis flipped in display coords (up = positive), negate Y component to maintain correct direction
+			force.y = -force.y;
+		}
+		
 		return force;
 	}
 
