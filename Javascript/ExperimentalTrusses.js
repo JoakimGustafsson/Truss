@@ -3,7 +3,9 @@ import { Node } from './Nodes/Node.js';
 import { Tensor } from './Tensors.js';
 import { Selector } from './Nodes/Sensors.js';
 import { Position } from './Primitives.js';
-import { createAngleTensorDemo } from './AngleTensorDemo.js';
+import { createAngleTensorDemo } from './Demos/AngleTensorDemo.js';
+import { createKeyInputDemo } from './Demos/KeyInputDemo.js';
+import { createProtagonistDemo } from './Demos/ProtagonistDemo.js';
 import { EARTH_CENTER, EARTH_MASS, GRAVITY_FIELD_CONSTANT } from './Gravity.js';
 
 /**
@@ -40,87 +42,11 @@ function createDefaultPerformanceScene(trussNode) {
 		'mass': EARTH_MASS,
 	});
 
-	trussNode.protagonist = new ProtagonistNode(trussNode.world, trussNode, 'moveable velocityloss node color', {
-		'name': 'Protagonist',
-		'localPosition': new Position(4, 10),  // Positive Y = above Earth, will fall down
-		'mass': 70,
-		'velocityLoss': 0.9999,
-		'color': 'yellow',
-	});
-
-	const nodeA = new Node(trussNode.world, trussNode, 'moveable velocityloss node', {
-		'name': 'Node A',
-		'localPosition': new Position(3, 20),  // Positive Y = above Earth
-		'mass': 20,
-		'velocityLoss': 0.9999,
-	});
-	const nodeB = new Node(trussNode.world, trussNode, 'moveable velocityloss node', {
-		'name': 'Node B',
-		'localPosition': new Position(6, 20),  // Positive Y = above Earth
-		'mass': 20,
-		'velocityLoss': 0.95,
-	});
-	const anchorLeft = new Node(trussNode.world, trussNode, 'node', {
-		'name': 'Anchor Left',
-		'localPosition': new Position(2, 40),  // Positive Y = well above
-		'mass': NaN,
-	});
-	const anchorRight = new Node(trussNode.world, trussNode, 'node', {
-		'name': 'Anchor Right',
-		'localPosition': new Position(7, 40),  // Positive Y = well above
-		'mass': NaN,
-	});
-
-	new Tensor(trussNode.protagonist, nodeA, 'spring', {
-		'name': 'spring-pa',
-		'constant': 200,
-		'equilibriumLength': 2,
-		'color': 'white',
-	});
-	new Tensor(trussNode.protagonist, nodeB, 'spring', {
-		'name': 'spring-pb',
-		'constant': 200,
-		'equilibriumLength': 2,
-		'color': 'white',
-	});
-	new Tensor(nodeA, nodeB, 'spring', {
-		'name': 'spring-ab',
-		'constant': 260,
-		'equilibriumLength': 3,
-		'color': 'white',
-	});
-	new Tensor(anchorLeft, nodeA, 'spring absorber', {
-		'name': 'damped-left',
-		'constant': 180,
-		'dampeningConstant': 1.2,
-		'equilibriumLength': 3,
-	});
-	new Tensor(anchorRight, nodeB, 'spring absorber', {
-		'name': 'damped-right',
-		'constant': 180,
-		'dampeningConstant': 1.2,
-		'equilibriumLength': 3,
-	});
-	new Tensor(trussNode.earth, trussNode.protagonist, 'field', {
-		'name': 'gravity',
-		'constant': GRAVITY_FIELD_CONSTANT,
-		'visible': 0,
-	});
-
-	// Field tensor connections to bottom nodes for proper hanging behavior
-	// Bottom nodes experience stronger gravity pull to create the draping effect
-	new Tensor(trussNode.earth, nodeA, 'field', {
-		'name': 'gravity-nodeA',
-		'constant': GRAVITY_FIELD_CONSTANT,
-		'visible': 0,
-	});
-	new Tensor(trussNode.earth, nodeB, 'field', {
-		'name': 'gravity-nodeB',
-		'constant': GRAVITY_FIELD_CONSTANT,
-		'visible': 0,
-	});
+	// Create protagonist structure, passing the gravity well
+	createProtagonistDemo(trussNode, trussNode.earth);
 
 	createAngleTensorDemo(trussNode);
+	createKeyInputDemo(trussNode);
 }
 
 /**
@@ -264,6 +190,8 @@ class ProtagonistNode extends Node {
 
 export {
 	createAngleTensorDemo,
+	createKeyInputDemo,
+	createProtagonistDemo,
 	createDefaultPerformanceScene,
 	WalkTruss,
 	GovenorTruss,

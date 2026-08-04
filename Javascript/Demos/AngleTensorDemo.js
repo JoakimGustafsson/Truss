@@ -1,6 +1,6 @@
-import { Node } from './Nodes/Node.js';
-import { Tensor } from './Tensors.js';
-import { Position } from './Primitives.js';
+import { Node } from '../Nodes/Node.js';
+import { Tensor } from '../Tensors.js';
+import { Position } from '../Primitives.js';
 
 /**
  * Create a small angle/angletensor demo:

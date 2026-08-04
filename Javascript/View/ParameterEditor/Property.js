@@ -160,7 +160,7 @@ class PropertyList {
 			return { key: 'basic', title: 'Basic' };
 		}
 		if (propertyName == 'localPosition' || propertyName == 'velocity' ||
-			propertyName == 'degree' || propertyName == 'plane' ||
+			propertyName == 'degree' || propertyName == 'angularVelocity' || propertyName == 'turnrate' || propertyName == 'plane' ||
 			propertyName == 'screenSize' || propertyName == 'worldSize' ||
 			propertyName == 'worldOffset') {
 			return { key: 'transform', title: 'Transform' };

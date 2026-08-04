@@ -72,8 +72,8 @@ Current definitions are in `Javascript\Label.js`.
 | `absorber` | Tensor | Damping behavior |
 | `dampenedspring` | Tensor | Spring plus absorber dependencies |
 | `angletensor` | Tensor | Tensor endpoint angle targets and endpoint torque constants |
-| `moveable` | Node | Node affected by velocity/force updates |
-| `angle` | Node | Node with editable angle and angular velocity damping |
+| `moveable` | Node | Node affected by velocity/force updates; exposes editable velocity |
+| `angle` | Node | Node with editable angle, angular velocity (deg/s), and angular velocity damping |
 | `gravitywell` | Node | Gravity source; defaults include Earth mass and negative-Y position |
 | `truss` | Node | Main truss/container node |
 | `sensor`, `selector`, `keysensor` | Node | Input/sensor roles |
@@ -221,4 +221,4 @@ Banner UI objects use labels such as `banner`, `plane`, and node/tensor behavior
 
 `angletensor` is the tensor-side label for angle constraints. Adding it to a tensor exposes editable `degree1`, `degree2`, `torqueConstant1`, and `torqueConstant2` properties. Runtime angle torque checks this label, so the label is the user-facing behavior switch while the properties remain the tunable values.
 
-The stiffness belongs to the tensor endpoint. An `angle` node receives torque from connected `angletensor` tensors, then its mass controls how quickly that torque changes angular velocity. The node-side damping is `angleVelocityLoss`, where `1` retains all angular velocity and lower values bleed angular velocity off more quickly.
+The stiffness belongs to the tensor endpoint. An `angle` node receives torque from connected `angletensor` tensors, then its mass controls how quickly that torque changes angular velocity. The node-side damping is `angleVelocityLoss`, where `1` retains all angular velocity and lower values bleed angular velocity off more quickly. The editable angular velocity property is shown in degrees per second and converted internally to the node's stored per-frame `turnrate`.

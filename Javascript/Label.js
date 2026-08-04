@@ -1,4 +1,4 @@
-import { Position, removeIfPresent } from './Primitives.js';
+import { Position, Velocity, removeIfPresent } from './Primitives.js';
 import { Behaviours } from './Behaviours/Behaviour.js';
 import { AngleNode, AngleTensor } from './Behaviours/Angles.js';
 import {
@@ -8,6 +8,7 @@ import {
 	FieldCalculator,
 	AbsorbCalculator,
 } from './Behaviours/TensorForces.js';
+import { KeyToTorqueBehaviour, KeyToLengthBehaviour, ForceSensorBehaviour } from './Behaviours/Sensors.js';
 import {
 	NumberProperty, StringProperty, PositionProperty, SwitchProperty,
 	NodeProperty, TensorListProperty, LabelListProperty, PropertyListProperty,
@@ -46,6 +47,9 @@ class Labels {
 		this.angleProperty = new NumberProperty(
 			'degree', 'degree', 'Angle', ParameterCategory.CONTENT,
 			'The angle of the node.');
+		this.angularVelocityProperty = new NumberProperty(
+			'angularVelocity', 'angularVelocity', 'Angular velocity', ParameterCategory.CONTENT,
+			'The angular velocity of the node in degrees per second.');
 		this.angleVelocityLossProperty = new NumberProperty(
 			'angleVelocityLoss', 'angleVelocityLoss', 'Angle velocity loss', ParameterCategory.CONTENT,
 			'How much angular velocity is retained per frame (0-1, where 1 is no loss).');
@@ -138,6 +142,31 @@ class Labels {
 			'restPosition', 'restPosition', 'Rest position', ParameterCategory.CONTENT,
 			'The position when no key is pressed.');
 
+		this.key1Property = new StringProperty(
+			'key1', 'key1', 'Key 1', ParameterCategory.CONTENT,
+			'Key name for the first input (e.g. "ArrowLeft", "a"). Check https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key for names.');
+		this.key2Property = new StringProperty(
+			'key2', 'key2', 'Key 2', ParameterCategory.CONTENT,
+			'Key name for the second input (e.g. "ArrowRight", "d").');
+		this.torque1Property = new NumberProperty(
+			'torque1', 'torque1', 'Torque 1', ParameterCategory.CONTENT,
+			'Torque added per frame while Key 1 is held (same unit as angle tensor torque constants).');
+		this.torque2Property = new NumberProperty(
+			'torque2', 'torque2', 'Torque 2', ParameterCategory.CONTENT,
+			'Torque added per frame while Key 2 is held.');
+		this.lengthRate1Property = new NumberProperty(
+			'lengthRate1', 'lengthRate1', 'Length rate 1', ParameterCategory.CONTENT,
+			'Change in equilibrium length per second while Key 1 is held.');
+		this.lengthRate2Property = new NumberProperty(
+			'lengthRate2', 'lengthRate2', 'Length rate 2', ParameterCategory.CONTENT,
+			'Change in equilibrium length per second while Key 2 is held.');
+		this.minLengthProperty = new NumberProperty(
+			'minLength', 'minLength', 'Min length', ParameterCategory.CONTENT,
+			'Minimum allowed equilibrium length (optional clamp).');
+		this.forceLimitProperty = new NumberProperty(
+			'forceLimit', 'forceLimit', 'Force Limit', ParameterCategory.CONTENT,
+			'Magnitude of force (N) above which tensor color transitions toward red.');
+
 		let nodeLabel = this.addLabel('node', [], {
 			'nameProperty': '',
 			'positionProperty': new Position(1, 1),
@@ -171,9 +200,11 @@ class Labels {
 		});
 		let moveabelLabel = this.addLabel('moveable', [nodeLabel], {
 			'massProperty': 1,
+			'velocityProperty': new Velocity(0, 0),
 		});
 		let angleLabel = this.addLabel('angle', [nodeLabel], {
 			'angleProperty': 1,
+			'angularVelocityProperty': 0,
 			'angleVelocityLossProperty': 0.9999,
 		});
 		let angleTensorLabel = this.addLabel('angletensor', [tensorLabel], {
@@ -217,9 +248,21 @@ class Labels {
 		});
 		let selectorLabel = this.addLabel('selector', [sensorLabel, moveabelLabel], {
 		});
-		let keySensorLabel = this.addLabel('keysensor', [sensorLabel, moveabelLabel], {
-			'keyProperty': [],
-			'restPositionProperty': new Position(1, 1),
+		let keytotorqueLabel = this.addLabel('keytotorque', [sensorLabel, angleLabel, moveabelLabel], {
+			'key1Property': '',
+			'key2Property': '',
+			'torque1Property': 0,
+			'torque2Property': 0,
+		});
+		let keytolengthLabel = this.addLabel('keytolength', [tensorLabel], {
+			'key1Property': '',
+			'key2Property': '',
+			'lengthRate1Property': 0,
+			'lengthRate2Property': 0,
+			'minLengthProperty': 0,
+		});
+		let forcesensorLabel = this.addLabel('forcesensor', [tensorLabel], {
+			'forceLimitProperty': 1000,
 		});
 		let nogravityLabel = this.addLabel('nogravity', [nodeLabel], {
 			// Nodes with this label should not be affected by gravity fields
@@ -273,6 +316,9 @@ class Labels {
 		this.behaviours.register('absorber', AbsorbCalculator);
 		this.behaviours.register('angle', AngleNode);
 		this.behaviours.register('angletensor', AngleTensor);
+		this.behaviours.register('keytotorque', KeyToTorqueBehaviour);
+		this.behaviours.register('keytolength', KeyToLengthBehaviour);
+		this.behaviours.register('forcesensor', ForceSensorBehaviour);
 	}
 
 	/**

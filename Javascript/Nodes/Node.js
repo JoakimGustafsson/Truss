@@ -2,9 +2,10 @@ import { StoreableObject } from '../StoreableObject.js';
 import { Position, Velocity, Vector, Force, serializeList, deserializeList, removeIfPresent } from '../Primitives.js';
 import { universe, getPlane } from '../globals.js';
 import { warpMatrix } from '../View/Pictures.js';
-import { calculateNodeTorques, updateNodeRotation } from '../Behaviours/Angles.js';
+import { updateNodeRotation } from '../Behaviours/Angles.js';
 import { evaluateScriptFunction } from '../Behaviours/Scripts.js';
 import { createWorldCoordinateSystem, createDisplayCoordinateSystem } from './CoordinateSystem.js';
+import { BehaviourOverride } from '../Behaviours/Behaviour.js';
 
 /**
  * @class
@@ -30,6 +31,8 @@ class Node extends StoreableObject {
 			this.velocity = new Velocity(0, 0);
 		}
 		this.connectedTensors = [];
+		const initialAngularVelocity = this.angularVelocity;
+		const initialTurnrate = this.turnrate;
 		/*
 		this.angle = 0;
 		this.turnrate = 0;
@@ -99,6 +102,27 @@ class Node extends StoreableObject {
 			},
 		});
 
+		Object.defineProperty(this, 'turnrate', {
+			get: function() {
+				if (this._turnrate == undefined || Number.isNaN(this._turnrate)) {
+					return 0;
+				}
+				return this._turnrate;
+			},
+			set: function(value) {
+				this._turnrate = value;
+			},
+		});
+
+		Object.defineProperty(this, 'angularVelocity', {
+			get: function() {
+				return this.turnrate * 180 / Math.PI / this.getAngularVelocityFrameDuration();
+			},
+			set: function(value) {
+				this.turnrate = value * Math.PI / 180 * this.getAngularVelocityFrameDuration();
+			},
+		});
+
 		Object.defineProperty(this, 'degree', {
 			get: function() {
 				if (this.angle==undefined) {
@@ -110,6 +134,12 @@ class Node extends StoreableObject {
 				this.angle = value * Math.PI / 180;
 			},
 		});
+
+		if (initialAngularVelocity !== undefined && initialAngularVelocity !== null) {
+			this.angularVelocity = initialAngularVelocity;
+		} else if (initialTurnrate !== undefined && initialTurnrate !== null) {
+			this.turnrate = initialTurnrate;
+		}
 
 		// Coordinate system property - determines rendering and physics behavior
 		// - If explicitly set via coordinateSystem property in valueObject, returns that reference
@@ -226,7 +256,9 @@ class Node extends StoreableObject {
 	 * @param {number} deltaTime
 	 * @param {TrussNode} truss
 	 */
-	sense(deltaTime, truss) {}
+	sense(deltaTime, truss) {
+		this.runOverrides(BehaviourOverride.SENSE, deltaTime, truss);
+	}
 
 	/**
 	* Using a space separated list, list the labels that should be added
@@ -342,7 +374,11 @@ class Node extends StoreableObject {
 
 		this.size = restoreObject.size;
 		this.angle = restoreObject.angle;
-		this.turnrate = restoreObject.turnrate;
+		if (restoreObject.angularVelocity !== undefined && restoreObject.angularVelocity !== null) {
+			this.angularVelocity = restoreObject.angularVelocity;
+		} else {
+			this.turnrate = restoreObject.turnrate;
+		}
 		this.torqueConstant = restoreObject.torqueConstant;
 		this.labelString = restoreObject.labelString;
 		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
@@ -428,6 +464,17 @@ class Node extends StoreableObject {
 	getAngle() {
 		return this.angle;
 	};
+
+	/**
+	 * Angular velocity is edited in degrees per second, but stored internally per frame.
+	 * @return {number}
+	 */
+	getAngularVelocityFrameDuration() {
+		if (this.parentTrussNode && typeof this.parentTrussNode.timestep == 'number' && this.parentTrussNode.timestep > 0) {
+			return this.parentTrussNode.timestep;
+		}
+		return 1 / 60;
+	}
 
 	/** Returns the torque constant
 	 * @return {number}
@@ -538,11 +585,13 @@ class Node extends StoreableObject {
 		return this.hasLabel('angle');
 	}
 
-	/** Loop through all springs connected to this node and sum them p
-	 * @return {number}
+	/** Compute torques from all registered TORQUE overrides (e.g. angle tensors, key input).
+	 * AngleNode's override runs first (resets sumTorque, adds tensor contributions);
+	 * any additional overrides (KeyToTorqueBehaviour etc.) add on top.
+	 * @return {Array}
 	 */
 	calculateTorques() {
-		return calculateNodeTorques(this);
+		return this.runOverrides(BehaviourOverride.TORQUE);
 	}
 
 	/**

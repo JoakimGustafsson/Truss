@@ -2,12 +2,6 @@ import { Node } from './Node.js';
 import { Position, Vector } from '../Primitives.js';
 import { universe, myX, myY, mouseSet, displayMousePercentX, displayMousePercentY } from '../globals.js';
 
-/**
- *
- */
-
-let keyState = {};
-
 /** Abstract sensor class
  * @class
  * @extends Node
@@ -21,7 +15,6 @@ class SensorNode extends Node {
 	 */
 	constructor(world, parentTrussNode, initialLabels, valueObject) {
 		super(world, parentTrussNode, initialLabels, valueObject);
-		this.sensor = true;
 	}
 }
 
@@ -50,12 +43,13 @@ class KeySensorNode extends SensorNode {
 		super(trussNode, startPosition, mass, name, positionFunction, showFunction, velocityLoss);
 		this.restPosition = startPosition;
 		this.keyVectors = [];
+		this._keyState = {};
 
-		window.addEventListener('keydown', function(e) {
-			keyState[e.keyCode || e.which] = true;
+		window.addEventListener('keydown', (e) => {
+			this._keyState[e.keyCode || e.which] = true;
 		}, true);
-		window.addEventListener('keyup', function(e) {
-			keyState[e.keyCode || e.which] = false;
+		window.addEventListener('keyup', (e) => {
+			this._keyState[e.keyCode || e.which] = false;
 		}, true);
 	}
 
@@ -95,7 +89,7 @@ class KeySensorNode extends SensorNode {
 	updatePosition(time) {
 		let p = this.restPosition;
 		for (let i = 0; i < this.keyVectors.length; i++) {
-			if (keyState[this.keyVectors[i].key]) {
+			if (this._keyState[this.keyVectors[i].key]) {
 				p = Vector.addVectors(p, this.keyVectors[i].vector);
 			}
 		}

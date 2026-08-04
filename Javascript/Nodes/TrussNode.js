@@ -5,6 +5,7 @@ import { FPSdisplay, universe } from '../globals.js';
 import { Position, Vector } from '../Primitives.js';
 import { PanZoomHandler } from '../View/PanZoomHandler.js';
 import { getClosestObject as getClosestDisplayObject, getDisplayPosition as getDisplayObjectPosition } from '../View/DisplayPicking.js';
+import { BehaviourOverride } from '../Behaviours/Behaviour.js';
 
 /**
  * @class
@@ -427,6 +428,18 @@ class TrussNode extends Node {
 	};
 
 	/**
+	 * Run PREUPDATEPOSITION overrides on all tensors before physics calculations.
+	 * Used by behaviours like KeyToLengthBehaviour that modify tensor properties
+	 * (e.g. equilibriumLength) each step at a rate × deltaTime.
+	 * @param {number} deltaTime
+	 */
+	applyTensorPreUpdates(deltaTime) {
+		for (let tensor of this.tensorLabel.getTensors()) {
+			tensor.runOverrides(BehaviourOverride.PREUPDATEPOSITION, deltaTime);
+		}
+	}
+
+	/**
 	 * Calculate all forces caused by a Nodes position.
 	 * For example, Springs or Fields are position based force appliers.
 	 * @param {number} deltaTime
@@ -545,6 +558,7 @@ class TrussNode extends Node {
 	 */
 	calculate(trussTime, deltaTime) {
 		if (!this.paused) {
+			this.applyTensorPreUpdates(deltaTime);
 			this.calculateTorques(deltaTime);
 			this.calculatePositionBasedForces(deltaTime);
 			this.calculatePositionBasedVelocities(deltaTime);
