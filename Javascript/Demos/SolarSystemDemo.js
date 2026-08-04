@@ -152,9 +152,10 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 
 	// Create Sun at center with anchor label (infinite mass, doesn't move)
 	// This allows planets to orbit correctly without Sun being accelerated by planets
+	// Positioned far right to allow full orbital range (Neptune orbits ~450m from Sun)
 	const sun = new Node(trussNode.world, trussNode, 'anchor angle color', {
 		'name': 'Sun',
-		'localPosition': new Position(35, 25),  // positioned to right of other demos
+		'localPosition': new Position(500, 25),
 		'degree': 0,
 		'angleVelocityLoss': 1,
 		'color': 'yellow',
