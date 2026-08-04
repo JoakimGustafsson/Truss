@@ -704,4 +704,4 @@ class PositionNode extends SensorNode {
 	}
 }
 
-export { keyState, SensorNode, KeySensorNode, ProximitySensorNode, CollisionSensorNode, BounceSensorNode, Selector, PositionNode };
+export { SensorNode, KeySensorNode, ProximitySensorNode, CollisionSensorNode, BounceSensorNode, Selector, PositionNode };
