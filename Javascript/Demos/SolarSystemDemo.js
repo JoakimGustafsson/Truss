@@ -215,12 +215,8 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const velocityMagnitude = isNaN(GM) || GM <= 0 ? 0 : Math.sqrt(Math.abs(GM * (2/r - 1/a)));
 
 		// Velocity direction is perpendicular to position vector (tangent to orbit)
-		// Velocity is 90° counterclockwise from the radius vector
-		// Position angle is nu, so velocity should be at nu + π/2 (90° ahead)
-		// However, for proper orbital direction, we need the velocity perpendicular to r
-		// in the direction of motion around the Sun.
-		// Using nu - π/2 puts velocity behind the position (rotating clockwise)
-		const velocityAngle = nu - Math.PI / 2;
+		// For counterclockwise orbits: velocity is 90° ahead of position
+		const velocityAngle = nu + Math.PI / 2;
 		const velocityX = velocityMagnitude * Math.cos(velocityAngle);
 		const velocityY = velocityMagnitude * Math.sin(velocityAngle);
 
@@ -229,12 +225,22 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 
 		if (planetData.name === 'Earth') {
 			console.log(`🌎 ${planetData.name} setup (true anomaly ${planetData.trueAnomaly}°):`);
-			console.log(`  Orbital distance: ${r.toExponential(2)} m`);
+			console.log(`  GM: ${GM.toExponential(2)}`);
+			console.log(`  Semi-major axis (a): ${a.toExponential(2)} m`);
+			console.log(`  Orbital distance (r): ${r.toExponential(2)} m`);
 			console.log(`  Orbital period: ${orbitalPeriodCorrected.toExponential(2)} s`);
-			console.log(`  Orbital velocity: ${velocityMagnitude.toExponential(2)} m/s`);
+			console.log(`  Velocity magnitude: ${velocityMagnitude.toExponential(2)} m/s`);
+			console.log(`  Velocity angle (nu): ${(nu * 180 / Math.PI).toFixed(1)}°`);
+			console.log(`  Velocity direction angle: ${((nu + Math.PI / 2) * 180 / Math.PI).toFixed(1)}°`);
 			console.log(`  Position: (${planetX.toFixed(2)}, ${planetY.toFixed(2)})`);
-			console.log(`  Velocity: (${velocityX.toExponential(2)}, ${velocityY.toExponential(2)})`);
+			console.log(`  Velocity vector: (${velocityX.toExponential(2)}, ${velocityY.toExponential(2)})`);
 			console.log(`  Planet mass: ${planetMass.toExponential(2)}`);
+			
+			// Calculate expected force at this position
+			const expectedGravForce = -scaling.gravityConstant * scaling.sunMass * planetMass / (r * r);
+			console.log(`  Expected gravity force magnitude: ${Math.abs(expectedGravForce).toExponential(2)} N`);
+			const expectedCentripetal = planetMass * velocityMagnitude * velocityMagnitude / r;
+			console.log(`  Required centripetal force: ${expectedCentripetal.toExponential(2)} N`);
 		}
 
 		// Create planet node
