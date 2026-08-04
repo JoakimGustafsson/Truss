@@ -178,6 +178,9 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 
 	// Create each planet
 	PLANETS_DATA.forEach((planetData) => {
+		// Get Sun position (with fallback in case it's not yet initialized)
+		const sunPos = sun.localPosition || new Position(500, 25);
+		
 		// Scale planet diameter
 		const planetDiameter = planetData.diameter * scaling.diameterScale;
 		const planetRadius = planetDiameter / 2;
@@ -198,15 +201,18 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 
 		// Position on ellipse relative to Sun
 		// Perihelion is at 0°, so we rotate from there
-		const planetX = sun.localPosition.x + r * Math.cos(nu);
-		const planetY = sun.localPosition.y + r * Math.sin(nu);
+		const planetX = sunPos.x + r * Math.cos(nu);
+		const planetY = sunPos.y + r * Math.sin(nu);
 
 		// Orbital velocity at this position
 		// For elliptical orbit: v = sqrt(GM(2/r - 1/a))
-		// Which simplifies to: v = sqrt(GM/a) * sqrt(2*a/r - 1)
-		// For circular approximation: v ≈ sqrt(GM/r)
 		const GM = scaling.gravityConstant * scaling.sunMass;
-		const velocityMagnitude = Math.sqrt(GM * (2/r - 1/a));
+		
+		if (isNaN(GM) || GM === undefined) {
+			console.error(`❌ GM is NaN or undefined! gravityConstant=${scaling.gravityConstant}, sunMass=${scaling.sunMass}`);
+		}
+		
+		const velocityMagnitude = isNaN(GM) || GM <= 0 ? 0 : Math.sqrt(Math.abs(GM * (2/r - 1/a)));
 
 		// Velocity direction is perpendicular to position vector (tangent to orbit)
 		// If position is at angle nu, velocity is at angle nu + 90°
