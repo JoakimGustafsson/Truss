@@ -296,20 +296,23 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 	const earth = planets.find(p => p.name === 'Earth');
 	if (earth) {
 		// Moon orbital parameters (scaled to simulation)
-		// Real Moon distance: 384,400 km
-		// For visibility in the demo, scale to ~1 meter from Earth (realistic ratio to Earth size in demo)
-		const moonDistance = 1.0;  // 1 meter from Earth (visible and orbitally stable)
+		// Use same proportional approach as planets: real value relative to Sun × scaling factor
+		
+		// Moon mass: 7.342e22 kg, Sun mass: 1.989e30 kg
+		// Moon's mass relative to Sun (same units as planets use)
+		const moonMassRelativeToSun = 3.69e-8;  // 7.342e22 / 1.989e30
+		const moonMass = moonMassRelativeToSun * scaling.massScale;
+		
+		// Moon distance: start with visually reasonable distance
+		// Real: Moon is ~60 Earth diameters away
+		// In sim: make it smaller but proportional to visual Earth size
+		// Try 0.1-0.5 meters initially
+		const moonDistance = 0.3;  // meters from Earth
 		
 		// Moon orbital period: 27.3 days = 0.0748 years
 		const moonOrbitalPeriod = (27.3 / 365.25) * earthOrbitPeriod;  // in simulation seconds
 		
-		// Moon mass: needs to be large enough that Earth-Moon gravity is stronger than Sun-Moon gravity
-		// For stable orbit around Earth while Sun also pulls:
-		// Earth-Moon force must dominate over Sun-Moon force
-		// Using 1/81 ratio but NOT reducing by 10x - need stronger pull to keep Moon bound to Earth
-		const moonMass = earth.mass / 81;  // 1/81 of Earth's mass (realistic ratio, full strength)
-		
-		// Moon orbital velocity
+		// Moon orbital velocity calculated from Earth's gravity
 		const moonGM = scaling.gravityConstant * earth.mass;
 		const moonVelocityMagnitude = Math.sqrt(moonGM / moonDistance);
 		
@@ -319,7 +322,6 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const moonY = earthNode.localPosition.y;
 		
 		// Moon's velocity = Earth's orbital velocity + Moon's circular velocity around Earth
-		// Earth is moving around the Sun, so Moon must inherit that motion
 		const earthVelocity = earth.node.velocity;
 		const moonVelocityX = earthVelocity.x + 0;  // circular orbit is perpendicular to radial direction (Y-axis from Earth)
 		const moonVelocityY = earthVelocity.y + moonVelocityMagnitude;
@@ -330,14 +332,17 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		
 		// Debug info
 		console.log('🌙 Moon Setup:');
-		console.log(`  Distance from Earth: ${moonDistance} m`);
+		console.log(`  Real mass: 7.34e+22 kg`);
+		console.log(`  Mass relative to Sun: ${moonMassRelativeToSun.toExponential(2)} (same as planets use)`);
+		console.log(`  Scaled mass: ${moonMass.toExponential(2)}`);
+		console.log(`  Mass ratio to Earth: 1/${(earth.mass / moonMass).toFixed(1)}`);
+		console.log(`  Distance from Earth: ${moonDistance.toFixed(4)} m`);
 		console.log(`  Orbital period: ${moonOrbitalPeriod.toFixed(4)} s (should complete ~${(earthOrbitPeriod / moonOrbitalPeriod).toFixed(2)} orbits per Earth year)`);
-		console.log(`  Earth mass: ${earth.mass.toExponential(2)}`);
-		console.log(`  Moon mass: ${moonMass.toExponential(2)} (ratio: 1/${(earth.mass / moonMass).toFixed(0)})`);
 		console.log(`  Gravity constant × Earth mass (GM): ${moonGM.toExponential(2)}`);
 		console.log(`  Orbital velocity magnitude: ${moonVelocityMagnitude.toFixed(4)} m/s`);
 		console.log(`  Earth velocity: (${earthVelocity.x.toFixed(4)}, ${earthVelocity.y.toFixed(4)}) m/s`);
 		console.log(`  Moon velocity: (${moonVelocityX.toFixed(4)}, ${moonVelocityY.toFixed(4)}) m/s`);
+		console.log(`  NOTE: Gravity constant is same for all fields (universal constant)`);
 		
 		// Create Moon node
 		const moon = new Node(trussNode.world, trussNode, 'node moveable velocityloss angle color', {
