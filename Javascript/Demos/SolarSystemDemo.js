@@ -165,6 +165,7 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 	const sun = new Node(trussNode.world, trussNode, 'moveable angle color', {
 		'name': 'Sun',
 		'localPosition': new Position(500, 25),
+		'velocity': new Velocity(0, 0),  // starts at rest
 		'mass': scaling.sunMass,
 		'degree': 0,
 		'angleVelocityLoss': 1,
