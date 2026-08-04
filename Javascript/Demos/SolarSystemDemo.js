@@ -316,9 +316,11 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const moonX = earthNode.localPosition.x + moonDistance;
 		const moonY = earthNode.localPosition.y;
 		
-		// Velocity perpendicular to position (tangent to orbit)
-		const moonVelocityX = 0;
-		const moonVelocityY = moonVelocityMagnitude;
+		// Moon's velocity = Earth's orbital velocity + Moon's circular velocity around Earth
+		// Earth is moving around the Sun, so Moon must inherit that motion
+		const earthVelocity = earth.node.velocity;
+		const moonVelocityX = earthVelocity.x + 0;  // circular orbit is perpendicular to radial direction (Y-axis from Earth)
+		const moonVelocityY = earthVelocity.y + moonVelocityMagnitude;
 		
 		// Calculate Moon's rotational speed (tidal locking - same as orbital period)
 		const moonRotationPeriod = moonOrbitalPeriod;
