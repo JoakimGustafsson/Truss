@@ -738,23 +738,31 @@ class Node extends StoreableObject {
 			}
 
 			if (graphicDebugLevel >= 6) {
-				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle())),
-					`show() angle line node="${this.name}"`));
-				cxt.stroke();
+				// Draw angle indicator (only if angle is valid)
+				const angle = this.getAngle();
+				if (!isNaN(angle)) {
+					cxt.beginPath();
+					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
+						new Vector(0.2 * Math.cos(angle), 0.2 * Math.sin(angle)),
+						`show() angle line node="${this.name}"`));
+					cxt.stroke();
+				}
 
-				cxt.strokeStyle = 'lightblue';
-				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), 
-					Vector.divideVector(this.velocity, 0.8),
-					`show() velocity line node="${this.name}"`));
-				cxt.stroke();
+				// Draw velocity indicator (only if velocity is valid)
+				if (this.velocity && !isNaN(this.velocity.x) && !isNaN(this.velocity.y)) {
+					cxt.strokeStyle = 'lightblue';
+					cxt.beginPath();
+					view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), 
+						Vector.divideVector(this.velocity, 0.8),
+						`show() velocity line node="${this.name}"`));
+					cxt.stroke();
+				}
 
+				// Draw acceleration indicator (only if acceleration is valid)
 				if (graphicDebugLevel >= 7) {
 					cxt.strokeStyle = 'red';
 					cxt.beginPath();
-					if (this.acceleration) {
+					if (this.acceleration && !isNaN(this.acceleration.x) && !isNaN(this.acceleration.y)) {
 						view.drawLine(this.getPosition(),
 							Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4),
 								`show() acceleration line node="${this.name}"`));
