@@ -130,12 +130,18 @@ class Vector {
 	/** Class method that Returns a new vector that is the sum of two vectors
 	 * @param  {Vector} v1
 	 * @param  {Vector} v2
+	 * @param  {string} context Optional context info for debugging NaN issues
 	 * @return {Vector}
 	 */
-	static addVectors(v1, v2) {
+	static addVectors(v1, v2, context = '') {
 		let result = new Vector(v1.x + v2.x, v1.y + v2.y);
 		if (isNaN(result.x) || isNaN(result.y)) {
-			console.warn(`⚠️ Vector.addVectors() produced NaN: (${v1.x}, ${v1.y}) + (${v2.x}, ${v2.y}) = (${result.x}, ${result.y})`);
+			let contextStr = context ? ` [${context}]` : '';
+			console.warn(`⚠️ Vector.addVectors() produced NaN${contextStr}:`);
+			console.warn(`    v1: (${v1.x}, ${v1.y})`);
+			console.warn(`    v2: (${v2.x}, ${v2.y})`);
+			console.warn(`    result: (${result.x}, ${result.y})`);
+			console.trace('Stack trace:');
 		}
 		return result;
 	}

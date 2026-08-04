@@ -627,36 +627,11 @@ class Node extends StoreableObject {
 		// Use velocityLoss if defined, otherwise default to 0.95 for moveable nodes
 		let velocityLoss = this.velocityLoss !== undefined ? this.velocityLoss : 0.95;
 		
-		const isVenus = this.name === 'Venus';
-		const oldVelocity = new Vector(this.velocity.x, this.velocity.y);
+		const dampedVelocity = Vector.multiplyVector(velocityLoss, this.velocity);
+		const accelerationContribution = Vector.multiplyVector(timeFactor, acceleration);
 		
-		this.velocity = Vector.addVectors(Vector.multiplyVector(velocityLoss, this.velocity),
-			Vector.multiplyVector(timeFactor, acceleration));
-		
-		if (isVenus) {
-			const velocityChange = Vector.subtractVectors(this.velocity, oldVelocity);
-			console.log(`  Velocity change (timeFactor=${timeFactor.toFixed(4)}): (${velocityChange.x.toFixed(4)}, ${velocityChange.y.toFixed(4)}) m/s`);
-			console.log(`  New Velocity: (${this.velocity.x.toFixed(3)}, ${this.velocity.y.toFixed(3)}) m/s`);
-			
-			// Check if velocity change points toward Sun
-			const forceAppliers = this.connectedTensors;
-			const sun = forceAppliers.find(applier => applier.name === 'Sun' || (applier.node1 && applier.node1.name === 'Sun'));
-			if (sun || (forceAppliers.length > 0 && forceAppliers[0].node1)) {
-				const sunNode = sun ? (sun.node1 ? sun.node1 : sun) : forceAppliers[0].node1;
-				const toSun = Vector.subtractVectors(sunNode.localPosition, this.localPosition);
-				const distToSun = Math.sqrt(toSun.x * toSun.x + toSun.y * toSun.y);
-				if (distToSun > 0) {
-					const sunDirNormalized = Vector.divideVector(toSun, distToSun);
-					
-					const changeMag = Math.sqrt(velocityChange.x * velocityChange.x + velocityChange.y * velocityChange.y);
-					if (changeMag > 0) {
-						const changeDir = Vector.divideVector(velocityChange, changeMag);
-						const dotProduct = changeDir.x * sunDirNormalized.x + changeDir.y * sunDirNormalized.y;
-						console.log(`  Velocity change alignment to Sun: ${(dotProduct * 100).toFixed(1)}% (1.0 = directly toward)`);
-					}
-				}
-			}
-		}
+		this.velocity = Vector.addVectors(dampedVelocity, accelerationContribution, 
+			`updateVelocity node="${this.name}"`);
 	}
 
 	/**
@@ -679,49 +654,17 @@ class Node extends StoreableObject {
 		let result = new Force(0, 0);
 		let applier;
 		let tempForce;
-		const isVenus = this.name === 'Venus';
-		
-		if (isVenus) {
-			console.group(`🪐 Venus Force Debug (phase=${velocityPhase})`);
-		}
 		
 		for (let applier of forceAppliers) {
 			if (!velocityPhase || applier.velocityBasedTensors) {
 				try {
 					tempForce = applier.getForce(this);
 					result.add(tempForce);
-					
-					if (isVenus) {
-						console.log(`  Force from ${applier.name}: (${tempForce.x.toExponential(2)}, ${tempForce.y.toExponential(2)}) N`);
-					}
 				} catch (err) {
-					console.error(`Force calculation error for ${this.name} (applier: ${applier.name}):`, err);
+					console.error(`Failed to get force from tensor "${applier.name}" (node: "${this.name}"): ${err.message}`);
+					console.error(`  Tensor node1: "${applier.node1?.name}", node2: "${applier.node2?.name}"`);
 				}
 			}
-		}
-		
-		if (isVenus) {
-			console.log(`  Total Force: (${result.x.toExponential(2)}, ${result.y.toExponential(2)}) N`);
-			console.log(`  Mass: ${this.mass.toExponential(2)}`);
-			const accel = Vector.divideVector(result, this.mass);
-			console.log(`  Acceleration: (${accel.x.toExponential(2)}, ${accel.y.toExponential(2)}) m/s²`);
-			console.log(`  Current Velocity: (${this.velocity.x.toFixed(3)}, ${this.velocity.y.toFixed(3)}) m/s`);
-			
-			// Calculate expected direction to Sun
-			const sun = forceAppliers.find(applier => applier.name === 'Sun');
-			if (sun) {
-				const toSun = Vector.subtractVectors(sun.localPosition, this.localPosition);
-				const distToSun = Math.sqrt(toSun.x * toSun.x + toSun.y * toSun.y);
-				const sunDirNormalized = Vector.divideVector(toSun, distToSun);
-				console.log(`  Direction to Sun: (${sunDirNormalized.x.toFixed(3)}, ${sunDirNormalized.y.toFixed(3)})`);
-				console.log(`  Distance to Sun: ${distToSun.toFixed(2)} m`);
-				
-				// Check if force/accel points toward Sun
-				const forceDir = Vector.divideVector(result, Math.sqrt(result.x * result.x + result.y * result.y));
-				const dotProduct = forceDir.x * sunDirNormalized.x + forceDir.y * sunDirNormalized.y;
-				console.log(`  Force direction alignment to Sun: ${(dotProduct * 100).toFixed(1)}% (1.0 = directly toward, -1.0 = directly away)`);
-			}
-			console.groupEnd();
 		}
 		
 		return result;
@@ -797,12 +740,15 @@ class Node extends StoreableObject {
 			if (graphicDebugLevel >= 6) {
 				cxt.beginPath();
 				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(),
-					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle()))));
+					new Vector(0.2 * Math.cos(this.getAngle()), 0.2 * Math.sin(this.getAngle())),
+					`show() angle line node="${this.name}"`));
 				cxt.stroke();
 
 				cxt.strokeStyle = 'lightblue';
 				cxt.beginPath();
-				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), Vector.divideVector(this.velocity, 0.8)));
+				view.drawLine(this.getPosition(), Vector.addVectors(this.getPosition(), 
+					Vector.divideVector(this.velocity, 0.8),
+					`show() velocity line node="${this.name}"`));
 				cxt.stroke();
 
 				if (graphicDebugLevel >= 7) {
@@ -810,7 +756,8 @@ class Node extends StoreableObject {
 					cxt.beginPath();
 					if (this.acceleration) {
 						view.drawLine(this.getPosition(),
-							Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4)));
+							Vector.addVectors(this.getPosition(), Vector.divideVector(this.acceleration, 4),
+								`show() acceleration line node="${this.name}"`));
 					}
 					cxt.stroke();
 				}
