@@ -199,6 +199,12 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const nu = (planetData.trueAnomaly || 0) * Math.PI / 180;  // convert to radians
 		const r = (a * (1 - e * e)) / (1 + e * Math.cos(nu));
 
+		// Validate r is not NaN or invalid
+		if (isNaN(r) || r <= 0) {
+			console.error(`❌ ${planetData.name}: orbital distance r is invalid (${r}). Check eccentricity and true anomaly.`);
+			return; // skip this planet
+		}
+
 		// Position on ellipse relative to Sun
 		// Perihelion is at 0°, so we rotate from there
 		const planetX = sunPos.x + r * Math.cos(nu);
@@ -208,11 +214,22 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		// For elliptical orbit: v = sqrt(GM(2/r - 1/a))
 		const GM = scaling.gravityConstant * scaling.sunMass;
 		
-		if (isNaN(GM) || GM === undefined) {
-			console.error(`❌ GM is NaN or undefined! gravityConstant=${scaling.gravityConstant}, sunMass=${scaling.sunMass}`);
+		if (isNaN(GM) || GM === undefined || GM <= 0) {
+			console.error(`❌ ${planetData.name}: GM is invalid! gravityConstant=${scaling.gravityConstant}, sunMass=${scaling.sunMass}`);
+			return; // skip this planet
 		}
 		
-		const velocityMagnitude = isNaN(GM) || GM <= 0 ? 0 : Math.sqrt(Math.abs(GM * (2/r - 1/a)));
+		const vrMagnitude = 2/r - 1/a;
+		if (vrMagnitude < 0) {
+			console.warn(`⚠️ ${planetData.name}: (2/r - 1/a) = ${vrMagnitude.toExponential(2)} is negative (planet beyond aphelion escape?). Using circular approximation.`);
+		}
+		const velocityMagnitude = Math.sqrt(Math.abs(vrMagnitude) * GM);
+
+		// Validate velocity is not NaN
+		if (isNaN(velocityMagnitude)) {
+			console.error(`❌ ${planetData.name}: velocity magnitude is NaN`);
+			return; // skip this planet
+		}
 
 		// Velocity direction is perpendicular to position vector (tangent to orbit)
 		// For stable orbits, velocity should be opposite to the direction we calculated
@@ -222,6 +239,11 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 
 		// Planet mass scaled to simulation
 		const planetMass = planetData.massRelativeToSun * scaling.massScale;
+
+		if (isNaN(planetX) || isNaN(planetY) || isNaN(velocityX) || isNaN(velocityY) || isNaN(planetMass)) {
+			console.error(`❌ ${planetData.name}: invalid position or velocity. pos=(${planetX}, ${planetY}), vel=(${velocityX}, ${velocityY}), mass=${planetMass}`);
+			return; // skip this planet
+		}
 
 		if (planetData.name === 'Earth') {
 			console.log(`🌎 ${planetData.name}: r=${r.toFixed(1)}m, v=${velocityMagnitude.toFixed(2)}m/s, F_gravity=${(scaling.gravityConstant * scaling.sunMass * planetMass / (r*r)).toExponential(2)}N`);
