@@ -171,7 +171,7 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		'angleVelocityLoss': 1,
 		'color': 'yellow',
 		'visible': 1,
-		'velocityLoss': 0.9999,  // minimal damping to preserve dynamics
+		'velocityLoss': 1,  // no damping for pure orbital mechanics
 	});
 
 	const planets = [];
@@ -256,7 +256,7 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 			'localPosition': new Position(planetX, planetY),
 			'velocity': new Velocity(velocityX, velocityY),
 			'mass': planetMass,
-			'velocityLoss': 0.9999,  // minimal damping to preserve orbits
+			'velocityLoss': 1,  // no damping for pure orbital mechanics
 			'color': planetData.color,
 			'visible': 1,
 		});
