@@ -303,9 +303,11 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		// Moon orbital period: 27.3 days = 0.0748 years
 		const moonOrbitalPeriod = (27.3 / 365.25) * earthOrbitPeriod;  // in simulation seconds
 		
-		// Moon mass: realistic mass ratio is 1/81 of Earth
-		// But in simulation, reduce by 10x to prevent Earth from being perturbed too much
-		const moonMass = earth.mass / 810;  // 1/81 reduced by 10x
+		// Moon mass: needs to be large enough that Earth-Moon gravity is stronger than Sun-Moon gravity
+		// For stable orbit around Earth while Sun also pulls:
+		// Earth-Moon force must dominate over Sun-Moon force
+		// Using 1/81 ratio but NOT reducing by 10x - need stronger pull to keep Moon bound to Earth
+		const moonMass = earth.mass / 81;  // 1/81 of Earth's mass (realistic ratio, full strength)
 		
 		// Moon orbital velocity
 		const moonGM = scaling.gravityConstant * earth.mass;
@@ -325,6 +327,17 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		// Calculate Moon's rotational speed (tidal locking - same as orbital period)
 		const moonRotationPeriod = moonOrbitalPeriod;
 		const moonAngularVelocity = (2 * Math.PI) / moonRotationPeriod;  // radians per second
+		
+		// Debug info
+		console.log('🌙 Moon Setup:');
+		console.log(`  Distance from Earth: ${moonDistance} m`);
+		console.log(`  Orbital period: ${moonOrbitalPeriod.toFixed(4)} s (should complete ~${(earthOrbitPeriod / moonOrbitalPeriod).toFixed(2)} orbits per Earth year)`);
+		console.log(`  Earth mass: ${earth.mass.toExponential(2)}`);
+		console.log(`  Moon mass: ${moonMass.toExponential(2)} (ratio: 1/${(earth.mass / moonMass).toFixed(0)})`);
+		console.log(`  Gravity constant × Earth mass (GM): ${moonGM.toExponential(2)}`);
+		console.log(`  Orbital velocity magnitude: ${moonVelocityMagnitude.toFixed(4)} m/s`);
+		console.log(`  Earth velocity: (${earthVelocity.x.toFixed(4)}, ${earthVelocity.y.toFixed(4)}) m/s`);
+		console.log(`  Moon velocity: (${moonVelocityX.toFixed(4)}, ${moonVelocityY.toFixed(4)}) m/s`);
 		
 		// Create Moon node
 		const moon = new Node(trussNode.world, trussNode, 'node moveable velocityloss angle color', {

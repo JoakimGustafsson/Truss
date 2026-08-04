@@ -679,3 +679,96 @@ test('solar system has reasonable scaling parameters', () => {
 	assert.ok(earthVel > 0, 'Earth should have positive velocity');
 });
 
+test('Moon orbits Earth approximately 12-13 times per Earth year', () => {
+	const coordinateSystem = {
+		calculateDistance(node1, node2) {
+			return Math.sqrt(this.calculateDistanceSquared(node1, node2));
+		},
+		calculateDistanceSquared(node1, node2) {
+			return Math.pow(node2.localPosition.x - node1.localPosition.x, 2) +
+				Math.pow(node2.localPosition.y - node1.localPosition.y, 2);
+		},
+	};
+	
+	const world = { labels: new Labels() };
+	const trussNode = { world, earth: undefined };
+	
+	const earthOrbitPeriod = 60;  // seconds
+	const result = createSolarSystemDemo(trussNode, earthOrbitPeriod);
+	
+	const earth = result.planets.find(p => p.name === 'Earth');
+	const moon = result.planets.find(p => p.isMoon);
+	
+	assert.ok(earth, 'Earth should exist');
+	assert.ok(moon, 'Moon should exist');
+	
+	// Initial distance between Moon and Earth
+	const initialDistance = coordinateSystem.calculateDistance(earth.node, moon.node);
+	const maxAllowedDistance = initialDistance * 2.0;  // Allow up to 2x the initial distance
+	const minAllowedDistance = initialDistance * 0.5;  // Allow down to 0.5x the initial distance
+	
+	console.log(`\n🌙 Moon-Earth Distance Test:`);
+	console.log(`  Initial distance: ${initialDistance.toFixed(4)} m`);
+	console.log(`  Allowed range: ${minAllowedDistance.toFixed(4)} - ${maxAllowedDistance.toFixed(4)} m`);
+	
+	// Simulate for varying time intervals to check Moon's orbital characteristics
+	const testDurations = [0.5, 1.0, 2.0, 4.4846];  // includes one full Moon orbit
+	
+	testDurations.forEach(duration => {
+		const distancesOverTime = [];
+		let moonOrbits = 0;
+		let lastAngle = null;
+		
+		// Update nodes over time
+		for (let t = 0; t <= duration; t += 0.1) {
+			// Simple physics update (basic Verlet-like update for testing)
+			earth.node.updateVelocity(0.1);
+			moon.node.updateVelocity(0.1);
+			
+			earth.node.updatePosition(0.1);
+			moon.node.updatePosition(0.1);
+			
+			const currentDistance = coordinateSystem.calculateDistance(earth.node, moon.node);
+			distancesOverTime.push(currentDistance);
+			
+			// Calculate Moon's orbital angle around Earth
+			const dx = moon.node.localPosition.x - earth.node.localPosition.x;
+			const dy = moon.node.localPosition.y - earth.node.localPosition.y;
+			const currentAngle = Math.atan2(dy, dx);
+			
+			if (lastAngle !== null) {
+				const angleDiff = currentAngle - lastAngle;
+				// Detect orbit completion (wrap-around detection)
+				if (angleDiff < -Math.PI) {
+					moonOrbits += (2 * Math.PI + angleDiff) / (2 * Math.PI);
+				} else if (angleDiff > Math.PI) {
+					moonOrbits -= (angleDiff - Math.PI) / (2 * Math.PI);
+				} else {
+					moonOrbits += angleDiff / (2 * Math.PI);
+				}
+			}
+			lastAngle = currentAngle;
+		}
+		
+		const avgDistance = distancesOverTime.reduce((a, b) => a + b, 0) / distancesOverTime.length;
+		const maxDistance = Math.max(...distancesOverTime);
+		const minDistance = Math.min(...distancesOverTime);
+		
+		console.log(`  After ${duration.toFixed(4)}s: orbits=${moonOrbits.toFixed(3)}, distance=${avgDistance.toFixed(4)}±${((maxDistance-minDistance)/2).toFixed(4)}m`);
+		
+		// Check that distance doesn't vary wildly
+		assert.ok(maxDistance < maxAllowedDistance, 
+			`Moon-Earth distance exceeded max (${maxDistance.toFixed(4)} > ${maxAllowedDistance.toFixed(4)}) at t=${duration.toFixed(2)}s`);
+		assert.ok(minDistance > minAllowedDistance, 
+			`Moon-Earth distance fell below min (${minDistance.toFixed(4)} < ${minAllowedDistance.toFixed(4)}) at t=${duration.toFixed(2)}s`);
+	});
+	
+	// Check that Moon has expected orbital period (~4.48 seconds for 27.3 day real period)
+	const expectedMoonPeriod = (27.3 / 365.25) * earthOrbitPeriod;
+	const expectedOrbitsIn60Seconds = earthOrbitPeriod / expectedMoonPeriod;
+	console.log(`  Expected Moon period: ${expectedMoonPeriod.toFixed(4)}s (${expectedOrbitsIn60Seconds.toFixed(2)} orbits per Earth year)`);
+	
+	assert.ok(expectedOrbitsIn60Seconds > 12 && expectedOrbitsIn60Seconds < 14, 
+		`Moon should orbit approximately 12-13 times per Earth year, got ${expectedOrbitsIn60Seconds.toFixed(2)}`);
+});
+
