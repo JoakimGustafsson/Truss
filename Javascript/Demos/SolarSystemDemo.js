@@ -303,17 +303,18 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const moonMassRelativeToSun = 3.69e-8;  // 7.342e22 / 1.989e30
 		const moonMass = moonMassRelativeToSun * scaling.massScale;
 		
-		// Moon distance: start with visually reasonable distance
-		// Real: Moon is ~60 Earth diameters away
-		// In sim: make it smaller but proportional to visual Earth size
-		// Try 0.1-0.5 meters initially
-		const moonDistance = 0.3;  // meters from Earth
-		
 		// Moon orbital period: 27.3 days = 0.0748 years
 		const moonOrbitalPeriod = (27.3 / 365.25) * earthOrbitPeriod;  // in simulation seconds
 		
-		// Moon orbital velocity calculated from Earth's gravity
+		// Moon orbital gravity parameter
 		const moonGM = scaling.gravityConstant * earth.mass;
+		
+		// Moon distance: must be calculated from desired orbital period
+		// Period T = 2π√(r³/GM), solving for r:
+		// r = (T² × GM / 4π²)^(1/3)
+		const moonDistance = Math.pow((moonOrbitalPeriod * moonOrbitalPeriod * moonGM) / (4 * Math.PI * Math.PI), 1/3);
+		
+		// Moon orbital velocity calculated from Earth's gravity
 		const moonVelocityMagnitude = Math.sqrt(moonGM / moonDistance);
 		
 		// Position Moon to the right of Earth
@@ -330,6 +331,10 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const moonRotationPeriod = moonOrbitalPeriod;
 		const moonAngularVelocity = (2 * Math.PI) / moonRotationPeriod;  // radians per second
 		
+		// Calculate expected orbital characteristics
+		const expectedOrbitalPeriod = 2 * Math.PI * Math.sqrt((moonDistance * moonDistance * moonDistance) / moonGM);
+		const expectedOrbitsPerYear = earthOrbitPeriod / expectedOrbitalPeriod;
+		
 		// Debug info
 		console.log('🌙 Moon Setup:');
 		console.log(`  Real mass: 7.34e+22 kg`);
@@ -337,9 +342,12 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		console.log(`  Scaled mass: ${moonMass.toExponential(2)}`);
 		console.log(`  Mass ratio to Earth: 1/${(earth.mass / moonMass).toFixed(1)}`);
 		console.log(`  Distance from Earth: ${moonDistance.toFixed(4)} m`);
-		console.log(`  Orbital period: ${moonOrbitalPeriod.toFixed(4)} s (should complete ~${(earthOrbitPeriod / moonOrbitalPeriod).toFixed(2)} orbits per Earth year)`);
 		console.log(`  Gravity constant × Earth mass (GM): ${moonGM.toExponential(2)}`);
 		console.log(`  Orbital velocity magnitude: ${moonVelocityMagnitude.toFixed(4)} m/s`);
+		console.log(`  Expected orbital period (from r³/GM): ${expectedOrbitalPeriod.toFixed(4)} s`);
+		console.log(`  Theoretical expected orbits per year: ${expectedOrbitsPerYear.toFixed(2)}`);
+		console.log(`  Actual orbital period used in setup: ${moonOrbitalPeriod.toFixed(4)} s`);
+		console.log(`  Setup expects ~${(earthOrbitPeriod / moonOrbitalPeriod).toFixed(2)} orbits per Earth year`);
 		console.log(`  Earth velocity: (${earthVelocity.x.toFixed(4)}, ${earthVelocity.y.toFixed(4)}) m/s`);
 		console.log(`  Moon velocity: (${moonVelocityX.toFixed(4)}, ${moonVelocityY.toFixed(4)}) m/s`);
 		console.log(`  NOTE: Gravity constant is same for all fields (universal constant)`);
