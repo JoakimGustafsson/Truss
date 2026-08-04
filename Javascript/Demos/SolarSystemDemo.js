@@ -150,16 +150,18 @@ function calculateSolarSystemScaling(earthOrbitPeriod) {
 function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 	const scaling = calculateSolarSystemScaling(earthOrbitPeriod);
 
-	// Create Sun at center with anchor label (infinite mass, doesn't move)
-	// This allows planets to orbit correctly without Sun being accelerated by planets
+	// Create Sun at center with mass that responds to gravitational forces from planets
+	// The Sun moves as a consequence of the planets' gravitational pull (two-body physics)
 	// Positioned far right to allow full orbital range (Neptune orbits ~450m from Sun)
-	const sun = new Node(trussNode.world, trussNode, 'anchor angle color', {
+	const sun = new Node(trussNode.world, trussNode, 'moveable angle color', {
 		'name': 'Sun',
 		'localPosition': new Position(500, 25),
+		'mass': scaling.sunMass,
 		'degree': 0,
 		'angleVelocityLoss': 1,
 		'color': 'yellow',
 		'visible': 1,
+		'velocityLoss': 0.9999,  // minimal damping to preserve dynamics
 	});
 
 	const planets = [];
