@@ -250,12 +250,22 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 			console.log(`🌎 ${planetData.name}: r=${r.toFixed(1)}m, v=${velocityMagnitude.toFixed(2)}m/s, F_gravity=${(scaling.gravityConstant * scaling.sunMass * planetMass / (r*r)).toExponential(2)}N`);
 		}
 
+		// Calculate rotational speed
+		// One Earth year = earthOrbitPeriod seconds in simulation
+		// One Earth rotation = 1 day = 1/365.25 year
+		// Rotational period in simulation = earthOrbitPeriod / 365.25
+		const rotationalPeriod = earthOrbitPeriod / 365.25;
+		const angularVelocity = (2 * Math.PI) / rotationalPeriod;  // radians per second
+
 		// Create planet node
-		const planet = new Node(trussNode.world, trussNode, 'node moveable velocityloss color', {
+		const planet = new Node(trussNode.world, trussNode, 'node moveable velocityloss angle color', {
 			'name': planetData.name,
 			'localPosition': new Position(planetX, planetY),
 			'velocity': new Velocity(velocityX, velocityY),
 			'mass': planetMass,
+			'degree': 0,
+			'angleVelocity': angularVelocity,  // rotational speed
+			'angleVelocityLoss': 1,  // no rotational damping
 			'velocityLoss': 1,  // no damping for pure orbital mechanics
 			'color': planetData.color,
 			'visible': 1,
@@ -281,6 +291,71 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 
 		fieldTensors.push(fieldTensor);
 	});
+
+	// Add Moon orbiting Earth (after all planets are created)
+	const earth = planets.find(p => p.name === 'Earth');
+	if (earth) {
+		// Moon orbital parameters (scaled to simulation)
+		// Real Moon distance: 384,400 km
+		// For visibility in the demo, scale to ~1 meter from Earth (realistic ratio to Earth size in demo)
+		const moonDistance = 1.0;  // 1 meter from Earth (visible and orbitally stable)
+		
+		// Moon orbital period: 27.3 days = 0.0748 years
+		const moonOrbitalPeriod = (27.3 / 365.25) * earthOrbitPeriod;  // in simulation seconds
+		
+		// Moon mass: realistic mass ratio is 1/81 of Earth
+		// But in simulation, reduce by 10x to prevent Earth from being perturbed too much
+		const moonMass = earth.mass / 810;  // 1/81 reduced by 10x
+		
+		// Moon orbital velocity
+		const moonGM = scaling.gravityConstant * earth.mass;
+		const moonVelocityMagnitude = Math.sqrt(moonGM / moonDistance);
+		
+		// Position Moon to the right of Earth
+		const earthNode = earth.node;
+		const moonX = earthNode.localPosition.x + moonDistance;
+		const moonY = earthNode.localPosition.y;
+		
+		// Velocity perpendicular to position (tangent to orbit)
+		const moonVelocityX = 0;
+		const moonVelocityY = moonVelocityMagnitude;
+		
+		// Calculate Moon's rotational speed (tidal locking - same as orbital period)
+		const moonRotationPeriod = moonOrbitalPeriod;
+		const moonAngularVelocity = (2 * Math.PI) / moonRotationPeriod;  // radians per second
+		
+		// Create Moon node
+		const moon = new Node(trussNode.world, trussNode, 'node moveable velocityloss angle color', {
+			'name': 'Moon',
+			'localPosition': new Position(moonX, moonY),
+			'velocity': new Velocity(moonVelocityX, moonVelocityY),
+			'mass': moonMass,
+			'degree': 0,
+			'angleVelocity': moonAngularVelocity,  // tidal locking
+			'angleVelocityLoss': 1,  // no rotational damping
+			'velocityLoss': 1,  // no damping
+			'color': 'lightgray',
+			'visible': 1,
+		});
+		
+		planets.push({
+			node: moon,
+			name: 'Moon',
+			semiMajorAxis: moonDistance / scaling.distanceScale,
+			eccentricity: 0.0549,
+			mass: moonMass,
+			isMoon: true,
+		});
+		
+		// Create gravitational field tensor from Earth to Moon
+		const moonFieldTensor = new Tensor(earthNode, moon, 'field', {
+			'name': 'gravity-moon',
+			'constant': scaling.gravityConstant,
+			'visible': 0,
+		});
+		
+		fieldTensors.push(moonFieldTensor);
+	}
 
 	return {
 		sun,

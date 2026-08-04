@@ -555,17 +555,26 @@ test('solar system demo creates sun and 8 planets with field tensors', () => {
 	assert.ok(result.sun.mass > 0, 'sun should have positive mass for two-body physics');
 	assert.equal(result.sun.color, 'yellow', 'sun should be yellow');
 
-	assert.equal(result.planets.length, 8, 'should have 8 planets');
-	assert.equal(result.fieldTensors.length, 8, 'should have 8 field tensors');
+	assert.equal(result.planets.length, 9, 'should have 8 planets + 1 moon');
+	assert.equal(result.fieldTensors.length, 9, 'should have 8 planet field tensors + 1 moon field tensor');
 
-	// Verify planet data
+	// Verify planet data (planets 0-7 are the 8 planets, planet 8 is the Moon)
 	const planetNames = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune'];
 	result.planets.forEach((planet, index) => {
-		assert.equal(planet.name, planetNames[index], `planet ${index} should be ${planetNames[index]}`);
-		assert.ok(planet.node, `planet ${index} should have node`);
-		assert.ok(planet.mass > 0, `planet ${index} should have positive mass`);
-		assert.ok(planet.semiMajorAxis > 0, `planet ${index} should have positive semi-major axis`);
-		assert.ok(planet.node.color, `planet ${index} should have a color`);
+		if (index < 8) {
+			// Regular planets
+			assert.equal(planet.name, planetNames[index], `planet ${index} should be ${planetNames[index]}`);
+			assert.ok(planet.node, `planet ${index} should have node`);
+			assert.ok(planet.mass > 0, `planet ${index} should have positive mass`);
+			assert.ok(planet.semiMajorAxis > 0, `planet ${index} should have positive semi-major axis`);
+			assert.ok(planet.node.color, `planet ${index} should have a color`);
+		} else {
+			// Moon
+			assert.equal(planet.name, 'Moon', `body ${index} should be Moon`);
+			assert.ok(planet.node, 'Moon should have node');
+			assert.ok(planet.mass > 0, 'Moon should have positive mass');
+			assert.ok(planet.isMoon, 'Moon should be marked as satellite');
+		}
 	});
 });
 
