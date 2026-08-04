@@ -215,8 +215,12 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const velocityMagnitude = isNaN(GM) || GM <= 0 ? 0 : Math.sqrt(Math.abs(GM * (2/r - 1/a)));
 
 		// Velocity direction is perpendicular to position vector (tangent to orbit)
-		// If position is at angle nu, velocity is at angle nu + 90°
-		const velocityAngle = nu + Math.PI / 2;
+		// Velocity is 90° counterclockwise from the radius vector
+		// Position angle is nu, so velocity should be at nu + π/2 (90° ahead)
+		// However, for proper orbital direction, we need the velocity perpendicular to r
+		// in the direction of motion around the Sun.
+		// Using nu - π/2 puts velocity behind the position (rotating clockwise)
+		const velocityAngle = nu - Math.PI / 2;
 		const velocityX = velocityMagnitude * Math.cos(velocityAngle);
 		const velocityY = velocityMagnitude * Math.sin(velocityAngle);
 
