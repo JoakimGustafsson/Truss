@@ -4,6 +4,7 @@ import { Position, Velocity } from '../Primitives.js';
 
 /**
  * Planetary data: semi-major axis (AU), eccentricity, mass (relative to Sun),
+ * current orbital position (true anomaly in degrees, Aug 4 2026),
  * and realistic colors.
  */
 const PLANETS_DATA = [
@@ -14,6 +15,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.206,
 		massRelativeToSun: 1.66e-7,
 		diameter: 0.383,            // relative to Earth
+		trueAnomaly: 120,           // degrees from perihelion
 	},
 	{
 		name: 'Venus',
@@ -22,6 +24,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.007,
 		massRelativeToSun: 2.45e-6,
 		diameter: 0.949,
+		trueAnomaly: 280,
 	},
 	{
 		name: 'Earth',
@@ -30,6 +33,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.017,
 		massRelativeToSun: 3.00e-6,
 		diameter: 1.000,
+		trueAnomaly: 200,
 	},
 	{
 		name: 'Mars',
@@ -38,6 +42,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.093,
 		massRelativeToSun: 3.23e-7,
 		diameter: 0.532,
+		trueAnomaly: 45,
 	},
 	{
 		name: 'Jupiter',
@@ -46,6 +51,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.049,
 		massRelativeToSun: 9.55e-4,
 		diameter: 11.21,
+		trueAnomaly: 150,
 	},
 	{
 		name: 'Saturn',
@@ -54,6 +60,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.056,
 		massRelativeToSun: 2.86e-4,
 		diameter: 9.45,
+		trueAnomaly: 310,
 	},
 	{
 		name: 'Uranus',
@@ -62,6 +69,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.047,
 		massRelativeToSun: 4.36e-5,
 		diameter: 4.01,
+		trueAnomaly: 90,
 	},
 	{
 		name: 'Neptune',
@@ -70,6 +78,7 @@ const PLANETS_DATA = [
 		eccentricity: 0.009,
 		massRelativeToSun: 5.15e-5,
 		diameter: 3.88,
+		trueAnomaly: 270,
 	},
 ];
 
@@ -173,47 +182,49 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		const planetDiameter = planetData.diameter * scaling.diameterScale;
 		const planetRadius = planetDiameter / 2;
 
-		// Calculate orbital distance from semi-major axis
-		const orbitalDistance = planetData.semiMajorAxis * scaling.distanceScale;
-
 		// Calculate orbital period using Kepler's 3rd law (scaled to sim time)
-		// T_sim = T_real × (earthOrbitPeriod / 365.25 days in seconds)
-		const earthDaysInSeconds = 365.25 * 24 * 3600;
-		const scaleFactor = earthOrbitPeriod / earthDaysInSeconds;
-		const orbitalPeriod = planetData.semiMajorAxis * Math.sqrt(planetData.semiMajorAxis) * earthOrbitPeriod;
-		// More accurate Kepler: T² ∝ a³, so T_sim = √(a_sim³) / √(a_earth³) × T_earth_sim
 		const orbitalPeriodCorrected = Math.sqrt(
 			Math.pow(planetData.semiMajorAxis, 3) /
 			Math.pow(1.0, 3)
 		) * earthOrbitPeriod;
 
-		// Calculate orbital velocity magnitude
-		// v = 2πr/T (circular motion)
-		const orbitalVelocity = (2 * Math.PI * orbitalDistance) / orbitalPeriodCorrected;
+		// Calculate orbital distance at current true anomaly
+		// For elliptical orbit: r = a(1-e²) / (1 + e*cos(ν))
+		// where a=semi-major axis, e=eccentricity, ν=true anomaly
+		const a = planetData.semiMajorAxis * scaling.distanceScale;
+		const e = planetData.eccentricity;
+		const nu = (planetData.trueAnomaly || 0) * Math.PI / 180;  // convert to radians
+		const r = (a * (1 - e * e)) / (1 + e * Math.cos(nu));
 
-		// Initial position: place planet on positive x-axis from Sun
-		// Offset by eccentricity (place at aphelion for simplicity)
-		const positionOffset = orbitalDistance;
-		const planetX = sun.localPosition.x + positionOffset;
-		const planetY = sun.localPosition.y;
+		// Position on ellipse relative to Sun
+		// Perihelion is at 0°, so we rotate from there
+		const planetX = sun.localPosition.x + r * Math.cos(nu);
+		const planetY = sun.localPosition.y + r * Math.sin(nu);
 
-		// Initial velocity: perpendicular to position vector (tangential)
-		// For planet on +x axis: velocity is in +y direction
-		const velocityX = 0;
-		const velocityY = orbitalVelocity;
+		// Orbital velocity at this position
+		// For elliptical orbit: v = sqrt(GM(2/r - 1/a))
+		// Which simplifies to: v = sqrt(GM/a) * sqrt(2*a/r - 1)
+		// For circular approximation: v ≈ sqrt(GM/r)
+		const GM = scaling.gravityConstant * scaling.sunMass;
+		const velocityMagnitude = Math.sqrt(GM * (2/r - 1/a));
+
+		// Velocity direction is perpendicular to position vector (tangent to orbit)
+		// If position is at angle nu, velocity is at angle nu + 90°
+		const velocityAngle = nu + Math.PI / 2;
+		const velocityX = velocityMagnitude * Math.cos(velocityAngle);
+		const velocityY = velocityMagnitude * Math.sin(velocityAngle);
 
 		// Planet mass scaled to simulation
 		const planetMass = planetData.massRelativeToSun * scaling.massScale;
 
 		if (planetData.name === 'Earth') {
-			console.log(`🌎 ${planetData.name} setup:`);
-			console.log(`  Orbital distance: ${orbitalDistance.toExponential(2)} m`);
+			console.log(`🌎 ${planetData.name} setup (true anomaly ${planetData.trueAnomaly}°):`);
+			console.log(`  Orbital distance: ${r.toExponential(2)} m`);
 			console.log(`  Orbital period: ${orbitalPeriodCorrected.toExponential(2)} s`);
-			console.log(`  Orbital velocity: ${orbitalVelocity.toExponential(2)} m/s`);
+			console.log(`  Orbital velocity: ${velocityMagnitude.toExponential(2)} m/s`);
+			console.log(`  Position: (${planetX.toFixed(2)}, ${planetY.toFixed(2)})`);
+			console.log(`  Velocity: (${velocityX.toExponential(2)}, ${velocityY.toExponential(2)})`);
 			console.log(`  Planet mass: ${planetMass.toExponential(2)}`);
-			console.log(`  Expected centripetal force: ${(planetMass * orbitalVelocity * orbitalVelocity / orbitalDistance).toExponential(2)} N`);
-			const expectedForce = scaling.gravityConstant * scaling.sunMass * planetMass / (orbitalDistance * orbitalDistance);
-			console.log(`  Actual gravity force: ${expectedForce.toExponential(2)} N`);
 		}
 
 		// Create planet node
