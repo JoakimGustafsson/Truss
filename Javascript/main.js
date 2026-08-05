@@ -6,8 +6,53 @@ import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTenso
 
 let _universe;
 
+function updateCameraFollow(selectedObject, trussNode) {
+	// selectedObject can be either a Node or a Tensor
+	let targetNode = selectedObject;
+	if (selectedObject && selectedObject.node1) {
+		targetNode = selectedObject.node1;
+	}
+	
+	if (!targetNode || !targetNode.localPosition || !trussNode.view) {
+		return;
+	}
+	
+	const worldPos = targetNode.localPosition;
+	const view = trussNode.view;
+	const screenCenterX = view.element.clientWidth / 2;
+	const screenCenterY = view.element.clientHeight / 2;
+	
+	// View formulas:
+	// screenX = (worldX - offset.x) / xScale
+	// screenY = -(worldY - offset.y) / yScale
+	// 
+	// To center object at screen center:
+	// screenCenterX = (worldX - offset.x) / xScale
+	// screenCenterY = -(worldY - offset.y) / yScale
+	//
+	// Solving for offset:
+	// offset.x = worldX - screenCenterX * xScale
+	// offset.y = worldY + screenCenterY * yScale
+	
+	const targetOffsetX = worldPos.x - screenCenterX * view.xScale;
+	const targetOffsetY = worldPos.y + screenCenterY * view.yScale;
+	
+	console.log(`🎥 ${targetNode.name} at world (${worldPos.x.toFixed(1)}, ${worldPos.y.toFixed(1)}) → offset (${targetOffsetX.toFixed(1)}, ${targetOffsetY.toFixed(1)})`);
+	
+	// Smoothly interpolate to avoid jarring movement
+	const smoothing = 0.15; // 0 = instant, 1 = no movement
+	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
+	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
+}
+
 function mainLoop(timestamp) {
 	_universe.tick(timestamp / 1000);
+	
+	// Update camera follow if enabled
+	if (_universe.cameraFollowMode && _universe.selectedObject && _universe.currentNode) {
+		updateCameraFollow(_universe.selectedObject, _universe.currentNode);
+	}
+	
 	requestAnimationFrame(mainLoop);
 }
 

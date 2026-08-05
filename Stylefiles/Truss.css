@@ -749,6 +749,33 @@ input:checked + .slider:before {
 	white-space: nowrap;
 }
 
+.banner-follow-button {
+	background-color: var(--banner-surface-2);
+	border: 1px solid var(--banner-border);
+	border-radius: 4px;
+	color: var(--banner-text);
+	cursor: pointer;
+	flex: 0 0 auto;
+	font-size: 11px;
+	margin-left: auto;
+	padding: 3px 6px;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.banner-follow-button:hover {
+	background-color: var(--banner-accent-2);
+	border-color: var(--banner-accent);
+	color: #031316;
+}
+
+.banner-follow-button.follow-active {
+	background-color: rgba(29, 217, 191, 0.25);
+	border-color: var(--banner-accent);
+	color: var(--banner-accent);
+	font-weight: bold;
+}
+
 .banner-tag-row {
 	align-items: center;
 	display: flex;

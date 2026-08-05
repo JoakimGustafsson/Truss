@@ -341,6 +341,24 @@ function createBannerInspectorHeader() {
 	meta.classList.add('banner-object-meta');
 	titleBlock.appendChild(meta);
 
+	// Add follow button
+	let followButton = document.createElement('button');
+	followButton.id = 'bannerFollowButton';
+	followButton.classList.add('banner-follow-button');
+	followButton.textContent = '🎥 Follow';
+	followButton.title = 'Keep selected object centered on screen';
+	followButton.addEventListener('click', () => {
+		followButton.classList.toggle('follow-active');
+		universe.cameraFollowMode = followButton.classList.contains('follow-active');
+		console.log('🎥 Follow button clicked! Mode:', universe.cameraFollowMode);
+		if (universe.cameraFollowMode) {
+			followButton.textContent = '🎥 Following';
+		} else {
+			followButton.textContent = '🎥 Follow';
+		}
+	});
+	titleRow.appendChild(followButton);
+
 	return header;
 }
 
@@ -366,6 +384,14 @@ function updateBannerInspectorHeader(selectedObject) {
 	}
 	if (metaElement) {
 		metaElement.textContent = getConnectionSummary(selectedObject);
+	}
+
+	// Reset follow button when selection changes
+	let followButton = universe.currentNode.getElement('#bannerFollowButton');
+	if (followButton) {
+		followButton.classList.remove('follow-active');
+		followButton.textContent = '🎥 Follow';
+		universe.cameraFollowMode = false;
 	}
 
 	let chips = universe.currentNode.getElement('#bannerTagChips');
