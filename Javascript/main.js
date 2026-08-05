@@ -49,17 +49,27 @@ function updateCameraFollow(followedObject, trussNode) {
 	
 	const oldOffsetX = view.offset.x;
 	const oldOffsetY = view.offset.y;
+	const oldWorldPosX = view._lastWorldPosX || worldPos.x;
+	const oldWorldPosY = view._lastWorldPosY || worldPos.y;
+	view._lastWorldPosX = worldPos.x;
+	view._lastWorldPosY = worldPos.y;
 	
 	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
 	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
 	
-	// Log offset changes to identify oscillation pattern
+	// Log offset changes to identify oscillation pattern - every frame for detailed analysis
 	_followFrameCount++;
 	const offsetChangeX = Math.abs(view.offset.x - oldOffsetX);
 	const offsetChangeY = Math.abs(view.offset.y - oldOffsetY);
+	const errorX = Math.abs(view.offset.x - targetOffsetX);
+	const errorY = Math.abs(view.offset.y - targetOffsetY);
+	const targetChangeX = Math.abs(targetOffsetX - oldOffsetX);
+	const targetChangeY = Math.abs(targetOffsetY - oldOffsetY);
+	const worldPosChangeX = Math.abs(worldPos.x - oldWorldPosX);
+	const worldPosChangeY = Math.abs(worldPos.y - oldWorldPosY);
 	
-	if (_followFrameCount % 20 === 0) {
-		console.log(`📍 Frame ${_followFrameCount}: ΔX=${offsetChangeX.toFixed(6)}, ΔY=${offsetChangeY.toFixed(6)} | Target: (${targetOffsetX.toFixed(4)}, ${targetOffsetY.toFixed(4)}) | Curr: (${view.offset.x.toFixed(4)}, ${view.offset.y.toFixed(4)}) | xScale=${view.xScale.toFixed(6)}`);
+	if (_followFrameCount % 5 === 0) {
+		console.log(`📍 F${_followFrameCount}: WorldΔ X=${worldPosChangeX.toFixed(8)}, Y=${worldPosChangeY.toFixed(8)}, OffsetΔ X=${offsetChangeX.toFixed(8)}, Y=${offsetChangeY.toFixed(8)}`);
 	}
 }
 
