@@ -6,43 +6,6 @@ import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTenso
 
 let _universe;
 
-function updateCameraFollow(followedObject, trussNode) {
-	// followedObject can be either a Node or a Tensor
-	let targetNode = followedObject;
-	if (followedObject && followedObject.node1) {
-		targetNode = followedObject.node1;
-	}
-	
-	if (!targetNode || !targetNode.localPosition || !trussNode.view) {
-		return;
-	}
-
-	const worldPos = targetNode.localPosition;
-	const view = trussNode.view;
-	const screenCenterX = view.element.clientWidth / 2;
-	const screenCenterY = view.element.clientHeight / 2;
-	
-	// View formulas:
-	// screenX = (worldX - offset.x) / xScale
-	// screenY = -(worldY - offset.y) / yScale
-	// 
-	// To center object at screen center:
-	// screenCenterX = (worldX - offset.x) / xScale
-	// screenCenterY = -(worldY - offset.y) / yScale
-	//
-	// Solving for offset:
-	// offset.x = worldX - screenCenterX * xScale
-	// offset.y = worldY + screenCenterY * yScale
-	
-	const targetOffsetX = worldPos.x - screenCenterX * view.xScale;
-	const targetOffsetY = worldPos.y + screenCenterY * view.yScale;
-	
-	// Apply offset directly - no smoothing
-	// Physics and offset calculation happen in the same frame before rendering
-	view.offset.x = targetOffsetX;
-	view.offset.y = targetOffsetY;
-}
-
 function mainLoop(timestamp) {
 	_universe.tick(timestamp / 1000);
 	
