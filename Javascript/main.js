@@ -56,12 +56,13 @@ function init() {
 		// All other code uses these percentages without further conversion
 		if (_universe && _universe.currentNode && _universe.currentNode.view) {
 			const view = _universe.currentNode.view;
-			const containerRect = view.element.getBoundingClientRect();
-			const canvasX = e.clientX - containerRect.left;
-			const canvasY = e.clientY - containerRect.top;
+			// Use canvas bounding rect instead of container, so positioning is accurate
+			const canvasRect = view.parentNode.canvas.getBoundingClientRect();
+			const canvasX = e.clientX - canvasRect.left;
+			const canvasY = e.clientY - canvasRect.top;
 			
-			const displayPercX = (canvasX / containerRect.width) * 100;
-			const displayPercY = (1 - (canvasY / containerRect.height)) * 100;
+			const displayPercX = (canvasX / canvasRect.width) * 100;
+			const displayPercY = (1 - (canvasY / canvasRect.height)) * 100;
 			
 			setDisplayMousePercent(displayPercX, displayPercY);
 			

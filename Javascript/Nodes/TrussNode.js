@@ -568,7 +568,6 @@ class TrussNode extends Node {
 
 			this.updatePositions(trussTime, deltaTime);
 		}
-		this.sense(deltaTime);
 	}
 
 	/**
@@ -716,6 +715,11 @@ class TrussNode extends Node {
 		if (universe && universe.followedNode) {
 			this.updateCameraFollow(universe.followedNode);
 		}
+		
+		// Update sensor input AFTER camera offset is calculated
+		// This ensures Selector and other sensors use current frame's offset
+		const deltaTime = timestamp - this.lastFrameTimeMs;
+		this.sense(deltaTime);
 
 		this.clear();
 		this.showTruss(timestamp);
