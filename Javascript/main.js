@@ -65,8 +65,8 @@ function updateCameraFollow(followedObject, trussNode) {
 	const offsetChangeX = Math.abs(view.offset.x - oldOffsetX);
 	const offsetChangeY = Math.abs(view.offset.y - oldOffsetY);
 	
-	if ((offsetChangeX > 0.001 || offsetChangeY > 0.001) && view._frameCount % 30 === 0) {
-		console.debug(`📍 Frame ${view._frameCount} - Offset change: ΔX=${offsetChangeX.toFixed(4)}, ΔY=${offsetChangeY.toFixed(4)} | Target: (${targetOffsetX.toFixed(2)}, ${targetOffsetY.toFixed(2)}) | Current: (${view.offset.x.toFixed(2)}, ${view.offset.y.toFixed(2)})`);
+	if (view._frameCount % 20 === 0) {
+		console.debug(`📍 Frame ${view._frameCount}: ΔX=${offsetChangeX.toFixed(6)}, ΔY=${offsetChangeY.toFixed(6)} | Target: (${targetOffsetX.toFixed(4)}, ${targetOffsetY.toFixed(4)}) | Curr: (${view.offset.x.toFixed(4)}, ${view.offset.y.toFixed(4)}) | xScale=${view.xScale.toFixed(6)}`);
 	}
 }
 
