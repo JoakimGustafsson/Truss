@@ -261,6 +261,11 @@ class StoreableObject {
 			this[property.propertyName] =
 				property.deSerialize(restoreObject[property.propertyName], nodeList, tensorList);
 		}
+		
+		// Ensure labels are parsed and object is registered in label system
+		if (this.world && this.world.labels) {
+			this.labels = this.world.labels.parse(this.labelString, this);
+		}
 
 		/* super.deserialize(restoreObject);
 		this.node1=nodeList[restoreObject.node1];

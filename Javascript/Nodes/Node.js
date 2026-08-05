@@ -377,7 +377,6 @@ class Node extends StoreableObject {
 		}
 		this.torqueConstant = restoreObject.torqueConstant;
 		this.labelString = restoreObject.labelString;
-		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
 
 		// Read connectedTensors (new format) or positionBasedTensors (old format) for backward compatibility
 		const tensorIndices = restoreObject.connectedTensors || restoreObject.positionBasedTensors;
