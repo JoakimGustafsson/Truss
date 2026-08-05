@@ -16,11 +16,31 @@ function updateCameraFollow(followedObject, trussNode) {
 	if (!targetNode || !targetNode.localPosition || !trussNode.view) {
 		return;
 	}
-	
+
 	const worldPos = targetNode.localPosition;
 	const view = trussNode.view;
 	const screenCenterX = view.element.clientWidth / 2;
 	const screenCenterY = view.element.clientHeight / 2;
+	
+	// Predict where the node will be based on its velocity
+	// This compensates for the lag between physics calculation and rendering
+	// Without this, fast-moving nodes cause the camera to overshoot/undershoot
+	let predictedX = worldPos.x;
+	let predictedY = worldPos.y;
+	
+	if (targetNode.velocity) {
+		// Lead the camera slightly by accounting for node movement
+		// The factor here represents how much to compensate (in frames of lookahead)
+		// Lower values = less leading, reduces overshoot but increases lag
+		const velocityLead = 0.15; // frames of lookahead
+		
+		if (!isNaN(targetNode.velocity.x)) {
+			predictedX += targetNode.velocity.x * velocityLead;
+		}
+		if (!isNaN(targetNode.velocity.y)) {
+			predictedY += targetNode.velocity.y * velocityLead;
+		}
+	}
 	
 	// View formulas:
 	// screenX = (worldX - offset.x) / xScale
@@ -34,38 +54,20 @@ function updateCameraFollow(followedObject, trussNode) {
 	// offset.x = worldX - screenCenterX * xScale
 	// offset.y = worldY + screenCenterY * yScale
 	
-	const targetOffsetX = worldPos.x - screenCenterX * view.xScale;
-	const targetOffsetY = worldPos.y + screenCenterY * view.yScale;
+	const targetOffsetX = predictedX - screenCenterX * view.xScale;
+	const targetOffsetY = predictedY + screenCenterY * view.yScale;
 	
-	// Track previous offset to detect oscillation
-	if (!view._lastOffsetX) {
-		view._lastOffsetX = view.offset.x;
-		view._lastOffsetY = view.offset.y;
-		view._offsetChangeCount = 0;
-	}
+	// Use minimal smoothing - velocity compensation makes smoothing unnecessary
+	// but we keep a tiny bit to smooth out screen resize jumps
+	let smoothing = 0.01; // Nearly instant
 	
-	// Use minimal smoothing to reduce oscillation while keeping motion smooth
-	// At extreme zoom levels, reduce smoothing further to prevent jitter
-	let smoothing = 0.02; // Very low smoothing to minimize lag and oscillation
-	
-	// Reduce smoothing at very high/low zoom to prevent oscillation at extreme scales
+	// Even less smoothing at extreme zoom to prevent position quantization jitter
 	if (view.xScale < 0.001 || view.xScale > 1000) {
-		smoothing = 0.005; // Nearly instant at extreme zoom
+		smoothing = 0.002; // Nearly instant at extreme zoom
 	}
 	
 	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
 	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
-	
-	// Debug: Log if offset is jumping
-	if (Math.abs(view.offset.x - view._lastOffsetX) > 0.1 || Math.abs(view.offset.y - view._lastOffsetY) > 0.1) {
-		view._offsetChangeCount++;
-		if (view._offsetChangeCount % 10 === 0) {
-			console.debug(`📍 Offset jump detected at frame ${view._offsetChangeCount}: (${view._lastOffsetX.toFixed(2)} → ${view.offset.x.toFixed(2)}, ${view._lastOffsetY.toFixed(2)} → ${view.offset.y.toFixed(2)})`);
-		}
-	}
-	
-	view._lastOffsetX = view.offset.x;
-	view._lastOffsetY = view.offset.y;
 }
 
 function mainLoop(timestamp) {
