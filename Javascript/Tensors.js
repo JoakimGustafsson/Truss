@@ -376,29 +376,29 @@ class Tensor extends StoreableObject {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Tensor';
 
-		/* representation.node1=localNodeList.indexOf(this.node1);
-		representation.node2=localNodeList.indexOf(this.node2);
+		representation.node1 = nodeList.indexOf(this.node1);
+		representation.node2 = nodeList.indexOf(this.node2);
 
 		if (this.breakStartTensor) {
-			representation.breakStartTensor=tensorList.indexOf(this.breakStartTensor);
+			representation.breakStartTensor = tensorList.indexOf(this.breakStartTensor);
 		}
 		if (this.breakEndTensor) {
-			representation.breakEndTensor=tensorList.indexOf(this.breakEndTensor);
+			representation.breakEndTensor = tensorList.indexOf(this.breakEndTensor);
 		}
 		if (this.next) {
-			representation.next=tensorList.indexOf(this.next);
+			representation.next = tensorList.indexOf(this.next);
 		}
 		if (this.previous) {
-			representation.previous=tensorList.indexOf(this.previous);
+			representation.previous = tensorList.indexOf(this.previous);
 		}
 
-		representation.angle1= isNaN(this.angle1) ? 'NaN' : this.angle1;
-		representation.angle2= isNaN(this.angle2) ? 'NaN' : this.angle2;
-		representation.force=this.force;
-		representation.ghost=this.ghost;
-		representation.isTensor=this.isTensor;
-		representation.color=this.color;
-		representation.labelString=this.labelString; */
+		representation.angle1 = isNaN(this.angle1) ? 'NaN' : this.angle1;
+		representation.angle2 = isNaN(this.angle2) ? 'NaN' : this.angle2;
+		representation.force = this.force;
+		representation.ghost = this.ghost;
+		representation.isTensor = this.isTensor;
+		representation.color = this.color;
+		representation.labelString = this.labelString;
 
 		return representation;
 	}

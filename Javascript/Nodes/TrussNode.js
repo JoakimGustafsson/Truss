@@ -165,24 +165,23 @@ class TrussNode extends Node {
 		// Get container dimensions and position from the element
 		// The canvas will always match the container size exactly
 		const containerRect = this.element.getBoundingClientRect();
-		const width = Math.max(containerRect.width, 856) || 856;  // Minimum 856
-		const height = Math.max(containerRect.height, 972) || 972;  // Minimum 972
+		const width = containerRect.width || 856;  // Use container width, fallback to 856 if 0
+		const height = containerRect.height || 972;  // Use container height, fallback to 972 if 0
 		
 		// Store container's viewport position for coordinate calculations
 		this.view.elemRectleft = containerRect.left;
 		this.view.elemRecttop = containerRect.top;
 		
-		// Update canvas internal dimensions (affects rendering)
-		this.canvas.width = Math.floor(width);
-		this.canvas.height = Math.floor(height);
-		
-		// Update canvas display dimensions (affects layout)
+		// Set canvas internal rendering dimensions AND display dimensions to match exactly
+		// This prevents any scaling/distortion of the rendering
+		this.canvas.width = width;
+		this.canvas.height = height;
 		this.canvas.style.width = width + 'px';
 		this.canvas.style.height = height + 'px';
 		
-		// Update view screen size to match canvas
-		this.view.screenSize.x = Math.floor(width);
-		this.view.screenSize.y = Math.floor(height);
+		// Update view screen size to match canvas exactly (no flooring)
+		this.view.screenSize.x = width;
+		this.view.screenSize.y = height;
 		
 		// Add ResizeObserver to update canvas when container is resized
 		if (!this.resizeObserver) {
@@ -201,22 +200,27 @@ class TrussNode extends Node {
 	 */
 	updateCanvasSize() {
 		const containerRect = this.element.getBoundingClientRect();
-		const width = Math.max(containerRect.width, 856) || 856;
-		const height = Math.max(containerRect.height, 972) || 972;
+		const width = containerRect.width || 856;
+		const height = containerRect.height || 972;
 		
 		// Store container's viewport position for coordinate calculations
 		this.view.elemRectleft = containerRect.left;
 		this.view.elemRecttop = containerRect.top;
 		
-		if (this.canvas.width !== Math.floor(width) || this.canvas.height !== Math.floor(height)) {
-			this.canvas.width = Math.floor(width);
-			this.canvas.height = Math.floor(height);
+		if (this.canvas.width !== width || this.canvas.height !== height) {
+			// Set both internal rendering dimensions AND display dimensions to match exactly
+			// This ensures the canvas fills its container with no scaling/distortion
+			this.canvas.width = width;
+			this.canvas.height = height;
 			this.canvas.style.width = width + 'px';
 			this.canvas.style.height = height + 'px';
 			
-			// Update view screen size
-			this.view.screenSize.x = Math.floor(width);
-			this.view.screenSize.y = Math.floor(height);
+			// Update view screen size using the internal vector to defer recalculate
+			this.view.screenSize.v.x = width;
+			this.view.screenSize.v.y = height;
+			
+			// Recalculate xScale and yScale to maintain correct position calculations
+			this.view.recalculate();
 		}
 	}
 
@@ -574,7 +578,7 @@ class TrussNode extends Node {
 	 * Clear the screen
 	 */
 	clear() {
-		this.view.context.clearRect(0, 0, this.view.screenSize.x, this.view.screenSize.y);
+		this.view.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 	};
 
 	/**

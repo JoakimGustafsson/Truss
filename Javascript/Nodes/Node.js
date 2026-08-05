@@ -304,22 +304,18 @@ class Node extends StoreableObject {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Node';
 
-		/*
-		representation.name = this.name;
 		representation.parentTrussNode = nodeList.indexOf(this.parentTrussNode);
 		representation.localPosition = this.localPosition.serialize();
 		representation.velocity = this.velocity.serialize();
 		representation.mass = this.mass;
 		representation.massRadius = this.massRadius;
 		representation.angle = this.angle;
-		// representation.color = this.color;
 		representation.pictureReference = this.pictureReference;
 		representation.size = this.size;
 		representation.turnrate = this.turnrate;
 		representation.torqueConstant = this.torqueConstant;
 		representation.labelString=this.labelString;
-		// representation.velocityBasedTensors = serializeList(this.velocityBasedTensors, tensorList);
-		representation.positionBasedTensors = serializeList(this.connectedTensors, tensorList);
+		representation.connectedTensors = serializeList(this.connectedTensors, tensorList);
 		representation.velocityLoss = this.velocityLoss;
 		if (this.positionFunction) {
 			representation.positionFunction = this.positionFunction.toString();
@@ -340,7 +336,7 @@ class Node extends StoreableObject {
 				});
 			}
 		}
-		representation.breakList = storeBreakList; */
+		representation.breakList = storeBreakList;
 
 		return representation;
 	}
@@ -352,7 +348,7 @@ class Node extends StoreableObject {
 	 * @return {Node}
 	 */
 	deserialize(restoreObject, nodeList, tensorList) {
-		this.name = restoreObject.name;
+		super.deserialize(restoreObject, nodeList, tensorList);
 		let parentIndex = restoreObject.parentTrussNode;
 		if (parentIndex == undefined || parentIndex == null || parentIndex < 0) {
 			this.parentTrussNode = this;
@@ -383,8 +379,9 @@ class Node extends StoreableObject {
 		this.labelString = restoreObject.labelString;
 		this.labels = universe.currentWorld.labels.parse(this.labelString, this);
 
-		// this.velocityBasedTensors = deserializeList(restoreObject.velocityBasedTensors, tensorList);
-		this.connectedTensors = deserializeList(restoreObject.positionBasedTensors, tensorList);
+		// Read connectedTensors (new format) or positionBasedTensors (old format) for backward compatibility
+		const tensorIndices = restoreObject.connectedTensors || restoreObject.positionBasedTensors;
+		this.connectedTensors = deserializeList(tensorIndices, tensorList);
 		this.velocityLoss = restoreObject.velocityLoss;
 		try {
 			if (restoreObject.positionFunction) {

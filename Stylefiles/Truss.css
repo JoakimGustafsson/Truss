@@ -103,6 +103,8 @@ section {
 	z-index: 1000;
 	width: 350px;
 	height: 300px;
+	display: flex;
+	flex-direction: column;
 }
 
 .configareainner {
@@ -668,9 +670,10 @@ input:checked + .slider:before {
 	--banner-node: #4a90ff;
 	--banner-tensor: #ff9f4a;
 	width: 420px;
-	height: auto;
-	max-height: 690px;
+	height: 690px;
 	color: var(--banner-text);
+	display: flex;
+	flex-direction: column;
 }
 
 .banner-inspector .configareainner {
@@ -681,8 +684,7 @@ input:checked + .slider:before {
 	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 	display: flex;
 	flex-direction: column;
-	height: auto;
-	max-height: 690px;
+	height: 100%;
 	opacity: 0.96;
 	overflow: hidden;
 }

@@ -126,14 +126,6 @@ function calculateSolarSystemScaling(earthOrbitPeriod) {
 	const earthMassInSim = 1e20;  // kg-equivalent units
 	const sunMassInSim = sunMass;
 
-	console.log('🌍 Solar System Scaling:');
-	console.log(`  Earth distance: ${earthDistanceMeters.toExponential(2)} m`);
-	console.log(`  Earth period: ${earthPeriod.toExponential(2)} s`);
-	console.log(`  GM product: ${GM.toExponential(2)}`);
-	console.log(`  Sun mass: ${sunMassInSim.toExponential(2)}`);
-	console.log(`  Gravity constant: ${gravityConstant.toExponential(2)}`);
-	console.log(`  Planet mass scale factor: ${(earthMassInSim / earthData.massRelativeToSun).toExponential(2)}`);
-
 	return {
 		diameterScale,           // multiply planet diameters by this
 		distanceScale: 15,       // 1 AU = 15 meters
@@ -164,7 +156,7 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 	// Positioned far right to allow full orbital range (Neptune orbits ~450m from Sun)
 	const sun = new Node(trussNode.world, trussNode, 'moveable angle color', {
 		'name': 'Sun',
-		'localPosition': new Position(500, 25),
+		'localPosition': new Position(50, 25),
 		'velocity': new Velocity(0, 0),  // starts at rest
 		'mass': scaling.sunMass,
 		'degree': 0,
@@ -244,10 +236,6 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		if (isNaN(planetX) || isNaN(planetY) || isNaN(velocityX) || isNaN(velocityY) || isNaN(planetMass)) {
 			console.error(`❌ ${planetData.name}: invalid position or velocity. pos=(${planetX}, ${planetY}), vel=(${velocityX}, ${velocityY}), mass=${planetMass}`);
 			return; // skip this planet
-		}
-
-		if (planetData.name === 'Earth') {
-			console.log(`🌎 ${planetData.name}: r=${r.toFixed(1)}m, v=${velocityMagnitude.toFixed(2)}m/s, F_gravity=${(scaling.gravityConstant * scaling.sunMass * planetMass / (r*r)).toExponential(2)}N`);
 		}
 
 		// Calculate rotational speed
@@ -334,23 +322,6 @@ function createSolarSystemDemo(trussNode, earthOrbitPeriod = 60) {
 		// Calculate expected orbital characteristics
 		const expectedOrbitalPeriod = 2 * Math.PI * Math.sqrt((moonDistance * moonDistance * moonDistance) / moonGM);
 		const expectedOrbitsPerYear = earthOrbitPeriod / expectedOrbitalPeriod;
-		
-		// Debug info
-		console.log('🌙 Moon Setup:');
-		console.log(`  Real mass: 7.34e+22 kg`);
-		console.log(`  Mass relative to Sun: ${moonMassRelativeToSun.toExponential(2)} (same as planets use)`);
-		console.log(`  Scaled mass: ${moonMass.toExponential(2)}`);
-		console.log(`  Mass ratio to Earth: 1/${(earth.mass / moonMass).toFixed(1)}`);
-		console.log(`  Distance from Earth: ${moonDistance.toFixed(4)} m`);
-		console.log(`  Gravity constant × Earth mass (GM): ${moonGM.toExponential(2)}`);
-		console.log(`  Orbital velocity magnitude: ${moonVelocityMagnitude.toFixed(4)} m/s`);
-		console.log(`  Expected orbital period (from r³/GM): ${expectedOrbitalPeriod.toFixed(4)} s`);
-		console.log(`  Theoretical expected orbits per year: ${expectedOrbitsPerYear.toFixed(2)}`);
-		console.log(`  Actual orbital period used in setup: ${moonOrbitalPeriod.toFixed(4)} s`);
-		console.log(`  Setup expects ~${(earthOrbitPeriod / moonOrbitalPeriod).toFixed(2)} orbits per Earth year`);
-		console.log(`  Earth velocity: (${earthVelocity.x.toFixed(4)}, ${earthVelocity.y.toFixed(4)}) m/s`);
-		console.log(`  Moon velocity: (${moonVelocityX.toFixed(4)}, ${moonVelocityY.toFixed(4)}) m/s`);
-		console.log(`  NOTE: Gravity constant is same for all fields (universal constant)`);
 		
 		// Create Moon node
 		const moon = new Node(trussNode.world, trussNode, 'node moveable velocityloss angle color', {
