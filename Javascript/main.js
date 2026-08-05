@@ -37,10 +37,35 @@ function updateCameraFollow(followedObject, trussNode) {
 	const targetOffsetX = worldPos.x - screenCenterX * view.xScale;
 	const targetOffsetY = worldPos.y + screenCenterY * view.yScale;
 	
-	// Smoothly interpolate to avoid jarring movement
-	const smoothing = 0.15; // 0 = instant, 1 = no movement
+	// Track previous offset to detect oscillation
+	if (!view._lastOffsetX) {
+		view._lastOffsetX = view.offset.x;
+		view._lastOffsetY = view.offset.y;
+		view._offsetChangeCount = 0;
+	}
+	
+	// Use minimal smoothing to reduce oscillation while keeping motion smooth
+	// At extreme zoom levels, reduce smoothing further to prevent jitter
+	let smoothing = 0.02; // Very low smoothing to minimize lag and oscillation
+	
+	// Reduce smoothing at very high/low zoom to prevent oscillation at extreme scales
+	if (view.xScale < 0.001 || view.xScale > 1000) {
+		smoothing = 0.005; // Nearly instant at extreme zoom
+	}
+	
 	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
 	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
+	
+	// Debug: Log if offset is jumping
+	if (Math.abs(view.offset.x - view._lastOffsetX) > 0.1 || Math.abs(view.offset.y - view._lastOffsetY) > 0.1) {
+		view._offsetChangeCount++;
+		if (view._offsetChangeCount % 10 === 0) {
+			console.debug(`📍 Offset jump detected at frame ${view._offsetChangeCount}: (${view._lastOffsetX.toFixed(2)} → ${view.offset.x.toFixed(2)}, ${view._lastOffsetY.toFixed(2)} → ${view.offset.y.toFixed(2)})`);
+		}
+	}
+	
+	view._lastOffsetX = view.offset.x;
+	view._lastOffsetY = view.offset.y;
 }
 
 function mainLoop(timestamp) {
