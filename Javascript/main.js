@@ -79,19 +79,46 @@ function init() {
 	// Right-click to open banner
 	document.getElementById('mainArea').addEventListener('contextmenu', function(e) {
 		e.preventDefault();
-		if (_universe && _universe.selectedObject) {
+		
+		if (!_universe) return false;
+		
+		let selectedObject = _universe.selectedObject;
+		
+		// If nothing is selected, try to select the closest object under the cursor
+		if (!selectedObject && _universe.currentNode && _universe.currentNode.getClosestObject) {
+			selectedObject = _universe.currentNode.getClosestObject(3);
+			if (selectedObject) {
+				_universe.selectedObject = selectedObject;
+				console.log('✓ Right-click: auto-selected nearest object');
+			}
+		}
+		
+		// If still nothing selected, fall back to main truss node
+		if (!selectedObject) {
+			selectedObject = _universe.currentNode;
+			console.log('✓ Right-click: using main truss node as fallback');
+		}
+		
+		// Open the banner/properties panel
+		if (selectedObject) {
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
-					'selectedObject': _universe.selectedObject,
-					'previousSelectedObject': null,
-					'trussNode': _universe.selectedObject.parentObject || _universe.selectedObject,
+					'selectedObject': selectedObject,
+					'previousSelectedObject': _universe.selectedObject,
+					'trussNode': selectedObject.parentTrussNode || selectedObject,
+					'truss': selectedObject.parentTrussNode || selectedObject,
 				},
 				bubbles: true,
 				cancelable: true,
 			});
-			_universe.currentNode.element.dispatchEvent(event);
-			console.log('✓ Banner triggered via right-click');
+			if (_universe.currentNode && _universe.currentNode.element) {
+				_universe.currentNode.element.dispatchEvent(event);
+			}
+			console.log('✓ Banner opened via right-click:', selectedObject.name || selectedObject.labelString || 'unnamed');
+		} else {
+			console.warn('⚠️ Right-click: no object found to select');
 		}
+		
 		return false;
 	}, false);
 
@@ -115,18 +142,26 @@ window.addEventListener('keydown', function(e) {
 		makeTensor();
 	} else if (e.keyCode == 66) {
 		// 'B' key to trigger banner by firing a selection event
-		if (_universe.selectedObject) {
+		let selectedObject = _universe.selectedObject;
+		
+		// If nothing selected, use main node
+		if (!selectedObject) {
+			selectedObject = _universe.currentNode;
+		}
+		
+		if (selectedObject) {
 			let event = new CustomEvent('selectionEvent', {
 				detail: {
-					'selectedObject': _universe.selectedObject,
+					'selectedObject': selectedObject,
 					'previousSelectedObject': null,
-					'trussNode': _universe.selectedObject.parentObject || _universe.selectedObject,
+					'trussNode': selectedObject.parentTrussNode || selectedObject,
+					'truss': selectedObject.parentTrussNode || selectedObject,
 				},
 				bubbles: true,
 				cancelable: true,
 			});
 			_universe.currentNode.element.dispatchEvent(event);
-			console.log('✓ Banner triggered via B key');
+			console.log('✓ Banner triggered via B key:', selectedObject.name || selectedObject.labelString || 'unnamed');
 		}
 	}
 }, true);
