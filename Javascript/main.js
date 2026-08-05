@@ -5,7 +5,6 @@ import { setUniverse, setFPSdisplay, setMyX, setMyY, setDisplayMousePercent } fr
 import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTensor, downMouse, upMouse } from './ui-actions.js';
 
 let _universe;
-let _followFrameCount = 0; // Global counter for logging
 
 function updateCameraFollow(followedObject, trussNode) {
 	// followedObject can be either a Node or a Tensor
@@ -38,39 +37,10 @@ function updateCameraFollow(followedObject, trussNode) {
 	const targetOffsetX = worldPos.x - screenCenterX * view.xScale;
 	const targetOffsetY = worldPos.y + screenCenterY * view.yScale;
 	
-	// Use near-zero smoothing to directly track node position
-	// Smoothing is kept minimal since any lag causes visible jitter on fast-moving objects
-	let smoothing = 0.001; // Virtually instant tracking
-	
-	// Reduce smoothing at extreme zoom to prevent position quantization
-	if (view.xScale < 0.001 || view.xScale > 1000) {
-		smoothing = 0.0001; // Effectively instant at extreme zoom
-	}
-	
-	const oldOffsetX = view.offset.x;
-	const oldOffsetY = view.offset.y;
-	const oldWorldPosX = view._lastWorldPosX || worldPos.x;
-	const oldWorldPosY = view._lastWorldPosY || worldPos.y;
-	view._lastWorldPosX = worldPos.x;
-	view._lastWorldPosY = worldPos.y;
-	
-	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
-	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
-	
-	// Log offset changes to identify oscillation pattern - every frame for detailed analysis
-	_followFrameCount++;
-	const offsetChangeX = Math.abs(view.offset.x - oldOffsetX);
-	const offsetChangeY = Math.abs(view.offset.y - oldOffsetY);
-	const errorX = Math.abs(view.offset.x - targetOffsetX);
-	const errorY = Math.abs(view.offset.y - targetOffsetY);
-	const targetChangeX = Math.abs(targetOffsetX - oldOffsetX);
-	const targetChangeY = Math.abs(targetOffsetY - oldOffsetY);
-	const worldPosChangeX = Math.abs(worldPos.x - oldWorldPosX);
-	const worldPosChangeY = Math.abs(worldPos.y - oldWorldPosY);
-	
-	if (_followFrameCount % 5 === 0) {
-		console.log(`📍 F${_followFrameCount}: WorldΔ X=${worldPosChangeX.toFixed(8)}, Y=${worldPosChangeY.toFixed(8)}, OffsetΔ X=${offsetChangeX.toFixed(8)}, Y=${offsetChangeY.toFixed(8)}`);
-	}
+	// Apply offset directly - no smoothing
+	// Physics and offset calculation happen in the same frame before rendering
+	view.offset.x = targetOffsetX;
+	view.offset.y = targetOffsetY;
 }
 
 function mainLoop(timestamp) {
@@ -79,11 +49,6 @@ function mainLoop(timestamp) {
 	// Update node highlighting based on current state (selection, hover, follow)
 	if (_universe.currentNode && _universe.currentNode.updateNodeHighlighting) {
 		_universe.currentNode.updateNodeHighlighting();
-	}
-	
-	// Update camera follow if a node is being followed
-	if (_universe.followedNode && _universe.currentNode) {
-		updateCameraFollow(_universe.followedNode, _universe.currentNode);
 	}
 	
 	requestAnimationFrame(mainLoop);

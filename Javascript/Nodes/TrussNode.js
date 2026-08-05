@@ -644,6 +644,38 @@ class TrussNode extends Node {
 	}
 
 	/**
+	 * Update camera offset to center the followed object on screen.
+	 * Called after physics completes but before rendering to keep offset synchronized.
+	 * @param {Node|Tensor} followedObject - The object to follow
+	 */
+	updateCameraFollow(followedObject) {
+		// followedObject can be either a Node or a Tensor
+		let targetNode = followedObject;
+		if (followedObject && followedObject.node1) {
+			targetNode = followedObject.node1;
+		}
+		
+		if (!targetNode || !targetNode.localPosition) {
+			return;
+		}
+
+		const worldPos = targetNode.localPosition;
+		const screenCenterX = this.view.element.clientWidth / 2;
+		const screenCenterY = this.view.element.clientHeight / 2;
+		
+		// Calculate required offset to center object at screen center
+		// screenX = (worldX - offset.x) / xScale
+		// Solving for offset.x: offset.x = worldX - screenCenterX * xScale
+		const targetOffsetX = worldPos.x - screenCenterX * this.view.xScale;
+		const targetOffsetY = worldPos.y + screenCenterY * this.view.yScale;
+		
+		// Apply offset directly - no smoothing
+		// Physics and offset calculation happen in the same frame before rendering
+		this.view.offset.x = targetOffsetX;
+		this.view.offset.y = targetOffsetY;
+	}
+
+	/**
 	 */
 	togglePause() {
 		if (!this.paused) {
@@ -673,9 +705,16 @@ class TrussNode extends Node {
 		}
 
 		// Simulate the total elapsed time in fixed-size chunks
+		// Physics will run 0, 1, 2, or more times depending on frame timing
 		while (this.delta >= this.timestep) {
 			this.calculate(timestamp - this.delta, this.timestep / 2);
 			this.delta -= this.timestep;
+		}
+		
+		// Update camera follow after physics but before rendering
+		// This ensures offset and rendered world are synchronized in the same frame
+		if (universe && universe.followedNode) {
+			this.updateCameraFollow(universe.followedNode);
 		}
 
 		this.clear();
