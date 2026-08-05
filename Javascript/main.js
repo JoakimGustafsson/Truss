@@ -22,26 +22,6 @@ function updateCameraFollow(followedObject, trussNode) {
 	const screenCenterX = view.element.clientWidth / 2;
 	const screenCenterY = view.element.clientHeight / 2;
 	
-	// Predict where the node will be based on its velocity
-	// This compensates for the lag between physics calculation and rendering
-	// Without this, fast-moving nodes cause the camera to overshoot/undershoot
-	let predictedX = worldPos.x;
-	let predictedY = worldPos.y;
-	
-	if (targetNode.velocity) {
-		// Lead the camera slightly by accounting for node movement
-		// The factor here represents how much to compensate (in frames of lookahead)
-		// Lower values = less leading, reduces overshoot but increases lag
-		const velocityLead = 0.15; // frames of lookahead
-		
-		if (!isNaN(targetNode.velocity.x)) {
-			predictedX += targetNode.velocity.x * velocityLead;
-		}
-		if (!isNaN(targetNode.velocity.y)) {
-			predictedY += targetNode.velocity.y * velocityLead;
-		}
-	}
-	
 	// View formulas:
 	// screenX = (worldX - offset.x) / xScale
 	// screenY = -(worldY - offset.y) / yScale
@@ -54,20 +34,41 @@ function updateCameraFollow(followedObject, trussNode) {
 	// offset.x = worldX - screenCenterX * xScale
 	// offset.y = worldY + screenCenterY * yScale
 	
-	const targetOffsetX = predictedX - screenCenterX * view.xScale;
-	const targetOffsetY = predictedY + screenCenterY * view.yScale;
+	const targetOffsetX = worldPos.x - screenCenterX * view.xScale;
+	const targetOffsetY = worldPos.y + screenCenterY * view.yScale;
 	
-	// Use minimal smoothing - velocity compensation makes smoothing unnecessary
-	// but we keep a tiny bit to smooth out screen resize jumps
-	let smoothing = 0.01; // Nearly instant
+	// Use near-zero smoothing to directly track node position
+	// Smoothing is kept minimal since any lag causes visible jitter on fast-moving objects
+	let smoothing = 0.001; // Virtually instant tracking
 	
-	// Even less smoothing at extreme zoom to prevent position quantization jitter
+	// Reduce smoothing at extreme zoom to prevent position quantization
 	if (view.xScale < 0.001 || view.xScale > 1000) {
-		smoothing = 0.002; // Nearly instant at extreme zoom
+		smoothing = 0.0001; // Effectively instant at extreme zoom
 	}
 	
 	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
 	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
+	
+	// Debug: Track if world position itself is jumping
+	if (!view._lastWorldX) {
+		view._lastWorldX = worldPos.x;
+		view._lastWorldY = worldPos.y;
+		view._positionJumpCount = 0;
+	}
+	
+	const worldDeltaX = Math.abs(worldPos.x - view._lastWorldX);
+	const worldDeltaY = Math.abs(worldPos.y - view._lastWorldY);
+	
+	// Log if node's world position jumped (> 0.01 units at once)
+	if (worldDeltaX > 0.01 || worldDeltaY > 0.01) {
+		view._positionJumpCount++;
+		if (view._positionJumpCount % 20 === 0) {
+			console.debug(`⚠️ World position jump #${view._positionJumpCount}: (${view._lastWorldX.toFixed(4)} → ${worldPos.x.toFixed(4)}, ${view._lastWorldY.toFixed(4)} → ${worldPos.y.toFixed(4)})`);
+		}
+	}
+	
+	view._lastWorldX = worldPos.x;
+	view._lastWorldY = worldPos.y;
 }
 
 function mainLoop(timestamp) {
