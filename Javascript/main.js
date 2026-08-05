@@ -46,29 +46,28 @@ function updateCameraFollow(followedObject, trussNode) {
 		smoothing = 0.0001; // Effectively instant at extreme zoom
 	}
 	
+	// Initialize tracking
+	if (!view._offsetTrackingInit) {
+		view._offsetTrackingInit = true;
+		view._frameCount = 0;
+		view._offsetDiffs = [];
+	}
+	
+	view._frameCount++;
+	
+	const oldOffsetX = view.offset.x;
+	const oldOffsetY = view.offset.y;
+	
 	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
 	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
 	
-	// Debug: Track if world position itself is jumping
-	if (!view._lastWorldX) {
-		view._lastWorldX = worldPos.x;
-		view._lastWorldY = worldPos.y;
-		view._positionJumpCount = 0;
+	// Log offset changes to identify oscillation pattern
+	const offsetChangeX = Math.abs(view.offset.x - oldOffsetX);
+	const offsetChangeY = Math.abs(view.offset.y - oldOffsetY);
+	
+	if ((offsetChangeX > 0.001 || offsetChangeY > 0.001) && view._frameCount % 30 === 0) {
+		console.debug(`📍 Frame ${view._frameCount} - Offset change: ΔX=${offsetChangeX.toFixed(4)}, ΔY=${offsetChangeY.toFixed(4)} | Target: (${targetOffsetX.toFixed(2)}, ${targetOffsetY.toFixed(2)}) | Current: (${view.offset.x.toFixed(2)}, ${view.offset.y.toFixed(2)})`);
 	}
-	
-	const worldDeltaX = Math.abs(worldPos.x - view._lastWorldX);
-	const worldDeltaY = Math.abs(worldPos.y - view._lastWorldY);
-	
-	// Log if node's world position jumped (> 0.01 units at once)
-	if (worldDeltaX > 0.01 || worldDeltaY > 0.01) {
-		view._positionJumpCount++;
-		if (view._positionJumpCount % 20 === 0) {
-			console.debug(`⚠️ World position jump #${view._positionJumpCount}: (${view._lastWorldX.toFixed(4)} → ${worldPos.x.toFixed(4)}, ${view._lastWorldY.toFixed(4)} → ${worldPos.y.toFixed(4)})`);
-		}
-	}
-	
-	view._lastWorldX = worldPos.x;
-	view._lastWorldY = worldPos.y;
 }
 
 function mainLoop(timestamp) {
