@@ -6,11 +6,11 @@ import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTenso
 
 let _universe;
 
-function updateCameraFollow(selectedObject, trussNode) {
-	// selectedObject can be either a Node or a Tensor
-	let targetNode = selectedObject;
-	if (selectedObject && selectedObject.node1) {
-		targetNode = selectedObject.node1;
+function updateCameraFollow(followedObject, trussNode) {
+	// followedObject can be either a Node or a Tensor
+	let targetNode = followedObject;
+	if (followedObject && followedObject.node1) {
+		targetNode = followedObject.node1;
 	}
 	
 	if (!targetNode || !targetNode.localPosition || !trussNode.view) {
@@ -37,8 +37,6 @@ function updateCameraFollow(selectedObject, trussNode) {
 	const targetOffsetX = worldPos.x - screenCenterX * view.xScale;
 	const targetOffsetY = worldPos.y + screenCenterY * view.yScale;
 	
-	console.log(`🎥 ${targetNode.name} at world (${worldPos.x.toFixed(1)}, ${worldPos.y.toFixed(1)}) → offset (${targetOffsetX.toFixed(1)}, ${targetOffsetY.toFixed(1)})`);
-	
 	// Smoothly interpolate to avoid jarring movement
 	const smoothing = 0.15; // 0 = instant, 1 = no movement
 	view.offset.x = view.offset.x * smoothing + targetOffsetX * (1 - smoothing);
@@ -48,9 +46,14 @@ function updateCameraFollow(selectedObject, trussNode) {
 function mainLoop(timestamp) {
 	_universe.tick(timestamp / 1000);
 	
-	// Update camera follow if enabled
-	if (_universe.cameraFollowMode && _universe.selectedObject && _universe.currentNode) {
-		updateCameraFollow(_universe.selectedObject, _universe.currentNode);
+	// Update node highlighting based on current state (selection, hover, follow)
+	if (_universe.currentNode && _universe.currentNode.updateNodeHighlighting) {
+		_universe.currentNode.updateNodeHighlighting();
+	}
+	
+	// Update camera follow if a node is being followed
+	if (_universe.followedNode && _universe.currentNode) {
+		updateCameraFollow(_universe.followedNode, _universe.currentNode);
 	}
 	
 	requestAnimationFrame(mainLoop);
@@ -103,6 +106,11 @@ function init() {
 			const displayPercY = (1 - (canvasY / containerRect.height)) * 100;
 			
 			setDisplayMousePercent(displayPercX, displayPercY);
+			
+			// Update hovered node based on picking
+			if (_universe.currentNode && _universe.currentNode.getClosestObject) {
+				_universe.hoveredNode = _universe.currentNode.getClosestObject(3);
+			}
 		}
 	};
 	document.getElementById('mainArea').addEventListener('mousedown', downMouse, false);

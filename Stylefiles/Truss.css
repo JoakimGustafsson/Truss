@@ -776,6 +776,26 @@ input:checked + .slider:before {
 	font-weight: bold;
 }
 
+.banner-follow-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-left: auto;
+	flex: 0 0 auto;
+}
+
+.banner-follow-label {
+	font-size: 10px;
+	color: var(--banner-text);
+	white-space: nowrap;
+	opacity: 0.8;
+	transition: opacity 0.2s ease;
+}
+
+.banner-follow-label:hover {
+	opacity: 1;
+}
+
 .banner-tag-row {
 	align-items: center;
 	display: flex;

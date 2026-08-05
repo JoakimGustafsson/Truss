@@ -926,15 +926,23 @@ class Tensor extends StoreableObject {
 			ctx.shadowBlur = 0;
 			ctx.shadowColor = 'black';
 		} else if (this.highlighted == 1) {
+			// Hover: Orange glow
 			ctx.shadowBlur = 40;
 			ctx.lineWidth = 4;
 			ctx.strokeStyle='orange';
 			ctx.shadowColor = 'orange';
-		} else {
+		} else if (this.highlighted == 2) {
+			// Selected: Yellow glow (highest priority)
 			ctx.shadowBlur = 60;
 			ctx.shadowColor = 'yellow';
 			ctx.lineWidth = 6;
 			ctx.strokeStyle='yellow';
+		} else if (this.highlighted == 3) {
+			// Followed: Blue glow
+			ctx.shadowBlur = 50;
+			ctx.shadowColor = '#00BFFF';
+			ctx.lineWidth = 5;
+			ctx.strokeStyle='#00BFFF';
 		}
 	}
 

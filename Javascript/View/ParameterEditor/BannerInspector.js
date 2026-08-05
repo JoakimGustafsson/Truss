@@ -91,6 +91,31 @@ function getConnectionSummary(selectedObject) {
 	return endpoints.length ? endpoints.join(' -> ') : 'Tensor connection';
 }
 
+function updateFollowButtonState() {
+	let followButton = universe.currentNode ? universe.currentNode.getElement('#bannerFollowButton') : undefined;
+	let followLabel = universe.currentNode ? universe.currentNode.getElement('#bannerFollowLabel') : undefined;
+	if (!followButton || !followLabel) {
+		return;
+	}
+	
+	const selectedObject = universe.selectedObject;
+	const followedNode = universe.followedNode;
+	const isFollowing = followedNode !== undefined && followedNode !== null;
+	const isFollowingThis = isFollowing && (followedNode === selectedObject);
+	
+	// Update button active state
+	followButton.classList.toggle('follow-active', isFollowingThis);
+	
+	// Update label: show followed node name truncated to 10 chars
+	if (isFollowing) {
+		const followedName = followedNode.name || 'Unknown';
+		const truncatedName = followedName.length > 10 ? followedName.substring(0, 10) + '…' : followedName;
+		followLabel.textContent = `Following: ${truncatedName}`;
+	} else {
+		followLabel.textContent = '';
+	}
+}
+
 function updateDatalist(input, matches) {
 	let dataList = input.list;
 	if (!dataList) {
@@ -341,23 +366,55 @@ function createBannerInspectorHeader() {
 	meta.classList.add('banner-object-meta');
 	titleBlock.appendChild(meta);
 
-	// Add follow button
+	// Add follow button with label
+	let followContainer = document.createElement('div');
+	followContainer.id = 'bannerFollowContainer';
+	followContainer.classList.add('banner-follow-container');
+	
 	let followButton = document.createElement('button');
 	followButton.id = 'bannerFollowButton';
 	followButton.classList.add('banner-follow-button');
 	followButton.textContent = '🎥 Follow';
 	followButton.title = 'Keep selected object centered on screen';
 	followButton.addEventListener('click', () => {
-		followButton.classList.toggle('follow-active');
-		universe.cameraFollowMode = followButton.classList.contains('follow-active');
-		console.log('🎥 Follow button clicked! Mode:', universe.cameraFollowMode);
-		if (universe.cameraFollowMode) {
-			followButton.textContent = '🎥 Following';
-		} else {
-			followButton.textContent = '🎥 Follow';
+		const selectedObject = universe.selectedObject;
+		if (!selectedObject) {
+			console.log('🎥 No object selected to follow');
+			return;
 		}
+		
+		// Determine if we're following this object or not
+		const isCurrentlyFollowed = universe.followedNode === selectedObject;
+		
+		if (isCurrentlyFollowed) {
+			// Stop following
+			universe.followedNode = undefined;
+			console.log('🎥 Stopped following:', selectedObject.name);
+		} else {
+			// Start following (or switch to new object)
+			const wasFollowing = universe.followedNode !== undefined;
+			if (wasFollowing) {
+				console.log('🎥 Switched follow from', universe.followedNode.name, 'to', selectedObject.name);
+			} else {
+				console.log('🎥 Started following:', selectedObject.name);
+			}
+			universe.followedNode = selectedObject;
+		}
+		
+		// Update UI
+		updateFollowButtonState();
 	});
-	titleRow.appendChild(followButton);
+	followContainer.appendChild(followButton);
+	
+	// Add label showing followed node name
+	let followLabel = document.createElement('span');
+	followLabel.id = 'bannerFollowLabel';
+	followLabel.classList.add('banner-follow-label');
+	followLabel.textContent = '';
+	followLabel.title = 'The node that the view is following';
+	followContainer.appendChild(followLabel);
+	
+	titleRow.appendChild(followContainer);
 
 	return header;
 }
@@ -386,13 +443,8 @@ function updateBannerInspectorHeader(selectedObject) {
 		metaElement.textContent = getConnectionSummary(selectedObject);
 	}
 
-	// Reset follow button when selection changes
-	let followButton = universe.currentNode.getElement('#bannerFollowButton');
-	if (followButton) {
-		followButton.classList.remove('follow-active');
-		followButton.textContent = '🎥 Follow';
-		universe.cameraFollowMode = false;
-	}
+	// Update follow button UI based on current state (don't reset follow state)
+	updateFollowButtonState();
 
 	let chips = universe.currentNode.getElement('#bannerTagChips');
 	if (!chips) {

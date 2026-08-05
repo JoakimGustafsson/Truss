@@ -597,6 +597,53 @@ class TrussNode extends Node {
 	}
 
 	/**
+	 * Update highlighting for all nodes based on current universe state
+	 * Priority: selected (2) > hover (1) > followed (3) > none (0)
+	 * Called every frame to keep highlighting synchronized with selection/hover/follow state
+	 */
+	updateNodeHighlighting() {
+		if (!universe) return;
+
+		for (let node of this.nodes) {
+			let highlightLevel = 0;
+			
+			// Priority 1 (highest): Selected node
+			if (universe.selectedObject === node) {
+				highlightLevel = 2;
+			}
+			// Priority 2: Hovered node (only if not selected)
+			else if (universe.hoveredNode === node) {
+				highlightLevel = 1;
+			}
+			// Priority 3: Followed node (only if not selected or hovered)
+			else if (universe.followedNode === node) {
+				highlightLevel = 3;
+			}
+			
+			node.setHighlight(highlightLevel);
+		}
+
+		for (let tensor of this.tensors) {
+			let highlightLevel = 0;
+			
+			// Priority 1 (highest): Selected tensor
+			if (universe.selectedObject === tensor) {
+				highlightLevel = 2;
+			}
+			// Priority 2: Hovered tensor (only if not selected)
+			else if (universe.hoveredNode === tensor) {
+				highlightLevel = 1;
+			}
+			// Priority 3: Followed tensor (only if not selected or hovered)
+			else if (universe.followedNode === tensor) {
+				highlightLevel = 3;
+			}
+			
+			tensor.setHighlight(highlightLevel);
+		}
+	}
+
+	/**
 	 */
 	togglePause() {
 		if (!this.paused) {

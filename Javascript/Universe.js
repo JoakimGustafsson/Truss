@@ -263,6 +263,9 @@ class Universe {
 		this.currentNode = undefined; // This is the currently displayed trussNode (either the worlds trussNode or a governor Node)
 		this.background = background;
 		this.selectedObject = undefined;
+		this.hoveredNode = undefined; // Node currently under mouse cursor
+		this.followedNode = undefined; // Node being followed (persists independent of selection)
+		this.cameraFollowMode = false; // Legacy compatibility - now followedNode is what matters
 		this.setupTicks = 0; // Initiated in SetCurrent
 	}
 

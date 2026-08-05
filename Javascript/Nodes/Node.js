@@ -799,15 +799,23 @@ class Node extends StoreableObject {
 			ctx.lineWidth = 2;
 			ctx.shadowColor = 'black';
 		} else if (this.highlighted == 1) {
+			// Hover: Orange glow
 			ctx.strokeStyle = 'orange';
 			ctx.shadowBlur = 40;
 			ctx.lineWidth = 4;
 			ctx.shadowColor = 'orange';
-		} else {
+		} else if (this.highlighted == 2) {
+			// Selected: Yellow glow (highest priority)
 			ctx.strokeStyle = 'yellow';
 			ctx.shadowBlur = 60;
 			ctx.lineWidth = 6;
 			ctx.shadowColor = 'yellow';
+		} else if (this.highlighted == 3) {
+			// Followed: Blue glow
+			ctx.strokeStyle = '#00BFFF';
+			ctx.shadowBlur = 50;
+			ctx.lineWidth = 5;
+			ctx.shadowColor = '#00BFFF';
 		}
 	}
 
