@@ -5,6 +5,7 @@ import { setUniverse, setFPSdisplay, setMyX, setMyY, setDisplayMousePercent } fr
 import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTensor, downMouse, upMouse } from './ui-actions.js';
 
 let _universe;
+let _followFrameCount = 0; // Global counter for logging
 
 function updateCameraFollow(followedObject, trussNode) {
 	// followedObject can be either a Node or a Tensor
@@ -46,15 +47,6 @@ function updateCameraFollow(followedObject, trussNode) {
 		smoothing = 0.0001; // Effectively instant at extreme zoom
 	}
 	
-	// Initialize tracking
-	if (!view._offsetTrackingInit) {
-		view._offsetTrackingInit = true;
-		view._frameCount = 0;
-		view._offsetDiffs = [];
-	}
-	
-	view._frameCount++;
-	
 	const oldOffsetX = view.offset.x;
 	const oldOffsetY = view.offset.y;
 	
@@ -62,11 +54,12 @@ function updateCameraFollow(followedObject, trussNode) {
 	view.offset.y = view.offset.y * smoothing + targetOffsetY * (1 - smoothing);
 	
 	// Log offset changes to identify oscillation pattern
+	_followFrameCount++;
 	const offsetChangeX = Math.abs(view.offset.x - oldOffsetX);
 	const offsetChangeY = Math.abs(view.offset.y - oldOffsetY);
 	
-	if (view._frameCount % 20 === 0) {
-		console.debug(`📍 Frame ${view._frameCount}: ΔX=${offsetChangeX.toFixed(6)}, ΔY=${offsetChangeY.toFixed(6)} | Target: (${targetOffsetX.toFixed(4)}, ${targetOffsetY.toFixed(4)}) | Curr: (${view.offset.x.toFixed(4)}, ${view.offset.y.toFixed(4)}) | xScale=${view.xScale.toFixed(6)}`);
+	if (_followFrameCount % 20 === 0) {
+		console.log(`📍 Frame ${_followFrameCount}: ΔX=${offsetChangeX.toFixed(6)}, ΔY=${offsetChangeY.toFixed(6)} | Target: (${targetOffsetX.toFixed(4)}, ${targetOffsetY.toFixed(4)}) | Curr: (${view.offset.x.toFixed(4)}, ${view.offset.y.toFixed(4)}) | xScale=${view.xScale.toFixed(6)}`);
 	}
 }
 
