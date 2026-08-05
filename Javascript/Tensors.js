@@ -376,6 +376,7 @@ class Tensor extends StoreableObject {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Tensor';
 
+		// Only save Tensor-specific linking that the property system doesn't handle
 		representation.node1 = nodeList.indexOf(this.node1);
 		representation.node2 = nodeList.indexOf(this.node2);
 
@@ -392,13 +393,9 @@ class Tensor extends StoreableObject {
 			representation.previous = tensorList.indexOf(this.previous);
 		}
 
-		representation.angle1 = isNaN(this.angle1) ? 'NaN' : this.angle1;
-		representation.angle2 = isNaN(this.angle2) ? 'NaN' : this.angle2;
-		representation.force = this.force;
-		representation.ghost = this.ghost;
-		representation.isTensor = this.isTensor;
-		representation.color = this.color;
-		representation.labelString = this.labelString;
+		if (this.originalParent) {
+			representation.originalParent = tensorList.indexOf(this.originalParent);
+		}
 
 		return representation;
 	}

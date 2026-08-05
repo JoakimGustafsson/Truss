@@ -146,8 +146,17 @@ class World {
 	 * @param  {Object} representationObject
 	 */
 	serializeAllNodes(nodes, tensors, representationObject) {
+		// Get banner label if it exists
+		const bannerLabel = this.labels.list.find(label => label.name === 'banner');
+		const bannerNodeSet = new Set(bannerLabel ? bannerLabel.getReferences() : []);
+
 		let nodeList = [];
 		for (let node of nodes) {
+			// Skip banner nodes (temporary UI elements)
+			if (bannerNodeSet.has(node)) {
+				continue;
+			}
+
 			let nodeSerilization = node.serialize(nodes, tensors);
 			if (nodeSerilization) {
 				nodeList.push(nodeSerilization);
@@ -176,12 +185,20 @@ class World {
 		let nodeRestoreList = Array.isArray(restoreObject.nodes) ? restoreObject.nodes : [];
 		let tensorRestoreList = Array.isArray(restoreObject.tensors) ? restoreObject.tensors : [];
 		
-		console.log(`📦 Deserializing ${nodeRestoreList.length} nodes...`);
+		console.log(`📦 Creating ${nodeRestoreList.length} node instances...`);
+		// PHASE 1: Create all node instances (in order from JSON, typically TrussNode first)
 		for (let nodeRestoreObject of nodeRestoreList) {
 			let node = objectFactory(this, nodeRestoreObject);
 			nodeList.push(node);
-			// Pre-link parent truss references early so property/materialization code
-			// that runs during deserialize can access parent canvas state.
+		}
+
+		console.log(`📦 Linking parent TrussNode references...`);
+		// PHASE 2: Link parentTrussNode references now that all nodes exist
+		// This must happen BEFORE deserialization so nodes can access parent.view.planes
+		for (let i = 0; i < nodeRestoreList.length; i++) {
+			let nodeRestoreObject = nodeRestoreList[i];
+			let node = nodeList[i];
+			
 			if (nodeRestoreObject &&
 				nodeRestoreObject.parentTrussNode !== undefined &&
 				nodeRestoreObject.parentTrussNode !== null &&
@@ -191,23 +208,22 @@ class World {
 			}
 		}
 
-		console.log(`📦 Deserializing ${tensorRestoreList.length} tensors...`);
+		console.log(`📦 Creating ${tensorRestoreList.length} tensor instances...`);
 		let tensorList=[];
 		for (let tensorRestoreObject of tensorRestoreList) {
 			let tensor = objectFactory(this, tensorRestoreObject);
 			tensorList.push(tensor);
 		}
 
-
-		// deserialize them
-		console.log(`🔗 Linking nodes to their data...`);
+		// PHASE 3: Deserialize nodes (now parentTrussNode and planes are ready)
+		console.log(`🔗 Deserializing node properties...`);
 		let index=0;
 		for (let node of nodeList) {
 			node.deserialize(nodeRestoreList[index], nodeList, tensorList);
 			index++;
 		}
 
-		console.log(`🔗 Linking tensors to their connected nodes...`);
+		console.log(`🔗 Deserializing tensor properties...`);
 		index=0;
 		for (let tensor of tensorList) {
 			tensor.deserialize(tensorRestoreList[index], nodeList, tensorList);
@@ -244,7 +260,6 @@ class World {
 		return this;
 	}
 }
-
 
 /**
  * @class

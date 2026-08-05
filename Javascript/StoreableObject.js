@@ -252,6 +252,7 @@ class StoreableObject {
 		} else if (!this.labelString || this.labelString.trim() == '') {
 			this.labelString = inferLegacyLabelString(restoreObject, this.isNode);
 		}
+		
 		this.refreshPropertiesAfterLabelChange();
 
 		let propertyObject = this.getPropertyObject();
@@ -260,11 +261,6 @@ class StoreableObject {
 			let property = propertyContainer.propertyObject;
 			this[property.propertyName] =
 				property.deSerialize(restoreObject[property.propertyName], nodeList, tensorList);
-		}
-		
-		// Ensure labels are parsed and object is registered in label system
-		if (this.world && this.world.labels) {
-			this.labels = this.world.labels.parse(this.labelString, this);
 		}
 
 		/* super.deserialize(restoreObject);

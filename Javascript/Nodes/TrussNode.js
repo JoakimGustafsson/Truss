@@ -199,6 +199,12 @@ class TrussNode extends Node {
 	 * Updates canvas size when container is resized
 	 */
 	updateCanvasSize() {
+		// Guard against being called before view is fully initialized
+		if (!this.view || !this.view.screenSize || !this.view.screenSize.v) {
+			console.warn(`⚠️ TrussNode.updateCanvasSize() called but view not initialized yet for ${this.name}`);
+			return;
+		}
+
 		const containerRect = this.element.getBoundingClientRect();
 		const width = containerRect.width || 856;
 		const height = containerRect.height || 972;
@@ -269,7 +275,7 @@ class TrussNode extends Node {
 
 		if (restoreObject.worldSize) {
 			this.view.setWorldViewSize(new Vector().deserialize(restoreObject.worldSize));
-		} else if (restoreObject.ratio && this.view.screenSize.x && this.view.screenSize.y) {
+		} else if (restoreObject.ratio && this.view.screenSize && this.view.screenSize.x && this.view.screenSize.y) {
 			// Backward compatibility: older saves used ratio instead of worldSize.
 			// Support both ratio conventions seen in legacy data.
 			let ratioX = Number(restoreObject.ratio.x);
@@ -754,11 +760,14 @@ class TrussNode extends Node {
 			resolvedDebugLevel = 5;
 		}
 
-		for (let tensor of this.tensors) {
+		const tensors = this.tensors;
+		const nodes = this.nodes;
+
+		for (let tensor of tensors) {
 			tensor.show(this, resolvedDebugLevel);
 		}
 
-		for (let node of this.nodes) {
+		for (let node of nodes) {
 			node.show(this, time, resolvedDebugLevel);
 		}
 		

@@ -203,6 +203,7 @@ function directory(folderName) {
 */
 function loadFile(fileName) {
 	// mainNode.truss.hideEdit();
+	console.log(`📂 Loading save file: ${fileName}`);
 	httpGetAsync('/load/' + fileName, function(x) {
 		console.log('Server reported: ' + x);
 		// mainNode.clean();
@@ -214,7 +215,7 @@ function loadFile(fileName) {
 		// We need to pause first, then deserialize
 		
 		console.log('╔════════════════════════════════════════════════════╗');
-		console.log('║  DESERIALIZING SAVE FILE...                        ║');
+		console.log('║  DESERIALIZING SAVE FILE: ' + fileName.padEnd(26) + '║');
 		console.log('╚════════════════════════════════════════════════════╝');
 		
 		newWorld.deserialize(normalizeRestoreObject(JSON.parse(x)));
@@ -235,10 +236,12 @@ function loadFile(fileName) {
 			console.log('✓ Deserialization complete. Check console for any warnings.');
 			console.log('✓ Click the pause button in the banner to resume simulation.');
 			
-			// Trigger resize to recalculate canvas and UI dimensions after load
-			if (newWorld.trussNode.resize) {
-				newWorld.trussNode.resize();
-			}
+			// Trigger resize after a small delay to let DOM layout settle
+			setTimeout(function() {
+				if (newWorld.trussNode && newWorld.trussNode.resize) {
+					newWorld.trussNode.resize();
+				}
+			}, 10);
 			
 			// Auto-select the main node to trigger banner creation
 			setTimeout(function() {
@@ -301,7 +304,13 @@ function displaySaves(text) {
 				element.innerHTML = fileName;
 				fileListElement.appendChild(element);
 				element.title = fileName;
-				element.addEventListener('click', () => loadFile(fileName));
+				// Use IIFE to capture fileName value properly (avoid closure issues)
+				element.addEventListener('click', ((capturedFileName) => {
+					return () => {
+						console.log(`🖱️ Clicked button: ${element.innerHTML}, loading file: ${capturedFileName}`);
+						loadFile(capturedFileName);
+					};
+				})(fileName));
 				element.addEventListener('mouseover', () => highLightFile(element));
 				element.addEventListener('mouseout', () => unhighLightFile(element));
 		}

@@ -27,6 +27,12 @@ class View {
 
 		this.offset = new Vector(0, 0);
 		this.context = undefined;
+		
+		// Initialize scale factors with defaults so they're never undefined
+		this.xScale = 1;
+		this.yScale = 1;
+		this.distanceMultiplier = 1;
+		
 		if (this.element) {
 			this.setupAlertVectors(this.element, worldViewSize);
 			this.resize();
@@ -86,6 +92,10 @@ class View {
 	 *                           Omit (or false) on window resize to preserve the current zoom level.
 	 */
 	resize(scale) {
+		if (!this.screenSize || !this.screenSize.v) {
+			console.warn(`⚠️ View.resize() called but screenSize not initialized yet`);
+			return;
+		}
 		const oldWidth = this.screenSize.x;
 		const oldHeight = this.screenSize.y;
 		// Write directly to backing vector to defer the recalculate() call
@@ -150,6 +160,9 @@ class View {
 	 * @return {number} The vertical position on this views display
 	 */
 	x(p) {
+		if (!p || isNaN(p.x) || !isFinite(this.xScale) || this.xScale === 0) {
+			return 0;
+		}
 		return (p.x - this.offset.x) / this.xScale;
 	};
 
@@ -158,6 +171,9 @@ class View {
 	 * @return {number} The vertical position on this views display
 	 */
 	y(p) {
+		if (!p || isNaN(p.y) || !isFinite(this.yScale) || this.yScale === 0) {
+			return 0;
+		}
 		// Mathematical coordinates: negate Y so down = negative
 		// Also flip offset.y to maintain correct camera positioning
 		return -(p.y - this.offset.y) / this.yScale;
@@ -284,16 +300,39 @@ class View {
 	 */
 	recalculate() {
 		if (!this.worldViewSize || !this.screenSize) {
+			console.warn(`⚠️ View.recalculate() called with missing data. worldViewSize: ${!!this.worldViewSize}, screenSize: ${!!this.screenSize}`);
 			return;
 		}
+		
+		// Guard against zero or invalid screen dimensions
+		if (!this.screenSize.x || !this.screenSize.y || this.screenSize.x <= 0 || this.screenSize.y <= 0) {
+			console.warn(`⚠️ View.recalculate() called with invalid screenSize:`, this.screenSize);
+			return;
+		}
+		
+		// Guard against zero or invalid world view size
+		if (!this.worldViewSize.x || !this.worldViewSize.y || this.worldViewSize.x <= 0 || this.worldViewSize.y <= 0) {
+			console.warn(`⚠️ View.recalculate() called with invalid worldViewSize:`, this.worldViewSize);
+			return;
+		}
+		
 		this.xScale = this.worldViewSize.x / this.screenSize.x;
 		this.yScale = this.worldViewSize.y / this.screenSize.y;
+		
+		// Guard against NaN scales
+		if (isNaN(this.xScale) || isNaN(this.yScale) || !isFinite(this.xScale) || !isFinite(this.yScale)) {
+			console.warn(`⚠️ View.recalculate() produced NaN/Infinity scales. xScale: ${this.xScale}, yScale: ${this.yScale}`);
+			return;
+		}
+		
 		this.distanceMultiplier = Math.max(this.xScale, this.yScale);
 		if (this.lockedRatio) {
 			// Force uniform (square) scaling; x axis matches y axis
 			this.xScale = this.yScale;
 			// Adjust worldViewSize.x to reflect the locked scale (bypass callback to avoid recursion)
-			this.worldViewSize.v.x = this.xScale * this.screenSize.x;
+			if (this.worldViewSize.v) {
+				this.worldViewSize.v.x = this.xScale * this.screenSize.x;
+			}
 		}
 
 		// Center camera on origin: offset.y = worldViewSize.y puts (0,0) at lower-left of screen

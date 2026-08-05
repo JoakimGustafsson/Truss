@@ -304,19 +304,11 @@ class Node extends StoreableObject {
 		let representation = super.serialize(nodeList, tensorList);
 		representation.classname='Node';
 
+		// Only save Node-specific fields that the property system doesn't handle
 		representation.parentTrussNode = nodeList.indexOf(this.parentTrussNode);
-		representation.localPosition = this.localPosition.serialize();
-		representation.velocity = this.velocity.serialize();
-		representation.mass = this.mass;
-		representation.massRadius = this.massRadius;
-		representation.angle = this.angle;
-		representation.pictureReference = this.pictureReference;
-		representation.size = this.size;
-		representation.turnrate = this.turnrate;
-		representation.torqueConstant = this.torqueConstant;
-		representation.labelString=this.labelString;
 		representation.connectedTensors = serializeList(this.connectedTensors, tensorList);
-		representation.velocityLoss = this.velocityLoss;
+		
+		// Store functions as strings for serialization
 		if (this.positionFunction) {
 			representation.positionFunction = this.positionFunction.toString();
 		}
@@ -324,6 +316,7 @@ class Node extends StoreableObject {
 			representation.showFunction = this.showFunction.toString();
 		}
 
+		// Store break list
 		let storeBreakList = [];
 		if (this.breakList) {
 			for (let lineBreaker of this.breakList) {
@@ -359,7 +352,7 @@ class Node extends StoreableObject {
 		}
 
 		this.localPosition = new Position().deserialize(restoreObject.localPosition);
-		this.velocity = new Vector().deserialize(restoreObject.velocity);
+		this.velocity = new Vector().deserialize(restoreObject.velocity || {});
 		this.mass = restoreObject.mass;
 		if (!this.mass) {
 			this.mass = NaN;
