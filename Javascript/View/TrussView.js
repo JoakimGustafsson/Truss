@@ -33,8 +33,12 @@ class View {
 		this.yScale = 1;
 		this.distanceMultiplier = 1;
 		
+		// Always create AlertVectors, even if element doesn't exist yet
+		// During Phase 1, element may not exist, but AlertVectors must exist for deserialization
+		this.setupAlertVectors(this.element, worldViewSize);
+		
+		// Only call resize if element exists (it will be called later if element is added)
 		if (this.element) {
-			this.setupAlertVectors(this.element, worldViewSize);
 			this.resize();
 		}
 		
@@ -49,15 +53,23 @@ class View {
 	/**
 	 * @param  {Element} element
 	 * @param  {Position} worldViewSize
+	 * @param  {Position} screenSize (optional) - if provided, use this instead of reading from element
 	 */
-	setupAlertVectors(element, worldViewSize) {
+	setupAlertVectors(element, worldViewSize, screenSize) {
 		let x = 0;
 		let y = 0;
 		let _this = this;
-		if (element) {
+		if (screenSize) {
+			// Deserialization path: use provided screenSize
+			x = screenSize.x;
+			y = screenSize.y;
+		} else if (element) {
+			// Initialization path: read from element if it exists
 			x = element.clientWidth || element.offsetWidth;
 			y = element.clientHeight || element.offsetHeight;
 		}
+		// If no values provided and element doesn't exist, use defaults (0,0)
+		// This will be updated later when element is added to DOM or deserialized
 		this.screenSize = new AlertVector(new Vector(x, y), function(v) {
 			// Don't try to set offsetWidth/offsetHeight - they're read-only
 			// Canvas resizing is now handled by ResizeObserver
@@ -98,9 +110,18 @@ class View {
 		}
 		const oldWidth = this.screenSize.x;
 		const oldHeight = this.screenSize.y;
-		// Write directly to backing vector to defer the recalculate() call
-		this.screenSize.v.x = this.element.clientWidth || this.element.offsetWidth;
-		this.screenSize.v.y = this.element.clientHeight || this.element.offsetHeight;
+		
+		// After deserialization, use the deserialized screenSize values
+		// Only read from DOM if dimensions are non-zero (element has been laid out)
+		const elementWidth = this.element.clientWidth || this.element.offsetWidth;
+		const elementHeight = this.element.clientHeight || this.element.offsetHeight;
+		
+		// Only update if element has real dimensions, otherwise keep deserialized values
+		if (elementWidth > 0 && elementHeight > 0) {
+			this.screenSize.v.x = elementWidth;
+			this.screenSize.v.y = elementHeight;
+		}
+		
 		if (!scale) {
 			// Window-resize path: keep world/screen ratio so zoom level is preserved
 			if (oldWidth && this.screenSize.x) {
@@ -131,12 +152,27 @@ class View {
 	 */
 	deserialize(restoreObject) {
 		let screenSize = new Vector().deserialize(restoreObject.screenSize);
+		let worldViewSize = new Vector().deserialize(restoreObject.worldViewSize);
+		let offset = new Vector().deserialize(restoreObject.offset);
+		
+		// Set element dimensions
 		this.element.style.width = screenSize.x + 'px';
 		this.element.style.height = screenSize.y + 'px';
-		this.setupAlertVectors(this.element, new Vector().deserialize(restoreObject.worldViewSize));
-		this.offset = new Vector().deserialize(restoreObject.offset);
-		// Flip Y offset for new coordinate system (0,0 at lower-left)
-		this.offset.y = -this.offset.y + this.worldViewSize.y;
+		
+		// If AlertVectors already exist (from constructor), just update their values
+		// Otherwise, create them with deserialized values
+		if (this.screenSize && this.screenSize.v) {
+			// Update existing AlertVectors
+			this.screenSize.v.x = screenSize.x;
+			this.screenSize.v.y = screenSize.y;
+			this.worldViewSize.v.x = worldViewSize.x;
+			this.worldViewSize.v.y = worldViewSize.y;
+		} else {
+			// Create new AlertVectors with deserialized values
+			this.setupAlertVectors(this.element, worldViewSize, screenSize);
+		}
+		
+		this.offset = offset;
 		this.recalculate();
 		return this;
 	}

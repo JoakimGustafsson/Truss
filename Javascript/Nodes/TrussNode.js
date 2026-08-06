@@ -255,12 +255,9 @@ class TrussNode extends Node {
 	serialize(superNodeList=[], superTensorList=[]) {
 		let representationObject = super.serialize(superNodeList, superTensorList);
 		representationObject.classname = 'TrussNode';
-		// Save the world/screen ratio so the view can be restored correctly on any screen size
-		if (this.view.screenSize.x && this.view.screenSize.y) {
-			representationObject.ratio = {
-				x: this.view.screenSize.x / this.view.worldViewSize.x,
-				y: this.view.screenSize.y / this.view.worldViewSize.y,
-			};
+		// Save the complete view state
+		if (this.view) {
+			representationObject.view = this.view.serialize();
 		}
 		return representationObject;
 	}
@@ -273,36 +270,11 @@ class TrussNode extends Node {
 	deserialize(restoreObject, superNodes, superTensors) {
 		super.deserialize(restoreObject, superNodes, superTensors);
 
-		if (restoreObject.worldSize) {
-			this.view.setWorldViewSize(new Vector().deserialize(restoreObject.worldSize));
-		} else if (restoreObject.ratio && this.view.screenSize && this.view.screenSize.x && this.view.screenSize.y) {
-			// Backward compatibility: older saves used ratio instead of worldSize.
-			// Support both ratio conventions seen in legacy data.
-			let ratioX = Number(restoreObject.ratio.x);
-			let ratioY = Number(restoreObject.ratio.y);
-			if (ratioX > 0 && ratioY > 0) {
-				let worldX;
-				let worldY;
-				if (ratioX > 1 || ratioY > 1) {
-					worldX = this.view.screenSize.x / ratioX;
-					worldY = this.view.screenSize.y / ratioY;
-				} else {
-					worldX = this.view.screenSize.x * ratioX;
-					worldY = this.view.screenSize.y * ratioY;
-				}
-				if (isFinite(worldX) && isFinite(worldY) && worldX > 0 && worldY > 0) {
-					this.view.setWorldViewSize(new Vector(worldX, worldY));
-				}
-			}
+		// Deserialize the View if data is present
+		if (restoreObject.view) {
+			this.view.deserialize(restoreObject.view);
 		}
-		// Support both current name and legacy save-file key
-		const offsetData = restoreObject.worldOffset || restoreObject.setWorldOffset;
-		if (offsetData) {
-			const offsetVec = new Vector().deserialize(offsetData);
-			// Flip Y offset for coordinate system migration (old saves have Y positive downward)
-			offsetVec.y = -offsetVec.y;
-			this.view.setOffset(offsetVec);
-		}
+		
 		if (restoreObject.fpsTarget !== undefined && restoreObject.fpsTarget !== null) {
 			this.fpsTarget = restoreObject.fpsTarget;
 		}

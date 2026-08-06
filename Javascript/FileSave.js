@@ -185,7 +185,7 @@ function normalizeRestoreObject(restoreObject) {
 function saveFile(fileName) {
 	universe.currentWorld.mapAll((trussNode) => trussNode.hideEdit());
 	httpPostAsync('/save', function(x) {
-		console.log('Server reported: ' + x);
+		// console.log('Server reported: ' + x);
 	}, universe.currentWorld.serialize(), fileName + '.json');
 }
 
@@ -194,7 +194,7 @@ function saveFile(fileName) {
  */
 function directory(folderName) {
 	httpGetAsync('/dir/' + folderName, function(x) {
-		console.log('Server reported: ' + x);
+		// console.log('Server reported: ' + x);
 		displaySaves(x);
 	});
 }
@@ -205,7 +205,7 @@ function loadFile(fileName) {
 	// mainNode.truss.hideEdit();
 	console.log(`📂 Loading save file: ${fileName}`);
 	httpGetAsync('/load/' + fileName, function(x) {
-		console.log('Server reported: ' + x);
+		// console.log('Server reported: ' + x);
 		// mainNode.clean();
 		universe.pop().close();
 		let newWorld= new World();

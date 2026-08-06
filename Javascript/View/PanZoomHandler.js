@@ -209,7 +209,6 @@ class PanZoomHandler {
 		this.pendingUpdate = false;
 	}
 
-	/** Handles mouse wheel and touchpad pinch/pan (both fire 'wheel' events). */
 	_onWheel(ev) {
 		ev.preventDefault();
 
@@ -217,14 +216,20 @@ class PanZoomHandler {
 		const absDeltaX = Math.abs(ev.deltaX);
 		const absDeltaY = Math.abs(ev.deltaY);
 
-		// Always pan if there's any horizontal movement (two-finger drag)
-		if (absDeltaX > 0) {
+		// Determine intent: pan vs zoom
+		// Pan if horizontal movement is significantly larger than vertical (3x threshold)
+		// Zoom if vertical movement is dominant or mixed but larger
+		const isHorizontalPan = absDeltaX > absDeltaY * 3;
+		const isVerticalZoom = absDeltaY > 0 && !isHorizontalPan;
+
+		if (isHorizontalPan) {
+			// Two-finger horizontal drag (pan)
 			// With Y-axis flipped, negate deltaY for correct pan direction
 			const panDelta = { x: ev.deltaX, y: -ev.deltaY };
 			this.view.updateOffset(panDelta);
 		} 
-		// Only zoom if movement is nearly vertical (< 2px horizontal tolerance)
-		else if (absDeltaY > 0) {
+		else if (isVerticalZoom) {
+			// Mouse wheel or two-finger vertical scroll (zoom)
 			let delta;
 			if (ev.deltaMode === WheelEvent.DOM_DELTA_PIXEL) {
 				delta = -ev.deltaY / 300;

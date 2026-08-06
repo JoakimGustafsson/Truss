@@ -11,7 +11,7 @@ export default {
 	build: {
 		rollupOptions: {
 			input: {
-				main: './Truss.html',
+				main: './index.html',
 			},
 		},
 		outDir: 'dist',
