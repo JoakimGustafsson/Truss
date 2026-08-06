@@ -423,8 +423,8 @@ class Tensor extends StoreableObject {
 			this.node2 = nodeList[node2Index];
 		}
 
-		this.angle1 = restoreObject.angle1;
-		this.angle2 = restoreObject.angle2;
+		// angle1 and angle2 are restored through the property system as degree1/degree2
+		// No need to manually restore them here
 
 		if (restoreObject.next !== undefined && restoreObject.next !== null) {
 			this.next = tensorList[restoreObject.next];
