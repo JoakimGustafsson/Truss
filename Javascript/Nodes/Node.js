@@ -306,7 +306,11 @@ class Node extends StoreableObject {
 
 		// Only save Node-specific fields that the property system doesn't handle
 		representation.parentTrussNode = nodeList.indexOf(this.parentTrussNode);
-		representation.connectedTensors = serializeList(this.connectedTensors, tensorList);
+		
+		// DO NOT serialize connectedTensors - it's redundant data
+		// The tensor-node relationships are stored in Tensor.serialize() via node1 and node2 fields
+		// During deserialization, when Tensor.deserialize() sets node1/node2, the property setter
+		// automatically calls addTensor(), rebuilding the connectedTensors array
 		
 		// Store functions as strings for serialization
 		if (this.positionFunction) {
@@ -371,9 +375,11 @@ class Node extends StoreableObject {
 		this.torqueConstant = restoreObject.torqueConstant;
 		this.labelString = restoreObject.labelString;
 
-		// Read connectedTensors (new format) or positionBasedTensors (old format) for backward compatibility
-		const tensorIndices = restoreObject.connectedTensors || restoreObject.positionBasedTensors;
-		this.connectedTensors = deserializeList(tensorIndices, tensorList);
+		// DO NOT restore connectedTensors from the save file
+		// They will be rebuilt when Tensor.deserialize() sets node1 and node2,
+		// which triggers the property setter that calls addTensor()
+		// Restoring them here causes duplicates because Tensor setters add them again
+		
 		this.velocityLoss = restoreObject.velocityLoss;
 		try {
 			if (restoreObject.positionFunction) {
@@ -485,7 +491,10 @@ class Node extends StoreableObject {
 		// if (tensor.absorber) {
 		//	this.velocityBasedTensors.push(tensor);
 		// }
-		this.connectedTensors.push(tensor);
+		// Only add if not already in the list (prevents duplicates during deserialization)
+		if (!this.connectedTensors.includes(tensor)) {
+			this.connectedTensors.push(tensor);
+		}
 
 		return tensor;
 	};
