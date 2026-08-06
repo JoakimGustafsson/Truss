@@ -1,7 +1,7 @@
 import { Node } from '../Nodes/Node.js';
-import { Tensor } from '../Tensors.js';
-import { Position } from '../Primitives.js';
-import { GRAVITY_FIELD_CONSTANT } from '../Gravity.js';
+import { Tensor } from '../Model/Tensors.js';
+import { Position } from '../Model/Primitives.js';
+import { GRAVITY_FIELD_CONSTANT } from '../Model/Gravity.js';
 
 /**
  * Create a protagonist-controlled structure with swaying limbs:

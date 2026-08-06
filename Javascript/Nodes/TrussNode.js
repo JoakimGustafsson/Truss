@@ -1,10 +1,10 @@
 import { Node } from './Node.js';
-import { View } from '../View/TrussView.js';
-import { PropertyEditor } from '../View/ParameterEditor/PropertyEditor.js';
-import { FPSdisplay, universe } from '../globals.js';
-import { Position, Vector } from '../Primitives.js';
-import { PanZoomHandler } from '../View/PanZoomHandler.js';
-import { getClosestObject as getClosestDisplayObject, getDisplayPosition as getDisplayObjectPosition } from '../View/DisplayPicking.js';
+import { View } from '../UI/View/TrussView.js';
+import { PropertyEditor } from '../UI/ParameterEditor/PropertyEditor.js';
+import { FPSdisplay, universe } from '../Utils/globals.js';
+import { Position, Vector } from '../Model/Primitives.js';
+import { PanZoomHandler } from '../UI/View/PanZoomHandler.js';
+import { getClosestObject as getClosestDisplayObject, getDisplayPosition as getDisplayObjectPosition } from '../UI/View/DisplayPicking.js';
 import { BehaviourOverride } from '../Behaviours/Behaviour.js';
 
 /**
@@ -50,6 +50,10 @@ class TrussNode extends Node {
 		this._fps = 60,
 		this.framesThisSecond = 0,
 		this.lastFpsUpdate = 0;
+		
+		// Pause state management
+		this._paused = false;
+		this.pauseButton = null;
 
 
 		this.selector=this;
@@ -63,6 +67,26 @@ class TrussNode extends Node {
 			},
 			set: function(value) {
 				this._fps = parseInt(value);
+			},
+		}
+		);
+
+		Object.defineProperty(this, 'paused', {
+			get: function() {
+				return this._paused;
+			},
+			set: function(value) {
+				this._paused = value;
+				// Update the pause button styling and text whenever pause state changes
+				if (this.pauseButton) {
+					if (this._paused) {
+						this.pauseButton.classList.add('pauseButtonActive');
+						this.pauseButton.innerHTML = '⏸ PAUSED';
+					} else {
+						this.pauseButton.classList.remove('pauseButtonActive');
+						this.pauseButton.innerHTML = '▶ Resume';
+					}
+				}
 			},
 		}
 		);

@@ -1,8 +1,8 @@
-import { Universe, World } from './Universe.js';
-import { PerformanceTrussNode } from './ExperimentalTrusses.js';
-import { Position, Vector } from './Primitives.js';
-import { setUniverse, setFPSdisplay, setMyX, setMyY, setDisplayMousePercent } from './globals.js';
-import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTensor, downMouse, upMouse } from './ui-actions.js';
+import { Universe, World } from './Core/Universe.js';
+import { PerformanceTrussNode } from './Utils/ExperimentalTrusses.js';
+import { Position, Vector } from './Model/Primitives.js';
+import { setUniverse, setFPSdisplay, setMyX, setMyY, setDisplayMousePercent } from './Utils/globals.js';
+import { openBottomPanel, highlightAndModifyPropertyButtons, makeNode, makeTensor, downMouse, upMouse } from './Control/ui-actions.js';
 
 let _universe;
 

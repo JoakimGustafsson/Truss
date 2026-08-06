@@ -1,6 +1,6 @@
 /*jshint esversion:6 */
 /* global control Tensor smallnodezoom debugEntity Behaviour BehaviourOverride*/
-import { Vector, getS, getT } from '../Primitives.js';
+import { Vector, getS, getT } from '../Model/Primitives.js';
 import { Behaviour, BehaviourOverride } from './Behaviour.js';
 
 /** This assumes a CollisionSensor behaviour already has been added to the node and that

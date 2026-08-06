@@ -1,7 +1,7 @@
 
 import { CollectionNode } from './CollectionNode.js';
-import { Property, ParameterCategory } from '../View/ParameterEditor/Property.js';
-import { warpMatrix } from '../View/Pictures.js';
+import { Property, ParameterCategory } from '../UI/ParameterEditor/Property.js';
+import { warpMatrix } from '../UI/View/Pictures.js';
 
 /**
  * @class

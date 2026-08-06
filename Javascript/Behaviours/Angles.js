@@ -1,7 +1,7 @@
 
 /*jshint esversion:6 */
 /* global control Tensor smallnodezoom debugEntity Behaviour BehaviourOverride*/
-import { Force, Vector, anglify } from '../Primitives.js';
+import { Force, Vector, anglify } from '../Model/Primitives.js';
 import { Behaviour, BehaviourOverride } from './Behaviour.js';
 
 

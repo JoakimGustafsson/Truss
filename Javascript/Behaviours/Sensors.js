@@ -1,8 +1,8 @@
 
 /*jshint esversion:6 */
 /* global control Tensor smallnodezoom debugEntity Behaviour BehaviourOverride*/
-import { Position, Vector } from '../Primitives.js';
-import { control, universe, displayMousePercentX, displayMousePercentY } from '../globals.js';
+import { Position, Vector } from '../Model/Primitives.js';
+import { control, universe, displayMousePercentX, displayMousePercentY } from '../Utils/globals.js';
 import { Behaviour, BehaviourOverride } from './Behaviour.js';
 
 

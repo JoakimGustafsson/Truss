@@ -1,6 +1,6 @@
 import { Node } from '../Nodes/Node.js';
-import { Tensor } from '../Tensors.js';
-import { Position, Velocity } from '../Primitives.js';
+import { Tensor } from '../Model/Tensors.js';
+import { Position, Velocity } from '../Model/Primitives.js';
 
 /**
  * Planetary data: semi-major axis (AU), eccentricity, mass (relative to Sun),

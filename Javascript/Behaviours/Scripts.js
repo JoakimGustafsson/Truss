@@ -2,7 +2,7 @@
 
 /*jshint esversion:6 */
 /* global control Tensor smallnodezoom debugEntity Behaviour BehaviourOverride*/
-import { Position, Vector } from '../Primitives.js';
+import { Position, Vector } from '../Model/Primitives.js';
 import { Behaviour, BehaviourOverride } from './Behaviour.js';
 
 

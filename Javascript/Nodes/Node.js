@@ -1,7 +1,7 @@
-import { StoreableObject } from '../StoreableObject.js';
-import { Position, Velocity, Vector, Force, serializeList, deserializeList, removeIfPresent } from '../Primitives.js';
-import { universe, getPlane } from '../globals.js';
-import { warpMatrix } from '../View/Pictures.js';
+import { StoreableObject } from '../Core/StoreableObject.js';
+import { Position, Velocity, Vector, Force, serializeList, deserializeList, removeIfPresent } from '../Model/Primitives.js';
+import { universe, getPlane } from '../Utils/globals.js';
+import { warpMatrix } from '../UI/View/Pictures.js';
 import { updateNodeRotation } from '../Behaviours/Angles.js';
 import { evaluateScriptFunction } from '../Behaviours/Scripts.js';
 import { createWorldCoordinateSystem, createDisplayCoordinateSystem } from './CoordinateSystem.js';
@@ -366,7 +366,11 @@ class Node extends StoreableObject {
 		this.pictureReference = restoreObject.pictureReference;
 
 		this.size = restoreObject.size;
-		this.angle = restoreObject.angle;
+		// NOTE: angle is restored through the property system as 'degree'
+		// The angleProperty maps to 'degree' property, which has a setter that converts degrees to radians
+		// DO NOT restore this.angle directly - it would bypass the degree setter
+		// restoreObject.angle is a legacy field that should not be used
+		
 		if (restoreObject.angularVelocity !== undefined && restoreObject.angularVelocity !== null) {
 			this.angularVelocity = restoreObject.angularVelocity;
 		} else {

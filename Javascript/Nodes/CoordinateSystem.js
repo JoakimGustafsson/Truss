@@ -1,4 +1,4 @@
-import { Vector } from '../Primitives.js';
+import { Vector } from '../Model/Primitives.js';
 
 /**
  * CoordinateSystem - Fundamental abstraction for coordinate spaces

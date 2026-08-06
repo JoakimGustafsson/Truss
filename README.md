@@ -12,10 +12,7 @@ JavaScript physics engine and interactive editor for 2D truss-like node/tensor n
 
 ## Documentation
 
-- [Development guide](docs\DEVELOPMENT.md) - setup, run commands, and workflow notes
-- [Architecture](docs\ARCHITECTURE.md) - runtime structure, terminology, and core concepts
-- [Labels](docs\LABELS.md) - label-driven design, Label API, and review guidance
-- [Gravity and physics](docs\GRAVITY-AND-PHYSICS.md) - field tensors, gravity wells, banner physics, and tuning notes
-- [Input and coordinates](docs\INPUT-AND-COORDINATES.md) - world/display/admin planes, coordinate conversion, and mouse input rules
+- [Development guide](docs\DEVELOPMENT.md) - setup, run commands, workflow notes, and examples
+- [Architecture](docs\ARCHITECTURE.md) - runtime structure, core concepts, physics, labels, and coordinate systems
 - [Testing](docs\TESTING.md) - build, smoke, and zoom/banner test guidance
 - [Status](docs\STATUS.md) - known blockers and cleanup status

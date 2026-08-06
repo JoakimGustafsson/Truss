@@ -1178,6 +1178,25 @@ input:checked + .slider:before {
 	color: var(--banner-text);
 }
 
+/* Pause button styling - very obvious when active */
+.banner-inspector #pauseButton.pauseButtonActive {
+	background-color: #ff4444;
+	border: 2px solid #ff0000;
+	border-radius: 5px;
+	color: #ffffff;
+	font-weight: bold;
+	font-size: 12px;
+	padding: 4px 8px;
+	box-shadow: 0 0 10px rgba(255, 68, 68, 0.6);
+	text-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+}
+
+.banner-inspector #pauseButton.pauseButtonActive:hover {
+	background-color: #ff6666;
+	border-color: #ff2222;
+	box-shadow: 0 0 15px rgba(255, 68, 68, 0.8);
+}
+
 .banner-inspector .dangerButton {
 	border-color: rgba(255, 107, 107, 0.65);
 	color: #ffd6d6;

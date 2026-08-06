@@ -1,6 +1,6 @@
 import { Node } from '../Nodes/Node.js';
-import { Tensor } from '../Tensors.js';
-import { Position } from '../Primitives.js';
+import { Tensor } from '../Model/Tensors.js';
+import { Position } from '../Model/Primitives.js';
 
 /**
  * Key-input demo — positioned 10 m below the AngleTensorDemo (y = 20).

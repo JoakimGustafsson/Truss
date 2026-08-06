@@ -1,8 +1,8 @@
 
 import { Node } from './Node.js';
-import { universe } from '../globals.js';
-import { Property, ParameterCategory } from '../View/ParameterEditor/Property.js';
-import { Position } from '../Primitives.js';
+import { universe } from '../Utils/globals.js';
+import { Property, ParameterCategory } from '../UI/ParameterEditor/Property.js';
+import { Position } from '../Model/Primitives.js';
 
 /**
  * @class

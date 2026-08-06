@@ -1,6 +1,6 @@
 /*jshint esversion:6 */
 /* global control Tensor smallnodezoom debugEntity Behaviour BehaviourOverride*/
-import { Vector } from '../Primitives.js';
+import { Vector } from '../Model/Primitives.js';
 import { Behaviour, BehaviourOverride } from './Behaviour.js';
 
 /** This calculates force as if it was a linear spring

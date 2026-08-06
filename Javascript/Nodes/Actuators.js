@@ -1,5 +1,5 @@
 import { Node } from './Node.js';
-import { Position, Vector, removeIfPresent } from '../Primitives.js';
+import { Position, Vector, removeIfPresent } from '../Model/Primitives.js';
 
 /**
  * An ActuatorNode represents a node that is used to influence the behaviour of another node.
